@@ -121,6 +121,11 @@ namespace Antlr4.Runtime
             {
                 return;
             }
+
+            //data = r.ReadToEnd().ToCharArray();
+            //n = data.Length;
+            //return;
+
             if (size <= 0)
             {
                 size = InitialBufferSize;
@@ -152,8 +157,7 @@ namespace Antlr4.Runtime
                 while (numRead > 0);
                 // while not EOF
                 // set the actual size of the data available;
-                // EOF subtracted one above in p+=numRead; add one back
-                n = p + 1;
+                n = p;
             }
             finally
             {
