@@ -138,7 +138,7 @@ namespace Antlr4.Runtime
             try
             {
                 // alloc initial buffer size.
-                data = new char[size];
+                data = new char[Math.Max(size,readChunkSize)];
                 // read all the data in chunks of readChunkSize
                 int numRead = 0;
                 int p = 0;
