@@ -121,6 +121,11 @@ namespace Antlr4.Runtime
             {
                 return;
             }
+
+            //data = r.ReadToEnd().ToCharArray();
+            //n = data.Length;
+            //return;
+
             if (size <= 0)
             {
                 size = InitialBufferSize;
@@ -133,7 +138,7 @@ namespace Antlr4.Runtime
             try
             {
                 // alloc initial buffer size.
-                data = new char[size];
+                data = new char[Math.Max(size,readChunkSize)];
                 // read all the data in chunks of readChunkSize
                 int numRead = 0;
                 int p = 0;
@@ -149,11 +154,10 @@ namespace Antlr4.Runtime
                     // System.out.println("read "+numRead+" chars; p was "+p+" is now "+(p+numRead));
                     p += numRead;
                 }
-                while (numRead != -1);
+                while (numRead > 0);
                 // while not EOF
                 // set the actual size of the data available;
-                // EOF subtracted one above in p+=numRead; add one back
-                n = p + 1;
+                n = p;
             }
             finally
             {
