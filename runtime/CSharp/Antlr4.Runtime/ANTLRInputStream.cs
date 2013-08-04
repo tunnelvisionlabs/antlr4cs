@@ -149,7 +149,7 @@ namespace Antlr4.Runtime
                     // System.out.println("read "+numRead+" chars; p was "+p+" is now "+(p+numRead));
                     p += numRead;
                 }
-                while (numRead != -1);
+                while (numRead > 0);
                 // while not EOF
                 // set the actual size of the data available;
                 // EOF subtracted one above in p+=numRead; add one back
