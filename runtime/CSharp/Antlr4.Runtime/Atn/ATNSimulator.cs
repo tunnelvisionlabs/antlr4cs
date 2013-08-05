@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
@@ -851,27 +852,29 @@ nextTransition_continue: ;
             return c;
         }
 
-        public static int ToInt32(char[] data, int offset)
-        {
-            return (int)data[offset] | ((int)data[offset + 1] << 16);
-        }
-
-        public static long ToLong(char[] data, int offset)
-        {
-            long lowOrder = ToInt32(data, offset) & unchecked((long)(0x00000000FFFFFFFFL));
-            return lowOrder | ((long)ToInt32(data, offset + 2) << 32);
-        }
-
         public static Guid ToUUID(char[] data, int offset)
         {
-            byte[] leastSigBits = BitConverter.GetBytes(ToLong(data, offset));
-            byte[] mostSigBits = BitConverter.GetBytes(ToLong(data, offset + 4));
+            var uuidBytes = new byte[16];
 
-            byte[] bits = leastSigBits;
-            Array.Resize(ref bits, leastSigBits.Length + mostSigBits.Length);
-            Buffer.BlockCopy(mostSigBits, 0, bits, leastSigBits.Length, mostSigBits.Length);
+            uuidBytes[0] = (byte)(data[offset + 6] & 0x00ff);
+            uuidBytes[1] = (byte)(data[offset + 6] >> 8);
+            uuidBytes[2] = (byte)(data[offset + 7] & 0x00ff);
+            uuidBytes[3] = (byte)(data[offset + 7] >> 8);
+            uuidBytes[4] = (byte)(data[offset + 5] & 0x00ff);
+            uuidBytes[5] = (byte)(data[offset + 5] >> 8);
+            uuidBytes[6] = (byte)(data[offset + 4] & 0x00ff);
+            uuidBytes[7] = (byte)(data[offset + 4] >> 8);
 
-            return new Guid(bits);
+            uuidBytes[8] = (byte)(data[offset + 3] >> 8);
+            uuidBytes[9] = (byte)(data[offset + 3] & 0x00ff );
+            uuidBytes[10] = (byte)(data[offset + 2] >> 8);
+            uuidBytes[11] = (byte)(data[offset + 2] & 0x00ff);
+            uuidBytes[12] = (byte)(data[offset + 1] >> 8);
+            uuidBytes[13] = (byte)(data[offset + 1] & 0x00ff);
+            uuidBytes[14] = (byte)(data[offset + 0] >> 8);
+            uuidBytes[15] = (byte)(data[offset + 0] & 0x00ff);
+
+            return new Guid( uuidBytes );
         }
 
         [return: NotNull]
