@@ -719,7 +719,7 @@ LexerMoreCommand()  ::= "More();"
 LexerPopModeCommand() ::= "PopMode();"
 
 LexerTypeCommand(arg)      ::= "_type = <arg>;"
-LexerChannelCommand(arg)   ::= "_channel = <arg>;"
+LexerChannelCommand(arg)   ::= "_channel = <arg>_CHANNEL;"
 LexerModeCommand(arg)      ::= "_mode = <arg>;"
 LexerPushModeCommand(arg)  ::= "PushMode(<arg>);"
 
