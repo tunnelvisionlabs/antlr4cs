@@ -63,7 +63,9 @@ using IToken = Antlr4.Runtime.IToken;
 /// This interface defines a complete listener for a parse tree produced by
 /// \<see cref="<csIdentifier.(file.parserName)>"/>.
 /// \</summary>
+#pragma warning disable 1591
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
+[System.CLSCompliant(false)]
 public interface I<file.grammarName>Listener : IParseTreeListener {
 	<file.listenerNames:{lname |
 /// \<summary>
@@ -80,6 +82,7 @@ void Exit<lname; format="cap">([NotNull] <csIdentifier.(file.parserName)>.<lname
 <if(file.genPackage)>
 } // namespace <file.genPackage>
 <endif>
+#pragma warning restore 1591
 >>
 
 BaseListenerFile(file, header) ::= <<
@@ -100,7 +103,9 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// which can be extended to create a listener which only needs to handle a subset
 /// of the available methods.
 /// \</summary>
+#pragma warning disable 1591
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
+[System.CLSCompliant(false)]
 public partial class <file.grammarName>BaseListener : I<file.grammarName>Listener {
 	<file.listenerNames:{lname |
 /// \<summary>
@@ -132,6 +137,7 @@ public virtual void Exit<lname; format="cap">([NotNull] <csIdentifier.(file.pars
 <if(file.genPackage)>
 } // namespace <file.genPackage>
 <endif>
+#pragma warning restore 1591
 >>
 
 VisitorFile(file, header) ::= <<
@@ -149,7 +155,9 @@ using IToken = Antlr4.Runtime.IToken;
 /// by \<see cref="<csIdentifier.(file.parserName)>"/>.
 /// \</summary>
 /// \<typeparam name="Result">The return type of the visit operation.\</typeparam>
+#pragma warning disable 1591
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
+[System.CLSCompliant(false)]
 public interface I<file.grammarName>Visitor\<Result> : IParseTreeVisitor\<Result> {
 	<file.visitorNames:{lname |
 /// \<summary>
@@ -162,6 +170,7 @@ Result Visit<lname; format="cap">([NotNull] <csIdentifier.(file.parserName)>.<ln
 <if(file.genPackage)>
 } // namespace <file.genPackage>
 <endif>
+#pragma warning restore 1591
 >>
 
 BaseVisitorFile(file, header) ::= <<
@@ -181,7 +190,9 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// of the available methods.
 /// \</summary>
 /// \<typeparam name="Result">The return type of the visit operation.\</typeparam>
+#pragma warning disable 1591
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
+[System.CLSCompliant(false)]
 public partial class <file.grammarName>BaseVisitor\<Result> : AbstractParseTreeVisitor\<Result>, I<file.grammarName>Visitor\<Result> {
 	<file.visitorNames:{lname |
 /// \<summary>
@@ -198,6 +209,7 @@ public virtual Result Visit<lname; format="cap">([NotNull] <csIdentifier.(file.p
 <if(file.genPackage)>
 } // namespace <file.genPackage>
 <endif>
+#pragma warning restore 1591
 >>
 
 fileHeader(grammarFileName, ANTLRVersion) ::= <<
@@ -220,6 +232,8 @@ Parser(parser, funcs, atn, sempredFuncs, superClass) ::= <<
 
 Parser_(parser, funcs, atn, sempredFuncs, ctor, superClass) ::= <<
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
+[System.CLSCompliant(false)]
+#pragma warning disable 1591
 public <if(parser.abstractRecognizer)>abstract <endif>partial class <csIdentifier.(parser.name)> : <superClass> {
 	<if(parser.tokens)>
 	public const int
@@ -257,6 +271,7 @@ case <f.ruleIndex>: return <f.name>_sempred((<f.ctxType>)_localctx, predIndex);}
 
 	<atn>
 }
+#pragma warning restore 1591
 >>
 
 dumpActions(recog, argFuncs, actionFuncs, sempredFuncs) ::= <<
@@ -704,7 +719,7 @@ LexerMoreCommand()  ::= "More();"
 LexerPopModeCommand() ::= "PopMode();"
 
 LexerTypeCommand(arg)      ::= "_type = <arg>;"
-LexerChannelCommand(arg)   ::= "_channel = <arg>;"
+LexerChannelCommand(arg)   ::= "_channel = <arg>_CHANNEL;"
 LexerModeCommand(arg)      ::= "_mode = <arg>;"
 LexerPushModeCommand(arg)  ::= "PushMode(<arg>);"
 
@@ -907,8 +922,11 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 >>
 
 Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
+#pragma warning disable 1591
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
+[System.CLSCompliant(false)]
 public <if(lexer.abstractRecognizer)>abstract <endif>partial class <csIdentifier.(lexer.name)> : <superClass> {
+  public const int HIDDEN_CHANNEL = 1, DEFAULT_CHANNEL = 0;
 	public const int
 		<lexer.tokens:{k | <k>=<lexer.tokens.(k)>}; separator=", ", wrap, anchor>;
 	<rest(lexer.modes):{m| public const int <m> = <i>;}; separator="\n">
@@ -943,6 +961,7 @@ public <if(lexer.abstractRecognizer)>abstract <endif>partial class <csIdentifier
 	<dumpActions(lexer, "", actionFuncs, sempredFuncs)>
 	<atn>
 }
+#pragma warning restore 1591
 >>
 
 
