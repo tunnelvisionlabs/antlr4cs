@@ -926,6 +926,7 @@ Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
 [System.CLSCompliant(false)]
 public <if(lexer.abstractRecognizer)>abstract <endif>partial class <csIdentifier.(lexer.name)> : <superClass> {
+  public const int HIDDEN_CHANNEL = 1, DEFAULT_CHANNEL = 0;
 	public const int
 		<lexer.tokens:{k | <k>=<lexer.tokens.(k)>}; separator=", ", wrap, anchor>;
 	<rest(lexer.modes):{m| public const int <m> = <i>;}; separator="\n">
