@@ -39,7 +39,7 @@ namespace Antlr4.Runtime
     public abstract class Recognizer<Symbol, ATNInterpreter> : IRecognizer
         where ATNInterpreter : ATNSimulator
     {
-        public const int Eof = -1;
+        public const int EOF = -1;
 
         [NotNull]
         private IAntlrErrorListener<Symbol>[] _listeners =
