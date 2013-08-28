@@ -591,7 +591,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        public override IIntStream InputStream
+        public override ITokenStream InputStream
         {
             get
             {
