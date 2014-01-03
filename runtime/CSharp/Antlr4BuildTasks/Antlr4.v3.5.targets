@@ -54,6 +54,7 @@
 
     <Antlr4JavaVendor Condition="'$(Antlr4JavaVendor)'==''">JavaSoft</Antlr4JavaVendor>
     <Antlr4JavaInstallation Condition="'$(Antlr4JavaInstallation)'==''">Java Runtime Environment</Antlr4JavaInstallation>
+    <Antlr4JavaBinPath Condition="'$(Antlr4JavaBinPath)'==''"></Antlr4JavaBinPath>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -151,7 +152,8 @@
       GenerateListener="%(Antlr4.Listener)"
       GenerateVisitor="%(Antlr4.Visitor)"
       ForceAtn="%(Antlr4.ForceAtn)"
-      AbstractGrammar="%(Antlr4.Abstract)">
+      AbstractGrammar="%(Antlr4.Abstract)"
+      JavaBinPath="$(Antlr4JavaBinPath)">
 
       <Output ItemName="Compile" TaskParameter="GeneratedCodeFiles" Condition="'$(_IntellisenseOnlyCompile)' == 'true'" />
       <Output ItemName="Antlr4GeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />

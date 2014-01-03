@@ -149,15 +149,21 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
-        [Required]
+        
         public string JavaVendor
         {
             get;
             set;
         }
 
-        [Required]
+        
         public string JavaInstallation
+        {
+            get;
+            set;
+        }
+
+        public string JavaBinPath
         {
             get;
             set;
@@ -332,6 +338,7 @@ namespace Antlr4.Build.Tasks
             wrapper.AbstractGrammar = AbstractGrammar;
             wrapper.JavaVendor = JavaVendor;
             wrapper.JavaInstallation = JavaInstallation;
+            wrapper.JavaBinPath = JavaBinPath;
             return wrapper;
         }
 

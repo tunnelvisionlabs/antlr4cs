@@ -130,6 +130,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public string JavaBinPath
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -239,9 +245,16 @@ namespace Antlr4.Build.Tasks
         {
             try
             {
-                string javaHome = JavaHome;
-                string java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
-
+                string java = null;
+                if (!String.IsNullOrEmpty(JavaBinPath))
+                {
+                    java = JavaBinPath;
+                }
+                else
+                {
+                    string javaHome = JavaHome;
+                    java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
+                }
                 List<string> arguments = new List<string>();
                 arguments.Add("-cp");
                 arguments.Add(ToolPath);
