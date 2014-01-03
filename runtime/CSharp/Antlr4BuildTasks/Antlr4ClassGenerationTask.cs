@@ -149,14 +149,14 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
-        
+        [Required]
         public string JavaVendor
         {
             get;
             set;
         }
 
-        
+        [Required]
         public string JavaInstallation
         {
             get;
