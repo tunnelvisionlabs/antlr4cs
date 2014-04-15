@@ -1020,9 +1020,8 @@
 
             protected override string GetDecisionDescription(Parser recognizer, DFA dfa)
             {
-                string format = "{0}({1})";
                 string ruleName = recognizer.RuleNames[recognizer.Atn.decisionToState[dfa.decision].ruleIndex];
-                return string.Format(format, dfa.decision, ruleName);
+                return string.Format("{0}({1})", dfa.decision, ruleName);
             }
         }
 
