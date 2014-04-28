@@ -151,7 +151,8 @@
       GenerateListener="%(Antlr4.Listener)"
       GenerateVisitor="%(Antlr4.Visitor)"
       ForceAtn="%(Antlr4.ForceAtn)"
-      AbstractGrammar="%(Antlr4.Abstract)">
+      AbstractGrammar="%(Antlr4.Abstract)"
+      JavaBinPath="$(Antlr4JavaBinPath)">
 
       <Output ItemName="Compile" TaskParameter="GeneratedCodeFiles" Condition="'$(_IntellisenseOnlyCompile)' == 'true'" />
       <Output ItemName="Antlr4GeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
