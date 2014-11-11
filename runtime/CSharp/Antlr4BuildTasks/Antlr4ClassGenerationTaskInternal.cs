@@ -171,6 +171,9 @@ namespace Antlr4.Build.Tasks
                 if (TryGetJavaHome(RegistryView.Registry32, JavaVendor, JavaInstallation, out javaHome))
                     return javaHome;
 
+                if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JAVA_HOME")))
+                    return Environment.GetEnvironmentVariable("JAVA_HOME");
+
                 throw new NotSupportedException("Could not locate a Java installation.");
             }
         }
@@ -210,6 +213,9 @@ namespace Antlr4.Build.Tasks
                 string javaHome;
                 if (TryGetJavaHome(Registry.LocalMachine, JavaVendor, JavaInstallation, out javaHome))
                     return javaHome;
+
+                if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JAVA_HOME")))
+                    return Environment.GetEnvironmentVariable("JAVA_HOME");
 
                 throw new NotSupportedException("Could not locate a Java installation.");
             }
@@ -253,7 +259,7 @@ namespace Antlr4.Build.Tasks
                 else
                 {
                     string javaHome = JavaHome;
-                    java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
+                    java = Path.Combine(Path.Combine(javaHome, "bin"), "java");
                 }
 
                 List<string> arguments = new List<string>();
