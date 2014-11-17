@@ -38,14 +38,19 @@ import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.StringRenderer;
 import org.stringtemplate.v4.misc.STMessage;
 
-public abstract class CSharpTarget extends Target {
+public class CSharpTarget extends Target {
 
-	protected CSharpTarget(CodeGenerator gen, String language) {
-		super(gen, language);
+	public CSharpTarget(CodeGenerator gen) {
+		super(gen, "CSharp");
 		targetCharValueEscape[0] = "\\0";
 		targetCharValueEscape[0x0007] = "\\a";
 		targetCharValueEscape[0x000B] = "\\v";
 	}
+
+    @Override
+    public String getVersion() {
+        return "4.4"; // crossing fingers that it's close enough.
+    }
 
 	@Override
 	public String encodeIntAsCharEscape(int v) {
