@@ -27,7 +27,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if !NET40PLUS
+#if NET40PLUS
+
+using System;
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(Tuple<,>))]
+
+#else
 
 using System;
 using System.Collections;

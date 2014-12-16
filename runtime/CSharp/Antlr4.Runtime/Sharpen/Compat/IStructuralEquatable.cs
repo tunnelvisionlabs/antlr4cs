@@ -28,10 +28,7 @@
 
 #if !NET40PLUS
 
-using System;
-using System.Collections;
-
-namespace Antlr4.Runtime.Sharpen
+namespace System.Collections
 {
 	internal interface IStructuralEquatable {
 		bool Equals (object other, IEqualityComparer comparer);

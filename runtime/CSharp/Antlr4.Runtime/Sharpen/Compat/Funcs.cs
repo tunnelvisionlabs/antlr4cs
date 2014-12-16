@@ -25,11 +25,22 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 //
 
-#if !NET35PLUS
+#if NET35PLUS
+
+#if !COMPACT
+using System;
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(Func<>))]
+[assembly: TypeForwardedTo(typeof(Func<,>))]
+[assembly: TypeForwardedTo(typeof(Func<,,>))]
+#endif
+
+#else
 
 using System.Runtime.CompilerServices;
 
-namespace Antlr4.Runtime.Sharpen {
+namespace System {
 
 	public delegate TResult Func<TResult> ();
 	

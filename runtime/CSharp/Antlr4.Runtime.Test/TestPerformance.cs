@@ -221,6 +221,15 @@
         private static int tokenCount;
         private int currentPass;
 
+#if !NET40PLUS
+        /// <summary>
+        /// This method is used instead of <see cref="Func{TResult}"/> since the latter is defined in multiple
+        /// assemblies when testing the net20 and net30 targets.
+        /// </summary>
+        /// <returns></returns>
+        private delegate int FutureChecksum();
+#endif
+
         [TestMethod]
         //[Ignore]
         public void compileJdk()
@@ -392,7 +401,7 @@
             QueuedTaskScheduler executorServiceHost = new QueuedTaskScheduler(NUMBER_OF_THREADS);
             TaskScheduler executorService = executorServiceHost.ActivateNewQueue();
 #else
-            ICollection<Func<int>> results = new List<Func<int>>();
+            ICollection<FutureChecksum> results = new List<FutureChecksum>();
 #endif
             foreach (InputDescriptor inputDescriptor in sources)
             {
@@ -403,7 +412,7 @@
 #if NET40PLUS
                 Task<int> futureChecksum = Task.Factory.StartNew<int>(new Callable_1(input, factory, threadIdentifiers).call, CancellationToken.None, TaskCreationOptions.None, executorService);
 #else
-                Func<int> futureChecksum = new Callable_1(input, factory).call;
+                FutureChecksum futureChecksum = new Callable_1(input, factory).call;
 #endif
                 results.Add(futureChecksum);
             }
@@ -442,7 +451,7 @@
                 {
                     int states = 0;
                     int configs = 0;
-                    HashSet<ATNConfig> uniqueConfigs = new HashSet<ATNConfig>();
+                    ATNConfigHashSet uniqueConfigs = new ATNConfigHashSet();
 
                     for (int i = 0; i < modeToDFA.Length; i++)
                     {
@@ -475,7 +484,7 @@
                 {
                     int states = 0;
                     int configs = 0;
-                    HashSet<ATNConfig> uniqueConfigs = new HashSet<ATNConfig>();
+                    ATNConfigHashSet uniqueConfigs = new ATNConfigHashSet();
 
                     for (int i = 0; i < decisionToDFA.Length; i++)
                     {
@@ -1191,6 +1200,25 @@
             {
                 reference = (T)_reference.Target;
                 return reference != null;
+            }
+        }
+#endif
+
+#if NET35PLUS
+        private sealed class ATNConfigHashSet : HashSet<ATNConfig>
+        {
+        }
+#else
+        private sealed class ATNConfigHashSet : Dictionary<ATNConfig, bool>
+        {
+            internal void UnionWith(ATNConfigSet configs)
+            {
+                foreach (var config in configs)
+                {
+                    bool existing;
+                    if (!TryGetValue(config, out existing))
+                        this[config] = true;
+                }
             }
         }
 #endif
