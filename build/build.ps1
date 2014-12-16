@@ -27,6 +27,12 @@ If ($Debug) {
 	$BuildConfig = 'Release'
 }
 
+If ($AntlrVersion.Contains('-')) {
+	$KeyConfiguration = 'Dev'
+} Else {
+	$KeyConfiguration = 'Final'
+}
+
 If ($NoClean) {
 	$Target = 'build'
 } Else {
@@ -55,7 +61,7 @@ $CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
 # build the main project
 $msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
 
-&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" $SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if ($LASTEXITCODE -ne 0) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
 	exit $p.ExitCode
@@ -64,7 +70,7 @@ if ($LASTEXITCODE -ne 0) {
 # build the compact framework project
 $msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' "/p:Configuration=$BuildConfig" $CF35SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
 if ($LASTEXITCODE -ne 0) {
 	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
 	exit $p.ExitCode

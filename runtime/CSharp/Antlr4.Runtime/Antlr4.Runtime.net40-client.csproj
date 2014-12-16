@@ -42,7 +42,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\..\..\..\keys\antlr\antlr-net40-client.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' == 'Final'">..\..\..\build\keys\Antlr4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' != 'Final'">..\..\..\build\keys\Antlr4.dev.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -256,8 +257,11 @@
     </Antlr4>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\..\keys\antlr\antlr-net40-client.snk">
-      <Link>antlr-net40-client.snk</Link>
+    <None Include="..\..\..\build\keys\Antlr4.dev.snk">
+      <Link>Antlr4.dev.snk</Link>
+    </None>
+    <None Include="..\..\..\build\keys\Antlr4.snk">
+      <Link>Antlr4.snk</Link>
     </None>
     <None Include="Atn\ATNSerializer.cs" />
     <None Include="Misc\Array2DHashSet`1.cs" />

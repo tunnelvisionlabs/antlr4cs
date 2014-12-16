@@ -44,7 +44,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>TestingKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\build\keys\TestingKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -85,8 +85,10 @@
     <Antlr4 Include="Java.g4" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\build\keys\TestingKey.snk">
+      <Link>TestingKey.snk</Link>
+    </None>
     <None Include="packages.Antlr4.Runtime.Test.portable-net45.config" />
-    <None Include="TestingKey.snk" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

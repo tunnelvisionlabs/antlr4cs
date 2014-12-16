@@ -1,14 +1,35 @@
 # Note: these values may only change during minor release
-$Keys = @{
-	'net20' = '7983ae52036899ac'
-	'net30' = '7671200403f6656a'
-	'net35-cf' = '770a97458f51159e'
-	'net35-client' = '4307381ae04f9aa7'
-	'net40-client' = 'bb1075973a9370c4'
-	'net45' = 'edc21c04cf562012'
-	'netcore45' = 'e4e9019902d0b6e2'
-	'portable-net40' = '90bf14da8e1462b4'
-	'portable-net45' = '3d23c8e77559f391'
+
+If ($AntlrVersion.Contains('-')) {
+
+	# Use the development keys
+	$Keys = @{
+		'net20' = 'e9931a4108ef2354'
+		'net30' = 'e9931a4108ef2354'
+		'net35-cf' = 'e9931a4108ef2354'
+		'net35-client' = 'e9931a4108ef2354'
+		'net40-client' = 'e9931a4108ef2354'
+		'net45' = 'e9931a4108ef2354'
+		'netcore45' = 'e9931a4108ef2354'
+		'portable-net40' = 'e9931a4108ef2354'
+		'portable-net45' = 'e9931a4108ef2354'
+	}
+
+} Else {
+
+	# Use the final release keys
+	$Keys = @{
+		'net20' = '09abb75b9ed49849'
+		'net30' = '09abb75b9ed49849'
+		'net35-cf' = '09abb75b9ed49849'
+		'net35-client' = '09abb75b9ed49849'
+		'net40-client' = '09abb75b9ed49849'
+		'net45' = '09abb75b9ed49849'
+		'netcore45' = '09abb75b9ed49849'
+		'portable-net40' = '09abb75b9ed49849'
+		'portable-net45' = '09abb75b9ed49849'
+	}
+
 }
 
 function Resolve-FullPath() {

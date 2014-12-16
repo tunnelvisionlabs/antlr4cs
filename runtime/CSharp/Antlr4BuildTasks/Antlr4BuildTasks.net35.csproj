@@ -35,7 +35,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\..\..\..\keys\antlr\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' == 'Final'">..\..\..\build\keys\Antlr4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' != 'Final'">..\..\..\build\keys\Antlr4.dev.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Build.Framework" />
@@ -63,8 +64,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="..\..\..\..\..\..\keys\antlr\Key.snk">
-      <Link>Key.snk</Link>
+    <None Include="..\..\..\build\keys\Antlr4.dev.snk">
+      <Link>Antlr4.dev.snk</Link>
+    </None>
+    <None Include="..\..\..\build\keys\Antlr4.snk">
+      <Link>Antlr4.snk</Link>
     </None>
   </ItemGroup>
   <ItemGroup>
