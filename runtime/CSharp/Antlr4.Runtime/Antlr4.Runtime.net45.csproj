@@ -203,7 +203,6 @@
     <Compile Include="Sharpen\Compat\SerializableAttribute.cs" />
     <Compile Include="Sharpen\Compat\SplitOrderedList`2.cs" />
     <Compile Include="Sharpen\Compat\Tuple.cs" />
-    <Compile Include="Sharpen\Compat\Tuples.cs" />
     <Compile Include="Sharpen\DictionaryExtensions.cs" />
     <Compile Include="Sharpen\ListExtensions.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
