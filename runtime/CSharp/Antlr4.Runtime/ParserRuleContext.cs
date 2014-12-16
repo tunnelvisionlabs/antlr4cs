@@ -29,6 +29,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -284,11 +285,7 @@ namespace Antlr4.Runtime
             return null;
         }
 
-#if NET45PLUS
-        public virtual IReadOnlyList<ITerminalNode> GetTokens(int ttype)
-#else
         public virtual ITerminalNode[] GetTokens(int ttype)
-#endif
         {
             if (children == null)
             {
@@ -315,11 +312,7 @@ namespace Antlr4.Runtime
             {
                 return Collections.EmptyList<ITerminalNode>();
             }
-#if NET45PLUS
-            return tokens;
-#else
             return tokens.ToArray();
-#endif
         }
 
         public virtual T GetRuleContext<T>(int i)
@@ -328,13 +321,8 @@ namespace Antlr4.Runtime
             return GetChild<T>(i);
         }
 
-#if NET45PLUS
-        public virtual IReadOnlyList<T> GetRuleContexts<T>()
-            where T : Antlr4.Runtime.ParserRuleContext
-#else
         public virtual T[] GetRuleContexts<T>()
             where T : Antlr4.Runtime.ParserRuleContext
-#endif
         {
             if (children == null)
             {
@@ -356,11 +344,7 @@ namespace Antlr4.Runtime
             {
                 return Collections.EmptyList<T>();
             }
-#if NET45PLUS
-            return contexts;
-#else
             return contexts.ToArray();
-#endif
         }
 
         public override int ChildCount

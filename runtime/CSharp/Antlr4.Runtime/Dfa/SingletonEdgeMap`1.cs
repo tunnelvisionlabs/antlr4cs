@@ -28,6 +28,7 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Sharpen;
 
@@ -149,11 +150,7 @@ namespace Antlr4.Runtime.Dfa
             return this;
         }
 
-#if NET45PLUS
-        public override IReadOnlyDictionary<int, T> ToMap()
-#else
-        public override IDictionary<int, T> ToMap()
-#endif
+        public override ReadOnlyDictionary<int, T> ToMap()
         {
             if (IsEmpty)
             {

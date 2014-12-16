@@ -28,6 +28,7 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -66,12 +67,7 @@ namespace Antlr4.Runtime.Dfa
         [return: NotNull]
         IEdgeMap<T> Clear();
 
-#if NET45PLUS
         [return: NotNull]
-        IReadOnlyDictionary<int, T> ToMap();
-#else
-        [return: NotNull]
-        IDictionary<int, T> ToMap();
-#endif
+        ReadOnlyDictionary<int, T> ToMap();
     }
 }
