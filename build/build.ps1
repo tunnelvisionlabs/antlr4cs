@@ -27,6 +27,12 @@ If ($Debug) {
 	$BuildConfig = 'Release'
 }
 
+If ($AntlrVersion.Contains('-')) {
+	$KeyConfiguration = 'Dev'
+} Else {
+	$KeyConfiguration = 'Final'
+}
+
 If ($NoClean) {
 	$Target = 'build'
 } Else {
@@ -52,10 +58,13 @@ If (-not $Java6Home -and (Test-Path $Java6RegKey)) {
 $CSharpToolVersionNodeInfo = Select-Xml "/mvn:project/mvn:version" -Namespace @{mvn='http://maven.apache.org/POM/4.0.0'} $pom
 $CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
 
+$nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
+
 # build the main project
 $msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
 
-&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" $SolutionPath
+&$nuget 'restore' $SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if ($LASTEXITCODE -ne 0) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
 	exit $p.ExitCode
@@ -64,7 +73,8 @@ if ($LASTEXITCODE -ne 0) {
 # build the compact framework project
 $msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' "/p:Configuration=$BuildConfig" $CF35SolutionPath
+&$nuget 'restore' $CF35SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
 if ($LASTEXITCODE -ne 0) {
 	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
 	exit $p.ExitCode
@@ -128,7 +138,6 @@ $packages = @(
 	'Antlr4'
 	'Antlr4.VS2008')
 
-$nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
 ForEach ($package in $packages) {
 	If (-not (Test-Path ".\$package.nuspec")) {
 		$host.ui.WriteErrorLine("Couldn't locate NuGet package specification: $package")

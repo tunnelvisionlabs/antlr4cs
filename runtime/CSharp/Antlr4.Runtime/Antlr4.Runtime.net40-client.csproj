@@ -15,7 +15,6 @@
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj\net40-client\</BaseIntermediateOutputPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,7 +41,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\..\..\..\keys\antlr\antlr-net40-client.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' == 'Final'">..\..\..\build\keys\Antlr4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' != 'Final'">..\..\..\build\keys\Antlr4.dev.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -65,12 +65,6 @@
     <Compile Include="Atn\ATNConfigSet.cs" />
     <Compile Include="Atn\ATNDeserializationOptions.cs" />
     <Compile Include="Atn\ATNDeserializer.cs" />
-    <Compile Include="Atn\ConflictInfo.cs" />
-    <Compile Include="Dfa\AcceptStateInfo.cs" />
-    <Compile Include="Dfa\EmptyEdgeMap`1.cs" />
-    <Compile Include="IVocabulary.cs" />
-    <Compile Include="Vocabulary.cs" />
-    <None Include="Atn\ATNSerializer.cs" />
     <Compile Include="Atn\ATNSimulator.cs" />
     <Compile Include="Atn\ATNState.cs" />
     <Compile Include="Atn\ATNType.cs" />
@@ -79,6 +73,7 @@
     <Compile Include="Atn\BasicState.cs" />
     <Compile Include="Atn\BlockEndState.cs" />
     <Compile Include="Atn\BlockStartState.cs" />
+    <Compile Include="Atn\ConflictInfo.cs" />
     <Compile Include="Atn\ContextSensitivityInfo.cs" />
     <Compile Include="Atn\DecisionEventInfo.cs" />
     <Compile Include="Atn\DecisionInfo.cs" />
@@ -141,10 +136,12 @@
     <Compile Include="DefaultErrorStrategy.cs" />
     <Compile Include="Dependents.cs" />
     <Compile Include="Dfa\AbstractEdgeMap`1.cs" />
+    <Compile Include="Dfa\AcceptStateInfo.cs" />
     <Compile Include="Dfa\ArrayEdgeMap`1.cs" />
     <Compile Include="Dfa\DFA.cs" />
     <Compile Include="Dfa\DFASerializer.cs" />
     <Compile Include="Dfa\DFAState.cs" />
+    <Compile Include="Dfa\EmptyEdgeMap`1.cs" />
     <Compile Include="Dfa\IEdgeMap`1.cs" />
     <Compile Include="Dfa\LexerDFASerializer.cs" />
     <Compile Include="Dfa\SingletonEdgeMap`1.cs" />
@@ -163,29 +160,22 @@
     <Compile Include="ITokenFactory.cs" />
     <Compile Include="ITokenSource.cs" />
     <Compile Include="ITokenStream.cs" />
+    <Compile Include="IVocabulary.cs" />
     <Compile Include="IWritableToken.cs" />
     <Compile Include="Lexer.cs" />
     <Compile Include="LexerInterpreter.cs" />
     <Compile Include="LexerNoViableAltException.cs" />
     <Compile Include="ListTokenSource.cs" />
     <Compile Include="Misc\Args.cs" />
-    <None Include="..\..\..\..\..\..\keys\antlr\antlr-net40-client.snk">
-      <Link>antlr-net40-client.snk</Link>
-    </None>
-    <None Include="Misc\Array2DHashSet`1.cs" />
-    <Compile Include="Misc\MurmurHash.cs" />
-    <Compile Include="Misc\NullableAttribute.cs" />
-    <None Include="Misc\DoubleKeyMap`3.cs" />
     <Compile Include="Misc\IIntSet.cs" />
     <Compile Include="Misc\Interval.cs" />
     <Compile Include="Misc\IntervalSet.cs" />
     <Compile Include="Misc\MultiMap`2.cs" />
+    <Compile Include="Misc\MurmurHash.cs" />
     <Compile Include="Misc\NotNullAttribute.cs" />
-    <None Include="Misc\OrderedHashSet`1.cs" />
+    <Compile Include="Misc\NullableAttribute.cs" />
     <Compile Include="Misc\ParseCanceledException.cs" />
     <Compile Include="Misc\RuleDependencyChecker.cs" />
-    <None Include="Misc\RuleDependencyProcessor.cs" />
-    <None Include="Misc\TestRig.cs" />
     <Compile Include="Misc\Utils.cs" />
     <Compile Include="NoViableAltException.cs" />
     <Compile Include="Parser.cs" />
@@ -203,6 +193,21 @@
     <Compile Include="Sharpen\AtomicReference`1.cs" />
     <Compile Include="Sharpen\BitSet.cs" />
     <Compile Include="Sharpen\Collections.cs" />
+    <Compile Include="Sharpen\Compat\CollectionDebuggerView`2.cs" />
+    <Compile Include="Sharpen\Compat\ConcurrentDictionary`2.cs" />
+    <Compile Include="Sharpen\Compat\Enumerable.cs" />
+    <Compile Include="Sharpen\Compat\ExtensionAttribute.cs" />
+    <Compile Include="Sharpen\Compat\Funcs.cs" />
+    <Compile Include="Sharpen\Compat\HashSet`1.cs" />
+    <Compile Include="Sharpen\Compat\IReadOnlyCollection`1.cs" />
+    <Compile Include="Sharpen\Compat\IReadOnlyDictionary`2.cs" />
+    <Compile Include="Sharpen\Compat\IStructuralComparable.cs" />
+    <Compile Include="Sharpen\Compat\IStructuralEquatable.cs" />
+    <Compile Include="Sharpen\Compat\NonSerializedAttribute.cs" />
+    <Compile Include="Sharpen\Compat\ReadOnlyDictionary`2.cs" />
+    <Compile Include="Sharpen\Compat\SerializableAttribute.cs" />
+    <Compile Include="Sharpen\Compat\SplitOrderedList`2.cs" />
+    <Compile Include="Sharpen\Compat\Tuple.cs" />
     <Compile Include="Sharpen\DictionaryExtensions.cs" />
     <Compile Include="Sharpen\ListExtensions.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
@@ -242,24 +247,38 @@
     <Compile Include="Tree\Xpath\XPathWildcardElement.cs" />
     <Compile Include="UnbufferedCharStream.cs" />
     <Compile Include="UnbufferedTokenStream.cs" />
-    <None Include="packages.Antlr4.Runtime.net40-client.config" />
+    <Compile Include="Vocabulary.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Antlr4 Include="Tree\Xpath\XPathLexer.g4">
       <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>Antlr4.Runtime.Tree.Xpath</CustomToolNamespace>
     </Antlr4>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\build\keys\Antlr4.dev.snk">
+      <Link>Antlr4.dev.snk</Link>
+    </None>
+    <None Include="..\..\..\build\keys\Antlr4.snk">
+      <Link>Antlr4.snk</Link>
+    </None>
+    <None Include="Atn\ATNSerializer.cs" />
+    <None Include="Misc\Array2DHashSet`1.cs" />
+    <None Include="Misc\DoubleKeyMap`3.cs" />
+    <None Include="Misc\OrderedHashSet`1.cs" />
+    <None Include="Misc\RuleDependencyProcessor.cs" />
+    <None Include="Misc\TestRig.cs" />
+    <None Include="packages.Antlr4.Runtime.net40-client.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\build\KeyReporting.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Antlr4.4.3.0\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.3.0\build\Antlr4.props'))" />
     <Error Condition="!Exists('..\packages\Antlr4.4.3.0\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.3.0\build\Antlr4.targets'))" />
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <Import Project="..\packages\Antlr4.4.3.0\build\Antlr4.targets" Condition="Exists('..\packages\Antlr4.4.3.0\build\Antlr4.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

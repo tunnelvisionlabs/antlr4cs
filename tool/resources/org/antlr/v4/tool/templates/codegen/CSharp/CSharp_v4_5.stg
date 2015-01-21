@@ -29,7 +29,3 @@
  */
 
 import "CSharp.stg"
-
-contextGetterCollection(elementType) ::= <%
-IReadOnlyList\<<elementType>>
-%>

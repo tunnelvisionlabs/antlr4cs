@@ -425,13 +425,12 @@
             if (parserName != null)
             {
                 files.Add(parserName + ".cs");
-                HashSet<string> optionsSet = new HashSet<string>(extraOptions);
-                if (!optionsSet.Contains("-no-listener"))
+                if (Array.IndexOf(extraOptions, "-no-listener") >= 0)
                 {
                     files.Add(grammarFileName.Substring(0, grammarFileName.LastIndexOf('.')) + "BaseListener.cs");
                     files.Add(grammarFileName.Substring(0, grammarFileName.LastIndexOf('.')) + "Listener.cs");
                 }
-                if (optionsSet.Contains("-visitor"))
+                if (Array.IndexOf(extraOptions, "-visitor") >= 0)
                 {
                     files.Add(grammarFileName.Substring(0, grammarFileName.LastIndexOf('.')) + "BaseVisitor.cs");
                     files.Add(grammarFileName.Substring(0, grammarFileName.LastIndexOf('.')) + "Visitor.cs");

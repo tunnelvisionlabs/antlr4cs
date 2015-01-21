@@ -165,6 +165,46 @@ The following table describes the properties available for customizing the code 
 5. Save and close the project file
 6. Right click the project in **Solution Explorer** and select **Reload Project**
 
+## Assembly Strong Name Policy
+
+Starting with the beta release of version 4.4.1 of the C# target, a new strong name policy is used for this target. The
+new policy is designed to make it easy to write libraries referencing a specific target framework (e.g. .NET 4.0), and
+then replace the **Antlr4.Runtime.dll** assembly at runtime built for a newer target framework (e.g. .NET 4.5). For
+authors of intermediate library, this dramatically simplifies the process of distributing libraries targeting many
+target frameworks. The following graph show the supported replacements which retain binary compatibility. Note that the
+dashed line represents a currently-untested link in the graph (see
+[#91](https://github.com/tunnelvisionlabs/antlr4cs/issues/91)).
+
+![Framework Compatibility](images/FrameworkCompatibility.png)
+
+### Pre-release Builds
+
+To ensure the highest level of reliability for developers targeting final releases of particular versions of the ANTLR 4
+Runtime, pre-release builds use a different strong name key than final builds. Library authors are encouraged to use
+strong-named assemblies when referencing the final builds, especially when code is executing in an environment where
+other libraries may be referencing ANTLR 4 (e.g. Visual Studio extensions).
+
+While the strong name keys used for the build are included in the repository, users are **strongly discouraged** from
+distributing builds of the ANTLR 4 Runtime using a strong name produced by **antlr4.snk**. Failure to follow this rule
+will compromise the reliability of the millions of other users using applications that reference ANTLR on a daily basis.
+
+### Example
+
+Suppose a library writer wishes to use ANTLR 4, and produce output which supports the .NET Framework 3.0 and newer,
+including the wide selection of targets offered by the Portable Class Library profile 328. In this example library,
+also suppose that all referenced dependencies are present in both the .NET Framework 3.0 and Profile 328, so the same
+code compiles in both cases without problems. This library writer only needs to produce and distribute two builds of the
+library: a `net30` build which is built against the `net30` build of ANTLR 4, and a `portable-net40` build which is
+built against the `portable-net40` build of ANTLR 4.
+
+Now suppose an application developer wishes to use the library described previously. This application is a desktop
+application targeting .NET 4.5, and the application developer wishes to use the highest-performing available build of
+ANTLR 4. By simply installing the previous library from NuGet, an additional reference will automatically be added to
+the **Antlr4.Runtime** package. Without additional configuration, the application will build against the
+`portable-net40` build of the library and the `net45` build of ANTLR 4. This situation is fully supported (and
+recommended), because the Framework Compatibility graph above includes a chain extending from `portable-net40` to
+`net45`.
+
 ## Grammars
 
 *TODO*

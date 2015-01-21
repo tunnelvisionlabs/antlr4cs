@@ -22,7 +22,14 @@
 //
 //
 
-#if !NET40PLUS || (PORTABLE && !WINRT)
+#if NET40PLUS && (!PORTABLE || WINRT)
+
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(ConcurrentDictionary<,>))]
+
+#else
 
 using System;
 using System.Threading;
@@ -465,4 +472,5 @@ namespace Antlr4.Runtime.Sharpen
 		}
 	}
 }
+
 #endif

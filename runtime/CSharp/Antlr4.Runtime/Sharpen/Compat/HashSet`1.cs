@@ -26,7 +26,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if !NET35PLUS || COMPACT
+#if NET35PLUS && !COMPACT
+
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+[assembly: TypeForwardedTo(typeof(HashSet<>))]
+
+#else
 
 using System;
 using System.Collections;
@@ -36,10 +43,11 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 using System.Diagnostics;
+using Antlr4.Runtime.Sharpen;
 
 // HashSet is basically implemented as a reduction of Dictionary<K, V>
 
-namespace Antlr4.Runtime.Sharpen {
+namespace System.Collections.Generic {
 
 	[Serializable]
 #if !COMPACT
