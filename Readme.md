@@ -175,7 +175,15 @@ The following table describes the properties available for customizing the code 
 
 ## Generated Code
 
-*TODO*
+The ANTLR Language Support extension for Visual Studio automatically translates your Grammar and Lexers whenever you save them into partial classes that it creates in the obj/ directories. When building the project, they will automatically be referenced.
+
+However, if you want to implement a TreeListener or TreeWalker, you want to inherit from the generated base-classes of your grammar (e.g. YourGrammarBaseListener.cs) which is not possible, if Visual Studio cannot find the file. But you also don't want to add the statically to your project. The solution is to add them virtually by doing the following:
+
+* Right-click on your Project -> Add -> Existing Item. 
+* Navigate to obj/x86/Debug (wherever the classes were created), select the classes you want to use, like YourGrammarBaseListener.cs
+* Add them as Link by clicking on the small triangle next to the Add and selecting 'Add As Link'.
+
+Now you can reference and inherit from those classes in your own code.
 
 ## Extra Features in the C# Target
 
