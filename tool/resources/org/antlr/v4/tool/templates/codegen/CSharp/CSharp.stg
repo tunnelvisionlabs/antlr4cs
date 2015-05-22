@@ -717,8 +717,9 @@ State = <m.stateNumber>;
 <capture>
 if ( <if(invert)><m.varName> \<= 0 || <else>!<endif>(<expr>) ) {
 	<if(m.labels)><m.labels:{l | <labelref(l)> = }><endif>_errHandler.RecoverInline(this);
+} else {
+	Consume();
 }
-Consume();
 >>
 
 Wildcard(w) ::= <<
@@ -781,11 +782,13 @@ RulePropertyRef_start(r) ::= "(<ctx(r)>.<r.label>!=null?(<ctx(r)>.<r.label>.star
 RulePropertyRef_stop(r)	 ::= "(<ctx(r)>.<r.label>!=null?(<ctx(r)>.<r.label>.stop):null)"
 RulePropertyRef_text(r)	 ::= "(<ctx(r)>.<r.label>!=null?_input.GetText(<ctx(r)>.<r.label>.start,<ctx(r)>.<r.label>.stop):null)"
 RulePropertyRef_ctx(r)	 ::= "<ctx(r)>.<r.label>"
+RulePropertyRef_parser(r)	 ::= "this"
 
 ThisRulePropertyRef_start(r) ::= "_localctx.start"
 ThisRulePropertyRef_stop(r)	 ::= "_localctx.stop"
 ThisRulePropertyRef_text(r)	 ::= "_input.GetText(_localctx.start, _input.Lt(-1))"
 ThisRulePropertyRef_ctx(r)	 ::= "_localctx"
+ThisRulePropertyRef_parser(r)	 ::= "this"
 
 NonLocalAttrRef(s)		 ::= <%((<s.ruleName; format="cap">Context)GetInvokingContext(<s.ruleIndex>)).<csIdentifier.(s.name)>%>
 SetNonLocalAttr(s, rhsChunks)	  ::=
