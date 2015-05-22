@@ -106,7 +106,7 @@ namespace Antlr4.Runtime
     /// ...
     /// rewriter.insertAfter(t, "text to put after t");}
     /// rewriter.insertAfter(u, "text after u");}
-    /// System.out.println(tokens.toString());
+    /// System.out.println(rewriter.getText());
     /// </pre>
     /// <p>
     /// You can also have multiple "instruction streams" and get multiple rewrites
@@ -114,10 +114,10 @@ namespace Antlr4.Runtime
     /// that name again when printing the buffer. This could be useful for generating
     /// a C file and also its header file--all from the same buffer:</p>
     /// <pre>
-    /// tokens.insertAfter("pass1", t, "text to put after t");}
-    /// tokens.insertAfter("pass2", u, "text after u");}
-    /// System.out.println(tokens.toString("pass1"));
-    /// System.out.println(tokens.toString("pass2"));
+    /// rewriter.insertAfter("pass1", t, "text to put after t");}
+    /// rewriter.insertAfter("pass2", u, "text after u");}
+    /// System.out.println(rewriter.getText("pass1"));
+    /// System.out.println(rewriter.getText("pass2"));
     /// </pre>
     /// <p>
     /// If you don't use named rewrite streams, a "default" stream is used as the
@@ -459,6 +459,20 @@ namespace Antlr4.Runtime
         public virtual string GetText()
         {
             return GetText(DefaultProgramName, Interval.Of(0, tokens.Size - 1));
+        }
+
+        /// <summary>
+        /// Return the text from the original tokens altered per the
+        /// instructions given to this rewriter in programName.
+        /// </summary>
+        /// <remarks>
+        /// Return the text from the original tokens altered per the
+        /// instructions given to this rewriter in programName.
+        /// </remarks>
+        /// <since>4.5</since>
+        public virtual string GetText(string programName)
+        {
+            return GetText(programName, Interval.Of(0, tokens.Size - 1));
         }
 
         /// <summary>

@@ -53,7 +53,7 @@ namespace Antlr4.Runtime.Atn
         /// returning from, where the precedence value is 0; otherwise, -1.
         /// </returns>
         /// <seealso cref="ATNConfig.PrecedenceFilterSuppressed()"/>
-        /// <seealso cref="ParserATNSimulator.ApplyPrecedenceFilter(ATNConfigSet, Antlr4.Runtime.ParserRuleContext, PredictionContextCache)"/>
+        /// <seealso cref="ParserATNSimulator.ApplyPrecedenceFilter(ATNConfigSet, ParserRuleContext, PredictionContextCache)"></seealso>
         /// <since>4.4.1</since>
         public int OutermostPrecedenceReturn
         {

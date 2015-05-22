@@ -196,8 +196,6 @@ namespace Antlr4.Runtime.Atn
             {
                 // allow zero-length tokens
                 CaptureSimState(prevAccept, input, ds0);
-                // adjust index since the current input character was not yet consumed
-                prevAccept.index--;
             }
             int t = input.La(1);
             DFAState s = ds0;
@@ -231,6 +229,14 @@ namespace Antlr4.Runtime.Atn
                 {
                     break;
                 }
+                // If this is a consumable input element, make sure to consume before
+                // capturing the accept state so the input index, line, and char
+                // position accurately reflect the state of the interpreter at the
+                // end of the token.
+                if (t != IntStreamConstants.Eof)
+                {
+                    Consume(input);
+                }
                 if (target.IsAcceptState)
                 {
                     CaptureSimState(prevAccept, input, target);
@@ -239,11 +245,7 @@ namespace Antlr4.Runtime.Atn
                         break;
                     }
                 }
-                if (t != IntStreamConstants.Eof)
-                {
-                    Consume(input);
-                    t = input.La(1);
-                }
+                t = input.La(1);
                 s = target;
             }
             // flip; current DFA target becomes new src/from state
@@ -397,10 +399,6 @@ namespace Antlr4.Runtime.Atn
             input.Seek(index);
             this.line = line;
             this.charPositionInLine = charPos;
-            if (input.La(1) != IntStreamConstants.Eof)
-            {
-                Consume(input);
-            }
             if (lexerActionExecutor != null && recog != null)
             {
                 lexerActionExecutor.Execute(recog, input, startIndex);

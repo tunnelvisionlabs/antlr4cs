@@ -29,6 +29,7 @@
  */
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -66,6 +67,11 @@ namespace Antlr4.Runtime.Atn
     /// <since>4.3</since>
     public class AmbiguityInfo : DecisionEventInfo
     {
+        /// <summary>The set of alternative numbers for this decision event that lead to a valid parse.</summary>
+        /// <remarks>The set of alternative numbers for this decision event that lead to a valid parse.</remarks>
+        [NotNull]
+        private readonly BitSet ambigAlts;
+
         /// <summary>
         /// Constructs a new instance of the
         /// <see cref="AmbiguityInfo"/>
@@ -77,15 +83,28 @@ namespace Antlr4.Runtime.Atn
         /// The final simulator state identifying the ambiguous
         /// alternatives for the current input
         /// </param>
+        /// <param name="ambigAlts">The set of alternatives in the decision that lead to a valid parse.</param>
         /// <param name="input">The input token stream</param>
         /// <param name="startIndex">The start index for the current prediction</param>
         /// <param name="stopIndex">
         /// The index at which the ambiguity was identified during
         /// prediction
         /// </param>
-        public AmbiguityInfo(int decision, SimulatorState state, ITokenStream input, int startIndex, int stopIndex)
+        public AmbiguityInfo(int decision, SimulatorState state, BitSet ambigAlts, ITokenStream input, int startIndex, int stopIndex)
             : base(decision, state, input, startIndex, stopIndex, state.useContext)
         {
+            this.ambigAlts = ambigAlts;
+        }
+
+        /// <summary>Gets the set of alternatives in the decision that lead to a valid parse.</summary>
+        /// <remarks>Gets the set of alternatives in the decision that lead to a valid parse.</remarks>
+        /// <since>4.5</since>
+        public virtual BitSet AmbiguousAlternatives
+        {
+            get
+            {
+                return ambigAlts;
+            }
         }
     }
 }

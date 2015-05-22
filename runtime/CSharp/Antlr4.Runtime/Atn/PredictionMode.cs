@@ -817,6 +817,20 @@ namespace Antlr4.Runtime.Atn
             return all;
         }
 
+        /// <summary>Get union of all alts from configs.</summary>
+        /// <remarks>Get union of all alts from configs.</remarks>
+        /// <since>4.5</since>
+        [return: NotNull]
+        public static BitSet GetAlts(ATNConfigSet configs)
+        {
+            BitSet alts = new BitSet();
+            foreach (ATNConfig config in configs)
+            {
+                alts.Set(config.Alt);
+            }
+            return alts;
+        }
+
         /// <summary>This function gets the conflicting alt subsets from a configuration set.</summary>
         /// <remarks>
         /// This function gets the conflicting alt subsets from a configuration set.

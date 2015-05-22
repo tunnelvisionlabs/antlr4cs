@@ -171,5 +171,19 @@ namespace Antlr4.Runtime.Misc
             }
             return cdata;
         }
+
+        /// <since>4.5</since>
+        [return: NotNull]
+        public static IntervalSet ToSet(BitSet bits)
+        {
+            IntervalSet s = new IntervalSet();
+            int i = bits.NextSetBit(0);
+            while (i >= 0)
+            {
+                s.Add(i);
+                i = bits.NextSetBit(i + 1);
+            }
+            return s;
+        }
     }
 }

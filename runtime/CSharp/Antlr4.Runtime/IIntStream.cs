@@ -269,7 +269,7 @@ namespace Antlr4.Runtime
         /// though
         /// <paramref name="index"/>
         /// was the index of the EOF symbol. After this method
-        /// returns without throwing an exception, the at least one of the following
+        /// returns without throwing an exception, then at least one of the following
         /// will be true.
         /// <ul>
         /// <li>

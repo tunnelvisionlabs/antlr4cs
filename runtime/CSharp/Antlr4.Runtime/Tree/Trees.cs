@@ -238,6 +238,42 @@ namespace Antlr4.Runtime.Tree
             return nodes;
         }
 
+        /// <summary>
+        /// Find smallest subtree of t enclosing range startTokenIndex..stopTokenIndex
+        /// inclusively using postorder traversal.
+        /// </summary>
+        /// <remarks>
+        /// Find smallest subtree of t enclosing range startTokenIndex..stopTokenIndex
+        /// inclusively using postorder traversal.  Recursive depth-first-search.
+        /// </remarks>
+        /// <since>4.5</since>
+        [return: Nullable]
+        public static ParserRuleContext GetRootOfSubtreeEnclosingRegion(IParseTree t, int startTokenIndex, int stopTokenIndex)
+        {
+            // inclusive
+            // inclusive
+            int n = t.ChildCount;
+            for (int i = 0; i < n; i++)
+            {
+                IParseTree child = t.GetChild(i);
+                ParserRuleContext r = GetRootOfSubtreeEnclosingRegion(child, startTokenIndex, stopTokenIndex);
+                if (r != null)
+                {
+                    return r;
+                }
+            }
+            if (t is ParserRuleContext)
+            {
+                ParserRuleContext r = (ParserRuleContext)t;
+                if (startTokenIndex >= r.Start.TokenIndex && stopTokenIndex <= r.Stop.TokenIndex)
+                {
+                    // is range fully contained in t?
+                    return r;
+                }
+            }
+            return null;
+        }
+
         private Trees()
         {
         }
