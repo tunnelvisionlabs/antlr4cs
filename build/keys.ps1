@@ -1,4 +1,4 @@
-# Note: these values may only change during minor release
+# Note: these values may only change during major release
 
 If ($AntlrVersion.Contains('-')) {
 
