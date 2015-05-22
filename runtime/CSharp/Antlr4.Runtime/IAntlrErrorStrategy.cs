@@ -72,6 +72,10 @@ namespace Antlr4.Runtime
         /// <see cref="IToken"/>
         /// instance which should be treated as the
         /// successful result of the match.
+        /// <p>This method handles the consumption of any tokens - the caller should
+        /// <em>not</em> call
+        /// <see cref="Parser.Consume()"/>
+        /// after a successful recovery.</p>
         /// <p>Note that the calling code will not report an error if this method
         /// returns successfully. The error strategy implementation is responsible
         /// for calling

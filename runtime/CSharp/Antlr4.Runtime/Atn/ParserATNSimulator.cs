@@ -1427,16 +1427,6 @@ namespace Antlr4.Runtime.Atn
                 {
                     configs.IsOutermostConfigSet = true;
                 }
-                if (!useContext || enable_global_context_dfa)
-                {
-                    if (!dfa.IsPrecedenceDfa && dfa.atnStartState is StarLoopEntryState)
-                    {
-                        if (((StarLoopEntryState)dfa.atnStartState).precedenceRuleDecision)
-                        {
-                            dfa.IsPrecedenceDfa = true;
-                        }
-                    }
-                }
                 bool collectPredicates = true;
                 Closure(reachIntermediate, configs, collectPredicates, hasMoreContext, contextCache, false);
                 bool stepIntoGlobal = configs.DipsIntoOuterContext;
@@ -2097,9 +2087,9 @@ namespace Antlr4.Runtime.Atn
             return config.Transform(t.target, newContext, false);
         }
 
-        private sealed class _IComparer_1996 : IComparer<ATNConfig>
+        private sealed class _IComparer_1988 : IComparer<ATNConfig>
         {
-            public _IComparer_1996()
+            public _IComparer_1988()
             {
             }
 
@@ -2119,7 +2109,7 @@ namespace Antlr4.Runtime.Atn
             }
         }
 
-        private static readonly IComparer<ATNConfig> StateAltSortComparator = new _IComparer_1996();
+        private static readonly IComparer<ATNConfig> StateAltSortComparator = new _IComparer_1988();
 
         private ConflictInfo IsConflicted(ATNConfigSet configset, PredictionContextCache contextCache)
         {
@@ -2531,6 +2521,8 @@ namespace Antlr4.Runtime.Atn
         /// <summary>If context sensitive parsing, we know it's ambiguity not conflict</summary>
         protected internal virtual void ReportAmbiguity(DFA dfa, DFAState D, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
         {
+            // the DFA state from execATN() that had SLL conflicts
+            // configs that LL not SLL considered conflicting
             if (debug || retry_debug)
             {
                 Interval interval = Interval.Of(startIndex, stopIndex);

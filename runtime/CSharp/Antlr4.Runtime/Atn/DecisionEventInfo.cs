@@ -41,6 +41,16 @@ namespace Antlr4.Runtime.Atn
     /// <remarks>
     /// This is the base class for gathering detailed information about prediction
     /// events which occur during parsing.
+    /// Note that we could record the parser call stack at the time this event
+    /// occurred but in the presence of left recursive rules, the stack is kind of
+    /// meaningless. It's better to look at the individual configurations for their
+    /// individual stacks. Of course that is a
+    /// <see cref="PredictionContext"/>
+    /// object
+    /// not a parse tree node and so it does not have information about the extent
+    /// (start...stop) of the various subtrees. Examining the stack tops of all
+    /// configurations provide the return states for the rule invocations.
+    /// From there you can get the enclosing rule.
     /// </remarks>
     /// <since>4.3</since>
     public class DecisionEventInfo

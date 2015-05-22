@@ -261,7 +261,7 @@ namespace Antlr4.Runtime.Atn
                 // context sensitivity.
                 decisions[currentDecision].contextSensitivities.Add(new ContextSensitivityInfo(currentDecision, currentState, _input, startIndex, stopIndex));
             }
-            decisions[currentDecision].ambiguities.Add(new AmbiguityInfo(currentDecision, currentState, _input, startIndex, stopIndex));
+            decisions[currentDecision].ambiguities.Add(new AmbiguityInfo(currentDecision, currentState, ambigAlts, _input, startIndex, stopIndex));
             base.ReportAmbiguity(dfa, D, startIndex, stopIndex, exact, ambigAlts, configs);
         }
 

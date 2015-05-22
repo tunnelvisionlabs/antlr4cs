@@ -57,6 +57,14 @@ namespace Antlr4.Runtime
 
         protected internal readonly ATN atn;
 
+        /// <summary>
+        /// This identifies StarLoopEntryState's that begin the (...)
+        /// precedence loops of left recursive rules.
+        /// </summary>
+        /// <remarks>
+        /// This identifies StarLoopEntryState's that begin the (...)
+        /// precedence loops of left recursive rules.
+        /// </remarks>
         protected internal readonly BitSet pushRecursionContextStates;
 
         [Obsolete]
@@ -67,7 +75,44 @@ namespace Antlr4.Runtime
         [NotNull]
         private readonly IVocabulary vocabulary;
 
+        /// <summary>Tracks LR rules for adjusting the contexts</summary>
         protected internal readonly Stack<Tuple<ParserRuleContext, int>> _parentContextStack = new Stack<Tuple<ParserRuleContext, int>>();
+
+        /// <summary>
+        /// We need a map from (decision,inputIndex)-&gt;forced alt for computing ambiguous
+        /// parse trees.
+        /// </summary>
+        /// <remarks>
+        /// We need a map from (decision,inputIndex)-&gt;forced alt for computing ambiguous
+        /// parse trees. For now, we allow exactly one override.
+        /// </remarks>
+        protected internal int overrideDecision = -1;
+
+        protected internal int overrideDecisionInputIndex = -1;
+
+        protected internal int overrideDecisionAlt = -1;
+
+        /// <summary>
+        /// A copy constructor that creates a new parser interpreter by reusing
+        /// the fields of a previous interpreter.
+        /// </summary>
+        /// <remarks>
+        /// A copy constructor that creates a new parser interpreter by reusing
+        /// the fields of a previous interpreter.
+        /// </remarks>
+        /// <param name="old">The interpreter to copy</param>
+        /// <since>4.5</since>
+        public ParserInterpreter(Antlr4.Runtime.ParserInterpreter old)
+            : base(((ITokenStream)old.InputStream))
+        {
+            this.grammarFileName = old.grammarFileName;
+            this.atn = old.atn;
+            this.pushRecursionContextStates = old.pushRecursionContextStates;
+            this.tokenNames = old.tokenNames;
+            this.ruleNames = old.ruleNames;
+            this.vocabulary = old.vocabulary;
+            Interpreter = new ParserATNSimulator(this, atn);
+        }
 
         [System.ObsoleteAttribute(@"Use ParserInterpreter(string, IVocabulary, System.Collections.Generic.ICollection{E}, Antlr4.Runtime.Atn.ATN, ITokenStream) instead.")]
         public ParserInterpreter(string grammarFileName, ICollection<string> tokenNames, ICollection<string> ruleNames, ATN atn, ITokenStream input)
@@ -87,7 +132,7 @@ namespace Antlr4.Runtime
             }
             this.ruleNames = Sharpen.Collections.ToArray(ruleNames, new string[ruleNames.Count]);
             this.vocabulary = vocabulary;
-            // identify the ATN states where pushNewRecursionContext must be called
+            // identify the ATN states where pushNewRecursionContext() must be called
             this.pushRecursionContextStates = new BitSet(atn.states.Count);
             foreach (ATNState state in atn.states)
             {
@@ -223,7 +268,15 @@ namespace Antlr4.Runtime
             if (p.NumberOfTransitions > 1)
             {
                 ErrorHandler.Sync(this);
-                edge = Interpreter.AdaptivePredict(_input, ((DecisionState)p).decision, _ctx);
+                int decision = ((DecisionState)p).decision;
+                if (decision == overrideDecision && _input.Index == overrideDecisionInputIndex)
+                {
+                    edge = overrideDecisionAlt;
+                }
+                else
+                {
+                    edge = Interpreter.AdaptivePredict(_input, decision, _ctx);
+                }
             }
             else
             {
@@ -236,6 +289,8 @@ namespace Antlr4.Runtime
                 {
                     if (pushRecursionContextStates.Get(p.stateNumber) && !(transition.target is LoopEndState))
                     {
+                        // We are at the start of a left recursive rule's (...)* loop
+                        // but it's not the exit branch of loop.
                         InterpreterRuleContext ctx = new InterpreterRuleContext(_parentContextStack.Peek().Item1, _parentContextStack.Peek().Item2, _ctx.RuleIndex);
                         PushNewRecursionContext(ctx, atn.ruleToStartState[p.ruleIndex].stateNumber, _ctx.RuleIndex);
                     }
@@ -331,6 +386,52 @@ namespace Antlr4.Runtime
             }
             RuleTransition ruleTransition = (RuleTransition)atn.states[State].Transition(0);
             State = ruleTransition.followState.stateNumber;
+        }
+
+        /// <summary>
+        /// Override this parser interpreters normal decision-making process
+        /// at a particular decision and input token index.
+        /// </summary>
+        /// <remarks>
+        /// Override this parser interpreters normal decision-making process
+        /// at a particular decision and input token index. Instead of
+        /// allowing the adaptive prediction mechanism to choose the
+        /// first alternative within a block that leads to a successful parse,
+        /// force it to take the alternative, 1..n for n alternatives.
+        /// As an implementation limitation right now, you can only specify one
+        /// override. This is sufficient to allow construction of different
+        /// parse trees for ambiguous input. It means re-parsing the entire input
+        /// in general because you're never sure where an ambiguous sequence would
+        /// live in the various parse trees. For example, in one interpretation,
+        /// an ambiguous input sequence would be matched completely in expression
+        /// but in another it could match all the way back to the root.
+        /// s : e '!'? ;
+        /// e : ID
+        /// | ID '!'
+        /// ;
+        /// Here, x! can be matched as (s (e ID) !) or (s (e ID !)). In the first
+        /// case, the ambiguous sequence is fully contained only by the root.
+        /// In the second case, the ambiguous sequences fully contained within just
+        /// e, as in: (e ID !).
+        /// Rather than trying to optimize this and make
+        /// some intelligent decisions for optimization purposes, I settled on
+        /// just re-parsing the whole input and then using
+        /// {link Trees#getRootOfSubtreeEnclosingRegion} to find the minimal
+        /// subtree that contains the ambiguous sequence. I originally tried to
+        /// record the call stack at the point the parser detected and ambiguity but
+        /// left recursive rules create a parse tree stack that does not reflect
+        /// the actual call stack. That impedance mismatch was enough to make
+        /// it it challenging to restart the parser at a deeply nested rule
+        /// invocation.
+        /// Only parser interpreters can override decisions so as to avoid inserting
+        /// override checking code in the critical ALL(*) prediction execution path.
+        /// </remarks>
+        /// <since>4.5</since>
+        public virtual void AddDecisionOverride(int decision, int tokenIndex, int forcedAlt)
+        {
+            overrideDecision = decision;
+            overrideDecisionInputIndex = tokenIndex;
+            overrideDecisionAlt = forcedAlt;
         }
     }
 }

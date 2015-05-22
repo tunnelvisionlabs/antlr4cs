@@ -892,6 +892,7 @@ namespace Antlr4.Runtime
         /// Like
         /// <see cref="EnterRule(ParserRuleContext, int, int)"/>
         /// but for recursive rules.
+        /// Make the current context the child of the incoming localctx.
         /// </summary>
         public virtual void PushNewRecursionContext(ParserRuleContext localctx, int state, int ruleIndex)
         {
@@ -984,6 +985,102 @@ namespace Antlr4.Runtime
         {
             // TODO: useful in parser?
             return false;
+        }
+
+        /// <summary>
+        /// Given an AmbiguityInfo object that contains information about an
+        /// ambiguous decision event, return the list of ambiguous parse trees.
+        /// </summary>
+        /// <remarks>
+        /// Given an AmbiguityInfo object that contains information about an
+        /// ambiguous decision event, return the list of ambiguous parse trees.
+        /// An ambiguity occurs when a specific token sequence can be recognized
+        /// in more than one way by the grammar. These ambiguities are detected only
+        /// at decision points.
+        /// The list of trees includes the actual interpretation (that for
+        /// the minimum alternative number) and all ambiguous alternatives.
+        /// This method reuses the same physical input token stream used to
+        /// detect the ambiguity by the original parser in the first place.
+        /// This method resets/seeks within but does not alter originalParser.
+        /// The input position is restored upon exit from this method.
+        /// Parsers using a
+        /// <see cref="UnbufferedTokenStream"/>
+        /// may not be able to
+        /// perform the necessary save index() / seek(saved_index) operation.
+        /// The trees are rooted at the node whose start..stop token indices
+        /// include the start and stop indices of this ambiguity event. That is,
+        /// the trees returns will always include the complete ambiguous subphrase
+        /// identified by the ambiguity event.
+        /// Be aware that this method does NOT notify error or parse listeners as
+        /// it would trigger duplicate or otherwise unwanted events.
+        /// This uses a temporary ParserATNSimulator and a ParserInterpreter
+        /// so we don't mess up any statistics, event lists, etc...
+        /// The parse tree constructed while identifying/making ambiguityInfo is
+        /// not affected by this method as it creates a new parser interp to
+        /// get the ambiguous interpretations.
+        /// Nodes in the returned ambig trees are independent of the original parse
+        /// tree (constructed while identifying/creating ambiguityInfo).
+        /// </remarks>
+        /// <param name="originalParser">
+        /// The parser used to create ambiguityInfo; it
+        /// is not modified by this routine and can be either
+        /// a generated or interpreted parser. It's token
+        /// stream *is* reset/seek()'d.
+        /// </param>
+        /// <param name="ambiguityInfo">
+        /// The information about an ambiguous decision event
+        /// for which you want ambiguous parse trees.
+        /// </param>
+        /// <exception cref="RecognitionException">
+        /// Throws upon syntax error while matching
+        /// ambig input.
+        /// </exception>
+        /// <since>4.5</since>
+        public static IList<ParserRuleContext> GetAmbiguousParseTrees(Parser originalParser, AmbiguityInfo ambiguityInfo, int startRuleIndex)
+        {
+            IList<ParserRuleContext> trees = new List<ParserRuleContext>();
+            int saveTokenInputPosition = ((ITokenStream)originalParser.InputStream).Index;
+            try
+            {
+                // Create a new parser interpreter to parse the ambiguous subphrase
+                ParserInterpreter parser;
+                if (originalParser is ParserInterpreter)
+                {
+                    parser = new ParserInterpreter((ParserInterpreter)originalParser);
+                }
+                else
+                {
+                    char[] serializedAtn = ATNSerializer.GetSerializedAsChars(originalParser.Atn, Arrays.AsList(originalParser.RuleNames));
+                    ATN deserialized = new ATNDeserializer().Deserialize(serializedAtn);
+                    parser = new ParserInterpreter(originalParser.GrammarFileName, originalParser.Vocabulary, Arrays.AsList(originalParser.RuleNames), deserialized, ((ITokenStream)originalParser.InputStream));
+                }
+                // Make sure that we don't get any error messages from using this temporary parser
+                parser.RemoveErrorListeners();
+                parser.RemoveParseListeners();
+                parser.Interpreter.PredictionMode = PredictionMode.LlExactAmbigDetection;
+                // get ambig trees
+                int alt = ambiguityInfo.AmbiguousAlternatives.NextSetBit(0);
+                while (alt >= 0)
+                {
+                    // re-parse input for all ambiguous alternatives
+                    // (don't have to do first as it's been parsed, but do again for simplicity
+                    //  using this temp parser.)
+                    parser.Reset();
+                    ((ITokenStream)parser.InputStream).Seek(ambiguityInfo.startIndex);
+                    parser.overrideDecision = ambiguityInfo.decision;
+                    parser.overrideDecisionInputIndex = ambiguityInfo.startIndex;
+                    parser.overrideDecisionAlt = alt;
+                    ParserRuleContext t = parser.Parse(startRuleIndex);
+                    ParserRuleContext ambigSubTree = Trees.GetRootOfSubtreeEnclosingRegion(t, ambiguityInfo.startIndex, ambiguityInfo.stopIndex);
+                    trees.Add(ambigSubTree);
+                    alt = ambiguityInfo.AmbiguousAlternatives.NextSetBit(alt + 1);
+                }
+            }
+            finally
+            {
+                ((ITokenStream)originalParser.InputStream).Seek(saveTokenInputPosition);
+            }
+            return trees;
         }
 
         /// <summary>
@@ -1202,6 +1299,7 @@ namespace Antlr4.Runtime
                         Interpreter = new ParserATNSimulator(this, Atn);
                     }
                 }
+                Interpreter.PredictionMode = interp.PredictionMode;
             }
         }
 
