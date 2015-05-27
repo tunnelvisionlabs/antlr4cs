@@ -251,23 +251,31 @@ namespace Antlr4.Build.Tasks
         {
             try
             {
-                string java;
-                if (!string.IsNullOrEmpty(JavaExecutable))
+                string path;
+                List<string> arguments = new List<string>();
+
+                if (!string.IsNullOrEmpty(ToolPath) && !Path.GetExtension(ToolPath).Equals(".jar", StringComparison.OrdinalIgnoreCase))
                 {
-                    java = JavaExecutable;
+                    path = ToolPath;
                 }
                 else
                 {
-                    string javaHome = JavaHome;
-                    java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
-                    if (!File.Exists(java))
-                        java = Path.Combine(Path.Combine(javaHome, "bin"), "java");
-                }
+                    if (!string.IsNullOrEmpty(JavaExecutable))
+                    {
+                        path = JavaExecutable;
+                    }
+                    else
+                    {
+                        string javaHome = JavaHome;
+                        path = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
+                        if (!File.Exists(path))
+                            path = Path.Combine(Path.Combine(javaHome, "bin"), "java");
+                    }
 
-                List<string> arguments = new List<string>();
-                arguments.Add("-cp");
-                arguments.Add(ToolPath);
-                arguments.Add("org.antlr.v4.CSharpTool");
+                    arguments.Add("-cp");
+                    arguments.Add(ToolPath);
+                    arguments.Add("org.antlr.v4.CSharpTool");
+                }
 
                 arguments.Add("-o");
                 arguments.Add(OutputPath);
@@ -313,7 +321,7 @@ namespace Antlr4.Build.Tasks
 
                 arguments.AddRange(SourceCodeFiles);
 
-                ProcessStartInfo startInfo = new ProcessStartInfo(java, JoinArguments(arguments))
+                ProcessStartInfo startInfo = new ProcessStartInfo(path, JoinArguments(arguments))
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true,
