@@ -1,5 +1,7 @@
 # C# target for ANTLR 4
 
+[![Join the chat at https://gitter.im/tunnelvisionlabs/antlr4cs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tunnelvisionlabs/antlr4cs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Getting Started
 
 ### Step 1: Install Java
