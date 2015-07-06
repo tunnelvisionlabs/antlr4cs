@@ -252,16 +252,24 @@ namespace Antlr4.Build.Tasks
             try
             {
                 string java;
-                if (!string.IsNullOrEmpty(JavaExecutable))
+                try
                 {
-                    java = JavaExecutable;
+                    if (!string.IsNullOrEmpty(JavaExecutable))
+                    {
+                        java = JavaExecutable;
+                    }
+                    else
+                    {
+                        string javaHome = JavaHome;
+                        java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
+                        if (!File.Exists(java))
+                            java = Path.Combine(Path.Combine(javaHome, "bin"), "java");
+                    }
                 }
-                else
+                catch (NotSupportedException)
                 {
-                    string javaHome = JavaHome;
-                    java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
-                    if (!File.Exists(java))
-                        java = Path.Combine(Path.Combine(javaHome, "bin"), "java");
+                    // Fall back to using IKVM
+                    java = Path.Combine(Path.GetDirectoryName(ToolPath), "ikvm.exe");
                 }
 
                 List<string> arguments = new List<string>();
