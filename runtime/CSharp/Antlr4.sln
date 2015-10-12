@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.net45", "Antlr4.Runtime\Antlr4.Runtime.net45.csproj", "{E1D192DE-5347-48C4-A9F4-A8CBA2AF3869}"
 EndProject
@@ -60,6 +60,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.portable-net45", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.portable-net45.csproj", "{5844076E-3C92-4122-BB7A-0D745C3F5334}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.netcore45", "Antlr4.Runtime\Antlr4.Runtime.netcore45.csproj", "{F3145DCA-EA26-4482-80D6-5232A79E2A3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.dotnet", "Antlr4.Runtime\Antlr4.Runtime.dotnet.csproj", "{F687EB64-B5CA-4A66-B899-C877DB643687}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,10 @@ Global
 		{F3145DCA-EA26-4482-80D6-5232A79E2A3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3145DCA-EA26-4482-80D6-5232A79E2A3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3145DCA-EA26-4482-80D6-5232A79E2A3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F687EB64-B5CA-4A66-B899-C877DB643687}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F687EB64-B5CA-4A66-B899-C877DB643687}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F687EB64-B5CA-4A66-B899-C877DB643687}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F687EB64-B5CA-4A66-B899-C877DB643687}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

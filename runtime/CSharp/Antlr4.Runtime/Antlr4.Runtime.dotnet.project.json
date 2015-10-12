@@ -1,0 +1,22 @@
+﻿{
+  "supports": {
+    "net46.app": { },
+    "uwp.10.0.app": { },
+    "dnxcore50.app": { }
+  },
+  "dependencies": {
+    "System.Collections": "4.0.10",
+    "System.Collections.Concurrent": "4.0.10",
+    "System.Diagnostics.Tools": "4.0.0",
+    "System.IO": "4.0.10",
+    "System.Linq": "4.0.0",
+    "System.ObjectModel": "4.0.10",
+    "System.Reflection.Extensions": "4.0.0",
+    "System.Runtime": "4.0.20"
+  },
+  "frameworks": {
+    "dotnet": {
+      "imports": "portable-net452+win81"
+    }
+  }
+}
