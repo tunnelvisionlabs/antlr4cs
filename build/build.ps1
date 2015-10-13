@@ -2,6 +2,8 @@ param (
 	[switch]$Debug,
 	[string]$VisualStudioVersion = "12.0",
 	[switch]$NoClean,
+	[string]$Verbosity = "normal",
+	[string]$Logger,
 	[string]$Java6Home,
 	[string]$MavenHome,
 	[string]$MavenRepo = "$($env:USERPROFILE)\.m2",
@@ -67,8 +69,12 @@ if ($VisualStudioVersion -eq '4.0') {
 	$msbuild = "${env:ProgramFiles(x86)}\MSBuild\$VisualStudioVersion\Bin\MSBuild.exe"
 }
 
+If ($Logger) {
+	$LoggerArgument = "/logger:$Logger"
+}
+
 &$nuget 'restore' $SolutionPath
-&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if (-not $?) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
 	Exit $LASTEXITCODE
@@ -78,7 +84,7 @@ if (-not $?) {
 $msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
 &$nuget 'restore' $CF35SolutionPath
-&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
 if (-not $?) {
 	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
 	Exit $LASTEXITCODE
@@ -100,14 +106,14 @@ If (-not $SkipMaven) {
 		exit 1
 	}
 
-	If (-not (Test-Path $Java6Home)) {
+	If (-not $Java6Home -or -not (Test-Path $Java6Home)) {
 		$host.ui.WriteErrorLine("Couldn't locate Java 6 installation: $Java6Home")
 		cd $OriginalPath
 		exit 1
 	}
 
 	$MavenGoal = 'package'
-	&$MavenPath '-DskipTests=true' '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
+	&$MavenPath '-B' '-DskipTests=true' '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Maven build of the C# Target custom Tool failed, aborting!')
 		cd $OriginalPath
