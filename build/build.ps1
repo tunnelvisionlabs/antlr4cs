@@ -65,9 +65,9 @@ $msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
 
 &$nuget 'restore' $SolutionPath
 &$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
-if ($LASTEXITCODE -ne 0) {
+if (-not $?) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
-	exit $p.ExitCode
+	Exit $LASTEXITCODE
 }
 
 # build the compact framework project
@@ -75,9 +75,9 @@ $msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
 &$nuget 'restore' $CF35SolutionPath
 &$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
-if ($LASTEXITCODE -ne 0) {
+if (-not $?) {
 	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
-	exit $p.ExitCode
+	Exit $LASTEXITCODE
 }
 
 if (-not (Test-Path 'nuget')) {
@@ -104,10 +104,10 @@ If (-not $SkipMaven) {
 
 	$MavenGoal = 'package'
 	&$MavenPath '-DskipTests=true' '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
-	if ($LASTEXITCODE -ne 0) {
+	if (-not $?) {
 		$host.ui.WriteErrorLine('Maven build of the C# Target custom Tool failed, aborting!')
 		cd $OriginalPath
-		exit $p.ExitCode
+		Exit $LASTEXITCODE
 	}
 
 	cd $OriginalPath
@@ -127,8 +127,8 @@ if (-not $SkipKeyCheck) {
 		$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$($pair.Key)\$BuildConfig\Antlr4.Runtime.dll"
 		# Run the actual check in a separate process or the current process will keep the assembly file locked
 		powershell -Command ".\check-key.ps1 -Assembly '$assembly' -ExpectedKey '$($pair.Value)' -Build '$($pair.Key)'"
-		if ($LASTEXITCODE -ne 0) {
-			Exit $p.ExitCode
+		if (-not $?) {
+			Exit $LASTEXITCODE
 		}
 	}
 }
@@ -145,4 +145,7 @@ ForEach ($package in $packages) {
 	}
 
 	&$nuget 'pack' ".\$package.nuspec" '-OutputDirectory' 'nuget' '-Prop' "Configuration=$BuildConfig" '-Version' "$AntlrVersion" '-Prop' "M2_REPO=$M2_REPO" '-Prop' "CSharpToolVersion=$CSharpToolVersion" '-Symbols'
+	if (-not $?) {
+		Exit $LASTEXITCODE
+	}
 }
