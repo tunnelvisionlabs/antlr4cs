@@ -99,7 +99,11 @@ If (-not $SkipMaven) {
 	$OriginalPath = $PWD
 
 	cd '..\tool'
-	$MavenPath = "$MavenHome\bin\mvn.bat"
+	$MavenPath = "$MavenHome\bin\mvn.cmd"
+	If (-not (Test-Path $MavenPath)) {
+		$MavenPath = "$MavenHome\bin\mvn.bat"
+	}
+
 	If (-not (Test-Path $MavenPath)) {
 		$host.ui.WriteErrorLine("Couldn't locate Maven binary: $MavenPath")
 		cd $OriginalPath
