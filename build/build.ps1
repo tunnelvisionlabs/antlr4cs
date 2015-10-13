@@ -61,7 +61,11 @@ $CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
 $nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
 
 # build the main project
-$msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
+if ($VisualStudioVersion -eq '4.0') {
+	$msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
+} Else {
+	$msbuild = "${env:ProgramFiles(x86)}\MSBuild\$VisualStudioVersion\Bin\MSBuild.exe"
+}
 
 &$nuget 'restore' $SolutionPath
 &$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
