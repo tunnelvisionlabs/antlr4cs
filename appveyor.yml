@@ -1,0 +1,19 @@
+version: 1.0.{build}
+os: Visual Studio 2015
+configuration: Debug
+init:
+- git config --global core.autocrlf true
+environment:
+  M2_HOME: C:\bin\apache-maven-3.3.1
+install:
+- powershell -Command .\build\appveyor-install.ps1
+cache:
+- NETCFSetupv35.msi -> build\appveyor-install.ps1
+- NETCFv35PowerToys.msi -> build\appveyor-install.ps1
+build_script:
+- cd build
+- powershell -Command .\build.ps1 -VisualStudioVersion "14.0" -Verbosity minimal -Logger "${env:ProgramFiles}\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" -Java6Home "${env:ProgramFiles}\Java\jdk1.7.0\jre"
+- cd ..
+test: off
+artifacts:
+- path: build\nuget\*.nupkg
