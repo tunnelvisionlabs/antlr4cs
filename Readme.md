@@ -2,6 +2,8 @@
 
 [![Join the chat at https://gitter.im/tunnelvisionlabs/antlr4cs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tunnelvisionlabs/antlr4cs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/0boh47x2aqa09ont/branch/master?svg=true)](https://ci.appveyor.com/project/sharwell/antlr4cs/branch/master)
+
 ## Getting Started
 
 ### Step 1: Install Java
