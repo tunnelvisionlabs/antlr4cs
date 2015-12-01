@@ -88,6 +88,26 @@
         "System": ""
       }
     },
+    "net40-cf": {
+      "!!TODO!!": "Should be net35-cf",
+      "compilationOptions": {
+        "define": [ "COMPACT", "NET40", "NET40PLUS", "NET35PLUS", "NET30PLUS", "NET20PLUS" ]
+      },
+      "frameworkAssemblies": {
+        "mscorlib": "",
+        "System": ""
+      }
+    },
+    "net20-cf": {
+      "!!TODO!!": "Should be net35-cf",
+      "compilationOptions": {
+        "define": [ "NET20", "NET20PLUS" ]
+      },
+      "frameworkAssemblies": {
+        "mscorlib": "",
+        "System": ""
+      }
+    },
     "net30": {
       "compilationOptions": {
         "define": [ "NET30", "NET30PLUS", "NET20PLUS" ]
