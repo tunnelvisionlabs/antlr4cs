@@ -2,11 +2,15 @@
 
 [![Join the chat at https://gitter.im/tunnelvisionlabs/antlr4cs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tunnelvisionlabs/antlr4cs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/0boh47x2aqa09ont/branch/master?svg=true)](https://ci.appveyor.com/project/sharwell/antlr4cs/branch/master)
+
 ## Getting Started
 
-### Step 1: Install Java
+### Step 1: Install Java (recommended)
 
-The C# target for ANTLR 4 requires Java for *compiling* applications. The resulting compiled C# applications will not require Java to be installed (at least not due to the use of ANTLR 4). You can install *any* of the following versions of Java to use this target.
+> :warning: Starting with release 4.5.0-alpha003, users are no longer required to install the Java Runtime in order to compile .NET applications using ANTLR 4. However, installing Java will dramatically improve the performance of the code generation process. It is highly recommended, especially on developer machines where background code generation is used for IntelliSense functionality.
+
+The C# target for ANTLR 4 requires Java (or IKVM) for *compiling* applications. The resulting compiled C# applications will not require Java (or IKVM) to be installed. You can install *any* of the following versions of Java to use this target.
 
 If you already have one of the following installed, you should check to make sure the installation is up-to-date.
 
@@ -14,6 +18,8 @@ If you already have one of the following installed, you should check to make sur
 * Java 7 development kit (x86 or x64, provided that the JRE option is also installed during the development kit installation)
 * Java 6 runtime environment (x86 or x64)
 * Java 6 development kit (x86 or x64, provided that the JRE option is also installed during the development kit installation)
+
+If no suitable version of Java could be located on the machine, the build tools will automatically fall back to using IKVM instead.
 
 ### Step 2: Install ANTLR Language Support for Visual Studio (optional)
 
