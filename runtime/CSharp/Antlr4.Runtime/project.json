@@ -14,7 +14,22 @@
   "releaseNotes": "https://github.com/tunnelvisionlabs/antlr4cs/releases/v$version$",
   "tags": [ "antlr", "antlr4", "parsing" ],
   "scripts": {
-    "prebuild": []
+    "prebuild": [ ]
+  },
+  "configurations": {
+    "Debug": {
+      "compilationOptions": {
+        "define": [ "DEBUG", "TRACE" ],
+        "keyFile": "..\\..\\..\\build\\keys\\Antlr4.dev.snk"
+      }
+    },
+    "Release": {
+      "compilationOptions": {
+        "define": [ "RELEASE", "TRACE" ],
+        "optimize": true,
+        "keyFile": "..\\..\\..\\build\\keys\\Antlr4.snk"
+      }
+    }
   },
   "frameworks": {
     "dotnet5.0": {
