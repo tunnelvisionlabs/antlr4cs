@@ -17,7 +17,7 @@
     "prebuild": []
   },
   "frameworks": {
-    "dotnet5.4": {
+    "dotnet5.0": {
       "dependencies": {
         "Microsoft.NETCore": "5.0.0"
       },
@@ -25,7 +25,14 @@
         "define": [ "WINRT", "PORTABLE", "NET45", "NET45PLUS", "NET40PLUS", "NET35PLUS", "NET30PLUS", "NET20PLUS" ]
       }
     },
-
+    "netcore45": {
+      "compilationOptions": {
+        "define": [ "WINRT", "PORTABLE", "NET45", "NET45PLUS", "NET40PLUS", "NET35PLUS", "NET30PLUS", "NET20PLUS" ]
+      },
+      "dependencies": {
+        "Microsoft.NETCore": "5.0.0"
+      }
+    },
     ".NETPortable,Version=v4.0,Profile=Profile328": {
       "compilationOptions": {
         "define": [ "PORTABLE", "NET40", "NET40PLUS", "NET35PLUS", "NET30PLUS", "NET20PLUS" ]
