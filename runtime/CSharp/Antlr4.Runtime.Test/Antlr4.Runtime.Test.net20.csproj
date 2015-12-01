@@ -72,12 +72,6 @@
     <Compile Include="TestPerformance.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.net20.csproj">
-      <Project>{e1a46d9d-66cb-46e8-93b0-7fc87299abef}</Project>
-      <Name>Antlr4.Runtime.net20</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Java-LR.g4" />
     <EmbeddedResource Include="Java.g4" />
     <Antlr4 Include="Java.g4" />

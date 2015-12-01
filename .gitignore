@@ -3,6 +3,9 @@
 *.csproj.user
 *.sln.cache
 
+#Ignore project locks
+*.project.lock.json
+
 # Ignored testing and profiling files
 TestResults/
 *.vsp
