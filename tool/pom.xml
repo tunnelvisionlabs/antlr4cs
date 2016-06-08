@@ -74,13 +74,13 @@
         <dependency>
             <groupId>com.tunnelvisionlabs</groupId>
             <artifactId>antlr4</artifactId>
-            <version>4.5</version>
+            <version>4.5.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.tunnelvisionlabs</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.5</version>
+            <version>4.5.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
