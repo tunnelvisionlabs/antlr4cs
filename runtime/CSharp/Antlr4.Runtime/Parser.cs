@@ -848,7 +848,7 @@ namespace Antlr4.Runtime
 
         public virtual void EnterOuterAlt(ParserRuleContext localctx, int altNum)
         {
-            localctx.SetAltNumber(altNum);
+            localctx.OuterAlternative = altNum;
             // if we have new localctx, make sure we replace existing ctx
             // that is previous child of parse tree
             if (_buildParseTrees && _ctx != localctx)

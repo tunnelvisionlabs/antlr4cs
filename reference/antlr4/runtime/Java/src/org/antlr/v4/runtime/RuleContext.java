@@ -182,6 +182,8 @@ public class RuleContext implements RuleNode {
 	 *  to set it.
 	 *
 	 *  @since 4.5.3
+	 *
+	 * @sharpen.property OuterAlternative
 	 */
 	public int getAltNumber() { return ATN.INVALID_ALT_NUMBER; }
 
@@ -192,6 +194,8 @@ public class RuleContext implements RuleNode {
      *  option contextSuperClass.
 	 *
 	 *  @since 4.5.3
+	 *
+	 * @sharpen.property OuterAlternative
 	 */
 	public void setAltNumber(int altNumber) { }
 

@@ -210,11 +210,6 @@ namespace Antlr4.Runtime
         /// to set it.
         /// </remarks>
         /// <since>4.5.3</since>
-        public virtual int GetAltNumber()
-        {
-            return ATN.InvalidAltNumber;
-        }
-
         /// <summary>Set the outer alternative number for this context node.</summary>
         /// <remarks>
         /// Set the outer alternative number for this context node. Default
@@ -224,8 +219,16 @@ namespace Antlr4.Runtime
         /// option contextSuperClass.
         /// </remarks>
         /// <since>4.5.3</since>
-        public virtual void SetAltNumber(int altNumber)
+        public virtual int OuterAlternative
         {
+            get
+            {
+                return ATN.InvalidAltNumber;
+            }
+            set
+            {
+                int altNumber = value;
+            }
         }
 
         public virtual IParseTree GetChild(int i)

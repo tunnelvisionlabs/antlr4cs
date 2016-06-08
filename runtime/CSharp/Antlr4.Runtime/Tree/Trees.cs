@@ -118,7 +118,7 @@ namespace Antlr4.Runtime.Tree
                     RuleContext ruleContext = ((IRuleNode)t).RuleContext;
                     int ruleIndex = ruleContext.RuleIndex;
                     string ruleName = ruleNames[ruleIndex];
-                    int altNumber = ruleContext.GetAltNumber();
+                    int altNumber = ruleContext.OuterAlternative;
                     if (altNumber != ATN.InvalidAltNumber)
                     {
                         return ruleName + ":" + altNumber;
