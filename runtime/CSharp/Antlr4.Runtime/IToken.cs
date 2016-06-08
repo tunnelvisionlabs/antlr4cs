@@ -39,22 +39,15 @@ namespace Antlr4.Runtime
     /// (so we can ignore tabs), token channel, index, and source from which
     /// we obtained this token.
     /// </summary>
-    /// <remarks>
-    /// A token has properties: text, type, line, character position in the line
-    /// (so we can ignore tabs), token channel, index, and source from which
-    /// we obtained this token.
-    /// </remarks>
     public interface IToken
     {
         /// <summary>Get the text of the token.</summary>
-        /// <remarks>Get the text of the token.</remarks>
         string Text
         {
             get;
         }
 
         /// <summary>Get the token type of the token.</summary>
-        /// <remarks>Get the token type of the token.</remarks>
         int Type
         {
             get;
@@ -106,10 +99,6 @@ namespace Antlr4.Runtime
         /// The starting character index of the token
         /// This method is optional; return -1 if not implemented.
         /// </summary>
-        /// <remarks>
-        /// The starting character index of the token
-        /// This method is optional; return -1 if not implemented.
-        /// </remarks>
         int StartIndex
         {
             get;
@@ -154,10 +143,6 @@ namespace Antlr4.Runtime
         /// During lookahead operations, this "token" signifies we hit rule end ATN state
         /// and did not follow it despite needing to.
         /// </summary>
-        /// <remarks>
-        /// During lookahead operations, this "token" signifies we hit rule end ATN state
-        /// and did not follow it despite needing to.
-        /// </remarks>
         public const int Epsilon = -2;
 
         public const int MinUserTokenType = 1;
@@ -179,10 +164,6 @@ namespace Antlr4.Runtime
         /// Anything on different channel than DEFAULT_CHANNEL is not parsed
         /// by parser.
         /// </summary>
-        /// <remarks>
-        /// Anything on different channel than DEFAULT_CHANNEL is not parsed
-        /// by parser.
-        /// </remarks>
         public const int HiddenChannel = 1;
 
         /// <summary>

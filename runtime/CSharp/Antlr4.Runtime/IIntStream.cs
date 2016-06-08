@@ -317,10 +317,6 @@ namespace Antlr4.Runtime
         /// Returns the total number of symbols in the stream, including a single EOF
         /// symbol.
         /// </summary>
-        /// <remarks>
-        /// Returns the total number of symbols in the stream, including a single EOF
-        /// symbol.
-        /// </remarks>
         /// <exception cref="System.NotSupportedException">
         /// if the size of the stream is
         /// unknown.

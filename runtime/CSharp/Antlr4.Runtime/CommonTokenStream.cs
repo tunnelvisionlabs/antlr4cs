@@ -180,7 +180,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Count EOF just once.</summary>
-        /// <remarks>Count EOF just once.</remarks>
         public virtual int GetNumberOfOnChannelTokens()
         {
             int n = 0;

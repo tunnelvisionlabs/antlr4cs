@@ -46,7 +46,6 @@ using Javax.Tools;
 namespace Antlr4.Runtime.Misc
 {
     /// <summary>A compile-time validator for rule dependencies.</summary>
-    /// <remarks>A compile-time validator for rule dependencies.</remarks>
     /// <seealso cref="Antlr4.Runtime.RuleDependency"/>
     /// <seealso cref="Antlr4.Runtime.RuleDependencies"/>
     /// <author>Sam Harwell</author>

@@ -54,7 +54,6 @@ namespace Antlr4.Runtime.Atn
         public static readonly IList<string> serializationNames = Antlr4.Runtime.Sharpen.Collections.UnmodifiableList(Arrays.AsList("INVALID", "EPSILON", "RANGE", "RULE", "PREDICATE", "ATOM", "ACTION", "SET", "NOT_SET", "WILDCARD", "PRECEDENCE"));
 
         /// <summary>The target of this transition.</summary>
-        /// <remarks>The target of this transition.</remarks>
         [NotNull]
         public ATNState target;
 

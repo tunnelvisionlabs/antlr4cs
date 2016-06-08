@@ -36,7 +36,6 @@ using Antlr4.Runtime.Sharpen;
 namespace Antlr4.Runtime.Atn
 {
     /// <summary>A transition containing a set of values.</summary>
-    /// <remarks>A transition containing a set of values.</remarks>
     public class SetTransition : Transition
     {
         [NotNull]

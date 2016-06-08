@@ -289,7 +289,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Get all tokens from start..stop inclusively.</summary>
-        /// <remarks>Get all tokens from start..stop inclusively.</remarks>
         public virtual IList<IToken> Get(int start, int stop)
         {
             if (start < 0 || stop < 0)
@@ -392,7 +391,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Reset this token stream by setting its token source.</summary>
-        /// <remarks>Reset this token stream by setting its token source.</remarks>
         public virtual void SetTokenSource(ITokenSource tokenSource)
         {
             this.tokenSource = tokenSource;
@@ -657,7 +655,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Get the text of all tokens in this buffer.</summary>
-        /// <remarks>Get the text of all tokens in this buffer.</remarks>
         [NotNull]
         public virtual string GetText()
         {
@@ -709,7 +706,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Get all tokens from lexer until EOF.</summary>
-        /// <remarks>Get all tokens from lexer until EOF.</remarks>
         public virtual void Fill()
         {
             LazyInit();

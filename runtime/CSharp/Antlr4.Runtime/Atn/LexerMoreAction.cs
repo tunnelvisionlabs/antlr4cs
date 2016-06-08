@@ -54,7 +54,6 @@ namespace Antlr4.Runtime.Atn
     public sealed class LexerMoreAction : ILexerAction
     {
         /// <summary>Provides a singleton instance of this parameterless lexer action.</summary>
-        /// <remarks>Provides a singleton instance of this parameterless lexer action.</remarks>
         public static readonly Antlr4.Runtime.Atn.LexerMoreAction Instance = new Antlr4.Runtime.Atn.LexerMoreAction();
 
         /// <summary>

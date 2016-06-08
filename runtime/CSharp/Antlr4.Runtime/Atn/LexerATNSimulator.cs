@@ -285,10 +285,6 @@ namespace Antlr4.Runtime.Atn
         /// Compute a target state for an edge in the DFA, and attempt to add the
         /// computed state and corresponding edge to the DFA.
         /// </summary>
-        /// <remarks>
-        /// Compute a target state for an edge in the DFA, and attempt to add the
-        /// computed state and corresponding edge to the DFA.
-        /// </remarks>
         /// <param name="input">The input stream</param>
         /// <param name="s">The current DFA state</param>
         /// <param name="t">The next input symbol</param>
@@ -759,7 +755,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Get the text matched so far for the current token.</summary>
-        /// <remarks>Get the text matched so far for the current token.</remarks>
         [NotNull]
         public virtual string GetText(ICharStream input)
         {

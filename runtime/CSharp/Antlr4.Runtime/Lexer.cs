@@ -156,10 +156,6 @@ namespace Antlr4.Runtime
         /// Return a token from this source; i.e., match a token on the char
         /// stream.
         /// </summary>
-        /// <remarks>
-        /// Return a token from this source; i.e., match a token on the char
-        /// stream.
-        /// </remarks>
         public virtual IToken NextToken()
         {
             if (_input == null)
@@ -396,18 +392,10 @@ outer_break: ;
         /// Return the text matched so far for the current token or any text
         /// override.
         /// </summary>
-        /// <remarks>
-        /// Return the text matched so far for the current token or any text
-        /// override.
-        /// </remarks>
         /// <summary>
         /// Set the complete text of this token; it wipes any previous changes to the
         /// text.
         /// </summary>
-        /// <remarks>
-        /// Set the complete text of this token; it wipes any previous changes to the
-        /// text.
-        /// </remarks>
         public virtual string Text
         {
             get
@@ -426,7 +414,6 @@ outer_break: ;
         }
 
         /// <summary>Override if emitting multiple tokens.</summary>
-        /// <remarks>Override if emitting multiple tokens.</remarks>
         public virtual IToken Token
         {
             get

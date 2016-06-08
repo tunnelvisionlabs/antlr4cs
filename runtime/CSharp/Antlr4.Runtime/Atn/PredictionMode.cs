@@ -41,11 +41,6 @@ namespace Antlr4.Runtime.Atn
     /// utility methods for analyzing configuration sets for conflicts and/or
     /// ambiguities.
     /// </summary>
-    /// <remarks>
-    /// This enumeration defines the prediction modes available in ANTLR 4 along with
-    /// utility methods for analyzing configuration sets for conflicts and/or
-    /// ambiguities.
-    /// </remarks>
     [System.Serializable]
     public sealed class PredictionMode
     {
@@ -116,7 +111,6 @@ namespace Antlr4.Runtime.Atn
         public static readonly PredictionMode LlExactAmbigDetection = new PredictionMode();
 
         /// <summary>A Map that uses just the state and the stack context as the key.</summary>
-        /// <remarks>A Map that uses just the state and the stack context as the key.</remarks>
         internal class AltAndContextMap : Dictionary<ATNConfig, BitSet>
         {
             public AltAndContextMap()
@@ -819,7 +813,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Get union of all alts from configs.</summary>
-        /// <remarks>Get union of all alts from configs.</remarks>
         /// <since>4.5</since>
         [NotNull]
         public static BitSet GetAlts(ATNConfigSet configs)

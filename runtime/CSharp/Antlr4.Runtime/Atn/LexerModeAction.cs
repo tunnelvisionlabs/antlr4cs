@@ -66,7 +66,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Get the lexer mode this action should transition the lexer to.</summary>
-        /// <remarks>Get the lexer mode this action should transition the lexer to.</remarks>
         /// <returns>
         /// The lexer mode for this
         /// <c>mode</c>

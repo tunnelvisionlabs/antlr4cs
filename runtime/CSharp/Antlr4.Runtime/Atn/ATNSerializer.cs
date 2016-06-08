@@ -678,7 +678,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Used by Java target to encode short/int array as chars in string.</summary>
-        /// <remarks>Used by Java target to encode short/int array as chars in string.</remarks>
         public static string GetSerializedAsString(ATN atn, IList<string> ruleNames)
         {
             return new string(GetSerializedAsChars(atn, ruleNames));

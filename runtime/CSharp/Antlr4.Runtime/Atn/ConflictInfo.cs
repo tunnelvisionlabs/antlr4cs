@@ -36,7 +36,6 @@ using Antlr4.Runtime.Sharpen;
 namespace Antlr4.Runtime.Atn
 {
     /// <summary>This class stores information about a configuration conflict.</summary>
-    /// <remarks>This class stores information about a configuration conflict.</remarks>
     /// <author>Sam Harwell</author>
     public class ConflictInfo
     {
@@ -51,7 +50,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Gets the set of conflicting alternatives for the configuration set.</summary>
-        /// <remarks>Gets the set of conflicting alternatives for the configuration set.</remarks>
         public BitSet ConflictedAlts
         {
             get

@@ -251,7 +251,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Get the node at which we first detected a mismatch.</summary>
-        /// <remarks>Get the node at which we first detected a mismatch.</remarks>
         /// <returns>
         /// the node at which we first detected a mismatch, or
         /// <see langword="null"/>
@@ -266,7 +265,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Gets a value indicating whether the match operation succeeded.</summary>
-        /// <remarks>Gets a value indicating whether the match operation succeeded.</remarks>
         /// <returns>
         /// 
         /// <see langword="true"/>
@@ -283,7 +281,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Get the tree pattern we are matching against.</summary>
-        /// <remarks>Get the tree pattern we are matching against.</remarks>
         /// <returns>The tree pattern we are matching against.</returns>
         public virtual ParseTreePattern Pattern
         {
@@ -294,7 +291,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Get the parse tree we are trying to match to a pattern.</summary>
-        /// <remarks>Get the parse tree we are trying to match to a pattern.</remarks>
         /// <returns>
         /// The
         /// <see cref="Antlr4.Runtime.Tree.IParseTree"/>

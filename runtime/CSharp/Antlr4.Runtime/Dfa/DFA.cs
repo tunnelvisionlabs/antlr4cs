@@ -178,7 +178,6 @@ namespace Antlr4.Runtime.Dfa
         /// </returns>
         /// <seealso cref="Antlr4.Runtime.Parser.Precedence()"/>
         /// <summary>Sets whether this is a precedence DFA.</summary>
-        /// <remarks>Sets whether this is a precedence DFA.</remarks>
         /// <value>
         /// 
         /// <see langword="true"/>
@@ -214,7 +213,6 @@ namespace Antlr4.Runtime.Dfa
         }
 
         /// <summary>Get the start state for a specific precedence value.</summary>
-        /// <remarks>Get the start state for a specific precedence value.</remarks>
         /// <param name="precedence">The current precedence.</param>
         /// <returns>
         /// The start state corresponding to the specified precedence, or
@@ -240,7 +238,6 @@ namespace Antlr4.Runtime.Dfa
         }
 
         /// <summary>Set the start state for a specific precedence value.</summary>
-        /// <remarks>Set the start state for a specific precedence value.</remarks>
         /// <param name="precedence">The current precedence.</param>
         /// <param name="startState">
         /// The start state corresponding to the specified

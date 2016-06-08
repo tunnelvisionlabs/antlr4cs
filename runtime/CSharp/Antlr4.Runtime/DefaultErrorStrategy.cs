@@ -85,10 +85,6 @@ namespace Antlr4.Runtime
         /// This method is called to enter error recovery mode when a recognition
         /// exception is reported.
         /// </summary>
-        /// <remarks>
-        /// This method is called to enter error recovery mode when a recognition
-        /// exception is reported.
-        /// </remarks>
         /// <param name="recognizer">the parser instance</param>
         protected internal virtual void BeginErrorCondition(Parser recognizer)
         {
@@ -105,10 +101,6 @@ namespace Antlr4.Runtime
         /// This method is called to leave error recovery mode after recovering from
         /// a recognition exception.
         /// </summary>
-        /// <remarks>
-        /// This method is called to leave error recovery mode after recovering from
-        /// a recognition exception.
-        /// </remarks>
         /// <param name="recognizer"/>
         protected internal virtual void EndErrorCondition(Parser recognizer)
         {
@@ -814,7 +806,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Consume tokens until one matches the given token set.</summary>
-        /// <remarks>Consume tokens until one matches the given token set.</remarks>
         protected internal virtual void ConsumeUntil(Parser recognizer, IntervalSet set)
         {
             //		System.err.println("consumeUntil("+set.toString(recognizer.getTokenNames())+")");

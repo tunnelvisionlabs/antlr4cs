@@ -103,11 +103,6 @@ namespace Antlr4.Runtime.Atn
         /// complete for this decision, by reaching a unique prediction, reaching an
         /// SLL conflict state, or encountering a syntax error.
         /// </summary>
-        /// <remarks>
-        /// Gets the minimum lookahead required for any single SLL prediction to
-        /// complete for this decision, by reaching a unique prediction, reaching an
-        /// SLL conflict state, or encountering a syntax error.
-        /// </remarks>
         public long SLL_MinLook;
 
         /// <summary>
@@ -115,11 +110,6 @@ namespace Antlr4.Runtime.Atn
         /// complete for this decision, by reaching a unique prediction, reaching an
         /// SLL conflict state, or encountering a syntax error.
         /// </summary>
-        /// <remarks>
-        /// Gets the maximum lookahead required for any single SLL prediction to
-        /// complete for this decision, by reaching a unique prediction, reaching an
-        /// SLL conflict state, or encountering a syntax error.
-        /// </remarks>
         public long SLL_MaxLook;
 
         /// <summary>

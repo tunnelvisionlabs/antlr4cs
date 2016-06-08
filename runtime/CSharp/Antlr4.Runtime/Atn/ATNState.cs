@@ -111,7 +111,6 @@ namespace Antlr4.Runtime.Atn
         public bool epsilonOnlyTransitions = false;
 
         /// <summary>Track the transitions emanating from this ATN state.</summary>
-        /// <remarks>Track the transitions emanating from this ATN state.</remarks>
         protected internal readonly IList<Antlr4.Runtime.Atn.Transition> transitions = new List<Antlr4.Runtime.Atn.Transition>(InitialNumTransitions);
 
         protected internal IList<Antlr4.Runtime.Atn.Transition> optimizedTransitions;
@@ -120,7 +119,6 @@ namespace Antlr4.Runtime.Atn
         public IntervalSet nextTokenWithinRule;
 
         /// <summary>Gets the state number.</summary>
-        /// <remarks>Gets the state number.</remarks>
         /// <returns>the state number</returns>
         public int StateNumber
         {

@@ -78,10 +78,6 @@ namespace Antlr4.Runtime.Tree
         /// Specialize toStringTree so that it can print out more information
         /// based upon the parser.
         /// </summary>
-        /// <remarks>
-        /// Specialize toStringTree so that it can print out more information
-        /// based upon the parser.
-        /// </remarks>
         string ToStringTree(Parser parser);
     }
 }

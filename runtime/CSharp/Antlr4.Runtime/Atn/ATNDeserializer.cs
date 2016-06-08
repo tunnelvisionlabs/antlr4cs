@@ -51,7 +51,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>This is the earliest supported serialized UUID.</summary>
-        /// <remarks>This is the earliest supported serialized UUID.</remarks>
         private static readonly Guid BaseSerializedUuid;
 
         /// <summary>
@@ -67,14 +66,9 @@ namespace Antlr4.Runtime.Atn
         /// This list contains all of the currently supported UUIDs, ordered by when
         /// the feature first appeared in this branch.
         /// </summary>
-        /// <remarks>
-        /// This list contains all of the currently supported UUIDs, ordered by when
-        /// the feature first appeared in this branch.
-        /// </remarks>
         private static readonly IList<Guid> SupportedUuids;
 
         /// <summary>This is the current serialized UUID.</summary>
-        /// <remarks>This is the current serialized UUID.</remarks>
         public static readonly Guid SerializedUuid;
 
         static ATNDeserializer()

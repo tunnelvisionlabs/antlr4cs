@@ -1176,10 +1176,6 @@ namespace Antlr4.Runtime.Atn
         /// Compute a target state for an edge in the DFA, and attempt to add the
         /// computed state and corresponding edge to the DFA.
         /// </summary>
-        /// <remarks>
-        /// Compute a target state for an edge in the DFA, and attempt to add the
-        /// computed state and corresponding edge to the DFA.
-        /// </remarks>
         /// <param name="dfa"/>
         /// <param name="s">The current DFA state</param>
         /// <param name="remainingGlobalContext"/>
@@ -2410,7 +2406,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>See comment on LexerInterpreter.addDFAState.</summary>
-        /// <remarks>See comment on LexerInterpreter.addDFAState.</remarks>
         [NotNull]
         protected internal virtual DFAState AddDFAContextState(DFA dfa, ATNConfigSet configs, int returnContext, PredictionContextCache contextCache)
         {
@@ -2433,7 +2428,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>See comment on LexerInterpreter.addDFAState.</summary>
-        /// <remarks>See comment on LexerInterpreter.addDFAState.</remarks>
         [NotNull]
         protected internal virtual DFAState AddDFAState(DFA dfa, ATNConfigSet configs, PredictionContextCache contextCache)
         {

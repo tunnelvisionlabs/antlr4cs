@@ -65,7 +65,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Gets the type to assign to a token created by the lexer.</summary>
-        /// <remarks>Gets the type to assign to a token created by the lexer.</remarks>
         /// <returns>The type to assign to a token created by the lexer.</returns>
         public virtual int Type
         {

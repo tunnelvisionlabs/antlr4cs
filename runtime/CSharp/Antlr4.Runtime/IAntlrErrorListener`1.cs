@@ -35,7 +35,6 @@ using Antlr4.Runtime.Sharpen;
 namespace Antlr4.Runtime
 {
     /// <summary>How to emit recognition errors.</summary>
-    /// <remarks>How to emit recognition errors.</remarks>
     public interface IAntlrErrorListener<Symbol>
     {
         /// <summary>Upon syntax error, notify any interested parties.</summary>

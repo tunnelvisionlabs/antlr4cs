@@ -141,7 +141,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Get the tag for this chunk.</summary>
-        /// <remarks>Get the tag for this chunk.</remarks>
         /// <returns>The tag for the chunk.</returns>
         public string Tag
         {
@@ -152,7 +151,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Get the label, if any, assigned to this chunk.</summary>
-        /// <remarks>Get the label, if any, assigned to this chunk.</remarks>
         /// <returns>
         /// The label assigned to this chunk, or
         /// <see langword="null"/>

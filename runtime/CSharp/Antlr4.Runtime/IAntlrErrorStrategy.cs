@@ -166,10 +166,6 @@ namespace Antlr4.Runtime
         /// This method is called by when the parser successfully matches an input
         /// symbol.
         /// </summary>
-        /// <remarks>
-        /// This method is called by when the parser successfully matches an input
-        /// symbol.
-        /// </remarks>
         /// <param name="recognizer">the parser instance</param>
         void ReportMatch(Parser recognizer);
 

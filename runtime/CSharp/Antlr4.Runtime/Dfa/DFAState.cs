@@ -80,12 +80,10 @@ namespace Antlr4.Runtime.Dfa
         private Antlr4.Runtime.Dfa.AcceptStateInfo acceptStateInfo;
 
         /// <summary>These keys for these edges are the top level element of the global context.</summary>
-        /// <remarks>These keys for these edges are the top level element of the global context.</remarks>
         [NotNull]
         private volatile AbstractEdgeMap<Antlr4.Runtime.Dfa.DFAState> contextEdges;
 
         /// <summary>Symbols in this set require a global context transition before matching an input symbol.</summary>
-        /// <remarks>Symbols in this set require a global context transition before matching an input symbol.</remarks>
         [Nullable]
         private BitSet contextSymbols;
 
@@ -98,7 +96,6 @@ namespace Antlr4.Runtime.Dfa
         public DFAState.PredPrediction[] predicates;
 
         /// <summary>Map a predicate to a predicted alternative.</summary>
-        /// <remarks>Map a predicate to a predicted alternative.</remarks>
         public class PredPrediction
         {
             [NotNull]

@@ -96,10 +96,6 @@ namespace Antlr4.Runtime
         /// Make sure we don't attempt to recover inline; if the parser
         /// successfully recovers, it won't throw an exception.
         /// </summary>
-        /// <remarks>
-        /// Make sure we don't attempt to recover inline; if the parser
-        /// successfully recovers, it won't throw an exception.
-        /// </remarks>
         /// <exception cref="Antlr4.Runtime.RecognitionException"/>
         public override IToken RecoverInline(Parser recognizer)
         {
@@ -112,7 +108,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Make sure we don't attempt to recover from problems in subrules.</summary>
-        /// <remarks>Make sure we don't attempt to recover from problems in subrules.</remarks>
         public override void Sync(Parser recognizer)
         {
         }

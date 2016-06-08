@@ -49,7 +49,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>This is the current serialized UUID.</summary>
-        /// <remarks>This is the current serialized UUID.</remarks>
         [System.ObsoleteAttribute(@"Use ATNDeserializer.CheckCondition(bool) instead.")]
         public static readonly Guid SerializedUuid;
 

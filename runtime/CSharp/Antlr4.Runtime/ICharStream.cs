@@ -36,7 +36,6 @@ using Antlr4.Runtime.Sharpen;
 namespace Antlr4.Runtime
 {
     /// <summary>A source of characters for an ANTLR lexer.</summary>
-    /// <remarks>A source of characters for an ANTLR lexer.</remarks>
     public interface ICharStream : IIntStream
     {
         /// <summary>

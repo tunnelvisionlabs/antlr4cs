@@ -90,12 +90,6 @@ namespace Antlr4.Runtime
         /// If parent is null, this should be -1 this context object represents
         /// the start rule.
         /// </summary>
-        /// <remarks>
-        /// What state invoked the rule associated with this context?
-        /// The "return address" is the followState of invokingState
-        /// If parent is null, this should be -1 this context object represents
-        /// the start rule.
-        /// </remarks>
         public int invokingState = -1;
 
         public RuleContext()
@@ -130,10 +124,6 @@ namespace Antlr4.Runtime
         /// A context is empty if there is no invoking state; meaning nobody called
         /// current context.
         /// </summary>
-        /// <remarks>
-        /// A context is empty if there is no invoking state; meaning nobody called
-        /// current context.
-        /// </remarks>
         public virtual bool IsEmpty
         {
             get

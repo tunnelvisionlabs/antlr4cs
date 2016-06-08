@@ -36,7 +36,6 @@ using Antlr4.Runtime.Sharpen;
 namespace Antlr4.Runtime.Misc
 {
     /// <summary>An immutable inclusive interval a..b.</summary>
-    /// <remarks>An immutable inclusive interval a..b.</remarks>
     public struct Interval
     {
         public const int IntervalPoolMaxValue = 1000;
@@ -46,11 +45,9 @@ namespace Antlr4.Runtime.Misc
         private static Antlr4.Runtime.Misc.Interval[] cache = new Antlr4.Runtime.Misc.Interval[IntervalPoolMaxValue + 1];
 
         /// <summary>The start of the interval.</summary>
-        /// <remarks>The start of the interval.</remarks>
         public readonly int a;
 
         /// <summary>The end of the interval (inclusive).</summary>
-        /// <remarks>The end of the interval (inclusive).</remarks>
         public readonly int b;
 
         public Interval(int a, int b)

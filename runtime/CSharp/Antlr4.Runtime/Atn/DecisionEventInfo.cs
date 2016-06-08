@@ -58,7 +58,6 @@ namespace Antlr4.Runtime.Atn
     public class DecisionEventInfo
     {
         /// <summary>The invoked decision number which this event is related to.</summary>
-        /// <remarks>The invoked decision number which this event is related to.</remarks>
         /// <seealso cref="ATN.decisionToState"/>
         public readonly int decision;
 
@@ -73,7 +72,6 @@ namespace Antlr4.Runtime.Atn
         public readonly SimulatorState state;
 
         /// <summary>The input token stream which is being parsed.</summary>
-        /// <remarks>The input token stream which is being parsed.</remarks>
         [NotNull]
         public readonly ITokenStream input;
 
@@ -81,14 +79,9 @@ namespace Antlr4.Runtime.Atn
         /// The token index in the input stream at which the current prediction was
         /// originally invoked.
         /// </summary>
-        /// <remarks>
-        /// The token index in the input stream at which the current prediction was
-        /// originally invoked.
-        /// </remarks>
         public readonly int startIndex;
 
         /// <summary>The token index in the input stream at which the current event occurred.</summary>
-        /// <remarks>The token index in the input stream at which the current event occurred.</remarks>
         public readonly int stopIndex;
 
         /// <summary>

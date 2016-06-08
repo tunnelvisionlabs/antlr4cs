@@ -36,7 +36,6 @@ using Antlr4.Runtime.Sharpen;
 namespace Antlr4.Runtime
 {
     /// <summary>How to emit recognition errors for parsers.</summary>
-    /// <remarks>How to emit recognition errors for parsers.</remarks>
     public interface IParserErrorListener : IAntlrErrorListener<IToken>
     {
         /// <summary>

@@ -38,10 +38,6 @@ namespace Antlr4.Runtime
     /// This signifies any kind of mismatched input exceptions such as
     /// when the current input does not match the expected token.
     /// </summary>
-    /// <remarks>
-    /// This signifies any kind of mismatched input exceptions such as
-    /// when the current input does not match the expected token.
-    /// </remarks>
     [System.Serializable]
     public class InputMismatchException : RecognitionException
     {

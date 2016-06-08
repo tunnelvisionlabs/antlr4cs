@@ -39,7 +39,6 @@ namespace Antlr4.Runtime.Atn
     public sealed class AtomTransition : Transition
     {
         /// <summary>The token type or character value; or, signifies special label.</summary>
-        /// <remarks>The token type or character value; or, signifies special label.</remarks>
         public readonly int label;
 
         public AtomTransition(ATNState target, int label)

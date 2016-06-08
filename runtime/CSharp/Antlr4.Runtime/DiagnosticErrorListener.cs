@@ -153,11 +153,6 @@ namespace Antlr4.Runtime
         /// configuration set, if that information was not already provided by the
         /// parser.
         /// </summary>
-        /// <remarks>
-        /// Computes the set of conflicting or ambiguous alternatives from a
-        /// configuration set, if that information was not already provided by the
-        /// parser.
-        /// </remarks>
         /// <param name="reportedAlts">
         /// The set of conflicting or ambiguous alternatives, as
         /// reported by the parser.

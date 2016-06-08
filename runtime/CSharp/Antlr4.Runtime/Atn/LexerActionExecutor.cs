@@ -192,7 +192,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Gets the lexer actions to be executed by this executor.</summary>
-        /// <remarks>Gets the lexer actions to be executed by this executor.</remarks>
         /// <returns>The lexer actions to be executed by this executor.</returns>
         public virtual ILexerAction[] LexerActions
         {

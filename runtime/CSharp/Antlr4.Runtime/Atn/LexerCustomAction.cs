@@ -61,10 +61,6 @@ namespace Antlr4.Runtime.Atn
         /// Constructs a custom lexer action with the specified rule and action
         /// indexes.
         /// </summary>
-        /// <remarks>
-        /// Constructs a custom lexer action with the specified rule and action
-        /// indexes.
-        /// </remarks>
         /// <param name="ruleIndex">
         /// The rule index to use for calls to
         /// <see cref="Antlr4.Runtime.Recognizer{Symbol, ATNInterpreter}.Action(Antlr4.Runtime.RuleContext, int, int)"/>

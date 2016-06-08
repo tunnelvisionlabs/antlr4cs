@@ -140,7 +140,6 @@ namespace Antlr4.Runtime
             protected internal int instructionIndex;
 
             /// <summary>Token buffer index.</summary>
-            /// <remarks>Token buffer index.</remarks>
             protected internal int index;
 
             protected internal object text;
@@ -200,10 +199,6 @@ namespace Antlr4.Runtime
         /// I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
         /// instructions.
         /// </summary>
-        /// <remarks>
-        /// I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
-        /// instructions.
-        /// </remarks>
         internal class ReplaceOp : TokenStreamRewriter.RewriteOperation
         {
             protected internal int lastIndex;
@@ -453,10 +448,6 @@ namespace Antlr4.Runtime
         /// Return the text from the original tokens altered per the
         /// instructions given to this rewriter.
         /// </summary>
-        /// <remarks>
-        /// Return the text from the original tokens altered per the
-        /// instructions given to this rewriter.
-        /// </remarks>
         public virtual string GetText()
         {
             return GetText(DefaultProgramName, Interval.Of(0, tokens.Size - 1));
@@ -466,10 +457,6 @@ namespace Antlr4.Runtime
         /// Return the text from the original tokens altered per the
         /// instructions given to this rewriter in programName.
         /// </summary>
-        /// <remarks>
-        /// Return the text from the original tokens altered per the
-        /// instructions given to this rewriter in programName.
-        /// </remarks>
         /// <since>4.5</since>
         public virtual string GetText(string programName)
         {

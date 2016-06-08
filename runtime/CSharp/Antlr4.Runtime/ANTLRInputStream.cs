@@ -177,11 +177,6 @@ namespace Antlr4.Runtime
         /// when the object was created *except* the data array is not
         /// touched.
         /// </summary>
-        /// <remarks>
-        /// Reset the stream so that it's in the same state it was
-        /// when the object was created *except* the data array is not
-        /// touched.
-        /// </remarks>
         public virtual void Reset()
         {
             p = 0;

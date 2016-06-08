@@ -49,7 +49,6 @@ namespace Antlr4.Runtime.Atn
     public interface ILexerAction
     {
         /// <summary>Gets the serialization type of the lexer action.</summary>
-        /// <remarks>Gets the serialization type of the lexer action.</remarks>
         /// <returns>The serialization type of the lexer action.</returns>
         LexerActionType ActionType
         {

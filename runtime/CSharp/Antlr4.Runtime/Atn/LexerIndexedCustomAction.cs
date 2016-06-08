@@ -112,7 +112,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Gets the lexer action to execute.</summary>
-        /// <remarks>Gets the lexer action to execute.</remarks>
         /// <returns>
         /// A
         /// <see cref="ILexerAction"/>

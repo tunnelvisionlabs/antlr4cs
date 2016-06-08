@@ -54,7 +54,6 @@ namespace Antlr4.Runtime.Atn
     public sealed class LexerPopModeAction : ILexerAction
     {
         /// <summary>Provides a singleton instance of this parameterless lexer action.</summary>
-        /// <remarks>Provides a singleton instance of this parameterless lexer action.</remarks>
         public static readonly Antlr4.Runtime.Atn.LexerPopModeAction Instance = new Antlr4.Runtime.Atn.LexerPopModeAction();
 
         /// <summary>

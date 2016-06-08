@@ -63,10 +63,6 @@ namespace Antlr4.Runtime
         /// This identifies StarLoopEntryState's that begin the (...)
         /// precedence loops of left recursive rules.
         /// </summary>
-        /// <remarks>
-        /// This identifies StarLoopEntryState's that begin the (...)
-        /// precedence loops of left recursive rules.
-        /// </remarks>
         protected internal readonly BitSet pushRecursionContextStates;
 
         [Obsolete]
@@ -98,10 +94,6 @@ namespace Antlr4.Runtime
         /// A copy constructor that creates a new parser interpreter by reusing
         /// the fields of a previous interpreter.
         /// </summary>
-        /// <remarks>
-        /// A copy constructor that creates a new parser interpreter by reusing
-        /// the fields of a previous interpreter.
-        /// </remarks>
         /// <param name="old">The interpreter to copy</param>
         /// <since>4.5</since>
         public ParserInterpreter(Antlr4.Runtime.ParserInterpreter old)

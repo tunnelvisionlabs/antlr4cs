@@ -49,7 +49,6 @@ namespace Antlr4.Runtime.Tree
     public interface IParseTreeVisitor<Result>
     {
         /// <summary>Visit a parse tree, and return a user-defined result of the operation.</summary>
-        /// <remarks>Visit a parse tree, and return a user-defined result of the operation.</remarks>
         /// <param name="tree">
         /// The
         /// <see cref="IParseTree"/>
@@ -62,10 +61,6 @@ namespace Antlr4.Runtime.Tree
         /// Visit the children of a node, and return a user-defined result
         /// of the operation.
         /// </summary>
-        /// <remarks>
-        /// Visit the children of a node, and return a user-defined result
-        /// of the operation.
-        /// </remarks>
         /// <param name="node">
         /// The
         /// <see cref="IRuleNode"/>
@@ -75,7 +70,6 @@ namespace Antlr4.Runtime.Tree
         Result VisitChildren(IRuleNode node);
 
         /// <summary>Visit a terminal node, and return a user-defined result of the operation.</summary>
-        /// <remarks>Visit a terminal node, and return a user-defined result of the operation.</remarks>
         /// <param name="node">
         /// The
         /// <see cref="ITerminalNode"/>
@@ -85,7 +79,6 @@ namespace Antlr4.Runtime.Tree
         Result VisitTerminal(ITerminalNode node);
 
         /// <summary>Visit an error node, and return a user-defined result of the operation.</summary>
-        /// <remarks>Visit an error node, and return a user-defined result of the operation.</remarks>
         /// <param name="node">
         /// The
         /// <see cref="IErrorNode"/>

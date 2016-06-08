@@ -39,10 +39,6 @@ namespace Antlr4.Runtime
     /// This interface provides information about the vocabulary used by a
     /// recognizer.
     /// </summary>
-    /// <remarks>
-    /// This interface provides information about the vocabulary used by a
-    /// recognizer.
-    /// </remarks>
     /// <seealso cref="Recognizer{Symbol, ATNInterpreter}.Vocabulary()"/>
     /// <author>Sam Harwell</author>
     public interface IVocabulary

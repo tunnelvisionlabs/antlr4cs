@@ -40,7 +40,6 @@ namespace Antlr4.Runtime.Misc
         private const int DefaultSeed = 0;
 
         /// <summary>Initialize the hash using the default seed value.</summary>
-        /// <remarks>Initialize the hash using the default seed value.</remarks>
         /// <returns>the intermediate hash value</returns>
         public static int Initialize()
         {
@@ -121,10 +120,6 @@ namespace Antlr4.Runtime.Misc
         /// Utility function to compute the hash code of an array using the
         /// MurmurHash algorithm.
         /// </summary>
-        /// <remarks>
-        /// Utility function to compute the hash code of an array using the
-        /// MurmurHash algorithm.
-        /// </remarks>
         /// <?/>
         /// <param name="data">the array data</param>
         /// <param name="seed">the seed for the MurmurHash algorithm</param>

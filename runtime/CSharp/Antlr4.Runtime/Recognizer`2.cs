@@ -85,7 +85,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Get the vocabulary used by the recognizer.</summary>
-        /// <remarks>Get the vocabulary used by the recognizer.</remarks>
         /// <returns>
         /// A
         /// <see cref="IVocabulary"/>
@@ -222,10 +221,8 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Get the ATN interpreter used by the recognizer for prediction.</summary>
-        /// <remarks>Get the ATN interpreter used by the recognizer for prediction.</remarks>
         /// <returns>The ATN interpreter used by the recognizer for prediction.</returns>
         /// <summary>Set the ATN interpreter used by the recognizer for prediction.</summary>
-        /// <remarks>Set the ATN interpreter used by the recognizer for prediction.</remarks>
         /// <value>
         /// The ATN interpreter used by the recognizer for
         /// prediction.
@@ -247,10 +244,6 @@ namespace Antlr4.Runtime
         /// If profiling during the parse/lex, this will return DecisionInfo records
         /// for each decision in recognizer in a ParseInfo object.
         /// </summary>
-        /// <remarks>
-        /// If profiling during the parse/lex, this will return DecisionInfo records
-        /// for each decision in recognizer in a ParseInfo object.
-        /// </remarks>
         /// <since>4.3</since>
         public virtual Antlr4.Runtime.Atn.ParseInfo ParseInfo
         {

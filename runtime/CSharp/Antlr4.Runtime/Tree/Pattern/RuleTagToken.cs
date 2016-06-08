@@ -124,7 +124,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Gets the name of the rule associated with this rule tag.</summary>
-        /// <remarks>Gets the name of the rule associated with this rule tag.</remarks>
         /// <returns>The name of the parser rule associated with this rule tag.</returns>
         public string RuleName
         {
@@ -135,7 +134,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Gets the label associated with the rule tag.</summary>
-        /// <remarks>Gets the label associated with the rule tag.</remarks>
         /// <returns>
         /// The name of the label associated with the rule tag, or
         /// <see langword="null"/>

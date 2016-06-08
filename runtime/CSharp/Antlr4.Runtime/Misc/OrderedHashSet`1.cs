@@ -60,10 +60,6 @@ namespace Antlr4.Runtime.Misc
         /// Replace an existing value with a new value; updates the element
         /// list and the hash table, but not the key as that has not changed.
         /// </summary>
-        /// <remarks>
-        /// Replace an existing value with a new value; updates the element
-        /// list and the hash table, but not the key as that has not changed.
-        /// </remarks>
         public virtual T Set(int i, T value)
         {
             T oldElement = elements[i];
