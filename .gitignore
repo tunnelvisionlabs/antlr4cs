@@ -7,7 +7,7 @@
 [Dd]ebug/
 [Rr]elease/
 reference/.metadata/
-reference/antlr4.net/
+reference/reference.net/
 /runtime/CSharp/packages/
 
 # ignore Java (Maven) build directory

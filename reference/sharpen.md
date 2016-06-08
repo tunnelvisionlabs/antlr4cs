@@ -1,3 +1,12 @@
+> :warning: This file is no longer up-to-date. The following major changes impacted
+> the steps required to update the C# code.
+>
+> 1. `git subtree` is used instead of submodules to maintain the **sharpen** branch
+>    of the reference source code.
+> 2. The command line Sharpen application is now used instead of the Eclipse-based
+>    application.
+
+
 # Semi-automatic conversion with Sharpen
 
 The update process for keeping the C# port up-to-date uses several steps, taking

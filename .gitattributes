@@ -1,1 +1,4 @@
 * text=auto
+
+# Due to a limitation in Sharpen...
+/reference/sharpen-header.txt eol=lf
