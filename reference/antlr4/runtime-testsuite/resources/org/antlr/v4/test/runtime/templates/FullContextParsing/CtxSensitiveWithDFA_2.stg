@@ -1,0 +1,17 @@
+import "CtxSensitiveWithDFA.stg"
+
+Input() ::= "@ 34 abc"
+
+Output() ::= <<
+Decision 1:
+s0-INT->s1
+s1-ID->:s2=>1
+s3**-ctx:18(b)->s4
+s4-INT->s5
+s5-ID->:s6=>2<\n>
+>>
+
+Errors() ::= <<
+line 1:5 reportAttemptingFullContext d=1 (e), input='34abc'
+line 1:5 reportContextSensitivity d=1 (e), input='34abc'<\n>
+>>
