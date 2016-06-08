@@ -137,7 +137,7 @@ namespace Antlr4.Runtime.Misc
             IDictionary<string, int> m = new Dictionary<string, int>();
             for (int i = 0; i < keys.Length; i++)
             {
-                m.Put(keys[i], i);
+                m[keys[i]] = i;
             }
             return m;
         }

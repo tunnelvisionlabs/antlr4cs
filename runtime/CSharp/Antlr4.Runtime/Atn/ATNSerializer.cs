@@ -160,14 +160,14 @@ namespace Antlr4.Runtime.Atn
                 for (int i = 0; i < s.NumberOfTransitions; i++)
                 {
                     Transition t = s.Transition(i);
-                    TransitionType edgeType = Transition.serializationTypes.Get(t.GetType());
+                    TransitionType edgeType = Transition.serializationTypes[t.GetType()];
                     if (edgeType == TransitionType.Set || edgeType == TransitionType.NotSet)
                     {
                         SetTransition st = (SetTransition)t;
-                        if (!setIndices.ContainsKey(st.set))
+                        if (!setIndices.Contains(st.set))
                         {
                             sets.Add(st.set);
-                            setIndices.Put(st.set, sets.Count - 1);
+                            setIndices[st.set] = sets.Count - 1;
                         }
                     }
                 }
@@ -274,7 +274,7 @@ namespace Antlr4.Runtime.Atn
                     }
                     int src = s_1.stateNumber;
                     int trg = t.target.stateNumber;
-                    TransitionType edgeType = Transition.serializationTypes.Get(t.GetType());
+                    TransitionType edgeType = Transition.serializationTypes[t.GetType()];
                     int arg1 = 0;
                     int arg2 = 0;
                     int arg3 = 0;
@@ -343,13 +343,13 @@ namespace Antlr4.Runtime.Atn
 
                         case TransitionType.Set:
                         {
-                            arg1 = setIndices.Get(((SetTransition)t).set);
+                            arg1 = setIndices[((SetTransition)t).set];
                             break;
                         }
 
                         case TransitionType.NotSet:
                         {
-                            arg1 = setIndices.Get(((SetTransition)t).set);
+                            arg1 = setIndices[((SetTransition)t).set];
                             break;
                         }
 
@@ -468,7 +468,7 @@ namespace Antlr4.Runtime.Atn
 
         public virtual string Decode(char[] data)
         {
-            data = data.Clone();
+            data = data.MemberwiseClone();
             // don't adjust the first value since that's the version number
             for (int i = 1; i < data.Length; i++)
             {

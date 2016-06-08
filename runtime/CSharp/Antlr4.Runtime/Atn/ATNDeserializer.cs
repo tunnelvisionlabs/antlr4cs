@@ -47,6 +47,9 @@ namespace Antlr4.Runtime.Atn
 
         static ATNDeserializer()
         {
+            /* This value should never change. Updates following this version are
+            * reflected as change in the unique ID SERIALIZED_UUID.
+            */
             SerializedVersion = 3;
         }
 
@@ -73,6 +76,9 @@ namespace Antlr4.Runtime.Atn
 
         static ATNDeserializer()
         {
+            /* WARNING: DO NOT MERGE THESE LINES. If UUIDs differ during a merge,
+            * resolve the conflict by generating a new ID!
+            */
             BaseSerializedUuid = Guid.FromString("E4178468-DF95-44D0-AD87-F22A5D5FB6D3");
             AddedLexerActions = Guid.FromString("AB35191A-1603-487E-B75A-479B831EAF6D");
             SupportedUuids = new List<Guid>();
@@ -142,7 +148,7 @@ namespace Antlr4.Runtime.Atn
 
         public virtual ATN Deserialize(char[] data)
         {
-            data = data.Clone();
+            data = data.MemberwiseClone();
             // don't adjust the first value since that's the version number
             for (int i = 1; i < data.Length; i++)
             {
@@ -609,6 +615,10 @@ namespace Antlr4.Runtime.Atn
                 {
                     continue;
                 }
+                /* We analyze the ATN to determine if this ATN decision state is the
+                * decision for the closure block that determines whether a
+                * precedence rule should continue or complete.
+                */
                 if (atn.ruleToStartState[state.ruleIndex].isPrecedenceRule)
                 {
                     ATNState maybeLoopEndState = state.Transition(state.NumberOfTransitions - 1).target;

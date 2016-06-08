@@ -267,23 +267,23 @@ namespace Antlr4.Runtime.Dfa
             get
             {
                 IDictionary<int, DFAState> map = contextEdges.ToMap();
-                if (map.ContainsKey(-1))
+                if (map.Contains(-1))
                 {
                     if (map.Count == 1)
                     {
-                        return Antlr4.Runtime.Sharpen.Collections.SingletonMap(PredictionContext.EmptyFullStateKey, map.Get(-1));
+                        return Antlr4.Runtime.Sharpen.Collections.SingletonMap(PredictionContext.EmptyFullStateKey, map[-1]);
                     }
                     else
                     {
                         try
                         {
-                            map.Put(PredictionContext.EmptyFullStateKey, Sharpen.Collections.Remove(map, -1));
+                            map[PredictionContext.EmptyFullStateKey] = Sharpen.Collections.Remove(map, -1);
                         }
                         catch (NotSupportedException)
                         {
                             // handles read only, non-singleton maps
                             map = new LinkedHashMap<int, DFAState>(map);
-                            map.Put(PredictionContext.EmptyFullStateKey, Sharpen.Collections.Remove(map, -1));
+                            map[PredictionContext.EmptyFullStateKey] = Sharpen.Collections.Remove(map, -1);
                         }
                     }
                 }

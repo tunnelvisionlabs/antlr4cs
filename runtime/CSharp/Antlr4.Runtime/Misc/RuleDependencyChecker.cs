@@ -51,7 +51,7 @@ namespace Antlr4.Runtime.Misc
 
         private static readonly HashSet<Type> checkedTypes = new HashSet<Type>();
 
-        public static void CheckDependencies<_T0>(Type<_T0> dependentClass)
+        public static void CheckDependencies(Type dependentClass)
         {
             if (IsChecked(dependentClass))
             {
@@ -73,15 +73,15 @@ namespace Antlr4.Runtime.Misc
                 foreach (Tuple<RuleDependency, IAnnotatedElement> dependency in dependencies)
                 {
                     Type recognizerType = dependency.Item1.Recognizer();
-                    IList<Tuple<RuleDependency, IAnnotatedElement>> list = recognizerDependencies.Get(recognizerType);
+                    IList<Tuple<RuleDependency, IAnnotatedElement>> list = recognizerDependencies[recognizerType];
                     if (list == null)
                     {
                         list = new List<Tuple<RuleDependency, IAnnotatedElement>>();
-                        recognizerDependencies.Put(recognizerType, list);
+                        recognizerDependencies[recognizerType] = list;
                     }
                     list.Add(dependency);
                 }
-                foreach (KeyValuePair<Type, IList<Tuple<RuleDependency, IAnnotatedElement>>> entry in recognizerDependencies.EntrySet())
+                foreach (KeyValuePair<Type, IList<Tuple<RuleDependency, IAnnotatedElement>>> entry in recognizerDependencies)
                 {
                     //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, String.format("ANTLR 4: Validating %d dependencies on rules in %s.", entry.getValue().size(), entry.getKey().toString()));
                     CheckDependencies(entry.Value, entry.Key);
@@ -90,14 +90,14 @@ namespace Antlr4.Runtime.Misc
             }
         }
 
-        private static IList<Type> GetTypesToCheck<_T0>(Type<_T0> clazz)
+        private static IList<Type> GetTypesToCheck(Type clazz)
         {
             HashSet<Type> result = new HashSet<Type>();
             GetTypesToCheck(clazz, result);
             return new List<Type>(result);
         }
 
-        private static void GetTypesToCheck<_T0>(Type<_T0> clazz, HashSet<Type> result)
+        private static void GetTypesToCheck(Type clazz, HashSet<Type> result)
         {
             if (!result.Add(clazz))
             {
@@ -109,7 +109,7 @@ namespace Antlr4.Runtime.Misc
             }
         }
 
-        private static bool IsChecked<_T0>(Type<_T0> clazz)
+        private static bool IsChecked(Type clazz)
         {
             lock (checkedTypes)
             {
@@ -117,7 +117,7 @@ namespace Antlr4.Runtime.Misc
             }
         }
 
-        private static void MarkChecked<_T0>(Type<_T0> clazz)
+        private static void MarkChecked(Type clazz)
         {
             lock (checkedTypes)
             {
@@ -125,8 +125,7 @@ namespace Antlr4.Runtime.Misc
             }
         }
 
-        private static void CheckDependencies<_T0>(IList<Tuple<RuleDependency, IAnnotatedElement>> dependencies, Type<_T0> recognizerType)
-            where _T0 : Recognizer<object, object>
+        private static void CheckDependencies(IList<Tuple<RuleDependency, IAnnotatedElement>> dependencies, Type recognizerType)
         {
             string[] ruleNames = GetRuleNames(recognizerType);
             int[] ruleVersions = GetRuleVersions(recognizerType, ruleNames);
@@ -256,8 +255,7 @@ namespace Antlr4.Runtime.Misc
             return actualVersion;
         }
 
-        private static int[] GetRuleVersions<_T0>(Type<_T0> recognizerClass, string[] ruleNames)
-            where _T0 : Recognizer<object, object>
+        private static int[] GetRuleVersions(Type recognizerClass, string[] ruleNames)
         {
             int[] versions = new int[ruleNames.Length];
             FieldInfo[] fields = recognizerClass.GetFields();
@@ -305,8 +303,7 @@ namespace Antlr4.Runtime.Misc
             return versions;
         }
 
-        private static MethodInfo GetRuleMethod<_T0>(Type<_T0> recognizerClass, string name)
-            where _T0 : Recognizer<object, object>
+        private static MethodInfo GetRuleMethod(Type recognizerClass, string name)
         {
             MethodInfo[] declaredMethods = recognizerClass.GetMethods();
             foreach (MethodInfo method in declaredMethods)
@@ -319,8 +316,7 @@ namespace Antlr4.Runtime.Misc
             return null;
         }
 
-        private static string[] GetRuleNames<_T0>(Type<_T0> recognizerClass)
-            where _T0 : Recognizer<object, object>
+        private static string[] GetRuleNames(Type recognizerClass)
         {
             try
             {
@@ -346,7 +342,7 @@ namespace Antlr4.Runtime.Misc
             return new string[0];
         }
 
-        public static IList<Tuple<RuleDependency, IAnnotatedElement>> GetDependencies<_T0>(Type<_T0> clazz)
+        public static IList<Tuple<RuleDependency, IAnnotatedElement>> GetDependencies(Type clazz)
         {
             IList<Tuple<RuleDependency, IAnnotatedElement>> result = new List<Tuple<RuleDependency, IAnnotatedElement>>();
             IList<ElementType> supportedTarget = Arrays.AsList(typeof(RuleDependency).GetAnnotation<Target>().Value());
@@ -441,8 +437,7 @@ namespace Antlr4.Runtime.Misc
             }
         }
 
-        private static RuleDependencyChecker.RuleRelations ExtractRuleRelations<_T0>(Type<_T0> recognizer)
-            where _T0 : Recognizer<object, object>
+        private static RuleDependencyChecker.RuleRelations ExtractRuleRelations(Type recognizer)
         {
             string serializedATN = GetSerializedATN(recognizer);
             if (serializedATN == null)
@@ -470,7 +465,7 @@ namespace Antlr4.Runtime.Misc
             return relations;
         }
 
-        private static string GetSerializedATN<_T0>(Type<_T0> recognizerClass)
+        private static string GetSerializedATN(Type recognizerClass)
         {
             try
             {

@@ -176,7 +176,7 @@ namespace Antlr4.Runtime.Dfa
                 {
                     continue;
                 }
-                result.Put(i + minIndex, element);
+                result[i + minIndex] = element;
             }
             return result;
         }

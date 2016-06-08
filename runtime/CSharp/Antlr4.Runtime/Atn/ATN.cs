@@ -216,7 +216,7 @@ namespace Antlr4.Runtime.Atn
         // just free mem, don't shift states in list
         public virtual void DefineMode(string name, TokensStartState s)
         {
-            modeNameToStartState.Put(name, s);
+            modeNameToStartState[name] = s;
             modeToStartState.Add(s);
             modeToDFA = Arrays.CopyOf(modeToDFA, modeToStartState.Count);
             modeToDFA[modeToDFA.Length - 1] = new DFA(s);

@@ -186,6 +186,7 @@ namespace Antlr4.Runtime.Atn
             return Join(context0, context1, PredictionContextCache.Uncached);
         }
 
+        /*package*/
         internal static Antlr4.Runtime.Atn.PredictionContext Join(Antlr4.Runtime.Atn.PredictionContext context0, Antlr4.Runtime.Atn.PredictionContext context1, PredictionContextCache contextCache)
         {
             if (context0 == context1)
@@ -323,15 +324,15 @@ namespace Antlr4.Runtime.Atn
             {
                 return context;
             }
-            Antlr4.Runtime.Atn.PredictionContext existing = visited.Get(context);
+            Antlr4.Runtime.Atn.PredictionContext existing = visited[context];
             if (existing != null)
             {
                 return existing;
             }
-            existing = contextCache.Get(context);
+            existing = contextCache[context];
             if (existing != null)
             {
-                visited.Put(context, existing);
+                visited[context] = existing;
                 return existing;
             }
             bool changed = false;
@@ -356,7 +357,7 @@ namespace Antlr4.Runtime.Atn
             if (!changed)
             {
                 existing = contextCache.GetOrAdd(context, context);
-                visited.Put(context, existing != null ? existing : context);
+                visited[context] = existing != null ? existing : context;
                 return context;
             }
             // We know parents.length>0 because context.isEmpty() is checked at the beginning of the method.
@@ -371,8 +372,8 @@ namespace Antlr4.Runtime.Atn
                 updated = new ArrayPredictionContext(parents, arrayPredictionContext.returnStates, context.cachedHashCode);
             }
             existing = contextCache.GetOrAdd(updated, updated);
-            visited.Put(updated, existing != null ? existing : updated);
-            visited.Put(context, existing != null ? existing : updated);
+            visited[updated] = existing != null ? existing : updated;
+            visited[context] = existing != null ? existing : updated;
             return updated;
         }
 

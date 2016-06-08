@@ -418,7 +418,7 @@ namespace Antlr4.Runtime.Atn
             IDictionary<PredictionContext, PredictionContext> visited = new IdentityHashMap<PredictionContext, PredictionContext>();
             Stack<PredictionContext> workList = new Stack<PredictionContext>();
             workList.Add(Context);
-            visited.Put(Context, Context);
+            visited[Context] = Context;
             while (!workList.IsEmpty())
             {
                 PredictionContext current = workList.Pop();
@@ -428,7 +428,7 @@ namespace Antlr4.Runtime.Atn
                     builder.Append("->");
                     builder.Append("s").Append(System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(current.GetParent(i)));
                     builder.Append("[label=\"").Append(current.GetReturnState(i)).Append("\"];\n");
-                    if (visited.Put(current.GetParent(i), current.GetParent(i)) == null)
+                    if (visited[current.GetParent(i)] = current.GetParent(i) == null)
                     {
                         workList.Push(current.GetParent(i));
                     }

@@ -579,13 +579,13 @@ namespace Antlr4.Runtime
             }
             lock (bypassAltsAtnCache)
             {
-                ATN result = bypassAltsAtnCache.Get(serializedAtn);
+                ATN result = bypassAltsAtnCache[serializedAtn];
                 if (result == null)
                 {
                     ATNDeserializationOptions deserializationOptions = new ATNDeserializationOptions();
                     deserializationOptions.GenerateRuleBypassTransitions = true;
                     result = new ATNDeserializer(deserializationOptions).Deserialize(serializedAtn.ToCharArray());
-                    bypassAltsAtnCache.Put(serializedAtn, result);
+                    bypassAltsAtnCache[serializedAtn] = result;
                 }
                 return result;
             }
@@ -1157,7 +1157,7 @@ namespace Antlr4.Runtime
         /// </summary>
         public virtual int GetRuleIndex(string ruleName)
         {
-            int ruleIndex = RuleIndexMap.Get(ruleName);
+            int ruleIndex = RuleIndexMap[ruleName];
             if (ruleIndex != null)
             {
                 return ruleIndex;

@@ -45,6 +45,7 @@ namespace Antlr4.Runtime.Atn
         internal SingletonPredictionContext(PredictionContext parent, int returnState)
             : base(CalculateHashCode(parent, returnState))
         {
+            /*package*/
             System.Diagnostics.Debug.Assert(returnState != EmptyFullStateKey && returnState != EmptyLocalStateKey);
             this.parent = parent;
             this.returnState = returnState;

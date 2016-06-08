@@ -170,7 +170,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         [Nullable]
         public virtual IParseTree Get(string label)
         {
-            IList<IParseTree> parseTrees = labels.Get(label);
+            IList<IParseTree> parseTrees = labels[label];
             if (parseTrees == null || parseTrees.Count == 0)
             {
                 return null;
@@ -221,7 +221,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         [NotNull]
         public virtual IList<IParseTree> GetAll(string label)
         {
-            IList<IParseTree> nodes = labels.Get(label);
+            IList<IParseTree> nodes = labels[label];
             if (nodes == null)
             {
                 return Antlr4.Runtime.Sharpen.Collections.EmptyList();

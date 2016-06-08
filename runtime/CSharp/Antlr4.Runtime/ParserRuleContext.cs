@@ -241,9 +241,8 @@ namespace Antlr4.Runtime
             return children != null && i >= 0 && i < children.Count ? children[i] : null;
         }
 
-        public virtual T GetChild<T, _T1>(Type<_T1> ctxType, int i)
+        public virtual T GetChild<T>(Type ctxType, int i)
             where T : IParseTree
-            where _T1 : T
         {
             if (children == null || i < 0 || i >= children.Count)
             {
@@ -322,16 +321,14 @@ namespace Antlr4.Runtime
             return tokens;
         }
 
-        public virtual T GetRuleContext<T, _T1>(Type<_T1> ctxType, int i)
+        public virtual T GetRuleContext<T>(Type ctxType, int i)
             where T : Antlr4.Runtime.ParserRuleContext
-            where _T1 : T
         {
             return GetChild(ctxType, i);
         }
 
-        public virtual IList<T> GetRuleContexts<T, _T1>(Type<_T1> ctxType)
+        public virtual IList<T> GetRuleContexts<T>(Type ctxType)
             where T : Antlr4.Runtime.ParserRuleContext
-            where _T1 : T
         {
             if (children == null)
             {

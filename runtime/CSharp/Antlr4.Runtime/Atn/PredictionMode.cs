@@ -263,6 +263,11 @@ namespace Antlr4.Runtime.Atn
         /// </remarks>
         public static bool HasSLLConflictTerminatingPrediction(PredictionMode mode, ATNConfigSet configs)
         {
+            /* Configs in rule stop states indicate reaching the end of the decision
+            * rule (local context) or end of start rule (full context). If all
+            * configs meet this condition, then none of the configurations is able
+            * to match additional input so we terminate prediction.
+            */
             if (AllConfigsInRuleStopStates(configs))
             {
                 return true;
@@ -846,11 +851,11 @@ namespace Antlr4.Runtime.Atn
             PredictionMode.AltAndContextMap configToAlts = new PredictionMode.AltAndContextMap();
             foreach (ATNConfig c in configs)
             {
-                BitSet alts = configToAlts.Get(c);
+                BitSet alts = configToAlts[c];
                 if (alts == null)
                 {
                     alts = new BitSet();
-                    configToAlts.Put(c, alts);
+                    configToAlts[c] = alts;
                 }
                 alts.Set(c.Alt);
             }
@@ -878,11 +883,11 @@ namespace Antlr4.Runtime.Atn
             IDictionary<ATNState, BitSet> m = new Dictionary<ATNState, BitSet>();
             foreach (ATNConfig c in configs)
             {
-                BitSet alts = m.Get(c.State);
+                BitSet alts = m[c.State];
                 if (alts == null)
                 {
                     alts = new BitSet();
-                    m.Put(c.State, alts);
+                    m[c.State] = alts;
                 }
                 alts.Set(c.Alt);
             }

@@ -154,5 +154,16 @@ namespace Antlr4.Runtime.Atn
         {
             return new ATNDeserializer().StateFactory(type, ruleIndex);
         }
+        /*
+        public static void dump(DFA dfa, Grammar g) {
+        DOTGenerator dot = new DOTGenerator(g);
+        String output = dot.getDOT(dfa, false);
+        System.out.println(output);
+        }
+        
+        public static void dump(DFA dfa) {
+        dump(dfa, null);
+        }
+        */
     }
 }

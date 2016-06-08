@@ -47,40 +47,40 @@ namespace Antlr4.Runtime.Misc
 
         public virtual Value Put(Key1 k1, Key2 k2, Value v)
         {
-            IDictionary<Key2, Value> data2 = data.Get(k1);
+            IDictionary<Key2, Value> data2 = data[k1];
             Value prev = null;
             if (data2 == null)
             {
                 data2 = new LinkedHashMap<Key2, Value>();
-                data.Put(k1, data2);
+                data[k1] = data2;
             }
             else
             {
-                prev = data2.Get(k2);
+                prev = data2[k2];
             }
-            data2.Put(k2, v);
+            data2[k2] = v;
             return prev;
         }
 
         public virtual Value Get(Key1 k1, Key2 k2)
         {
-            IDictionary<Key2, Value> data2 = data.Get(k1);
+            IDictionary<Key2, Value> data2 = data[k1];
             if (data2 == null)
             {
                 return null;
             }
-            return data2.Get(k2);
+            return data2[k2];
         }
 
         public virtual IDictionary<Key2, Value> Get(Key1 k1)
         {
-            return data.Get(k1);
+            return data[k1];
         }
 
         /// <summary>Get all values associated with primary key</summary>
         public virtual ICollection<Value> Values(Key1 k1)
         {
-            IDictionary<Key2, Value> data2 = data.Get(k1);
+            IDictionary<Key2, Value> data2 = data[k1];
             if (data2 == null)
             {
                 return null;
@@ -97,7 +97,7 @@ namespace Antlr4.Runtime.Misc
         /// <summary>get all secondary keys associated with a primary key</summary>
         public virtual HashSet<Key2> KeySet(Key1 k1)
         {
-            IDictionary<Key2, Value> data2 = data.Get(k1);
+            IDictionary<Key2, Value> data2 = data[k1];
             if (data2 == null)
             {
                 return null;

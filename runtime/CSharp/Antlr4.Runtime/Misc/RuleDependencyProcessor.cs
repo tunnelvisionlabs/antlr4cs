@@ -93,15 +93,15 @@ namespace Antlr4.Runtime.Misc
             foreach (Tuple<RuleDependency, IElement> dependency in dependencies)
             {
                 ITypeMirror recognizerType = GetRecognizerType(dependency.Item1);
-                IList<Tuple<RuleDependency, IElement>> list = recognizerDependencies.Get(recognizerType);
+                IList<Tuple<RuleDependency, IElement>> list = recognizerDependencies[recognizerType];
                 if (list == null)
                 {
                     list = new List<Tuple<RuleDependency, IElement>>();
-                    recognizerDependencies.Put(recognizerType, list);
+                    recognizerDependencies[recognizerType] = list;
                 }
                 list.Add(dependency);
             }
-            foreach (KeyValuePair<ITypeMirror, IList<Tuple<RuleDependency, IElement>>> entry in recognizerDependencies.EntrySet())
+            foreach (KeyValuePair<ITypeMirror, IList<Tuple<RuleDependency, IElement>>> entry in recognizerDependencies)
             {
                 processingEnv.GetMessager().PrintMessage(Diagnostic.Kind.Note, string.Format("ANTLR 4: Validating %d dependencies on rules in %s.", entry.Value.Count, entry.Key.ToString()));
                 CheckDependencies(entry.Value, entry.Key);
@@ -117,7 +117,7 @@ namespace Antlr4.Runtime.Misc
             return success;
         }
 
-        private bool CheckClassNameConstant<_T0>(string className, System.Type<_T0> clazz)
+        private bool CheckClassNameConstant(string className, System.Type clazz)
         {
             Args.NotNull("className", className);
             Args.NotNull("clazz", clazz);
@@ -503,7 +503,7 @@ namespace Antlr4.Runtime.Misc
                     if (processingEnv.GetTypeUtils().IsSameType(ruleDependenciesTypeElement.AsType(), annotationMirror.GetAnnotationType()))
                     {
                         IDictionary<IExecutableElement, IAnnotationValue> values = annotationMirror.GetElementValues();
-                        foreach (KeyValuePair<IExecutableElement, IAnnotationValue> value in values.EntrySet())
+                        foreach (KeyValuePair<IExecutableElement, IAnnotationValue> value in values)
                         {
                             if ("value()".Equals(value.Key.ToString()))
                             {
@@ -547,7 +547,7 @@ namespace Antlr4.Runtime.Misc
             IAnnotationValue versionValue = null;
             IAnnotationValue dependentsValue = null;
             IDictionary<IExecutableElement, IAnnotationValue> values = annotationMirror.GetElementValues();
-            foreach (KeyValuePair<IExecutableElement, IAnnotationValue> value in values.EntrySet())
+            foreach (KeyValuePair<IExecutableElement, IAnnotationValue> value in values)
             {
                 IAnnotationValue annotationValue = value.Value;
                 if ("rule()".Equals(value.Key.ToString()))

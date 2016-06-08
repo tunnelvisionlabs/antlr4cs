@@ -535,6 +535,18 @@ namespace Antlr4.Runtime.Misc
         {
             get
             {
+                /*
+                for (ListIterator iter = intervals.listIterator(); iter.hasNext();) {
+                Interval I = (Interval) iter.next();
+                if ( el<I.a ) {
+                break; // list is sorted and el is before this interval; not here
+                }
+                if ( el>=I.a && el<=I.b ) {
+                return true; // found in this interval
+                }
+                }
+                return false;
+                */
                 return intervals == null || intervals.IsEmpty();
             }
         }

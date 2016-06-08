@@ -102,7 +102,7 @@ namespace Antlr4.Runtime.Dfa
 
         public override HashSet<KeyValuePair<int, T>> EntrySet()
         {
-            return Antlr4.Runtime.Sharpen.Collections.EmptyMap<int, T>().EntrySet();
+            return Antlr4.Runtime.Sharpen.Collections.EmptyMap<int, T>();
         }
     }
 }

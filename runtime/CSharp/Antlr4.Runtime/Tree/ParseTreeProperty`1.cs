@@ -56,12 +56,12 @@ namespace Antlr4.Runtime.Tree
 
         public virtual V Get(IParseTree node)
         {
-            return annotations.Get(node);
+            return annotations[node];
         }
 
         public virtual void Put(IParseTree node, V value)
         {
-            annotations.Put(node, value);
+            annotations[node] = value;
         }
 
         public virtual V RemoveFrom(IParseTree node)

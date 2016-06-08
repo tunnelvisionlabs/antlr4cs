@@ -246,7 +246,7 @@ namespace Antlr4.Runtime
         {
             this.tokens = tokens;
             programs = new Dictionary<string, IList<TokenStreamRewriter.RewriteOperation>>();
-            programs.Put(DefaultProgramName, new List<TokenStreamRewriter.RewriteOperation>(ProgramInitSize));
+            programs[DefaultProgramName] = new List<TokenStreamRewriter.RewriteOperation>(ProgramInitSize);
             lastRewriteTokenIndexes = new Dictionary<string, int>();
         }
 
@@ -275,10 +275,10 @@ namespace Antlr4.Runtime
         /// </remarks>
         public virtual void Rollback(string programName, int instructionIndex)
         {
-            IList<TokenStreamRewriter.RewriteOperation> @is = programs.Get(programName);
+            IList<TokenStreamRewriter.RewriteOperation> @is = programs[programName];
             if (@is != null)
             {
-                programs.Put(programName, @is.SubList(MinTokenIndex, instructionIndex));
+                programs[programName] = @is.SubList(MinTokenIndex, instructionIndex);
             }
         }
 
@@ -414,7 +414,7 @@ namespace Antlr4.Runtime
 
         protected internal virtual int GetLastRewriteTokenIndex(string programName)
         {
-            int I = lastRewriteTokenIndexes.Get(programName);
+            int I = lastRewriteTokenIndexes[programName];
             if (I == null)
             {
                 return -1;
@@ -424,12 +424,12 @@ namespace Antlr4.Runtime
 
         protected internal virtual void SetLastRewriteTokenIndex(string programName, int i)
         {
-            lastRewriteTokenIndexes.Put(programName, i);
+            lastRewriteTokenIndexes[programName] = i;
         }
 
         protected internal virtual IList<TokenStreamRewriter.RewriteOperation> GetProgram(string name)
         {
-            IList<TokenStreamRewriter.RewriteOperation> @is = programs.Get(name);
+            IList<TokenStreamRewriter.RewriteOperation> @is = programs[name];
             if (@is == null)
             {
                 @is = InitializeProgram(name);
@@ -440,7 +440,7 @@ namespace Antlr4.Runtime
         private IList<TokenStreamRewriter.RewriteOperation> InitializeProgram(string name)
         {
             IList<TokenStreamRewriter.RewriteOperation> @is = new List<TokenStreamRewriter.RewriteOperation>(ProgramInitSize);
-            programs.Put(name, @is);
+            programs[name] = @is;
             return @is;
         }
 
@@ -484,7 +484,7 @@ namespace Antlr4.Runtime
 
         public virtual string GetText(string programName, Interval interval)
         {
-            IList<TokenStreamRewriter.RewriteOperation> rewrites = programs.Get(programName);
+            IList<TokenStreamRewriter.RewriteOperation> rewrites = programs[programName];
             int start = interval.a;
             int stop = interval.b;
             // ensure start/end are in range
@@ -508,7 +508,7 @@ namespace Antlr4.Runtime
             int i = start;
             while (i <= stop && i < tokens.Size)
             {
-                TokenStreamRewriter.RewriteOperation op = indexToOp.Get(i);
+                TokenStreamRewriter.RewriteOperation op = indexToOp[i];
                 Sharpen.Collections.Remove(indexToOp, i);
                 // remove so any left have index size-1
                 IToken t = tokens.Get(i);
@@ -711,11 +711,11 @@ namespace Antlr4.Runtime
                     continue;
                 }
                 // ignore deleted ops
-                if (m.Get(op.index) != null)
+                if (m[op.index] != null)
                 {
                     throw new Error("should only be one op per index");
                 }
-                m.Put(op.index, op);
+                m[op.index] = op;
             }
             //System.out.println("index to op: "+m);
             return m;

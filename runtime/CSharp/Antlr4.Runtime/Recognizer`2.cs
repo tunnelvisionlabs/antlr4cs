@@ -111,7 +111,7 @@ namespace Antlr4.Runtime
                 IVocabulary vocabulary = Vocabulary;
                 lock (tokenTypeMapCache)
                 {
-                    IDictionary<string, int> result = tokenTypeMapCache.Get(vocabulary);
+                    IDictionary<string, int> result = tokenTypeMapCache[vocabulary];
                     if (result == null)
                     {
                         result = new Dictionary<string, int>();
@@ -120,17 +120,17 @@ namespace Antlr4.Runtime
                             string literalName = vocabulary.GetLiteralName(i);
                             if (literalName != null)
                             {
-                                result.Put(literalName, i);
+                                result[literalName] = i;
                             }
                             string symbolicName = vocabulary.GetSymbolicName(i);
                             if (symbolicName != null)
                             {
-                                result.Put(symbolicName, i);
+                                result[symbolicName] = i;
                             }
                         }
-                        result.Put("EOF", TokenConstants.Eof);
+                        result["EOF"] = TokenConstants.Eof;
                         result = Antlr4.Runtime.Sharpen.Collections.UnmodifiableMap(result);
-                        tokenTypeMapCache.Put(vocabulary, result);
+                        tokenTypeMapCache[vocabulary] = result;
                     }
                     return result;
                 }
@@ -153,11 +153,11 @@ namespace Antlr4.Runtime
                 }
                 lock (ruleIndexMapCache)
                 {
-                    IDictionary<string, int> result = ruleIndexMapCache.Get(ruleNames);
+                    IDictionary<string, int> result = ruleIndexMapCache[ruleNames];
                     if (result == null)
                     {
                         result = Antlr4.Runtime.Sharpen.Collections.UnmodifiableMap(Utils.ToMap(ruleNames));
-                        ruleIndexMapCache.Put(ruleNames, result);
+                        ruleIndexMapCache[ruleNames] = result;
                     }
                     return result;
                 }
@@ -166,7 +166,7 @@ namespace Antlr4.Runtime
 
         public virtual int GetTokenType(string tokenName)
         {
-            int ttype = TokenTypeMap.Get(tokenName);
+            int ttype = TokenTypeMap[tokenName];
             if (ttype != null)
             {
                 return ttype;

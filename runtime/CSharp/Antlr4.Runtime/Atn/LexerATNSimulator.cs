@@ -527,6 +527,24 @@ namespace Antlr4.Runtime.Atn
 
                 case TransitionType.Predicate:
                 {
+                    /*  Track traversing semantic predicates. If we traverse,
+                    we cannot add a DFA state for this "reach" computation
+                    because the DFA would not test the predicate again in the
+                    future. Rather than creating collections of semantic predicates
+                    like v3 and testing them on prediction, v4 will test them on the
+                    fly all the time using the ATN not the DFA. This is slower but
+                    semantically it's not used that often. One of the key elements to
+                    this predicate mechanism is not adding DFA states that see
+                    predicates immediately afterwards in the ATN. For example,
+                    
+                    a : ID {p1}? | ID {p2}? ;
+                    
+                    should create the start state for rule 'a' (to save start state
+                    competition), but should not create target of ID state. The
+                    collection of ATN states the following ID references includes
+                    states reached by traversing predicates. Since this is when we
+                    test them, we cannot cash the DFA state target of ID.
+                    */
                     PredicateTransition pt = (PredicateTransition)t;
                     configs.MarkExplicitSemanticContext();
                     if (EvaluatePredicate(input, pt.ruleIndex, pt.predIndex, speculative))
@@ -686,6 +704,17 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         protected internal virtual DFAState AddDFAEdge(DFAState from, int t, ATNConfigSet q)
         {
+            /* leading to this call, ATNConfigSet.hasSemanticContext is used as a
+            * marker indicating dynamic predicate evaluation makes this edge
+            * dependent on the specific input sequence, so the static edge in the
+            * DFA should be omitted. The target DFAState is still created since
+            * execATN has the ability to resynchronize with the DFA state cache
+            * following the predicate evaluation step.
+            *
+            * TJP notes: next time through the DFA, we see a pred again and eval.
+            * If that gets us to a previously created (but dangling) DFA
+            * state, we can continue in pure DFA mode from there.
+            */
             bool suppressEdge = q.HasSemanticContext;
             if (suppressEdge)
             {
@@ -721,9 +750,12 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         protected internal virtual DFAState AddDFAState(ATNConfigSet configs)
         {
+            /* the lexer evaluates predicates on-the-fly; by this point configs
+            * should not contain any configurations with unevaluated predicates.
+            */
             System.Diagnostics.Debug.Assert(!configs.HasSemanticContext);
             DFAState proposed = new DFAState(atn.modeToDFA[mode], configs);
-            DFAState existing = atn.modeToDFA[mode].states.Get(proposed);
+            DFAState existing = atn.modeToDFA[mode].states[proposed];
             if (existing != null)
             {
                 return existing;

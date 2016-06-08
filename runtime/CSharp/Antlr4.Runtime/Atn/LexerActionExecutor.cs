@@ -179,7 +179,7 @@ namespace Antlr4.Runtime.Atn
                 {
                     if (updatedLexerActions == null)
                     {
-                        updatedLexerActions = lexerActions.Clone();
+                        updatedLexerActions = lexerActions.MemberwiseClone();
                     }
                     updatedLexerActions[i] = new LexerIndexedCustomAction(offset, lexerActions[i]);
                 }

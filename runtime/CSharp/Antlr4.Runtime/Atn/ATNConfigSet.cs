@@ -254,7 +254,7 @@ namespace Antlr4.Runtime.Atn
             }
             ATNConfig config = (ATNConfig)o;
             long configKey = GetKey(config);
-            ATNConfig mergedConfig = mergedConfigs.Get(configKey);
+            ATNConfig mergedConfig = mergedConfigs[configKey];
             if (mergedConfig != null && CanMerge(config, configKey, mergedConfig))
             {
                 return mergedConfig.Contains(config);
@@ -294,7 +294,7 @@ namespace Antlr4.Runtime.Atn
             }
             bool addKey;
             long key = GetKey(e);
-            ATNConfig mergedConfig = mergedConfigs.Get(key);
+            ATNConfig mergedConfig = mergedConfigs[key];
             addKey = (mergedConfig == null);
             if (mergedConfig != null && CanMerge(e, key, mergedConfig))
             {
@@ -331,7 +331,7 @@ namespace Antlr4.Runtime.Atn
                     unmergedConfig.Context = joined;
                     if (addKey)
                     {
-                        mergedConfigs.Put(key, unmergedConfig);
+                        mergedConfigs[key] = unmergedConfig;
                         unmerged.RemoveAt(i);
                     }
                     return true;
@@ -340,7 +340,7 @@ namespace Antlr4.Runtime.Atn
             configs.Add(e);
             if (addKey)
             {
-                mergedConfigs.Put(key, e);
+                mergedConfigs[key] = e;
             }
             else
             {
@@ -646,7 +646,7 @@ namespace Antlr4.Runtime.Atn
             ATNConfig config = configs[index];
             configs.Remove(config);
             long key = GetKey(config);
-            if (mergedConfigs.Get(key) == config)
+            if (mergedConfigs[key] == config)
             {
                 Sharpen.Collections.Remove(mergedConfigs, key);
             }

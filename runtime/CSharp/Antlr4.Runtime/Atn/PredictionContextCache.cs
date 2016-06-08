@@ -71,11 +71,11 @@ namespace Antlr4.Runtime.Atn
             {
                 return context;
             }
-            PredictionContext result = contexts.Get(context);
+            PredictionContext result = contexts[context];
             if (result == null)
             {
                 result = context;
-                contexts.Put(context, context);
+                contexts[context] = context;
             }
             return result;
         }
@@ -87,12 +87,12 @@ namespace Antlr4.Runtime.Atn
                 return context.GetChild(invokingState);
             }
             PredictionContextCache.PredictionContextAndInt operands = new PredictionContextCache.PredictionContextAndInt(context, invokingState);
-            PredictionContext result = childContexts.Get(operands);
+            PredictionContext result = childContexts[operands];
             if (result == null)
             {
                 result = context.GetChild(invokingState);
                 result = GetAsCached(result);
-                childContexts.Put(operands, result);
+                childContexts[operands] = result;
             }
             return result;
         }
@@ -104,14 +104,14 @@ namespace Antlr4.Runtime.Atn
                 return PredictionContext.Join(x, y, this);
             }
             PredictionContextCache.IdentityCommutativePredictionContextOperands operands = new PredictionContextCache.IdentityCommutativePredictionContextOperands(x, y);
-            PredictionContext result = joinContexts.Get(operands);
+            PredictionContext result = joinContexts[operands];
             if (result != null)
             {
                 return result;
             }
             result = PredictionContext.Join(x, y, this);
             result = GetAsCached(result);
-            joinContexts.Put(operands, result);
+            joinContexts[operands] = result;
             return result;
         }
 

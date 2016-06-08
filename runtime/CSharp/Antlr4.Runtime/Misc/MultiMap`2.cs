@@ -43,11 +43,11 @@ namespace Antlr4.Runtime.Misc
 
         public virtual void Map(K key, V value)
         {
-            IList<V> elementsForKey = Get(key);
+            IList<V> elementsForKey = this[key];
             if (elementsForKey == null)
             {
                 elementsForKey = new List<V>();
-                base.Put(key, elementsForKey);
+                base.Put;
             }
             elementsForKey.Add(value);
         }
@@ -57,7 +57,7 @@ namespace Antlr4.Runtime.Misc
             IList<Tuple<K, V>> pairs = new List<Tuple<K, V>>();
             foreach (K key in Keys)
             {
-                foreach (V value in Get(key))
+                foreach (V value in this[key])
                 {
                     pairs.Add(Tuple.Create(key, value));
                 }
