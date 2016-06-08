@@ -32,7 +32,6 @@
 */
 using System;
 using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree.Pattern;
 
 namespace Antlr4.Runtime.Tree.Pattern
 {
