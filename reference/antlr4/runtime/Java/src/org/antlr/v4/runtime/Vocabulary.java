@@ -45,6 +45,8 @@ public interface Vocabulary {
 	 * Returns the highest token type value. It can be used to iterate from
 	 * zero to that number, inclusively, thus querying all stored entries.
 	 * @return the highest token type value
+	 *
+	 * @sharpen.property MaxTokenType
 	 */
 	int getMaxTokenType();
 

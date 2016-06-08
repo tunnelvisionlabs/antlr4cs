@@ -6,11 +6,8 @@ import org.antlr.v4.runtime.atn.ATN;
  *
  *  options {contextSuperClass=org.antlr.v4.runtime.RuleContextWithAltNum;}
  *
- *  that provides a backing field / impl for the outer alternative number
+ *  that provides a property for the outer alternative number
  *  matched for an internal parse tree node.
- *
- *  I'm only putting into Java runtime as I'm certain I'm the only one that
- *  will really every use this.
  */
 public class RuleContextWithAltNum extends ParserRuleContext {
 	private int altNumber;
@@ -23,11 +20,17 @@ public class RuleContextWithAltNum extends ParserRuleContext {
 		super(parent, invokingStateNumber);
 	}
 
+	/**
+	 * @sharpen.property OuterAlternative
+	 */
 	@Override
 	public int getAltNumber() {
 		return altNumber;
 	}
 
+	/**
+	 * @sharpen.property OuterAlternative
+	 */
 	@Override
 	public void setAltNumber(int altNum) {
 		this.altNumber = altNum;

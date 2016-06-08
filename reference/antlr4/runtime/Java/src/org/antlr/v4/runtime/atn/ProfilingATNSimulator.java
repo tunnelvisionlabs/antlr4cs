@@ -270,6 +270,9 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 		return decisions;
 	}
 
+	/**
+	 * @sharpen.property CurrentState
+	 */
 	public SimulatorState getCurrentState() {
 		return currentState;
 	}

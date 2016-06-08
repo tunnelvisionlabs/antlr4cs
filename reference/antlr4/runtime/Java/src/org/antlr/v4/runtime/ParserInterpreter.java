@@ -434,6 +434,9 @@ public class ParserInterpreter extends Parser {
 		overrideDecisionAlt = forcedAlt;
 	}
 
+	/**
+	 * @sharpen.property OverrideDecisionRoot
+	 */
 	public InterpreterRuleContext getOverrideDecisionRoot() {
 		return overrideDecisionRoot;
 	}
@@ -483,6 +486,8 @@ public class ParserInterpreter extends Parser {
 	 *  called and left recursive rule that fails.
 	 *
 	 * @since 4.5.1
+	 *
+	 * @sharpen.property RootContext
 	 */
 	public InterpreterRuleContext getRootContext() {
 		return rootContext;

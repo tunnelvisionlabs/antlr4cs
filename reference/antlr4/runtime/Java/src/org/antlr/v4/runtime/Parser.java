@@ -866,6 +866,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         return false;
     }
 
+	/**
+	 * @sharpen.property MatchedEndOfFile
+	 */
 	public boolean isMatchedEOF() {
 		return matchedEOF;
 	}
