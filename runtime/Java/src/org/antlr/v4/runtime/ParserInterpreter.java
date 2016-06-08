@@ -79,7 +79,19 @@ public class ParserInterpreter extends Parser {
 	@NotNull
 	private final Vocabulary vocabulary;
 
-	/** Tracks LR rules for adjusting the contexts */
+	/** This stack corresponds to the _parentctx, _parentState pair of locals
+	 *  that would exist on call stack frames with a recursive descent parser;
+	 *  in the generated function for a left-recursive rule you'd see:
+	 *
+	 *  private EContext e(int _p) throws RecognitionException {
+	 *      ParserRuleContext _parentctx = _ctx;    // Pair.a
+	 *      int _parentState = getState();          // Pair.b
+	 *      ...
+	 *  }
+	 *
+	 *  Those values are used to create new recursive rule invocation contexts
+	 *  associated with left operand of an alt like "expr '*' expr".
+	 */
 	protected final Deque<Tuple2<ParserRuleContext, Integer>> _parentContextStack =
 		new ArrayDeque<Tuple2<ParserRuleContext, Integer>>();
 
@@ -89,6 +101,16 @@ public class ParserInterpreter extends Parser {
 	protected int overrideDecision = -1;
 	protected int overrideDecisionInputIndex = -1;
 	protected int overrideDecisionAlt = -1;
+	protected boolean overrideDecisionReached = false; // latch and only override once; error might trigger infinite loop
+
+	/** What is the current context when we override a decisions?  This tells
+	 *  us what the root of the parse tree is when using override
+	 *  for an ambiguity/lookahead check.
+	 */
+	protected InterpreterRuleContext overrideDecisionRoot = null;
+
+
+	protected InterpreterRuleContext rootContext;
 
 	/** A copy constructor that creates a new parser interpreter by reusing
 	 *  the fields of a previous interpreter.
@@ -148,6 +170,13 @@ public class ParserInterpreter extends Parser {
 	}
 
 	@Override
+	public void reset() {
+		super.reset();
+		overrideDecisionReached = false;
+		overrideDecisionRoot = null;
+	}
+
+	@Override
 	public ATN getATN() {
 		return atn;
 	}
@@ -177,7 +206,7 @@ public class ParserInterpreter extends Parser {
 	public ParserRuleContext parse(int startRuleIndex) {
 		RuleStartState startRuleStartState = atn.ruleToStartState[startRuleIndex];
 
-		InterpreterRuleContext rootContext = new InterpreterRuleContext(null, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
+		rootContext = createInterpreterRuleContext(null, ATNState.INVALID_STATE_NUMBER, startRuleIndex);
 		if (startRuleStartState.isPrecedenceRule) {
 			enterRecursionRule(rootContext, startRuleStartState.stateNumber, startRuleIndex, 0);
 		}
@@ -214,7 +243,7 @@ public class ParserInterpreter extends Parser {
 					setState(atn.ruleToStopState[p.ruleIndex].stateNumber);
 					getContext().exception = e;
 					getErrorHandler().reportError(this, e);
-					getErrorHandler().recover(this, e);
+					recover(e);
 				}
 
 				break;
@@ -233,31 +262,26 @@ public class ParserInterpreter extends Parser {
 	}
 
 	protected void visitState(ATNState p) {
-		int edge;
+		int predictedAlt = 1;
 		if (p.getNumberOfTransitions() > 1) {
-			getErrorHandler().sync(this);
-			int decision = ((DecisionState) p).decision;
-			if ( decision == overrideDecision && _input.index() == overrideDecisionInputIndex ) {
-				edge = overrideDecisionAlt;
-			}
-			else {
-				edge = getInterpreter().adaptivePredict(_input, decision, _ctx);
-			}
-		}
-		else {
-			edge = 1;
+			predictedAlt = visitDecisionState((DecisionState) p);
 		}
 
-		Transition transition = p.transition(edge - 1);
+		Transition transition = p.transition(predictedAlt - 1);
 		switch (transition.getSerializationType()) {
 		case Transition.EPSILON:
 			if ( pushRecursionContextStates.get(p.stateNumber) &&
 				 !(transition.target instanceof LoopEndState))
 			{
 				// We are at the start of a left recursive rule's (...)* loop
-				// but it's not the exit branch of loop.
-				InterpreterRuleContext ctx = new InterpreterRuleContext(_parentContextStack.peek().getItem1(), _parentContextStack.peek().getItem2(), _ctx.getRuleIndex());
-				pushNewRecursionContext(ctx, atn.ruleToStartState[p.ruleIndex].stateNumber, _ctx.getRuleIndex());
+				// and we're not taking the exit branch of loop.
+				InterpreterRuleContext localctx =
+					createInterpreterRuleContext(_parentContextStack.peek().getItem1(),
+												 _parentContextStack.peek().getItem2(),
+												 _ctx.getRuleIndex());
+				pushNewRecursionContext(localctx,
+										atn.ruleToStartState[p.ruleIndex].stateNumber,
+										_ctx.getRuleIndex());
 			}
 			break;
 
@@ -269,7 +293,7 @@ public class ParserInterpreter extends Parser {
 		case Transition.SET:
 		case Transition.NOT_SET:
 			if (!transition.matches(_input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535)) {
-				_errHandler.recoverInline(this);
+				recoverInline();
 			}
 			matchWildcard();
 			break;
@@ -281,12 +305,12 @@ public class ParserInterpreter extends Parser {
 		case Transition.RULE:
 			RuleStartState ruleStartState = (RuleStartState)transition.target;
 			int ruleIndex = ruleStartState.ruleIndex;
-			InterpreterRuleContext ctx = new InterpreterRuleContext(_ctx, p.stateNumber, ruleIndex);
+			InterpreterRuleContext newctx = createInterpreterRuleContext(_ctx, p.stateNumber, ruleIndex);
 			if (ruleStartState.isPrecedenceRule) {
-				enterRecursionRule(ctx, ruleStartState.stateNumber, ruleIndex, ((RuleTransition)transition).precedence);
+				enterRecursionRule(newctx, ruleStartState.stateNumber, ruleIndex, ((RuleTransition)transition).precedence);
 			}
 			else {
-				enterRule(ctx, transition.target.stateNumber, ruleIndex);
+				enterRule(newctx, transition.target.stateNumber, ruleIndex);
 			}
 			break;
 
@@ -314,6 +338,36 @@ public class ParserInterpreter extends Parser {
 		}
 
 		setState(transition.target.stateNumber);
+	}
+
+	/** Method visitDecisionState() is called when the interpreter reaches
+	 *  a decision state (instance of DecisionState). It gives an opportunity
+	 *  for subclasses to track interesting things.
+	 */
+	protected int visitDecisionState(DecisionState p) {
+		int edge = 1;
+		int predictedAlt;
+		getErrorHandler().sync(this);
+		int decision = p.decision;
+		if (decision == overrideDecision && _input.index() == overrideDecisionInputIndex && !overrideDecisionReached) {
+			predictedAlt = overrideDecisionAlt;
+			overrideDecisionReached = true;
+		}
+		else {
+			predictedAlt = getInterpreter().adaptivePredict(_input, decision, _ctx);
+		}
+		return predictedAlt;
+	}
+
+	/** Provide simple "factory" for InterpreterRuleContext's.
+	 *  @since 4.5.1
+	 */
+	protected InterpreterRuleContext createInterpreterRuleContext(
+		ParserRuleContext parent,
+		int invokingStateNumber,
+		int ruleIndex)
+	{
+		return new InterpreterRuleContext(parent, invokingStateNumber, ruleIndex);
 	}
 
 	protected void visitRuleStopState(ATNState p) {
@@ -375,5 +429,59 @@ public class ParserInterpreter extends Parser {
 		overrideDecision = decision;
 		overrideDecisionInputIndex = tokenIndex;
 		overrideDecisionAlt = forcedAlt;
+	}
+
+	public InterpreterRuleContext getOverrideDecisionRoot() {
+		return overrideDecisionRoot;
+	}
+
+	/** Rely on the error handler for this parser but, if no tokens are consumed
+	 *  to recover, add an error node. Otherwise, nothing is seen in the parse
+	 *  tree.
+	 */
+	protected void recover(RecognitionException e) {
+		int i = _input.index();
+		getErrorHandler().recover(this, e);
+		if ( _input.index()==i ) {
+			// no input consumed, better add an error node
+			if ( e instanceof InputMismatchException ) {
+				InputMismatchException ime = (InputMismatchException)e;
+				Token tok = e.getOffendingToken();
+				int expectedTokenType = ime.getExpectedTokens().getMinElement(); // get any element
+				Token errToken =
+					getTokenFactory().create(Tuple.create(tok.getTokenSource(), tok.getTokenSource().getInputStream()),
+				                             expectedTokenType, tok.getText(),
+				                             Token.DEFAULT_CHANNEL,
+				                            -1, -1, // invalid start/stop
+				                             tok.getLine(), tok.getCharPositionInLine());
+				_ctx.addErrorNode(errToken);
+			}
+			else { // NoViableAlt
+				Token tok = e.getOffendingToken();
+				Token errToken =
+					getTokenFactory().create(Tuple.create(tok.getTokenSource(), tok.getTokenSource().getInputStream()),
+				                             Token.INVALID_TYPE, tok.getText(),
+				                             Token.DEFAULT_CHANNEL,
+				                            -1, -1, // invalid start/stop
+				                             tok.getLine(), tok.getCharPositionInLine());
+				_ctx.addErrorNode(errToken);
+			}
+		}
+	}
+
+	protected Token recoverInline() {
+		return _errHandler.recoverInline(this);
+	}
+
+	/** Return the root of the parse, which can be useful if the parser
+	 *  bails out. You still can access the top node. Note that,
+	 *  because of the way left recursive rules add children, it's possible
+	 *  that the root will not have any children if the start rule immediately
+	 *  called and left recursive rule that fails.
+	 *
+	 * @since 4.5.1
+	 */
+	public InterpreterRuleContext getRootContext() {
+		return rootContext;
 	}
 }

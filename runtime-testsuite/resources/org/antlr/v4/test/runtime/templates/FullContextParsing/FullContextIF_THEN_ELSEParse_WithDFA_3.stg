@@ -1,0 +1,19 @@
+import "FullContextIF_THEN_ELSEParse_WithDFA.stg"
+
+Input() ::= "{ if x then if y then return else foo }"
+
+Output() ::= <<
+Decision 1:
+s0-'}'->:s8=>2
+s0-'else'->:s1=>1
+s2**-ctx:19(stat)->s3**
+s3**-ctx:7(s)->s4
+s4-'else'->s5
+s5-ID->:s6=>1
+:s6=>1-'}'->:s7=>1<\n>
+>>
+
+Errors() ::= <<
+line 1:29 reportAttemptingFullContext d=1 (stat), input='else'
+line 1:38 reportAmbiguity d=1 (stat): ambigAlts={1, 2}, input='elsefoo}'<\n>
+>>

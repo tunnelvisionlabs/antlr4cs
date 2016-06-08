@@ -1,12 +1,6 @@
 # Maven build folders
 target/
 
-# Ant build folders
-build/
-dist/
-lib/
-user.build.properties
-
 # MacOSX files
 .DS_Store
 
@@ -16,9 +10,9 @@ nbactions*.xml
 */nbproject/private/
 
 # IntelliJ projects
-*.iml
 *.ipr
 *.iws
+*.iml
 .idea/
 
 # Eclipse projects

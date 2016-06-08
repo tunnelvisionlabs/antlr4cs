@@ -32,6 +32,7 @@ package org.antlr.v4.tool;
 
 import org.antlr.v4.Tool;
 import org.antlr.v4.analysis.LeftRecursiveRuleTransformer;
+import org.antlr.v4.automata.ParserATNFactory;
 import org.antlr.v4.misc.CharSupport;
 import org.antlr.v4.misc.OrderedHashMap;
 import org.antlr.v4.misc.Utils;
@@ -104,6 +105,7 @@ public class Grammar implements AttributeResolver {
 	public static final Set<String> parserOptions = new HashSet<String>();
 	static {
 		parserOptions.add("superClass");
+		parserOptions.add("contextSuperClass");
 		parserOptions.add("TokenLabelType");
 		parserOptions.add("abstract");
 		parserOptions.add("tokenVocab");
@@ -124,14 +126,14 @@ public class Grammar implements AttributeResolver {
 
 	public static final Set<String> LexerBlockOptions = new HashSet<String>();
 
-	/** Legal options for rule refs like id<key=value> */
+	/** Legal options for rule refs like id&lt;key=value&gt; */
 	public static final Set<String> ruleRefOptions = new HashSet<String>();
 	static {
 		ruleRefOptions.add(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME);
 		ruleRefOptions.add(LeftRecursiveRuleTransformer.TOKENINDEX_OPTION_NAME);
 	}
 
-	/** Legal options for terminal refs like ID<assoc=right> */
+	/** Legal options for terminal refs like ID&lt;assoc=right&gt; */
 	public static final Set<String> tokenOptions = new HashSet<String>();
 	static {
 		tokenOptions.add("assoc");
@@ -536,6 +538,14 @@ public class Grammar implements AttributeResolver {
 		*/
 	}
 
+	public ATN getATN() {
+		if ( atn==null ) {
+			ParserATNFactory factory = new ParserATNFactory(this);
+			atn = factory.createATN();
+		}
+		return atn;
+	}
+
 	public Rule getRule(int index) { return indexToRule.get(index); }
 
 	public Rule getRule(String grammarName, String ruleName) {
@@ -594,15 +604,6 @@ public class Grammar implements AttributeResolver {
 	}
 
     public List<Grammar> getImportedGrammars() { return importedGrammars; }
-
-    /** Get delegates below direct delegates of g
-    public List<Grammar> getIndirectDelegates(Grammar g) {
-        List<Grammar> direct = getDirectDelegates(g);
-        List<Grammar> delegates = getDelegates(g);
-        delegates.removeAll(direct);
-        return delegates;
-    }
-*/
 
 	public LexerGrammar getImplicitLexer() {
 		return implicitLexer;
@@ -1370,6 +1371,17 @@ public class Grammar implements AttributeResolver {
 		char[] serializedAtn = ATNSerializer.getSerializedAsChars(atn, Arrays.asList(getRuleNames()));
 		ATN deserialized = new ATNDeserializer().deserialize(serializedAtn);
 		return new LexerInterpreter(fileName, getVocabulary(), Arrays.asList(getRuleNames()), ((LexerGrammar)this).modes.keySet(), deserialized, input);
+	}
+
+	/** @since 4.5.1 */
+	public GrammarParserInterpreter createGrammarParserInterpreter(TokenStream tokenStream) {
+		if (this.isLexer()) {
+			throw new IllegalStateException("A parser interpreter can only be created for a parser or combined grammar.");
+		}
+
+		char[] serializedAtn = ATNSerializer.getSerializedAsChars(atn, Arrays.asList(getRuleNames()));
+		ATN deserialized = new ATNDeserializer().deserialize(serializedAtn);
+		return new GrammarParserInterpreter(this, deserialized, tokenStream);
 	}
 
 	public ParserInterpreter createParserInterpreter(TokenStream tokenStream) {

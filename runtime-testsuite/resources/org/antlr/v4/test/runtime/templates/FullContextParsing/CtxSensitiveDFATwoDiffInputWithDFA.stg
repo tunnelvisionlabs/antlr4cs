@@ -1,0 +1,44 @@
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": true
+]
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+
+Input() ::= "$ 34 abc @ 34 abc"
+
+Rule() ::= "s"
+
+Output() ::= <<
+Decision 2:
+s0-INT->s1
+s1-ID->:s2=>1
+s3**-ctx:17(a)->s4
+s3**-ctx:20(b)->s6
+s4-INT->:s5=>1
+s6-INT->s7
+s7-ID->:s8=>2<\n>
+>>
+
+Errors() ::= <<
+line 1:5 reportAttemptingFullContext d=2 (e), input='34abc'
+line 1:2 reportContextSensitivity d=2 (e), input='34'
+line 1:14 reportAttemptingFullContext d=2 (e), input='34abc'
+line 1:14 reportContextSensitivity d=2 (e), input='34abc'<\n>
+>>
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+s @init{getInterpreter().enable_global_context_dfa = true;} @after {<DumpDFA()>}
+  : ('$' a | '@' b)+ ;
+a : e ID ;
+b : e INT ID ;
+e : INT | ;
+ID : 'a'..'z'+ ;
+INT : '0'..'9'+ ;
+WS : (' '|'\t'|'\n')+ -> skip ;
+>>

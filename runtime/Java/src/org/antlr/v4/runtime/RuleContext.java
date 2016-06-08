@@ -29,20 +29,16 @@
  */
 package org.antlr.v4.runtime;
 
+import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.misc.Nullable;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.Trees;
-import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
-import javax.print.PrintException;
-import javax.swing.*;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Future;
 
 /** A rule context is a record of a single rule invocation.
  *
@@ -173,6 +169,27 @@ public class RuleContext implements RuleNode {
 
 	public int getRuleIndex() { return -1; }
 
+	/** For rule associated with this parse tree internal node, return
+	 *  the outer alternative number used to match the input. Default
+	 *  implementation does not compute nor store this alt num. Create
+	 *  a subclass of ParserRuleContext with backing field and set
+	 *  option contextSuperClass.
+	 *  to set it.
+	 *
+	 *  @since 4.5.3
+	 */
+	public int getAltNumber() { return ATN.INVALID_ALT_NUMBER; }
+
+	/** Set the outer alternative number for this context node. Default
+	 *  implementation does nothing to avoid backing field overhead for
+	 *  trees that don't need it.  Create
+     *  a subclass of ParserRuleContext with backing field and set
+     *  option contextSuperClass.
+	 *
+	 *  @since 4.5.3
+	 */
+	public void setAltNumber(int altNumber) { }
+
 	@Override
 	public ParseTree getChild(int i) {
 		return null;
@@ -186,49 +203,6 @@ public class RuleContext implements RuleNode {
 	@Override
 	public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 		return visitor.visitChildren(this);
-	}
-
-	/** Call this method to view a parse tree in a dialog box visually. */
-	public Future<JDialog> inspect(@Nullable Parser parser) {
-		List<String> ruleNames = parser != null ? Arrays.asList(parser.getRuleNames()) : null;
-		return inspect(ruleNames);
-	}
-
-	public Future<JDialog> inspect(@Nullable List<String> ruleNames) {
-		TreeViewer viewer = new TreeViewer(ruleNames, this);
-		return viewer.open();
-	}
-
-	/** Save this tree in a postscript file */
-	public void save(@Nullable Parser parser, String fileName)
-		throws IOException, PrintException
-	{
-		List<String> ruleNames = parser != null ? Arrays.asList(parser.getRuleNames()) : null;
-		save(ruleNames, fileName);
-	}
-
-	/** Save this tree in a postscript file using a particular font name and size */
-	public void save(@Nullable Parser parser, String fileName,
-					 String fontName, int fontSize)
-		throws IOException
-	{
-		List<String> ruleNames = parser != null ? Arrays.asList(parser.getRuleNames()) : null;
-		save(ruleNames, fileName, fontName, fontSize);
-	}
-
-	/** Save this tree in a postscript file */
-	public void save(@Nullable List<String> ruleNames, String fileName)
-		throws IOException, PrintException
-	{
-		Trees.writePS(this, ruleNames, fileName);
-	}
-
-	/** Save this tree in a postscript file using a particular font name and size */
-	public void save(@Nullable List<String> ruleNames, String fileName,
-					 String fontName, int fontSize)
-		throws IOException
-	{
-		Trees.writePS(this, ruleNames, fileName, fontName, fontSize);
 	}
 
 	/** Print out a whole tree, not just a node, in LISP format

@@ -268,6 +268,9 @@ public class IntegerList {
 		if (fromIndex < 0 || toIndex < 0 || fromIndex > _size || toIndex > _size) {
 			throw new IndexOutOfBoundsException();
 		}
+		if (fromIndex > toIndex) {
+			throw new IllegalArgumentException();
+		}
 
 		return Arrays.binarySearch(_data, fromIndex, toIndex, key);
 	}

@@ -34,12 +34,12 @@ import org.antlr.v4.runtime.Lexer;
 
 /**
  * A complex enumeration of all the error messages that the tool can issue.
- * <p/>
+ * <p>
  * When adding error messages, also add a description of the message to the
  * Wiki with a location under the Wiki page
  * <a href="http://www.antlr.org/wiki/display/ANTLR4/Errors+Reported+by+the+ANTLR+Tool">Errors Reported by the ANTLR Tool</a>.
  *
- * @author Jim Idle <jimi@temporal-wave.com>, Terence Parr
+ * @author Jim Idle &lt;jimi@temporal-wave.com&gt;, Terence Parr
  * @since 4.0
  */
 public enum ErrorType {
@@ -695,8 +695,8 @@ public enum ErrorType {
 	 * <p>The following rule produces this error.</p>
 	 *
 	 * <pre>
-	 * X : 'foo' -> type(Foo);  // ok
-	 * Y : 'foo' -> token(Foo); // error 149 (token is not a supported lexer command)
+	 * X : 'foo' -&gt; type(Foo);  // ok
+	 * Y : 'foo' -&gt; token(Foo); // error 149 (token is not a supported lexer command)
 	 * </pre>
 	 *
 	 * @since 4.1
@@ -712,8 +712,8 @@ public enum ErrorType {
 	 * <p>The following rule produces this error.</p>
 	 * 
 	 * <pre>
-	 * X : 'foo' -> type(Foo); // ok
-	 * Y : 'foo' -> type;      // error 150 (the type command requires an argument)
+	 * X : 'foo' -&gt; type(Foo); // ok
+	 * Y : 'foo' -&gt; type;      // error 150 (the type command requires an argument)
 	 * </pre>
 	 *
 	 * @since 4.1
@@ -730,8 +730,8 @@ public enum ErrorType {
 	 * <p>The following rule produces this error.</p>
 	 *
 	 * <pre>
-	 * X : 'foo' -> popMode;    // ok
-	 * Y : 'foo' -> popMode(A); // error 151 (the popMode command does not take an argument)
+	 * X : 'foo' -&gt; popMode;    // ok
+	 * Y : 'foo' -&gt; popMode(A); // error 151 (the popMode command does not take an argument)
 	 * </pre>
 	 *
 	 * @since 4.1
@@ -818,8 +818,8 @@ public enum ErrorType {
 	 * public static final int CUSTOM = HIDDEN + 1;
 	 * }
 	 *
-	 * X : 'foo' -> channel(HIDDEN);           // ok
-	 * Y : 'bar' -> channel(CUSTOM);           // warning 155
+	 * X : 'foo' -&gt; channel(HIDDEN);           // ok
+	 * Y : 'bar' -&gt; channel(CUSTOM);           // warning 155
 	 * </pre>
 	 *
 	 * @since 4.2
@@ -884,12 +884,12 @@ public enum ErrorType {
 	 * <p>The following rule produces this warning.</p>
 	 *
 	 * <pre>
-	 * X1 : 'x' -> more    // ok
+	 * X1 : 'x' -&gt; more    // ok
 	 *    ;
 	 * Y1 : 'x' {more();}  // ok
 	 *    ;
 	 * fragment
-	 * X2 : 'x' -> more    // warning 158
+	 * X2 : 'x' -&gt; more    // warning 158
 	 *    ;
 	 * fragment
 	 * Y2 : 'x' {more();}  // warning 158
@@ -981,6 +981,60 @@ public enum ErrorType {
 	 * @since 4.5
 	 */
 	NONCONFORMING_LR_RULE(169, "rule '<arg>' is left recursive but doesn't conform to a pattern ANTLR can handle", ErrorSeverity.ERROR),
+	/**
+	 * Compiler Error 170.
+	 *
+	 * <pre>
+	 * mode M1;
+	 * A1: 'a'; // ok
+	 * mode M2;
+	 * A2: 'a'; // ok
+	 * M1: 'b'; // error 170
+	 * </pre>
+	 *
+	 * <p>mode <em>name</em> conflicts with token with same name</p>
+	 */
+	MODE_CONFLICTS_WITH_TOKEN(170, "mode '<arg>' conflicts with token with same name", ErrorSeverity.ERROR),
+	/**
+	 * Compiler Error 171.
+	 *
+	 * <p>can not use or declare token with reserved name</p>
+	 *
+	 * <p>Reserved names: HIDDEN, DEFAULT_TOKEN_CHANNEL, SKIP, MORE, MAX_CHAR_VALUE, MIN_CHAR_VALUE.
+	 *
+	 * <p>Can be used but cannot be declared: EOF</p>
+	 */
+	TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS(171, "cannot use or declare token with reserved name '<arg>'", ErrorSeverity.ERROR),
+	/**
+	 * Compiler Error 172.
+	 *
+	 * <p>can not use or declare channel with reserved name</p>
+	 *
+	 * <p>Reserved names: DEFAULT_MODE, SKIP, MORE, EOF, MAX_CHAR_VALUE, MIN_CHAR_VALUE.
+	 *
+	 * <p>Can be used but cannot be declared: HIDDEN, DEFAULT_TOKEN_CHANNEL</p>
+	 */
+	CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS(172, "cannot use or declare channel with reserved name '<arg>'", ErrorSeverity.ERROR),
+	/**
+	 * Compiler Error 173.
+	 *
+	 * <p>can not use or declare mode with reserved name</p>
+	 *
+	 * <p>Reserved names: HIDDEN, DEFAULT_TOKEN_CHANNEL, SKIP, MORE, MAX_CHAR_VALUE, MIN_CHAR_VALUE.
+	 *
+	 * <p>Can be used and cannot declared: DEFAULT_MODE</p>
+	 */
+	MODE_CONFLICTS_WITH_COMMON_CONSTANTS(173, "cannot use or declare mode with reserved name '<arg>'", ErrorSeverity.ERROR),
+	/**
+	 * Compiler Error 174.
+	 *
+	 * <p>empty strings not allowed</p>
+	 *
+	 * <pre>A: '''test''';</pre>
+	 * <pre>B: '';</pre>
+	 * <pre>C: 'test' '';</pre>
+	 */
+	EMPTY_STRINGS_NOT_ALLOWED(174, "string literals cannot be empty", ErrorSeverity.ERROR),
 
 	/*
 	 * Backward incompatibility errors
