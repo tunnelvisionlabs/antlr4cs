@@ -1,0 +1,36 @@
+# Maven build folders
+target/
+
+# Ant build folders
+build/
+dist/
+lib/
+user.build.properties
+
+# MacOSX files
+.DS_Store
+
+# NetBeans user configuration files
+nbactions*.xml
+/nbproject/private/
+*/nbproject/private/
+
+# IntelliJ projects
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Eclipse projects
+.classpath
+.project
+.settings/
+
+# Profiler results
+*.hprof
+
+# Playground
+#/tool/playground/
+
+# Generated during the Sharpen conversion
+/bin/
