@@ -1,0 +1,19 @@
+sudo: true
+language: java
+before_script:
+  - echo "MAVEN_OPTS='$CUSTOM_MAVEN_OPTS'" > ~/.mavenrc
+script:
+  - mvn test -Dantlr.testinprocess=true -DJDK_SOURCE_ROOT=../runtime/Java/src -Dperformance.package=
+matrix:
+  include:
+    - jdk: openjdk6
+      env:
+        - CUSTOM_MAVEN_OPTS=-Xmx1g
+    - jdk: oraclejdk7
+      env:
+        - CUSTOM_MAVEN_OPTS="-Xmx1g -DENABLE_JACOCO=true"
+    - jdk: oraclejdk8
+      env:
+        - CUSTOM_MAVEN_OPTS="-Xmx1g -DENABLE_JACOCO=true"
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

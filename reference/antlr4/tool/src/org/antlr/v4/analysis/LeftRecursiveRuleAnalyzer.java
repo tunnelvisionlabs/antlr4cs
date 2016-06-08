@@ -71,8 +71,7 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 	public LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> binaryAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
 	public LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> ternaryAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
 	public LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> suffixAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
-	public List<LeftRecursiveRuleAltInfo> prefixAlts = new ArrayList<LeftRecursiveRuleAltInfo>();
-	public List<LeftRecursiveRuleAltInfo> otherAlts = new ArrayList<LeftRecursiveRuleAltInfo>();
+	public List<LeftRecursiveRuleAltInfo> prefixAndOtherAlts = new ArrayList<LeftRecursiveRuleAltInfo>();
 
 	/** Pointer to ID node of ^(= ID element) */
 	public List<Tuple2<GrammarAST,String>> leftRecursiveRuleRefLabels =
@@ -200,7 +199,7 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 		LeftRecursiveRuleAltInfo a =
 			new LeftRecursiveRuleAltInfo(alt, altText, null, altLabel, false, originalAltTree);
 		a.nextPrec = nextPrec;
-		prefixAlts.add(a);
+		prefixAndOtherAlts.add(a);
 		//System.out.println("prefixAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
 	}
 
@@ -234,7 +233,9 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 		String altLabel = altTree.altLabel!=null ? altTree.altLabel.getText() : null;
 		LeftRecursiveRuleAltInfo a =
 			new LeftRecursiveRuleAltInfo(alt, altText, null, altLabel, false, originalAltTree);
-		otherAlts.add(a);
+		// We keep other alts with prefix alts since they are all added to the start of the generated rule, and
+		// we want to retain any prior ordering between them
+		prefixAndOtherAlts.add(a);
 //		System.out.println("otherAlt " + alt + ": " + altText);
 	}
 
@@ -266,8 +267,7 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 			ruleST.add("opAlts", altST);
 		}
 
-		ruleST.add("primaryAlts", prefixAlts);
-		ruleST.add("primaryAlts", otherAlts);
+		ruleST.add("primaryAlts", prefixAndOtherAlts);
 
 		tool.log("left-recursion", ruleST.render());
 
@@ -342,7 +342,7 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 		return lrlabel;
 	}
 
-	/** Strip last 2 tokens if -> label; alter indexes in altAST */
+	/** Strip last 2 tokens if → label; alter indexes in altAST */
 	public void stripAltLabel(GrammarAST altAST) {
 		int start = altAST.getTokenStartIndex();
 		int stop = altAST.getTokenStopIndex();
@@ -382,13 +382,16 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 		}
 
 		StringBuilder buf = new StringBuilder();
-		for (int i=tokenStartIndex; i<=tokenStopIndex; i++) {
+		int i=tokenStartIndex;
+		while ( i<=tokenStopIndex ) {
 			if ( ignore.contains(i) ) {
+				i++;
 				continue;
 			}
 
 			Token tok = tokenStream.get(i);
 
+			// Compute/hold any element options
 			StringBuilder elementOptions = new StringBuilder();
 			if (!noOptions.contains(i)) {
 				GrammarAST node = t.getNodeWithTokenIndex(tok.getTokenIndex());
@@ -414,7 +417,16 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 				}
 			}
 
-			buf.append(tok.getText());
+			buf.append(tok.getText()); // add actual text of the current token to the rewritten alternative
+			i++;                       // move to the next token
+
+			// Are there args on a rule?
+			if ( tok.getType()==RULE_REF && i<=tokenStopIndex && tokenStream.get(i).getType()==ARG_ACTION ) {
+				buf.append('['+tokenStream.get(i).getText()+']');
+				i++;
+			}
+
+			// now that we have the actual element, we can add the options.
 			if (elementOptions.length() > 0) {
 				buf.append('<').append(elementOptions).append('>');
 			}
@@ -439,8 +451,7 @@ public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
 			   "binaryAlts=" + binaryAlts +
 			   ", ternaryAlts=" + ternaryAlts +
 			   ", suffixAlts=" + suffixAlts +
-			   ", prefixAlts=" + prefixAlts +
-			   ", otherAlts=" + otherAlts +
+			   ", prefixAndOtherAlts=" +prefixAndOtherAlts+
 			   '}';
 	}
 }
