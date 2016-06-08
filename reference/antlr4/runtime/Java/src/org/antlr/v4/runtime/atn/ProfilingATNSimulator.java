@@ -36,7 +36,6 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.dfa.DFAState;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.misc.Nullable;
 import org.antlr.v4.runtime.misc.Tuple2;
 
 import java.util.BitSet;
@@ -103,7 +102,7 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 			if ( SLL_k > decisions[decision].SLL_MaxLook ) {
 				decisions[decision].SLL_MaxLook = SLL_k;
 				decisions[decision].SLL_MaxLookEvent =
-						new LookaheadEventInfo(decision, null, input, _startIndex, _sllStopIndex, false);
+						new LookaheadEventInfo(decision, null, alt, input, _startIndex, _sllStopIndex, false);
 			}
 
 			if (_llStopIndex >= 0) {
@@ -113,7 +112,7 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 				if ( LL_k > decisions[decision].LL_MaxLook ) {
 					decisions[decision].LL_MaxLook = LL_k;
 					decisions[decision].LL_MaxLookEvent =
-							new LookaheadEventInfo(decision, null, input, _startIndex, _llStopIndex, true);
+							new LookaheadEventInfo(decision, null, alt, input, _startIndex, _llStopIndex, true);
 				}
 			}
 
@@ -269,5 +268,12 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 	 */
 	public DecisionInfo[] getDecisionInfo() {
 		return decisions;
+	}
+
+	/**
+	 * @sharpen.property CurrentState
+	 */
+	public SimulatorState getCurrentState() {
+		return currentState;
 	}
 }

@@ -13,6 +13,8 @@ namespace Antlr4.Runtime.Atn
     /// <since>4.3</since>
     public class LookaheadEventInfo : DecisionEventInfo
     {
+        private readonly int predictedAlt;
+
         /// <summary>
         /// Constructs a new instance of the
         /// <see cref="LookaheadEventInfo"/>
@@ -27,6 +29,8 @@ namespace Antlr4.Runtime.Atn
         /// if
         /// the final state is not available
         /// </param>
+        /// <param name="predictedAlt">The alternative chosen by
+        /// <see cref="ParserATNSimulator.AdaptivePredict(ITokenStream, int, ParserRuleContext)"/>.</param>
         /// <param name="input">The input token stream</param>
         /// <param name="startIndex">The start index for the current prediction</param>
         /// <param name="stopIndex">The index at which the prediction was finally made</param>
@@ -39,9 +43,24 @@ namespace Antlr4.Runtime.Atn
         /// if the current lookahead is part of
         /// an SLL prediction
         /// </param>
-        public LookaheadEventInfo(int decision, SimulatorState state, ITokenStream input, int startIndex, int stopIndex, bool fullCtx)
+        public LookaheadEventInfo(int decision, SimulatorState state, int predictedAlt, ITokenStream input, int startIndex, int stopIndex, bool fullCtx)
             : base(decision, state, input, startIndex, stopIndex, fullCtx)
         {
+            this.predictedAlt = predictedAlt;
+        }
+
+        /// <summary>
+        /// The alternative chosen by adaptivePredict(), not necessarily
+        /// the outermost alt shown for a rule; left-recursive rules have
+        /// user-level alts that differ from the rewritten rule with a (...) block
+        /// and a (..)* loop.
+        /// </summary>
+        public int PredictedAlternative
+        {
+            get
+            {
+                return predictedAlt;
+            }
         }
     }
 }

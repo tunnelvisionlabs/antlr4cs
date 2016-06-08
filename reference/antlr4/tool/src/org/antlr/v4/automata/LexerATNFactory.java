@@ -87,7 +87,7 @@ public class LexerATNFactory extends ParserATNFactory {
 	 * actions, but are required during code generation for creating
 	 * {@link LexerAction} instances that are usable by a lexer interpreter.
 	 */
-	protected static final Map<String, Integer> COMMON_CONSTANTS = new HashMap<String, Integer>();
+	public static final Map<String, Integer> COMMON_CONSTANTS = new HashMap<String, Integer>();
 	static {
 		COMMON_CONSTANTS.put("HIDDEN", Lexer.HIDDEN);
 		COMMON_CONSTANTS.put("DEFAULT_TOKEN_CHANNEL", Lexer.DEFAULT_TOKEN_CHANNEL);
@@ -115,6 +115,10 @@ public class LexerATNFactory extends ParserATNFactory {
 		CodeGenerator gen = new CodeGenerator(g.tool, null, language);
 		Target target = gen.getTarget();
 		codegenTemplates = target != null ? target.getTemplates() : null;
+	}
+
+	public static Set<String> getCommonConstants() {
+		return COMMON_CONSTANTS.keySet();
 	}
 
 	@Override
@@ -255,8 +259,8 @@ public class LexerATNFactory extends ParserATNFactory {
 
 		// fall back to standard action generation for the command
 		ST cmdST = codegenTemplates.getInstanceOf("Lexer" +
-												  CharSupport.capitalize(ID.getText())+
-												  "Command");
+				CharSupport.capitalize(ID.getText()) +
+				"Command");
 		if (cmdST == null) {
 			g.tool.errMgr.grammarError(ErrorType.INVALID_LEXER_COMMAND, g.fileName, ID.token, ID.getText());
 			return epsilon(ID);
@@ -332,7 +336,7 @@ public class LexerATNFactory extends ParserATNFactory {
 
 	/** For a lexer, a string is a sequence of char to match.  That is,
 	 *  "fog" is treated as 'f' 'o' 'g' not as a single transition in
-	 *  the DFA.  Machine== o-'f'->o-'o'->o-'g'->o and has n+1 states
+	 *  the DFA.  Machine== o-'f'-&gt;o-'o'-&gt;o-'g'-&gt;o and has n+1 states
 	 *  for n characters.
 	 */
 	@Override
@@ -419,6 +423,7 @@ public class LexerATNFactory extends ParserATNFactory {
 		}
 		else if ("mode".equals(command) && arg != null) {
 			String modeName = arg.getText();
+			checkMode(modeName, arg.token);
 			Integer mode = getConstantValue(modeName, arg.getToken());
 			if (mode == null) {
 				return null;
@@ -428,6 +433,7 @@ public class LexerATNFactory extends ParserATNFactory {
 		}
 		else if ("pushMode".equals(command) && arg != null) {
 			String modeName = arg.getText();
+			checkMode(modeName, arg.token);
 			Integer mode = getConstantValue(modeName, arg.getToken());
 			if (mode == null) {
 				return null;
@@ -437,6 +443,7 @@ public class LexerATNFactory extends ParserATNFactory {
 		}
 		else if ("type".equals(command) && arg != null) {
 			String typeName = arg.getText();
+			checkToken(typeName, arg.token);
 			Integer type = getConstantValue(typeName, arg.getToken());
 			if (type == null) {
 				return null;
@@ -446,6 +453,7 @@ public class LexerATNFactory extends ParserATNFactory {
 		}
 		else if ("channel".equals(command) && arg != null) {
 			String channelName = arg.getText();
+			checkChannel(channelName, arg.token);
 			Integer channel = getConstantValue(channelName, arg.getToken());
 			if (channel == null) {
 				return null;
@@ -455,6 +463,24 @@ public class LexerATNFactory extends ParserATNFactory {
 		}
 		else {
 			return null;
+		}
+	}
+
+	protected void checkMode(String modeName, Token token) {
+		if (!modeName.equals("DEFAULT_MODE") && COMMON_CONSTANTS.containsKey(modeName)) {
+			g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.getText());
+		}
+	}
+
+	protected void checkToken(String tokenName, Token token) {
+		if (!tokenName.equals("EOF") && COMMON_CONSTANTS.containsKey(tokenName)) {
+			g.tool.errMgr.grammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.getText());
+		}
+	}
+
+	protected void checkChannel(String channelName, Token token) {
+		if (!channelName.equals("HIDDEN") && !channelName.equals("DEFAULT_TOKEN_CHANNEL") && COMMON_CONSTANTS.containsKey(channelName)) {
+			g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.getText());
 		}
 	}
 

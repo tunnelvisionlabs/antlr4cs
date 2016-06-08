@@ -1,6 +1,7 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using System;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -39,6 +40,8 @@ namespace Antlr4.Runtime
 
         [NotNull]
         private readonly string[] displayNames;
+
+        private readonly int maxTokenType;
 
         /// <summary>
         /// Constructs a new instance of
@@ -99,6 +102,8 @@ namespace Antlr4.Runtime
             this.literalNames = literalNames != null ? literalNames : EmptyNames;
             this.symbolicNames = symbolicNames != null ? symbolicNames : EmptyNames;
             this.displayNames = displayNames != null ? displayNames : EmptyNames;
+            // See note here on -1 part: https://github.com/antlr/antlr4/pull/1146
+            this.maxTokenType = Math.Max(this.displayNames.Length, Math.Max(this.literalNames.Length, this.symbolicNames.Length)) - 1;
         }
 
         /// <summary>
@@ -170,6 +175,14 @@ namespace Antlr4.Runtime
                 symbolicNames[i] = null;
             }
             return new Vocabulary(literalNames, symbolicNames, tokenNames);
+        }
+
+        public virtual int MaxTokenType
+        {
+            get
+            {
+                return maxTokenType;
+            }
         }
 
         [return: Nullable]

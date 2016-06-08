@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tunnelvisionlabs.sharpen</groupId>
     <artifactId>antlr4-master</artifactId>
-    <version>4.5.1-SNAPSHOT</version>
+    <version>4.5.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ANTLR 4</name>
@@ -17,8 +17,12 @@
     <url>http://www.antlr.org</url>
     <inceptionYear>1992</inceptionYear>
     <organization>
-        <name>ANTLR</name>
-        <url>http://www.antlr.org</url>
+        <!--
+          The organization name is used in the manifests of the Jar files. Set to Tunnel Vision Labs for this custom
+          build.
+        -->
+        <name>Tunnel Vision Laboratories, LLC</name>
+        <url>http://tunnelvisionlabs.com</url>
     </organization>
 
     <licenses>
@@ -63,6 +67,8 @@
         <module>runtime/JavaAnnotations</module>
         <module>tool</module>
         <module>antlr4-maven-plugin</module>
+        <module>antlr4-testgen-maven-plugin</module>
+        <module>runtime-testsuite</module>
     </modules>
 
     <properties>
@@ -128,6 +134,40 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>jdk6-bnd</id>
+            <activation>
+                <jdk>1.6</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>maven-bundle-plugin</artifactId>
+                        <version>2.5.4</version>
+                        <extensions>true</extensions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>jdk7plus-bnd</id>
+            <activation>
+                <jdk>!1.6</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>maven-bundle-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <extensions>true</extensions>
                     </plugin>
                 </plugins>
             </build>

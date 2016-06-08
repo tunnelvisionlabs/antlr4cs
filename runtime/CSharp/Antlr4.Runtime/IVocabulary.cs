@@ -14,6 +14,17 @@ namespace Antlr4.Runtime
     /// <author>Sam Harwell</author>
     public interface IVocabulary
     {
+        /// <summary>Returns the highest token type value.</summary>
+        /// <remarks>
+        /// Returns the highest token type value. It can be used to iterate from
+        /// zero to that number, inclusively, thus querying all stored entries.
+        /// </remarks>
+        /// <returns>the highest token type value</returns>
+        int MaxTokenType
+        {
+            get;
+        }
+
         /// <summary>Gets the string literal associated with a token type.</summary>
         /// <remarks>
         /// Gets the string literal associated with a token type. The string returned
@@ -82,10 +93,7 @@ namespace Antlr4.Runtime
         /// methods:</p>
         /// <ul>
         /// <li>Tokens created by lexer rules.</li>
-        /// <li>Tokens defined in a
-        /// <c/>
-        /// tokens
-        /// block in a lexer or parser
+        /// <li>Tokens defined in a <code>tokens{}</code> block in a lexer or parser
         /// grammar.</li>
         /// <li>The implicitly defined
         /// <c>EOF</c>
