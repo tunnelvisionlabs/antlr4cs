@@ -30,7 +30,6 @@
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -86,34 +85,6 @@ namespace Antlr4.Runtime
             {
                 return ruleIndex;
             }
-        }
-
-        /// <summary>
-        /// Copy a
-        /// <see cref="ParserRuleContext"/>
-        /// or
-        /// <see cref="InterpreterRuleContext"/>
-        /// stack
-        /// to a
-        /// <see cref="InterpreterRuleContext"/>
-        /// tree. Return
-        /// <see langword="null"/>
-        /// if
-        /// <paramref name="ctx"/>
-        /// is null.
-        /// </summary>
-        /// <since>4.5</since>
-        [Nullable]
-        public static Antlr4.Runtime.InterpreterRuleContext FromParserRuleContext(ParserRuleContext ctx)
-        {
-            if (ctx == null)
-            {
-                return null;
-            }
-            Antlr4.Runtime.InterpreterRuleContext dup = new Antlr4.Runtime.InterpreterRuleContext(ctx.RuleIndex);
-            dup.CopyFrom(ctx);
-            dup.parent = FromParserRuleContext(((ParserRuleContext)ctx.Parent));
-            return dup;
         }
     }
 }

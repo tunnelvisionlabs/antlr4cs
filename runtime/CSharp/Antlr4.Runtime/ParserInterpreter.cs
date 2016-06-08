@@ -73,7 +73,27 @@ namespace Antlr4.Runtime
         [NotNull]
         private readonly IVocabulary vocabulary;
 
-        /// <summary>Tracks LR rules for adjusting the contexts</summary>
+        /// <summary>
+        /// This stack corresponds to the _parentctx, _parentState pair of locals
+        /// that would exist on call stack frames with a recursive descent parser;
+        /// in the generated function for a left-recursive rule you'd see:
+        /// private EContext e(int _p) throws RecognitionException {
+        /// ParserRuleContext _parentctx = _ctx;    // Pair.a
+        /// int _parentState = getState();          // Pair.b
+        /// ...
+        /// </summary>
+        /// <remarks>
+        /// This stack corresponds to the _parentctx, _parentState pair of locals
+        /// that would exist on call stack frames with a recursive descent parser;
+        /// in the generated function for a left-recursive rule you'd see:
+        /// private EContext e(int _p) throws RecognitionException {
+        /// ParserRuleContext _parentctx = _ctx;    // Pair.a
+        /// int _parentState = getState();          // Pair.b
+        /// ...
+        /// }
+        /// Those values are used to create new recursive rule invocation contexts
+        /// associated with left operand of an alt like "expr '*' expr".
+        /// </remarks>
         protected internal readonly Stack<Tuple<ParserRuleContext, int>> _parentContextStack = new Stack<Tuple<ParserRuleContext, int>>();
 
         /// <summary>
@@ -90,6 +110,17 @@ namespace Antlr4.Runtime
 
         protected internal int overrideDecisionAlt = -1;
 
+        protected internal bool overrideDecisionReached = false;
+
+        /// <summary>
+        /// What is the current context when we override a decisions?  This tells
+        /// us what the root of the parse tree is when using override
+        /// for an ambiguity/lookahead check.
+        /// </summary>
+        protected internal InterpreterRuleContext overrideDecisionRoot = null;
+
+        protected internal InterpreterRuleContext rootContext;
+
         /// <summary>
         /// A copy constructor that creates a new parser interpreter by reusing
         /// the fields of a previous interpreter.
@@ -99,6 +130,7 @@ namespace Antlr4.Runtime
         public ParserInterpreter(Antlr4.Runtime.ParserInterpreter old)
             : base(((ITokenStream)old.InputStream))
         {
+            // latch and only override once; error might trigger infinite loop
             this.grammarFileName = old.grammarFileName;
             this.atn = old.atn;
             this.pushRecursionContextStates = old.pushRecursionContextStates;
@@ -141,6 +173,13 @@ namespace Antlr4.Runtime
             }
             // get atn simulator that knows how to do predictions
             Interpreter = new ParserATNSimulator(this, atn);
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            overrideDecisionReached = false;
+            overrideDecisionRoot = null;
         }
 
         public override ATN Atn
@@ -187,7 +226,7 @@ namespace Antlr4.Runtime
         public virtual ParserRuleContext Parse(int startRuleIndex)
         {
             RuleStartState startRuleStartState = atn.ruleToStartState[startRuleIndex];
-            InterpreterRuleContext rootContext = new InterpreterRuleContext(null, ATNState.InvalidStateNumber, startRuleIndex);
+            rootContext = CreateInterpreterRuleContext(null, ATNState.InvalidStateNumber, startRuleIndex);
             if (startRuleStartState.isPrecedenceRule)
             {
                 EnterRecursionRule(rootContext, startRuleStartState.stateNumber, startRuleIndex, 0);
@@ -234,7 +273,7 @@ namespace Antlr4.Runtime
                             State = atn.ruleToStopState[p.ruleIndex].stateNumber;
                             Context.exception = e;
                             ErrorHandler.ReportError(this, e);
-                            ErrorHandler.Recover(this, e);
+                            Recover(e);
                         }
                         break;
                     }
@@ -258,25 +297,12 @@ namespace Antlr4.Runtime
 
         protected internal virtual void VisitState(ATNState p)
         {
-            int edge;
+            int predictedAlt = 1;
             if (p.NumberOfTransitions > 1)
             {
-                ErrorHandler.Sync(this);
-                int decision = ((DecisionState)p).decision;
-                if (decision == overrideDecision && _input.Index == overrideDecisionInputIndex)
-                {
-                    edge = overrideDecisionAlt;
-                }
-                else
-                {
-                    edge = Interpreter.AdaptivePredict(_input, decision, _ctx);
-                }
+                predictedAlt = VisitDecisionState((DecisionState)p);
             }
-            else
-            {
-                edge = 1;
-            }
-            Transition transition = p.Transition(edge - 1);
+            Transition transition = p.Transition(predictedAlt - 1);
             switch (transition.TransitionType)
             {
                 case TransitionType.Epsilon:
@@ -284,9 +310,9 @@ namespace Antlr4.Runtime
                     if (pushRecursionContextStates.Get(p.stateNumber) && !(transition.target is LoopEndState))
                     {
                         // We are at the start of a left recursive rule's (...)* loop
-                        // but it's not the exit branch of loop.
-                        InterpreterRuleContext ctx = new InterpreterRuleContext(_parentContextStack.Peek().Item1, _parentContextStack.Peek().Item2, _ctx.RuleIndex);
-                        PushNewRecursionContext(ctx, atn.ruleToStartState[p.ruleIndex].stateNumber, _ctx.RuleIndex);
+                        // and we're not taking the exit branch of loop.
+                        InterpreterRuleContext localctx = CreateInterpreterRuleContext(_parentContextStack.Peek().Item1, _parentContextStack.Peek().Item2, _ctx.RuleIndex);
+                        PushNewRecursionContext(localctx, atn.ruleToStartState[p.ruleIndex].stateNumber, _ctx.RuleIndex);
                     }
                     break;
                 }
@@ -303,7 +329,7 @@ namespace Antlr4.Runtime
                 {
                     if (!transition.Matches(_input.La(1), TokenConstants.MinUserTokenType, 65535))
                     {
-                        _errHandler.RecoverInline(this);
+                        RecoverInline();
                     }
                     MatchWildcard();
                     break;
@@ -319,14 +345,14 @@ namespace Antlr4.Runtime
                 {
                     RuleStartState ruleStartState = (RuleStartState)transition.target;
                     int ruleIndex = ruleStartState.ruleIndex;
-                    InterpreterRuleContext ctx_1 = new InterpreterRuleContext(_ctx, p.stateNumber, ruleIndex);
+                    InterpreterRuleContext newctx = CreateInterpreterRuleContext(_ctx, p.stateNumber, ruleIndex);
                     if (ruleStartState.isPrecedenceRule)
                     {
-                        EnterRecursionRule(ctx_1, ruleStartState.stateNumber, ruleIndex, ((RuleTransition)transition).precedence);
+                        EnterRecursionRule(newctx, ruleStartState.stateNumber, ruleIndex, ((RuleTransition)transition).precedence);
                     }
                     else
                     {
-                        EnterRule(ctx_1, transition.target.stateNumber, ruleIndex);
+                        EnterRule(newctx, transition.target.stateNumber, ruleIndex);
                     }
                     break;
                 }
@@ -363,6 +389,40 @@ namespace Antlr4.Runtime
                 }
             }
             State = transition.target.stateNumber;
+        }
+
+        /// <summary>
+        /// Method visitDecisionState() is called when the interpreter reaches
+        /// a decision state (instance of DecisionState).
+        /// </summary>
+        /// <remarks>
+        /// Method visitDecisionState() is called when the interpreter reaches
+        /// a decision state (instance of DecisionState). It gives an opportunity
+        /// for subclasses to track interesting things.
+        /// </remarks>
+        protected internal virtual int VisitDecisionState(DecisionState p)
+        {
+            int edge = 1;
+            int predictedAlt;
+            ErrorHandler.Sync(this);
+            int decision = p.decision;
+            if (decision == overrideDecision && _input.Index == overrideDecisionInputIndex && !overrideDecisionReached)
+            {
+                predictedAlt = overrideDecisionAlt;
+                overrideDecisionReached = true;
+            }
+            else
+            {
+                predictedAlt = Interpreter.AdaptivePredict(_input, decision, _ctx);
+            }
+            return predictedAlt;
+        }
+
+        /// <summary>Provide simple "factory" for InterpreterRuleContext's.</summary>
+        /// <since>4.5.1</since>
+        protected internal virtual InterpreterRuleContext CreateInterpreterRuleContext(ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
+        {
+            return new InterpreterRuleContext(parent, invokingStateNumber, ruleIndex);
         }
 
         protected internal virtual void VisitRuleStopState(ATNState p)
@@ -426,6 +486,76 @@ namespace Antlr4.Runtime
             overrideDecision = decision;
             overrideDecisionInputIndex = tokenIndex;
             overrideDecisionAlt = forcedAlt;
+        }
+
+        public virtual InterpreterRuleContext OverrideDecisionRoot
+        {
+            get
+            {
+                return overrideDecisionRoot;
+            }
+        }
+
+        /// <summary>
+        /// Rely on the error handler for this parser but, if no tokens are consumed
+        /// to recover, add an error node.
+        /// </summary>
+        /// <remarks>
+        /// Rely on the error handler for this parser but, if no tokens are consumed
+        /// to recover, add an error node. Otherwise, nothing is seen in the parse
+        /// tree.
+        /// </remarks>
+        protected internal virtual void Recover(RecognitionException e)
+        {
+            int i = _input.Index;
+            ErrorHandler.Recover(this, e);
+            if (_input.Index == i)
+            {
+                // no input consumed, better add an error node
+                if (e is InputMismatchException)
+                {
+                    InputMismatchException ime = (InputMismatchException)e;
+                    IToken tok = e.OffendingToken;
+                    int expectedTokenType = ime.GetExpectedTokens().MinElement;
+                    // get any element
+                    IToken errToken = TokenFactory.Create(Tuple.Create(tok.TokenSource, tok.TokenSource.InputStream), expectedTokenType, tok.Text, TokenConstants.DefaultChannel, -1, -1, tok.Line, tok.Column);
+                    // invalid start/stop
+                    _ctx.AddErrorNode(errToken);
+                }
+                else
+                {
+                    // NoViableAlt
+                    IToken tok = e.OffendingToken;
+                    IToken errToken = TokenFactory.Create(Tuple.Create(tok.TokenSource, tok.TokenSource.InputStream), TokenConstants.InvalidType, tok.Text, TokenConstants.DefaultChannel, -1, -1, tok.Line, tok.Column);
+                    // invalid start/stop
+                    _ctx.AddErrorNode(errToken);
+                }
+            }
+        }
+
+        protected internal virtual IToken RecoverInline()
+        {
+            return _errHandler.RecoverInline(this);
+        }
+
+        /// <summary>
+        /// Return the root of the parse, which can be useful if the parser
+        /// bails out.
+        /// </summary>
+        /// <remarks>
+        /// Return the root of the parse, which can be useful if the parser
+        /// bails out. You still can access the top node. Note that,
+        /// because of the way left recursive rules add children, it's possible
+        /// that the root will not have any children if the start rule immediately
+        /// called and left recursive rule that fails.
+        /// </remarks>
+        /// <since>4.5.1</since>
+        public virtual InterpreterRuleContext RootContext
+        {
+            get
+            {
+                return rootContext;
+            }
         }
     }
 }

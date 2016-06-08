@@ -111,7 +111,7 @@ namespace Antlr4.Runtime.Atn
                 if (SLL_k > decisions[decision].SLL_MaxLook)
                 {
                     decisions[decision].SLL_MaxLook = SLL_k;
-                    decisions[decision].SLL_MaxLookEvent = new LookaheadEventInfo(decision, null, input, _startIndex, _sllStopIndex, false);
+                    decisions[decision].SLL_MaxLookEvent = new LookaheadEventInfo(decision, null, alt, input, _startIndex, _sllStopIndex, false);
                 }
                 if (_llStopIndex >= 0)
                 {
@@ -121,7 +121,7 @@ namespace Antlr4.Runtime.Atn
                     if (LL_k > decisions[decision].LL_MaxLook)
                     {
                         decisions[decision].LL_MaxLook = LL_k;
-                        decisions[decision].LL_MaxLookEvent = new LookaheadEventInfo(decision, null, input, _startIndex, _llStopIndex, true);
+                        decisions[decision].LL_MaxLookEvent = new LookaheadEventInfo(decision, null, alt, input, _startIndex, _llStopIndex, true);
                     }
                 }
                 return alt;
@@ -273,6 +273,14 @@ namespace Antlr4.Runtime.Atn
             {
                 // ---------------------------------------------------------------------
                 return decisions;
+            }
+        }
+
+        public virtual SimulatorState CurrentState
+        {
+            get
+            {
+                return currentState;
             }
         }
     }

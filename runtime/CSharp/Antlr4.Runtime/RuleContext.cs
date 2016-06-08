@@ -32,6 +32,7 @@
 */
 using System.Collections.Generic;
 using System.Text;
+using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Tree;
@@ -194,6 +195,37 @@ namespace Antlr4.Runtime
             {
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// For rule associated with this parse tree internal node, return
+        /// the outer alternative number used to match the input.
+        /// </summary>
+        /// <remarks>
+        /// For rule associated with this parse tree internal node, return
+        /// the outer alternative number used to match the input. Default
+        /// implementation does not compute nor store this alt num. Create
+        /// a subclass of ParserRuleContext with backing field and set
+        /// option contextSuperClass.
+        /// to set it.
+        /// </remarks>
+        /// <since>4.5.3</since>
+        public virtual int GetAltNumber()
+        {
+            return ATN.InvalidAltNumber;
+        }
+
+        /// <summary>Set the outer alternative number for this context node.</summary>
+        /// <remarks>
+        /// Set the outer alternative number for this context node. Default
+        /// implementation does nothing to avoid backing field overhead for
+        /// trees that don't need it.  Create
+        /// a subclass of ParserRuleContext with backing field and set
+        /// option contextSuperClass.
+        /// </remarks>
+        /// <since>4.5.3</since>
+        public virtual void SetAltNumber(int altNumber)
+        {
         }
 
         public virtual IParseTree GetChild(int i)

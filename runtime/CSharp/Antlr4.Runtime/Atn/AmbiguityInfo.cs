@@ -84,7 +84,10 @@ namespace Antlr4.Runtime.Atn
         /// The final simulator state identifying the ambiguous
         /// alternatives for the current input
         /// </param>
-        /// <param name="ambigAlts">The set of alternatives in the decision that lead to a valid parse.</param>
+        /// <param name="ambigAlts">
+        /// The set of alternatives in the decision that lead to a valid parse.
+        /// The predicted alt is the min(ambigAlts)
+        /// </param>
         /// <param name="input">The input token stream</param>
         /// <param name="startIndex">The start index for the current prediction</param>
         /// <param name="stopIndex">

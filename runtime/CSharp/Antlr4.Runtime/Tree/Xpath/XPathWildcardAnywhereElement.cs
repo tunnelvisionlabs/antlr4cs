@@ -21,7 +21,7 @@ namespace Antlr4.Runtime.Tree.Xpath
                 return new List<IParseTree>();
             }
             // !* is weird but valid (empty)
-            return Trees.Descendants(t);
+            return Trees.GetDescendants(t);
         }
     }
 }

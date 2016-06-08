@@ -30,9 +30,11 @@
 *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -74,8 +76,7 @@ namespace Antlr4.Runtime.Tree
         /// Print out a whole tree in LISP form.
         /// <see cref="GetNodeText(ITree, Antlr4.Runtime.Parser)"/>
         /// is used on the
-        /// node payloads to get the text for the nodes.  Detect
-        /// parse trees and extract data appropriately.
+        /// node payloads to get the text for the nodes.
         /// </remarks>
         public static string ToStringTree(ITree t, IList<string> ruleNames)
         {
@@ -114,8 +115,14 @@ namespace Antlr4.Runtime.Tree
             {
                 if (t is IRuleNode)
                 {
-                    int ruleIndex = ((IRuleNode)t).RuleContext.RuleIndex;
+                    RuleContext ruleContext = ((IRuleNode)t).RuleContext;
+                    int ruleIndex = ruleContext.RuleIndex;
                     string ruleName = ruleNames[ruleIndex];
+                    int altNumber = ruleContext.GetAltNumber();
+                    if (altNumber != ATN.InvalidAltNumber)
+                    {
+                        return ruleName + ":" + altNumber;
+                    }
                     return ruleName;
                 }
                 else
@@ -163,6 +170,7 @@ namespace Antlr4.Runtime.Tree
         /// Return a list of all ancestors of this node.  The first node of
         /// list is the root and the last is the parent of this node.
         /// </remarks>
+        /// <since>4.5.1</since>
         [NotNull]
         public static IList<ITree> GetAncestors(ITree t)
         {
@@ -179,6 +187,30 @@ namespace Antlr4.Runtime.Tree
                 t = t.Parent;
             }
             return ancestors;
+        }
+
+        /// <summary>Return true if t is u's parent or a node on path to root from u.</summary>
+        /// <remarks>
+        /// Return true if t is u's parent or a node on path to root from u.
+        /// Use == not equals().
+        /// </remarks>
+        /// <since>4.5.1</since>
+        public static bool IsAncestorOf(ITree t, ITree u)
+        {
+            if (t == null || u == null || t.Parent == null)
+            {
+                return false;
+            }
+            ITree p = u.Parent;
+            while (p != null)
+            {
+                if (t == p)
+                {
+                    return true;
+                }
+                p = p.Parent;
+            }
+            return false;
         }
 
         public static ICollection<IParseTree> FindAllTokenNodes(IParseTree t, int ttype)
@@ -227,16 +259,24 @@ namespace Antlr4.Runtime.Tree
             }
         }
 
-        public static IList<IParseTree> Descendants(IParseTree t)
+        /// <summary>Get all descendents; includes t itself.</summary>
+        /// <since>4.5.1</since>
+        public static IList<IParseTree> GetDescendants(IParseTree t)
         {
             IList<IParseTree> nodes = new List<IParseTree>();
             nodes.Add(t);
             int n = t.ChildCount;
             for (int i = 0; i < n; i++)
             {
-                Sharpen.Collections.AddAll(nodes, Descendants(t.GetChild(i)));
+                Sharpen.Collections.AddAll(nodes, GetDescendants(t.GetChild(i)));
             }
             return nodes;
+        }
+
+        [System.ObsoleteAttribute(@"")]
+        public static IList<IParseTree> Descendants(IParseTree t)
+        {
+            return GetDescendants(t);
         }
 
         /// <summary>
@@ -266,10 +306,65 @@ namespace Antlr4.Runtime.Tree
             if (t is ParserRuleContext)
             {
                 ParserRuleContext r = (ParserRuleContext)t;
-                if (startTokenIndex >= r.Start.TokenIndex && stopTokenIndex <= r.Stop.TokenIndex)
+                if (startTokenIndex >= r.Start.TokenIndex && (r.Stop == null || stopTokenIndex <= r.Stop.TokenIndex))
                 {
                     // is range fully contained in t?
+                    // note: r.getStop()==null likely implies that we bailed out of parser and there's nothing to the right
                     return r;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Replace any subtree siblings of root that are completely to left
+        /// or right of lookahead range with a CommonToken(Token.INVALID_TYPE,"...")
+        /// node.
+        /// </summary>
+        /// <remarks>
+        /// Replace any subtree siblings of root that are completely to left
+        /// or right of lookahead range with a CommonToken(Token.INVALID_TYPE,"...")
+        /// node. The source interval for t is not altered to suit smaller range!
+        /// WARNING: destructive to t.
+        /// </remarks>
+        /// <since>4.5.1</since>
+        public static void StripChildrenOutOfRange(ParserRuleContext t, ParserRuleContext root, int startIndex, int stopIndex)
+        {
+            if (t == null)
+            {
+                return;
+            }
+            for (int i = 0; i < t.ChildCount; i++)
+            {
+                IParseTree child = t.GetChild(i);
+                Interval range = child.SourceInterval;
+                if (child is ParserRuleContext && (range.b < startIndex || range.a > stopIndex))
+                {
+                    if (IsAncestorOf(child, root))
+                    {
+                        // replace only if subtree doesn't have displayed root
+                        CommonToken abbrev = new CommonToken(TokenConstants.InvalidType, "...");
+                        t.children.Set(i, new TerminalNodeImpl(abbrev));
+                    }
+                }
+            }
+        }
+
+        /// <summary>Return first node satisfying the pred</summary>
+        /// <since>4.5.1</since>
+        public static ITree FindNodeSuchThat(ITree t, Predicate<ITree> pred)
+        {
+            if (pred.Eval(t))
+            {
+                return t;
+            }
+            int n = t.ChildCount;
+            for (int i = 0; i < n; i++)
+            {
+                ITree u = FindNodeSuchThat(t.GetChild(i), pred);
+                if (u != null)
+                {
+                    return u;
                 }
             }
             return null;
