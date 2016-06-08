@@ -52,14 +52,16 @@ public final class EpsilonTransition extends Transition {
 	 * @see ATNConfig#isPrecedenceFilterSuppressed()
 	 * @see ParserATNSimulator#applyPrecedenceFilter(ATNConfigSet, ParserRuleContext, PredictionContextCache) 
 	 * @since 4.4.1
+	 *
+	 * @sharpen.property
 	 */
 	public int outermostPrecedenceReturn() {
 		return outermostPrecedenceReturn;
 	}
 
 	@Override
-	public int getSerializationType() {
-		return EPSILON;
+	public TransitionType getSerializationType() {
+		return TransitionType.EPSILON;
 	}
 
 	@Override

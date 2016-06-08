@@ -31,3 +31,6 @@ nbactions*.xml
 
 # Playground
 #/tool/playground/
+
+# Generated during the Sharpen conversion
+/bin/

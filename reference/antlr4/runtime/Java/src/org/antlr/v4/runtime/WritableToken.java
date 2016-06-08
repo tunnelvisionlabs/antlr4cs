@@ -31,15 +31,33 @@
 package org.antlr.v4.runtime;
 
 public interface WritableToken extends Token {
+	/**
+	 * @sharpen.property Text
+	 */
 	public void setText(String text);
 
+	/**
+	 * @sharpen.property Type
+	 */
 	public void setType(int ttype);
 
+	/**
+	 * @sharpen.property Line
+	 */
 	public void setLine(int line);
 
+	/**
+	 * @sharpen.property Column
+	 */
 	public void setCharPositionInLine(int pos);
 
+	/**
+	 * @sharpen.property Channel
+	 */
 	public void setChannel(int channel);
 
+	/**
+	 * @sharpen.property TokenIndex
+	 */
 	public void setTokenIndex(int index);
 }

@@ -152,6 +152,7 @@ public class LexerActionExecutor {
 	/**
 	 * Gets the lexer actions to be executed by this executor.
 	 * @return The lexer actions to be executed by this executor.
+	 * @sharpen.property LexerActions
 	 */
 	@NotNull
 	public LexerAction[] getLexerActions() {

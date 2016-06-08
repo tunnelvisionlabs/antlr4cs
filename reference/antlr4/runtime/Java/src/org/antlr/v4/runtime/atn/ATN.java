@@ -134,6 +134,9 @@ public class ATN {
 		LL1Table.clear();
 	}
 
+	/**
+	 * @sharpen.property ContextCacheSize
+	 */
 	public int getContextCacheSize() {
 		return contextCache.size();
 	}
@@ -142,6 +145,9 @@ public class ATN {
 		return PredictionContext.getCachedContext(context, contextCache, new PredictionContext.IdentityHashMap());
 	}
 
+	/**
+	 * @sharpen.property DecisionToDfa
+	 */
 	public final DFA[] getDecisionToDFA() {
 		assert decisionToDFA != null && decisionToDFA.length == decisionToState.size();
 		return decisionToDFA;
@@ -209,6 +215,9 @@ public class ATN {
         return null;
     }
 
+	/**
+	 * @sharpen.property NumberOfDecisions
+	 */
 	public int getNumberOfDecisions() {
 		return decisionToState.size();
 	}

@@ -65,6 +65,9 @@ public abstract class AbstractEdgeMap<T> implements EdgeMap<T> {
 	@Override
 	public abstract AbstractEdgeMap<T> remove(int key);
 
+	/**
+	 * @sharpen.ignore
+	 */
 	protected abstract class AbstractEntrySet extends AbstractSet<Map.Entry<Integer, T>> {
 		@Override
 		public boolean contains(Object o) {

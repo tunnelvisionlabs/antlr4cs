@@ -36,8 +36,8 @@ public final class WildcardTransition extends Transition {
 	public WildcardTransition(@NotNull ATNState target) { super(target); }
 
 	@Override
-	public int getSerializationType() {
-		return WILDCARD;
+	public TransitionType getSerializationType() {
+		return TransitionType.WILDCARD;
 	}
 
 	@Override

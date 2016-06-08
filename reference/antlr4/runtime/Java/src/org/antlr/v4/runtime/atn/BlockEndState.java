@@ -35,7 +35,7 @@ public final class BlockEndState extends ATNState {
 	public BlockStartState startState;
 
 	@Override
-	public int getStateType() {
-		return BLOCK_END;
+	public StateType getStateType() {
+		return StateType.BLOCK_END;
 	}
 }

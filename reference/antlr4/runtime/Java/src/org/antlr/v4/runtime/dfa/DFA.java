@@ -121,19 +121,31 @@ public class DFA {
 		this.precedenceDfa = isPrecedenceDfa;
 	}
 
+	/**
+	 * @sharpen.property MinDfaEdge
+	 */
 	public final int getMinDfaEdge() {
 		return minDfaEdge;
 	}
 
+	/**
+	 * @sharpen.property MaxDfaEdge
+	 */
 	public final int getMaxDfaEdge() {
 		return maxDfaEdge;
 	}
 
+	/**
+	 * @sharpen.property EmptyEdgeMap
+	 */
 	@NotNull
 	public EmptyEdgeMap<DFAState> getEmptyEdgeMap() {
 		return emptyEdgeMap;
 	}
 
+	/**
+	 * @sharpen.property EmptyContextEdgeMap
+	 */
 	@NotNull
 	public EmptyEdgeMap<DFAState> getEmptyContextEdgeMap() {
 		return emptyContextEdgeMap;
@@ -149,6 +161,8 @@ public class DFA {
 	 * @return {@code true} if this is a precedence DFA; otherwise,
 	 * {@code false}.
 	 * @see Parser#getPrecedence()
+	 *
+	 * @sharpen.property IsPrecedenceDfa
 	 */
 	public final boolean isPrecedenceDfa() {
 		return precedenceDfa;
@@ -223,6 +237,8 @@ public class DFA {
 	 * match the value of {@link #isPrecedenceDfa} for the current DFA.
 	 *
 	 * @deprecated This method no longer performs any action.
+	 *
+	 * @sharpen.property IsPrecedenceDfa
 	 */
 	@Deprecated
 	public final void setPrecedenceDfa(boolean precedenceDfa) {
@@ -231,6 +247,9 @@ public class DFA {
 		}
 	}
 
+	/**
+	 * @sharpen.property IsEmpty
+	 */
 	public boolean isEmpty() {
 		if (isPrecedenceDfa()) {
 			return s0.get().getEdgeMap().isEmpty() && s0full.get().getEdgeMap().isEmpty();
@@ -239,6 +258,9 @@ public class DFA {
 		return s0.get() == null && s0full.get() == null;
 	}
 
+	/**
+	 * @sharpen.property IsContextSensitive
+	 */
 	public boolean isContextSensitive() {
 		if (isPrecedenceDfa()) {
 			return !s0full.get().getEdgeMap().isEmpty();

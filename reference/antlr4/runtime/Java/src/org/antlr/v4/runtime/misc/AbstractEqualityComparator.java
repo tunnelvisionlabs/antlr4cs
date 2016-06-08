@@ -32,7 +32,8 @@ package org.antlr.v4.runtime.misc;
 /**
  * This abstract base class is provided so performance-critical applications can
  * use virtual- instead of interface-dispatch when calling comparator methods.
- *
+ * 
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public abstract class AbstractEqualityComparator<T> implements EqualityComparator<T> {

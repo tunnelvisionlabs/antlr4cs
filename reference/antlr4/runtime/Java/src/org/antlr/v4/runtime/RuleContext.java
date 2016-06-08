@@ -129,6 +129,8 @@ public class RuleContext implements RuleNode {
 
 	/** A context is empty if there is no invoking state; meaning nobody called
 	 *  current context.
+	 *
+	 * @sharpen.property IsEmpty
 	 */
 	public boolean isEmpty() {
 		return invokingState == -1;
@@ -171,6 +173,9 @@ public class RuleContext implements RuleNode {
 		return builder.toString();
 	}
 
+	/**
+	 * @sharpen.property RuleIndex
+	 */
 	public int getRuleIndex() { return -1; }
 
 	@Override
@@ -188,18 +193,28 @@ public class RuleContext implements RuleNode {
 		return visitor.visitChildren(this);
 	}
 
-	/** Call this method to view a parse tree in a dialog box visually. */
+	/**
+	 * Call this method to view a parse tree in a dialog box visually.
+	 * 
+	 * @sharpen.ignore
+	 */
 	public Future<JDialog> inspect(@Nullable Parser parser) {
 		List<String> ruleNames = parser != null ? Arrays.asList(parser.getRuleNames()) : null;
 		return inspect(ruleNames);
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public Future<JDialog> inspect(@Nullable List<String> ruleNames) {
 		TreeViewer viewer = new TreeViewer(ruleNames, this);
 		return viewer.open();
 	}
 
-	/** Save this tree in a postscript file */
+	/** Save this tree in a postscript file.
+	 * 
+	 * @sharpen.ignore
+	 */
 	public void save(@Nullable Parser parser, String fileName)
 		throws IOException, PrintException
 	{
@@ -207,7 +222,10 @@ public class RuleContext implements RuleNode {
 		save(ruleNames, fileName);
 	}
 
-	/** Save this tree in a postscript file using a particular font name and size */
+	/** Save this tree in a postscript file using a particular font name and size.
+	 * 
+	 * @sharpen.ignore
+	 */
 	public void save(@Nullable Parser parser, String fileName,
 					 String fontName, int fontSize)
 		throws IOException
@@ -216,14 +234,20 @@ public class RuleContext implements RuleNode {
 		save(ruleNames, fileName, fontName, fontSize);
 	}
 
-	/** Save this tree in a postscript file */
+	/** Save this tree in a postscript file.
+	 * 
+	 * @sharpen.ignore
+	 */
 	public void save(@Nullable List<String> ruleNames, String fileName)
 		throws IOException, PrintException
 	{
 		Trees.writePS(this, ruleNames, fileName);
 	}
 
-	/** Save this tree in a postscript file using a particular font name and size */
+	/** Save this tree in a postscript file using a particular font name and size.
+	 * 
+	 * @sharpen.ignore
+	 */
 	public void save(@Nullable List<String> ruleNames, String fileName,
 					 String fontName, int fontSize)
 		throws IOException

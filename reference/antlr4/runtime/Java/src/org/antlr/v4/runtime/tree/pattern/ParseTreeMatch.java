@@ -164,6 +164,8 @@ public class ParseTreeMatch {
 	 *
 	 * @return A mapping from labels to parse tree nodes. If the parse tree
 	 * pattern did not contain any rule or token tags, this map will be empty.
+	 *
+	 * @sharpen.property Labels
 	 */
 	@NotNull
 	public MultiMap<String, ParseTree> getLabels() {
@@ -175,6 +177,8 @@ public class ParseTreeMatch {
 	 *
 	 * @return the node at which we first detected a mismatch, or {@code null}
 	 * if the match was successful.
+	 *
+	 * @sharpen.property MismatchedNode
 	 */
 	@Nullable
 	public ParseTree getMismatchedNode() {
@@ -186,6 +190,8 @@ public class ParseTreeMatch {
 	 *
 	 * @return {@code true} if the match operation succeeded; otherwise,
 	 * {@code false}.
+	 *
+	 * @sharpen.property Succeeded
 	 */
 	public boolean succeeded() {
 		return mismatchedNode == null;
@@ -195,6 +201,8 @@ public class ParseTreeMatch {
 	 * Get the tree pattern we are matching against.
 	 *
 	 * @return The tree pattern we are matching against.
+	 *
+	 * @sharpen.property Pattern
 	 */
 	@NotNull
 	public ParseTreePattern getPattern() {
@@ -205,6 +213,8 @@ public class ParseTreeMatch {
 	 * Get the parse tree we are trying to match to a pattern.
 	 *
 	 * @return The {@link ParseTree} we are trying to match to a pattern.
+	 *
+	 * @sharpen.property Tree
 	 */
 	@NotNull
 	public ParseTree getTree() {

@@ -55,6 +55,8 @@ public class LexerTypeAction implements LexerAction {
 	/**
 	 * Gets the type to assign to a token created by the lexer.
 	 * @return The type to assign to a token created by the lexer.
+	 *
+	 * @sharpen.property Type
 	 */
 	public int getType() {
 		return type;

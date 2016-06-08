@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @sharpen.ignore
+ */
 public class LogManager {
     protected static class Record {
 		long timestamp;

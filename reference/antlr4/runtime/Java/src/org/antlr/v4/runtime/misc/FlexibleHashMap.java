@@ -39,6 +39,8 @@ import java.util.Set;
 
 /** A limited map (many unsupported operations) that lets me use
  *  varying hashCode/equals.
+ *
+ *  @sharpen.ignore
  */
 public class FlexibleHashMap<K,V> implements Map<K, V> {
 	public static final int INITAL_CAPACITY = 16; // must be power of 2

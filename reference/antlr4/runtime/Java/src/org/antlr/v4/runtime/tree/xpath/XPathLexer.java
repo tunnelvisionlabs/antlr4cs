@@ -28,17 +28,38 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.runtime.atn;
+package org.antlr.v4.runtime.tree.xpath;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
 
 /**
+ * This is a stub class to allow Sharpen to successfully translate the remaining
+ * Java code to C#.
  *
- * @author Sam Harwell
+ * @sharpen.ignore
  */
-public final class BasicState extends ATNState {
+class XPathLexer extends Lexer {
+	static final int ROOT = 0;
+	static final int ANYWHERE = 1;
+	static final int BANG = 2;
+	static final int TOKEN_REF = 3;
+	static final int RULE_REF = 4;
+	static final int WILDCARD = 5;
+	static final int STRING = 6;
+
+	public XPathLexer(CharStream input) {
+		super(input);
+	}
 
 	@Override
-	public StateType getStateType() {
-		return StateType.BASIC;
+	public String[] getRuleNames() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public String getGrammarFileName() {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }

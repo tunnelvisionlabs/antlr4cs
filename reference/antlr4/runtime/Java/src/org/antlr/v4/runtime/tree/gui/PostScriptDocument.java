@@ -35,6 +35,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * @sharpen.ignore
+ */
 public class PostScriptDocument {
 	public static final String DEFAULT_FONT = "Courier New";
 

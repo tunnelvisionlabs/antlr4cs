@@ -99,11 +99,16 @@ public class RecognitionException extends RuntimeException {
 	 * edge we couldn't match.
 	 *
 	 * <p>If the state number is not known, this method returns -1.</p>
+	 * 
+	 * @sharpen.property OffendingState
 	 */
 	public int getOffendingState() {
 		return offendingState;
 	}
 
+	/**
+	 * @sharpen.property OffendingState
+	 */
 	protected final void setOffendingState(int offendingState) {
 		this.offendingState = offendingState;
 	}
@@ -134,6 +139,8 @@ public class RecognitionException extends RuntimeException {
 	 *
 	 * @return The {@link RuleContext} at the time this exception was thrown.
 	 * If the context is not available, this method returns {@code null}.
+	 *
+	 * @sharpen.property Context
 	 */
 	@Nullable
 	public RuleContext getContext() {
@@ -149,21 +156,27 @@ public class RecognitionException extends RuntimeException {
 	 * @return The input stream which is the symbol source for the recognizer
 	 * where this exception was thrown, or {@code null} if the stream is not
 	 * available.
+	 *
+	 * @sharpen.property InputStream
 	 */
 	@Nullable
 	public IntStream getInputStream() {
 		return input;
 	}
 
+	/**
+	 * @sharpen.property OffendingToken
+	 */
 	@Nullable
 	public Token getOffendingToken() {
 		return offendingToken;
 	}
 
-	protected final <Symbol extends Token> void setOffendingToken(Recognizer<Symbol, ?> recognizer, @Nullable Symbol offendingToken) {
-		if (recognizer == this.recognizer) {
-			this.offendingToken = offendingToken;
-		}
+	/**
+	 * @sharpen.property OffendingToken
+	 */
+	protected final void setOffendingToken(Token offendingToken) {
+		this.offendingToken = offendingToken;
 	}
 
 	/**
@@ -173,14 +186,11 @@ public class RecognitionException extends RuntimeException {
 	 *
 	 * @return The recognizer where this exception occurred, or {@code null} if
 	 * the recognizer is not available.
+	 *
+	 * @sharpen.property Recognizer
 	 */
 	@Nullable
 	public Recognizer<?, ?> getRecognizer() {
 		return recognizer;
-	}
-
-	@SuppressWarnings("unchecked") // safe
-	public <T> T getOffendingToken(Recognizer<T, ?> recognizer) {
-		return this.recognizer == recognizer ? (T)offendingToken : null;
 	}
 }

@@ -62,6 +62,8 @@ public class AcceptStateInfo {
 	 * {@code true}. If predicate evaluation is enabled, the final prediction of
 	 * the accept state will be determined by the result of predicate
 	 * evaluation.
+	 *
+	 * @sharpen.property Prediction
 	 */
 	public int getPrediction() {
 		return prediction;
@@ -70,6 +72,8 @@ public class AcceptStateInfo {
 	/**
 	 * Gets the {@link LexerActionExecutor} which can be used to execute actions
 	 * and/or commands after the lexer matches a token.
+	 *
+	 * @sharpen.property LexerActionExecutor
 	 */
 	public LexerActionExecutor getLexerActionExecutor() {
 		return lexerActionExecutor;

@@ -154,9 +154,9 @@ public class UnbufferedTokenStream implements TokenStream {
 
 	@NotNull
 	@Override
-	public String getText(Object start, Object stop) {
-		if (start instanceof Token && stop instanceof Token) {
-			return getText(Interval.of(((Token)start).getTokenIndex(), ((Token)stop).getTokenIndex()));
+	public String getText(Token start, Token stop) {
+		if (start != null && stop != null) {
+			return getText(Interval.of(start.getTokenIndex(), stop.getTokenIndex()));
 		}
 
 		throw new UnsupportedOperationException("The specified start and stop symbols are not supported.");

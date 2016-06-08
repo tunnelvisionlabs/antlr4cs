@@ -70,8 +70,8 @@ public final class RuleTransition extends Transition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return RULE;
+	public TransitionType getSerializationType() {
+		return TransitionType.RULE;
 	}
 
 	@Override

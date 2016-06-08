@@ -34,7 +34,8 @@ package org.antlr.v4.runtime.misc;
  * {@link Object#equals} (object equality) and the {@code ==} operator
  * (reference equality). It can be used to provide algorithm-specific unordered
  * comparisons without requiring changes to the object itself.
- *
+ * 
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public interface EqualityComparator<T> {

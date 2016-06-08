@@ -37,6 +37,7 @@ import org.antlr.v4.runtime.atn.EpsilonTransition;
 import org.antlr.v4.runtime.atn.PlusLoopbackState;
 import org.antlr.v4.runtime.atn.RuleTransition;
 import org.antlr.v4.runtime.atn.StarLoopbackState;
+import org.antlr.v4.runtime.atn.StateType;
 import org.antlr.v4.runtime.atn.Transition;
 import org.antlr.v4.runtime.misc.NotNull;
 
@@ -54,12 +55,12 @@ public class TailEpsilonRemover extends ATNVisitor {
 
 	@Override
 	public void visitState(@NotNull ATNState p) {
-		if (p.getStateType() == ATNState.BASIC && p.getNumberOfTransitions() == 1) {
+		if (p.getStateType() == StateType.BASIC && p.getNumberOfTransitions() == 1) {
 			ATNState q = p.transition(0).target;
 			if (p.transition(0) instanceof RuleTransition) {
 				q = ((RuleTransition) p.transition(0)).followState;
 			}
-			if (q.getStateType() == ATNState.BASIC) {
+			if (q.getStateType() == StateType.BASIC) {
 				// we have p-x->q for x in {rule, action, pred, token, ...}
 				// if edge out of q is single epsilon to block end
 				// we can strip epsilon p-x->q-eps->r

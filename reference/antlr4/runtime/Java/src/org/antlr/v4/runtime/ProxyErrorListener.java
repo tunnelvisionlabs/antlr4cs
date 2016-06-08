@@ -32,8 +32,6 @@ package org.antlr.v4.runtime;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.misc.Nullable;
 
-import java.util.Collection;
-
 /**
  * This implementation of {@link ANTLRErrorListener} dispatches all calls to a
  * collection of delegate listeners. This reduces the effort required to support multiple
@@ -42,9 +40,9 @@ import java.util.Collection;
  * @author Sam Harwell
  */
 public class ProxyErrorListener<Symbol> implements ANTLRErrorListener<Symbol> {
-	private final Collection<? extends ANTLRErrorListener<? super Symbol>> delegates;
+	private final Iterable<? extends ANTLRErrorListener<? super Symbol>> delegates;
 
-	public ProxyErrorListener(Collection<? extends ANTLRErrorListener<? super Symbol>> delegates) {
+	public ProxyErrorListener(Iterable<? extends ANTLRErrorListener<? super Symbol>> delegates) {
 		if (delegates == null) {
 			throw new NullPointerException("delegates");
 		}
@@ -52,7 +50,10 @@ public class ProxyErrorListener<Symbol> implements ANTLRErrorListener<Symbol> {
 		this.delegates = delegates;
 	}
 
-	protected Collection<? extends ANTLRErrorListener<? super Symbol>> getDelegates() {
+	/**
+	 * @sharpen.property Delegates
+	 */
+	protected Iterable<? extends ANTLRErrorListener<? super Symbol>> getDelegates() {
 		return delegates;
 	}
 

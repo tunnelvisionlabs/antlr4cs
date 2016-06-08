@@ -29,7 +29,7 @@
 package org.antlr.v4.runtime.misc;
 
 /**
- *
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public interface Func0<Result> {

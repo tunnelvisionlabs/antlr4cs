@@ -30,7 +30,7 @@
 package org.antlr.v4.runtime.misc;
 
 /**
- *
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public class Tuple3<T1, T2, T3> {

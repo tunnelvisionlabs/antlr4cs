@@ -160,7 +160,7 @@ public class DefaultErrorStrategy implements ANTLRErrorStrategy {
 	}
 
 	protected void notifyErrorListeners(@NotNull Parser recognizer, String message, RecognitionException e) {
-		recognizer.notifyErrorListeners(e.getOffendingToken(recognizer), message, e);
+		recognizer.notifyErrorListeners(e.getOffendingToken(), message, e);
 	}
 
 	/**
@@ -263,10 +263,10 @@ public class DefaultErrorStrategy implements ANTLRErrorStrategy {
 		}
 
 		switch (s.getStateType()) {
-		case ATNState.BLOCK_START:
-		case ATNState.STAR_BLOCK_START:
-		case ATNState.PLUS_BLOCK_START:
-		case ATNState.STAR_LOOP_ENTRY:
+		case BLOCK_START:
+		case STAR_BLOCK_START:
+		case PLUS_BLOCK_START:
+		case STAR_LOOP_ENTRY:
 			// report error and recover if possible
 			if ( singleTokenDeletion(recognizer)!=null ) {
 				return;
@@ -274,8 +274,8 @@ public class DefaultErrorStrategy implements ANTLRErrorStrategy {
 
 			throw new InputMismatchException(recognizer);
 
-		case ATNState.PLUS_LOOP_BACK:
-		case ATNState.STAR_LOOP_BACK:
+		case PLUS_LOOP_BACK:
+		case STAR_LOOP_BACK:
 //			System.err.println("at loop back: "+s.getClass().getSimpleName());
 			reportUnwantedToken(recognizer);
 			IntervalSet expecting = recognizer.getExpectedTokens();
@@ -327,7 +327,7 @@ public class DefaultErrorStrategy implements ANTLRErrorStrategy {
 	protected void reportInputMismatch(@NotNull Parser recognizer,
 									   @NotNull InputMismatchException e)
 	{
-		String msg = "mismatched input "+getTokenErrorDisplay(e.getOffendingToken(recognizer))+
+		String msg = "mismatched input "+getTokenErrorDisplay(e.getOffendingToken())+
 		" expecting "+e.getExpectedTokens().toString(recognizer.getVocabulary());
 		notifyErrorListeners(recognizer, msg, e);
 	}

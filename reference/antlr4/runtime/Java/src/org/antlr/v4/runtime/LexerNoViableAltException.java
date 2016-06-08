@@ -57,10 +57,16 @@ public class LexerNoViableAltException extends RecognitionException {
 		this.deadEndConfigs = deadEndConfigs;
 	}
 
+	/**
+	 * @sharpen.property StartIndex
+	 */
 	public int getStartIndex() {
 		return startIndex;
 	}
 
+	/**
+	 * @sharpen.property DeadEndConfigs
+	 */
 	@Nullable
 	public ATNConfigSet getDeadEndConfigs() {
 		return deadEndConfigs;

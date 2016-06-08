@@ -49,8 +49,8 @@ public final class ActionTransition extends Transition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return ACTION;
+	public TransitionType getSerializationType() {
+		return TransitionType.ACTION;
 	}
 
 	@Override

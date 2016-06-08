@@ -34,7 +34,7 @@ package org.antlr.v4.runtime.atn;
 public final class TokensStartState extends DecisionState {
 
 	@Override
-	public int getStateType() {
-		return TOKEN_START;
+	public StateType getStateType() {
+		return StateType.TOKEN_START;
 	}
 }

@@ -49,6 +49,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * @sharpen.ignore
+ */
 public class GraphicsSupport {
 	/**
 	 [The "BSD license"]

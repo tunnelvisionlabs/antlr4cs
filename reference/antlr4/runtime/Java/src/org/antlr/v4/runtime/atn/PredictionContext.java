@@ -109,6 +109,9 @@ public abstract class PredictionContext {
 		return hash;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public abstract int size();
 
 	public abstract int getReturnState(int index);
@@ -326,8 +329,14 @@ public abstract class PredictionContext {
 		return new SingletonPredictionContext(this, returnState);
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public abstract boolean isEmpty();
 
+	/**
+	 * @sharpen.property
+	 */
 	public abstract boolean hasEmpty();
 
 	@Override

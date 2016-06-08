@@ -41,6 +41,7 @@ import java.util.concurrent.CancellationException;
  * error recovery mechanisms. {@link BailErrorStrategy} throws this exception in
  * response to a parse error.
  *
+ * @sharpen.rename ParseCanceledException
  * @author Sam Harwell
  */
 public class ParseCancellationException extends CancellationException {

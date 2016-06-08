@@ -289,21 +289,34 @@ public abstract class Lexer extends Recognizer<Integer, LexerATNSimulator>
 		return getInterpreter().getCharPositionInLine();
 	}
 
+	/**
+	 * @sharpen.property Line
+	 */
 	public void setLine(int line) {
 		getInterpreter().setLine(line);
 	}
 
+	/**
+	 * @sharpen.property Column
+	 */
 	public void setCharPositionInLine(int charPositionInLine) {
 		getInterpreter().setCharPositionInLine(charPositionInLine);
 	}
 
-	/** What is the index of the current character of lookahead? */
+	/**
+	 * What is the index of the current character of lookahead?
+	 * 
+	 * @sharpen.property CharIndex
+	 */
 	public int getCharIndex() {
 		return _input.index();
 	}
 
-	/** Return the text matched so far for the current token or any
-	 *  text override.
+	/**
+	 * Return the text matched so far for the current token or any text
+	 * override.
+	 * 
+	 * @sharpen.property Text
 	 */
 	public String getText() {
 		if ( _text !=null ) {
@@ -312,36 +325,61 @@ public abstract class Lexer extends Recognizer<Integer, LexerATNSimulator>
 		return getInterpreter().getText(_input);
 	}
 
-	/** Set the complete text of this token; it wipes any previous
-	 *  changes to the text.
+	/**
+	 * Set the complete text of this token; it wipes any previous changes to the
+	 * text.
+	 * 
+	 * @sharpen.property Text
 	 */
 	public void setText(String text) {
 		this._text = text;
 	}
 
-	/** Override if emitting multiple tokens. */
+	/**
+	 * Override if emitting multiple tokens.
+	 * 
+	 * @sharpen.property Token
+	 */
 	public Token getToken() { return _token; }
 
+	/**
+	 * @sharpen.property Token
+	 */
 	public void setToken(Token _token) {
 		this._token = _token;
 	}
 
+	/**
+	 * @sharpen.property Type
+	 */
 	public void setType(int ttype) {
 		_type = ttype;
 	}
 
+	/**
+	 * @sharpen.property Type
+	 */
 	public int getType() {
 		return _type;
 	}
 
+	/**
+	 * @sharpen.property Channel
+	 */
 	public void setChannel(int channel) {
 		_channel = channel;
 	}
 
+	/**
+	 * @sharpen.property Channel
+	 */
 	public int getChannel() {
 		return _channel;
 	}
 
+	/**
+	 * @sharpen.property ModeNames
+	 */
 	public String[] getModeNames() {
 		return null;
 	}

@@ -70,6 +70,8 @@ package org.antlr.v4.runtime.tree.gui;
  * </pre>
  *
  *	Units are 1000th of an 'em'.
+ *
+ * @sharpen.ignore
  */
 public abstract class BasicFontMetrics {
 	public static final int MAX_CHAR = '\u00FF';

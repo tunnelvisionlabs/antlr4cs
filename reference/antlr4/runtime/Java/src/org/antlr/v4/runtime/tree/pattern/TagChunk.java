@@ -96,6 +96,8 @@ class TagChunk extends Chunk {
 	 * Get the tag for this chunk.
 	 *
 	 * @return The tag for the chunk.
+	 *
+	 * @sharpen.property Tag
 	 */
 	@NotNull
 	public final String getTag() {
@@ -107,6 +109,8 @@ class TagChunk extends Chunk {
 	 *
 	 * @return The label assigned to this chunk, or {@code null} if no label is
 	 * assigned to the chunk.
+	 *
+	 * @sharpen.property Label
 	 */
 	@Nullable
 	public final String getLabel() {

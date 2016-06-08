@@ -39,7 +39,7 @@ public final class PlusBlockStartState extends BlockStartState {
 	public PlusLoopbackState loopBackState;
 
 	@Override
-	public int getStateType() {
-		return PLUS_BLOCK_START;
+	public StateType getStateType() {
+		return StateType.PLUS_BLOCK_START;
 	}
 }

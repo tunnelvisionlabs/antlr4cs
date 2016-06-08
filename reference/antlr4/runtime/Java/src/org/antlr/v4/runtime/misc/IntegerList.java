@@ -34,7 +34,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *
+ * 
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public class IntegerList {

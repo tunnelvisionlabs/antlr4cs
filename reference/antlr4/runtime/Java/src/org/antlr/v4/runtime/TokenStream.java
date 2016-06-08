@@ -73,6 +73,8 @@ public interface TokenStream extends IntStream {
 	/**
 	 * Gets the underlying {@link TokenSource} which provides tokens for this
 	 * stream.
+	 * 
+	 * @sharpen.property TokenSource
 	 */
 	@NotNull
 	public TokenSource getTokenSource();
@@ -168,5 +170,5 @@ public interface TokenStream extends IntStream {
 	 * this method for the specified tokens
 	 */
 	@NotNull
-	public String getText(Object start, Object stop);
+	public String getText(Token start, Token stop);
 }

@@ -326,6 +326,9 @@ public class UnbufferedCharStream implements CharStream {
 		return new String(data, i, interval.length());
 	}
 
+	/**
+	 * @sharpen.property BufferStartIndex
+	 */
 	protected final int getBufferStartIndex() {
 		return currentCharIndex - p;
 	}

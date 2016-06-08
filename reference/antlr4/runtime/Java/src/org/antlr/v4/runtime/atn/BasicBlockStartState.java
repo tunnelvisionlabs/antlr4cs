@@ -37,8 +37,8 @@ package org.antlr.v4.runtime.atn;
 public final class BasicBlockStartState extends BlockStartState {
 
 	@Override
-	public int getStateType() {
-		return BLOCK_START;
+	public StateType getStateType() {
+		return StateType.BLOCK_START;
 	}
 
 }

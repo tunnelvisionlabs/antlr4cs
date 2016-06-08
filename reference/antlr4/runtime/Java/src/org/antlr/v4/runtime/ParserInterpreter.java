@@ -188,7 +188,7 @@ public class ParserInterpreter extends Parser {
 		while ( true ) {
 			ATNState p = getATNState();
 			switch ( p.getStateType() ) {
-			case ATNState.RULE_STOP :
+			case RULE_STOP :
 				// pop; return from rule
 				if ( _ctx.isEmpty() ) {
 					if (startRuleStartState.isPrecedenceRule) {
@@ -228,6 +228,9 @@ public class ParserInterpreter extends Parser {
 		super.enterRecursionRule(localctx, state, ruleIndex, precedence);
 	}
 
+	/**
+	 * @sharpen.property AtnState
+	 */
 	protected ATNState getATNState() {
 		return atn.states.get(getState());
 	}
@@ -250,7 +253,7 @@ public class ParserInterpreter extends Parser {
 
 		Transition transition = p.transition(edge - 1);
 		switch (transition.getSerializationType()) {
-		case Transition.EPSILON:
+		case EPSILON:
 			if ( pushRecursionContextStates.get(p.stateNumber) &&
 				 !(transition.target instanceof LoopEndState))
 			{
@@ -261,24 +264,24 @@ public class ParserInterpreter extends Parser {
 			}
 			break;
 
-		case Transition.ATOM:
+		case ATOM:
 			match(((AtomTransition)transition).label);
 			break;
 
-		case Transition.RANGE:
-		case Transition.SET:
-		case Transition.NOT_SET:
+		case RANGE:
+		case SET:
+		case NOT_SET:
 			if (!transition.matches(_input.LA(1), Token.MIN_USER_TOKEN_TYPE, 65535)) {
 				_errHandler.recoverInline(this);
 			}
 			matchWildcard();
 			break;
 
-		case Transition.WILDCARD:
+		case WILDCARD:
 			matchWildcard();
 			break;
 
-		case Transition.RULE:
+		case RULE:
 			RuleStartState ruleStartState = (RuleStartState)transition.target;
 			int ruleIndex = ruleStartState.ruleIndex;
 			InterpreterRuleContext ctx = new InterpreterRuleContext(_ctx, p.stateNumber, ruleIndex);
@@ -290,7 +293,7 @@ public class ParserInterpreter extends Parser {
 			}
 			break;
 
-		case Transition.PREDICATE:
+		case PREDICATE:
 			PredicateTransition predicateTransition = (PredicateTransition)transition;
 			if (!sempred(_ctx, predicateTransition.ruleIndex, predicateTransition.predIndex)) {
 				throw new FailedPredicateException(this);
@@ -298,12 +301,12 @@ public class ParserInterpreter extends Parser {
 
 			break;
 
-		case Transition.ACTION:
+		case ACTION:
 			ActionTransition actionTransition = (ActionTransition)transition;
 			action(_ctx, actionTransition.ruleIndex, actionTransition.actionIndex);
 			break;
 
-		case Transition.PRECEDENCE:
+		case PRECEDENCE:
 			if (!precpred(_ctx, ((PrecedencePredicateTransition)transition).precedence)) {
 				throw new FailedPredicateException(this, String.format("precpred(_ctx, %d)", ((PrecedencePredicateTransition)transition).precedence));
 			}

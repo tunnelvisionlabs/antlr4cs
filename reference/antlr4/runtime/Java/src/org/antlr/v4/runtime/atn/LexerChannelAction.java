@@ -57,6 +57,8 @@ public final class LexerChannelAction implements LexerAction {
 	 * Gets the channel to use for the {@link Token} created by the lexer.
 	 *
 	 * @return The channel to use for the {@link Token} created by the lexer.
+	 *
+	 * @sharpen.property Channel
 	 */
 	public int getChannel() {
 		return channel;

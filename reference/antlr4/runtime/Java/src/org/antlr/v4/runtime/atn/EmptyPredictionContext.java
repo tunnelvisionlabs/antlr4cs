@@ -43,6 +43,9 @@ public final class EmptyPredictionContext extends PredictionContext {
 		this.fullContext = fullContext;
 	}
 
+	/**
+	 * @sharpen.property IsFullContext
+	 */
 	public boolean isFullContext() {
 		return fullContext;
 	}

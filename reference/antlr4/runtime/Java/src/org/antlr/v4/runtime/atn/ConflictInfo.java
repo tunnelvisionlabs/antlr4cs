@@ -51,6 +51,8 @@ public class ConflictInfo {
 
 	/**
 	 * Gets the set of conflicting alternatives for the configuration set.
+	 *
+	 * @sharpen.property ConflictedAlts
 	 */
 	public final BitSet getConflictedAlts() {
 		return conflictedAlts;
@@ -69,6 +71,8 @@ public class ConflictInfo {
 	 * For the {@link PredictionMode#LL_EXACT_AMBIG_DETECTION} prediction mode,
 	 * accept states are conflicting but not exact are treated as non-accept
 	 * states.</p>
+	 *
+	 * @sharpen.property
 	 */
 	public final boolean isExact() {
 		return exact;

@@ -35,7 +35,7 @@ public final class LoopEndState extends ATNState {
 	public ATNState loopBackState;
 
 	@Override
-	public int getStateType() {
-		return LOOP_END;
+	public StateType getStateType() {
+		return StateType.LOOP_END;
 	}
 }

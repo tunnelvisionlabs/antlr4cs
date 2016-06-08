@@ -71,6 +71,8 @@ public final class LexerCustomAction implements LexerAction {
 	 * Gets the rule index to use for calls to {@link Recognizer#action}.
 	 *
 	 * @return The rule index for the custom action.
+	 *
+	 * @sharpen.property RuleIndex
 	 */
 	public int getRuleIndex() {
 		return ruleIndex;
@@ -80,6 +82,8 @@ public final class LexerCustomAction implements LexerAction {
 	 * Gets the action index to use for calls to {@link Recognizer#action}.
 	 *
 	 * @return The action index for the custom action.
+	 *
+	 * @sharpen.property ActionIndex
 	 */
 	public int getActionIndex() {
 		return actionIndex;

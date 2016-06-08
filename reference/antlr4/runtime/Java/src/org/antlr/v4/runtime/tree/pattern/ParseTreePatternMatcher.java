@@ -252,6 +252,8 @@ public class ParseTreePatternMatcher {
 	/**
 	 * Used to convert the tree pattern string into a series of tokens. The
 	 * input stream is reset.
+	 *
+	 * @sharpen.property Lexer
 	 */
 	@NotNull
 	public Lexer getLexer() {
@@ -261,6 +263,8 @@ public class ParseTreePatternMatcher {
 	/**
 	 * Used to collect to the grammar file name, token names, rule names for
 	 * used to parse the pattern into a parse tree.
+	 *
+	 * @sharpen.property Parser
 	 */
 	@NotNull
 	public Parser getParser() {

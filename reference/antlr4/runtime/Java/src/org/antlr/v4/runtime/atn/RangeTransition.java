@@ -44,8 +44,8 @@ public final class RangeTransition extends Transition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return RANGE;
+	public TransitionType getSerializationType() {
+		return TransitionType.RANGE;
 	}
 
 	@Override

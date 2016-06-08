@@ -120,26 +120,42 @@ public class ATNConfig {
 		}
 	}
 
-	/** Gets the ATN state associated with this configuration */
+	/** Gets the ATN state associated with this configuration.
+	 * 
+	 * @sharpen.property State
+	 */
 	@NotNull
 	public final ATNState getState() {
 		return state;
 	}
 
-	/** What alt (or lexer rule) is predicted by this configuration */
+	/** What alt (or lexer rule) is predicted by this configuration.
+	 * 
+	 *  @sharpen.property Alt
+	 */
 	public final int getAlt() {
 		return altAndOuterContextDepth & 0x00FFFFFF;
 	}
 
+	
+	/**
+	 * @sharpen.property Context
+	 */
 	@NotNull
 	public final PredictionContext getContext() {
 		return context;
 	}
 
+	/**
+	 * @sharpen.property Context
+	 */
 	public void setContext(@NotNull PredictionContext context) {
 		this.context = context;
 	}
 
+	/**
+	 * @sharpen.property ReachesIntoOuterContext
+	 */
 	public final boolean getReachesIntoOuterContext() {
 		return getOuterContextDepth() != 0;
 	}
@@ -155,11 +171,16 @@ public class ATNConfig {
 	 * closure() tracks the depth of how far we dip into the outer context:
 	 * depth &gt; 0.  Note that it may not be totally accurate depth since I
 	 * don't ever decrement. TODO: make it a boolean then</p>
+	 * 
+	 * @sharpen.property OuterContextDepth
 	 */
 	public final int getOuterContextDepth() {
 		return (altAndOuterContextDepth >>> 24) & 0x7F;
 	}
 
+	/**
+	 * @sharpen.property OuterContextDepth
+	 */
 	public void setOuterContextDepth(int outerContextDepth) {
 		assert outerContextDepth >= 0;
 		// saturate at 0x7F - everything but zero/positive is only used for debug information anyway
@@ -167,16 +188,25 @@ public class ATNConfig {
 		this.altAndOuterContextDepth = (outerContextDepth << 24) | (altAndOuterContextDepth & ~0x7F000000);
 	}
 
+	/**
+	 * @sharpen.property ActionExecutor
+	 */
 	@Nullable
 	public LexerActionExecutor getLexerActionExecutor() {
 		return null;
 	}
 
+	/**
+	 * @sharpen.property SemanticContext
+	 */
 	@NotNull
 	public SemanticContext getSemanticContext() {
 		return SemanticContext.NONE;
 	}
 
+	/**
+	 * @sharpen.property PassedThroughNonGreedyDecision
+	 */
 	public boolean hasPassedThroughNonGreedyDecision() {
 		return false;
 	}
@@ -279,10 +309,16 @@ public class ATNConfig {
 		return false;
 	}
 
+	/**
+	 * @sharpen.property PrecedenceFilterSuppressed
+	 */
 	public final boolean isPrecedenceFilterSuppressed() {
 		return (altAndOuterContextDepth & SUPPRESS_PRECEDENCE_FILTER) != 0;
 	}
 
+	/**
+	 * @sharpen.property PrecedenceFilterSuppressed
+	 */
 	public final void setPrecedenceFilterSuppressed(boolean value) {
 		if (value) {
 			this.altAndOuterContextDepth |= SUPPRESS_PRECEDENCE_FILTER;

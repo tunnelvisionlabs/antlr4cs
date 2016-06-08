@@ -362,11 +362,17 @@ public class ParserATNSimulator extends ATNSimulator {
 		this.parser = parser;
 	}
 
+	/**
+	 * @sharpen.property PredictionMode
+	 */
 	@NotNull
 	public final PredictionMode getPredictionMode() {
 		return predictionMode;
 	}
 
+	/**
+	 * @sharpen.property PredictionMode
+	 */
 	public final void setPredictionMode(@NotNull PredictionMode predictionMode) {
 		this.predictionMode = predictionMode;
 	}
@@ -1856,24 +1862,24 @@ public class ParserATNSimulator extends ATNSimulator {
 	@Nullable
 	protected ATNConfig getEpsilonTarget(@NotNull ATNConfig config, @NotNull Transition t, boolean collectPredicates, boolean inContext, PredictionContextCache contextCache, boolean treatEofAsEpsilon) {
 		switch (t.getSerializationType()) {
-		case Transition.RULE:
+		case RULE:
 			return ruleTransition(config, (RuleTransition)t, contextCache);
 
-		case Transition.PRECEDENCE:
+		case PRECEDENCE:
 			return precedenceTransition(config, (PrecedencePredicateTransition)t, collectPredicates, inContext);
 
-		case Transition.PREDICATE:
+		case PREDICATE:
 			return predTransition(config, (PredicateTransition)t, collectPredicates, inContext);
 
-		case Transition.ACTION:
+		case ACTION:
 			return actionTransition(config, (ActionTransition)t);
 
-		case Transition.EPSILON:
+		case EPSILON:
 			return config.transform(t.target, false);
 
-		case Transition.ATOM:
-		case Transition.RANGE:
-		case Transition.SET:
+		case ATOM:
+		case RANGE:
+		case SET:
 			// EOF transitions act like epsilon transitions after the first EOF
 			// transition is traversed
 			if (treatEofAsEpsilon) {
@@ -2215,7 +2221,7 @@ public class ParserATNSimulator extends ATNSimulator {
 											configs, outerContext);
 	}
 
-	protected int getUniqueAlt(@NotNull Collection<ATNConfig> configs) {
+	protected int getUniqueAlt(@NotNull Iterable<ATNConfig> configs) {
 		int alt = ATN.INVALID_ALT_NUMBER;
 		for (ATNConfig c : configs) {
 			if ( alt == ATN.INVALID_ALT_NUMBER ) {
@@ -2228,7 +2234,7 @@ public class ParserATNSimulator extends ATNSimulator {
 		return alt;
 	}
 
-	protected boolean configWithAltAtStopState(@NotNull Collection<ATNConfig> configs, int alt) {
+	protected boolean configWithAltAtStopState(@NotNull Iterable<ATNConfig> configs, int alt) {
 		for (ATNConfig c : configs) {
 			if ( c.getAlt() == alt ) {
 				if ( c.getState() instanceof RuleStopState ) {
@@ -2406,7 +2412,7 @@ public class ParserATNSimulator extends ATNSimulator {
 
 		while (!context.isEmpty()) {
 			ATNState state = atn.states.get(context.invokingState);
-			assert state.getNumberOfTransitions() == 1 && state.transition(0).getSerializationType() == Transition.RULE;
+			assert state.getNumberOfTransitions() == 1 && state.transition(0).getSerializationType() == TransitionType.RULE;
 			RuleTransition transition = (RuleTransition)state.transition(0);
 			if (!transition.tailCall) {
 				break;
@@ -2420,6 +2426,8 @@ public class ParserATNSimulator extends ATNSimulator {
 
 	/**
 	 * @since 4.3
+	 *
+	 * @sharpen.property Parser
 	 */
 	public Parser getParser() {
 		return parser;

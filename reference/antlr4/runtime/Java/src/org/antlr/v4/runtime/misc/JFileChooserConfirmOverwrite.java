@@ -37,6 +37,8 @@ import java.io.File;
 /**
  *
  * @author Sam Harwell
+ *
+ * @sharpen.ignore
  */
 @SuppressWarnings("serial")
 public class JFileChooserConfirmOverwrite extends JFileChooser {

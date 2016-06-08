@@ -72,13 +72,19 @@ public class NoViableAltException extends RecognitionException {
 		super(recognizer, input, ctx);
 		this.deadEndConfigs = deadEndConfigs;
 		this.startToken = startToken;
-		this.setOffendingToken(recognizer, offendingToken);
+		this.setOffendingToken(offendingToken);
 	}
 
+	/**
+	 * @sharpen.property StartToken
+	 */
 	public Token getStartToken() {
 		return startToken;
 	}
 
+	/**
+	 * @sharpen.property DeadEndConfigs
+	 */
 	@Nullable
 	public ATNConfigSet getDeadEndConfigs() {
 		return deadEndConfigs;

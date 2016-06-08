@@ -108,6 +108,8 @@ public abstract class AbstractParseTreeVisitor<Result> implements ParseTreeVisit
 	 * <p>The base implementation returns {@code null}.</p>
 	 *
 	 * @return The default value returned by visitor methods.
+	 *
+	 * @sharpen.property DefaultResult
 	 */
 	protected Result defaultResult() {
 		return null;

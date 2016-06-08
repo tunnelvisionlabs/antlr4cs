@@ -36,7 +36,10 @@ import org.antlr.v4.runtime.tree.Tree;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/** Adaptor ANTLR trees to {@link TreeForTreeLayout}. */
+/** Adaptor ANTLR trees to {@link TreeForTreeLayout}.
+ * 
+ * @sharpen.ignore
+ */
 public class TreeLayoutAdaptor implements TreeForTreeLayout<Tree> {
 	private static class AntlrTreeChildrenIterable implements Iterable<Tree> {
 		private final Tree tree;

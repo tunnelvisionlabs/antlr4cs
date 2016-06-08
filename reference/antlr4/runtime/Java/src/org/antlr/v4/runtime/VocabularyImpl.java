@@ -39,6 +39,8 @@ import java.util.Arrays;
  * interface.
  *
  * @author Sam Harwell
+ *
+ * @sharpen.rename Vocabulary
  */
 public class VocabularyImpl implements Vocabulary {
 	private static final String[] EMPTY_NAMES = new String[0];

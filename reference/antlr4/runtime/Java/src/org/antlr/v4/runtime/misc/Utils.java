@@ -48,15 +48,23 @@ import java.util.List;
 import java.util.Map;
 
 public class Utils {
+	/**
+	 * @sharpen.ignore
+	 */
 	public static String join(Iterable<?> iter, String separator) {
 		return join(iter.iterator(), separator);
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public static <T> String join(T[] array, String separator) {
 		return join(Arrays.asList(array), separator);
 	}
 
-    // Seriously: why isn't this built in to java? ugh!
+	/**
+	 * @sharpen.ignore
+	 */
     public static <T> String join(Iterator<T> iter, String separator) {
         StringBuilder buf = new StringBuilder();
         while ( iter.hasNext() ) {
@@ -68,6 +76,9 @@ public class Utils {
         return buf.toString();
     }
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public static boolean equals(Object x, Object y) {
 		if (x == y) {
 			return true;
@@ -106,10 +117,16 @@ public class Utils {
 		return buf.toString();
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public static void writeFile(@NotNull String fileName, @NotNull String content) throws IOException {
 		writeFile(fileName, content, null);
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public static void writeFile(@NotNull String fileName, @NotNull String content, @Nullable String encoding) throws IOException {
 		File f = new File(fileName);
 		FileOutputStream fos = new FileOutputStream(f);
@@ -129,11 +146,17 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	@NotNull
 	public static char[] readFile(@NotNull String fileName) throws IOException {
 		return readFile(fileName, null);
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	@NotNull
 	public static char[] readFile(@NotNull String fileName, @Nullable String encoding) throws IOException {
 		File f = new File(fileName);
@@ -178,6 +201,9 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public static <T> void removeAll(@NotNull Iterable<T> iterable, @NotNull Predicate<? super T> predicate) {
 		if (iterable instanceof List<?>) {
 			removeAll((List<T>)iterable, predicate);
@@ -192,6 +218,9 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	public static void waitForClose(final Window window) throws InterruptedException {
 		final Object lock = new Object();
 

@@ -72,7 +72,7 @@ public abstract class SemanticContext {
 	 * prediction, so we passed in the outer context here in case of context
 	 * dependent predicate evaluation.</p>
 	 */
-    public abstract <T> boolean eval(Recognizer<T, ?> parser, RuleContext parserCallStack);
+    public abstract boolean eval(Recognizer<?, ?> parser, RuleContext parserCallStack);
 
 	/**
 	 * Evaluate the precedence predicates for the context and reduce the result.
@@ -114,7 +114,7 @@ public abstract class SemanticContext {
         }
 
         @Override
-        public <T> boolean eval(Recognizer<T, ?> parser, RuleContext parserCallStack) {
+        public boolean eval(Recognizer<?, ?> parser, RuleContext parserCallStack) {
             RuleContext localctx = isCtxDependent ? parserCallStack : null;
             return parser.sempred(localctx, ruleIndex, predIndex);
         }
@@ -157,7 +157,7 @@ public abstract class SemanticContext {
 		}
 
 		@Override
-		public <T> boolean eval(Recognizer<T, ?> parser, RuleContext parserCallStack) {
+		public boolean eval(Recognizer<?, ?> parser, RuleContext parserCallStack) {
 			return parser.precpred(parserCallStack, precedence);
 		}
 
@@ -218,6 +218,8 @@ public abstract class SemanticContext {
 		 * operator.
 		 *
 		 * @since 4.3
+		 *
+		 * @sharpen.property Operands
 		 */
 		@NotNull
 		public abstract Collection<SemanticContext> getOperands();
@@ -273,7 +275,7 @@ public abstract class SemanticContext {
 		 * unordered.</p>
 		 */
 		@Override
-		public <T> boolean eval(Recognizer<T, ?> parser, RuleContext parserCallStack) {
+		public boolean eval(Recognizer<?, ?> parser, RuleContext parserCallStack) {
 			for (SemanticContext opnd : opnds) {
 				if ( !opnd.eval(parser, parserCallStack) ) return false;
 			}
@@ -370,7 +372,7 @@ public abstract class SemanticContext {
 		 * unordered.</p>
 		 */
 		@Override
-        public <T> boolean eval(Recognizer<T, ?> parser, RuleContext parserCallStack) {
+        public boolean eval(Recognizer<?, ?> parser, RuleContext parserCallStack) {
 			for (SemanticContext opnd : opnds) {
 				if ( opnd.eval(parser, parserCallStack) ) return true;
 			}

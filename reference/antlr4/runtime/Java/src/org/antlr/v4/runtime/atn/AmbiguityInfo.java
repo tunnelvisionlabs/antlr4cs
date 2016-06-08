@@ -96,6 +96,7 @@ public class AmbiguityInfo extends DecisionEventInfo {
 	 * Gets the set of alternatives in the decision that lead to a valid parse.
 	 *
 	 * @since 4.5
+	 * @sharpen.property AmbiguousAlternatives
 	 */
 	@NotNull
 	public BitSet getAmbiguousAlternatives() {

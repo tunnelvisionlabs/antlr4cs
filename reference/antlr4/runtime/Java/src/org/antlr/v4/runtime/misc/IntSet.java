@@ -137,6 +137,8 @@ public interface IntSet {
 	 *
 	 * @return the total number of elements represented by the current set,
 	 * regardless of the manner in which the elements are stored.
+	 *
+	 * @sharpen.property Count
 	 */
 	int size();
 
@@ -145,6 +147,8 @@ public interface IntSet {
 	 *
 	 * @return {@code true} if the current set contains no elements; otherwise,
 	 * {@code false}.
+	 *
+	 * @sharpen.property IsNil
 	 */
 	boolean isNil();
 
@@ -160,6 +164,8 @@ public interface IntSet {
 	 *
 	 * @return the single value contained in the set, if {@link #size} is 1;
 	 * otherwise, returns {@link Token#INVALID_TYPE}.
+	 *
+	 * @sharpen.property SingleElement
 	 */
 	int getSingleElement();
 

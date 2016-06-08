@@ -53,18 +53,6 @@ import java.util.Map;
  *  ATN transitions.</p>
  */
 public abstract class Transition {
-	// constants for serialization
-	public static final int EPSILON			= 1;
-	public static final int RANGE			= 2;
-	public static final int RULE			= 3;
-	public static final int PREDICATE		= 4; // e.g., {isType(input.LT(1))}?
-	public static final int ATOM			= 5;
-	public static final int ACTION			= 6;
-	public static final int SET				= 7; // ~(A|B) or ~atom, wildcard, which convert to next 2
-	public static final int NOT_SET			= 8;
-	public static final int WILDCARD		= 9;
-	public static final int PRECEDENCE		= 10;
-
 
 	public static final List<String> serializationNames =
 		Collections.unmodifiableList(Arrays.asList(
@@ -81,19 +69,22 @@ public abstract class Transition {
 			"PRECEDENCE"
 		));
 
+	/**
+	 * @sharpen.ignore
+	 */
 	@SuppressWarnings("serial")
-	public static final Map<Class<? extends Transition>, Integer> serializationTypes =
-		Collections.unmodifiableMap(new HashMap<Class<? extends Transition>, Integer>() {{
-			put(EpsilonTransition.class, EPSILON);
-			put(RangeTransition.class, RANGE);
-			put(RuleTransition.class, RULE);
-			put(PredicateTransition.class, PREDICATE);
-			put(AtomTransition.class, ATOM);
-			put(ActionTransition.class, ACTION);
-			put(SetTransition.class, SET);
-			put(NotSetTransition.class, NOT_SET);
-			put(WildcardTransition.class, WILDCARD);
-			put(PrecedencePredicateTransition.class, PRECEDENCE);
+	public static final Map<Class<? extends Transition>, TransitionType> serializationTypes =
+		Collections.unmodifiableMap(new HashMap<Class<? extends Transition>, TransitionType>() {{
+			put(EpsilonTransition.class, TransitionType.EPSILON);
+			put(RangeTransition.class, TransitionType.RANGE);
+			put(RuleTransition.class, TransitionType.RULE);
+			put(PredicateTransition.class, TransitionType.PREDICATE);
+			put(AtomTransition.class, TransitionType.ATOM);
+			put(ActionTransition.class, TransitionType.ACTION);
+			put(SetTransition.class, TransitionType.SET);
+			put(NotSetTransition.class, TransitionType.NOT_SET);
+			put(WildcardTransition.class, TransitionType.WILDCARD);
+			put(PrecedencePredicateTransition.class, TransitionType.PRECEDENCE);
 		}});
 
 	/** The target of this transition. */
@@ -108,7 +99,10 @@ public abstract class Transition {
 		this.target = target;
 	}
 
-	public abstract int getSerializationType();
+	/**
+	 * @sharpen.property TransitionType
+	 */
+	public abstract TransitionType getSerializationType();
 
 	/**
 	 * Determines if the transition is an "epsilon" transition.
@@ -118,11 +112,16 @@ public abstract class Transition {
 	 * @return {@code true} if traversing this transition in the ATN does not
 	 * consume an input symbol; otherwise, {@code false} if traversing this
 	 * transition consumes (matches) an input symbol.
+	 * 
+	 * @sharpen.property
 	 */
 	public boolean isEpsilon() {
 		return false;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	@Nullable
 	public IntervalSet label() { return null; }
 

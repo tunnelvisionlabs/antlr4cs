@@ -39,6 +39,6 @@ public class InputMismatchException extends RecognitionException {
 
 	public InputMismatchException(@NotNull Parser recognizer) {
 		super(recognizer, recognizer.getInputStream(), recognizer._ctx);
-		this.setOffendingToken(recognizer, recognizer.getCurrentToken());
+		this.setOffendingToken(recognizer.getCurrentToken());
 	}
 }

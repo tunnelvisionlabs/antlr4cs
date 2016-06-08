@@ -75,17 +75,26 @@ public class FailedPredicateException extends RecognitionException {
 		}
 
 		this.predicate = predicate;
-		this.setOffendingToken(recognizer, recognizer.getCurrentToken());
+		this.setOffendingToken(recognizer.getCurrentToken());
 	}
 
+	/**
+	 * @sharpen.property RuleIndex
+	 */
 	public int getRuleIndex() {
 		return ruleIndex;
 	}
 
+	/**
+	 * @sharpen.property PredIndex
+	 */
 	public int getPredIndex() {
 		return predicateIndex;
 	}
 
+	/**
+	 * @sharpen.property Predicate
+	 */
 	@Nullable
 	public String getPredicate() {
 		return predicate;

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.tunnelvisionlabs</groupId>
+        <groupId>com.tunnelvisionlabs.sharpen</groupId>
         <artifactId>antlr4-master</artifactId>
         <version>4.5.1-SNAPSHOT</version>
     </parent>
@@ -21,13 +21,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.tunnelvisionlabs</groupId>
+            <groupId>com.tunnelvisionlabs.sharpen</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.tunnelvisionlabs</groupId>
+            <groupId>com.tunnelvisionlabs.sharpen</groupId>
             <artifactId>antlr4-annotations</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

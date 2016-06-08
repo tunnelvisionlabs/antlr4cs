@@ -77,6 +77,8 @@ public final class LexerIndexedCustomAction implements LexerAction {
 	 *
 	 * @return The location in the input {@link CharStream} at which the lexer
 	 * action should be executed.
+	 *
+	 * @sharpen.property Offset
 	 */
 	public int getOffset() {
 		return offset;
@@ -86,6 +88,8 @@ public final class LexerIndexedCustomAction implements LexerAction {
 	 * Gets the lexer action to execute.
 	 *
 	 * @return A {@link LexerAction} object which executes the lexer action.
+	 *
+	 * @sharpen.property Action
 	 */
 	@NotNull
 	public LexerAction getAction() {

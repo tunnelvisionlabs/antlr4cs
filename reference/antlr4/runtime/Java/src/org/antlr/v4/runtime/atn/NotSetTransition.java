@@ -40,8 +40,8 @@ public final class NotSetTransition extends SetTransition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return NOT_SET;
+	public TransitionType getSerializationType() {
+		return TransitionType.NOT_SET;
 	}
 
 	@Override

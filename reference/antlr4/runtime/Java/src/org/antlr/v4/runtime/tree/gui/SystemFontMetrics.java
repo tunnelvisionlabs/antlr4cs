@@ -38,7 +38,7 @@ import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 
 /**
- *
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public class SystemFontMetrics extends BasicFontMetrics {

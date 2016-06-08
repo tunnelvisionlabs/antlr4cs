@@ -489,7 +489,7 @@ public class LexerATNSimulator extends ATNSimulator {
 		ATNConfig c;
 
 		switch (t.getSerializationType()) {
-		case Transition.RULE:
+		case RULE:
 			RuleTransition ruleTransition = (RuleTransition)t;
 			if (optimize_tail_calls && ruleTransition.optimizedTailCall && !config.getContext().hasEmpty()) {
 				c = config.transform(t.target, true);
@@ -501,10 +501,10 @@ public class LexerATNSimulator extends ATNSimulator {
 
 			break;
 
-		case Transition.PRECEDENCE:
+		case PRECEDENCE:
 			throw new UnsupportedOperationException("Precedence predicates are not supported in lexers.");
 
-		case Transition.PREDICATE:
+		case PREDICATE:
 			/*  Track traversing semantic predicates. If we traverse,
 			    we cannot add a DFA state for this "reach" computation
 				because the DFA would not test the predicate again in the
@@ -537,7 +537,7 @@ public class LexerATNSimulator extends ATNSimulator {
 			
 			break;
 			
-		case Transition.ACTION:
+		case ACTION:
 			if (config.getContext().hasEmpty()) {
 				// execute actions anywhere in the start rule for a token.
 				//
@@ -561,13 +561,13 @@ public class LexerATNSimulator extends ATNSimulator {
 				break;
 			}
 
-		case Transition.EPSILON:
+		case EPSILON:
 			c = config.transform(t.target, true);
 			break;
 
-		case Transition.ATOM:
-		case Transition.RANGE:
-		case Transition.SET:
+		case ATOM:
+		case RANGE:
+		case SET:
 			if (treatEofAsEpsilon) {
 				if (t.matches(CharStream.EOF, Character.MIN_VALUE, Character.MAX_VALUE)) {
 					c = config.transform(t.target, false);
@@ -734,18 +734,30 @@ public class LexerATNSimulator extends ATNSimulator {
 		return input.getText(Interval.of(startIndex, input.index()-1));
 	}
 
+	/**
+	 * @sharpen.property Line
+	 */
 	public int getLine() {
 		return line;
 	}
 
+	/**
+	 * @sharpen.property Line
+	 */
 	public void setLine(int line) {
 		this.line = line;
 	}
 
+	/**
+	 * @sharpen.property Column
+	 */
 	public int getCharPositionInLine() {
 		return charPositionInLine;
 	}
 
+	/**
+	 * @sharpen.property Column
+	 */
 	public void setCharPositionInLine(int charPositionInLine) {
 		this.charPositionInLine = charPositionInLine;
 	}

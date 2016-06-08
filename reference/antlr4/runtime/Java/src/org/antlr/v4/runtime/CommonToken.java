@@ -247,6 +247,9 @@ public class CommonToken implements WritableToken, Serializable {
 		return start;
 	}
 
+	/**
+	 * @sharpen.property StartIndex
+	 */
 	public void setStartIndex(int start) {
 		this.start = start;
 	}
@@ -256,6 +259,9 @@ public class CommonToken implements WritableToken, Serializable {
 		return stop;
 	}
 
+	/**
+	 * @sharpen.property StopIndex
+	 */
 	public void setStopIndex(int stop) {
 		this.stop = stop;
 	}

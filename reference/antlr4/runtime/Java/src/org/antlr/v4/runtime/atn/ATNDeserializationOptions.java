@@ -60,11 +60,17 @@ public class ATNDeserializationOptions {
 		this.optimize = options.optimize;
 	}
 
+	/**
+	 * @sharpen.property Default
+	 */
 	@NotNull
 	public static ATNDeserializationOptions getDefaultOptions() {
 		return defaultOptions;
 	}
 
+	/**
+	 * @sharpen.property IsReadOnly
+	 */
 	public final boolean isReadOnly() {
 		return readOnly;
 	}
@@ -73,28 +79,46 @@ public class ATNDeserializationOptions {
 		readOnly = true;
 	}
 
+	/**
+	 * @sharpen.property VerifyAtn
+	 */
 	public final boolean isVerifyATN() {
 		return verifyATN;
 	}
 
+	/**
+	 * @sharpen.property VerifyAtn
+	 */
 	public final void setVerifyATN(boolean verifyATN) {
 		throwIfReadOnly();
 		this.verifyATN = verifyATN;
 	}
 
+	/**
+	 * @sharpen.property GenerateRuleBypassTransitions
+	 */
 	public final boolean isGenerateRuleBypassTransitions() {
 		return generateRuleBypassTransitions;
 	}
 
+	/**
+	 * @sharpen.property GenerateRuleBypassTransitions
+	 */
 	public final void setGenerateRuleBypassTransitions(boolean generateRuleBypassTransitions) {
 		throwIfReadOnly();
 		this.generateRuleBypassTransitions = generateRuleBypassTransitions;
 	}
 
+	/**
+	 * @sharpen.property Optimize
+	 */
 	public final boolean isOptimize() {
 		return optimize;
 	}
 
+	/**
+	 * @sharpen.property Optimize
+	 */
 	public final void setOptimize(boolean optimize) {
 		throwIfReadOnly();
 		this.optimize = optimize;

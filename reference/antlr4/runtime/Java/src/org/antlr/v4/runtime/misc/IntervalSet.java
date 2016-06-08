@@ -457,6 +457,8 @@ public class IntervalSet implements IntSet {
 	 *
 	 * @return the maximum value contained in the set. If the set is empty, this
 	 * method returns {@link Token#INVALID_TYPE}.
+	 *
+	 * @sharpen.property MaxElement
 	 */
 	public int getMaxElement() {
 		if ( isNil() ) {
@@ -471,6 +473,8 @@ public class IntervalSet implements IntSet {
 	 *
 	 * @return the minimum value contained in the set. If the set is empty, this
 	 * method returns {@link Token#INVALID_TYPE}.
+	 *
+	 * @sharpen.property MinElement
 	 */
 	public int getMinElement() {
 		if ( isNil() ) {
@@ -702,6 +706,9 @@ public class IntervalSet implements IntSet {
         }
     }
 
+	/**
+	 * @sharpen.property IsReadOnly
+	 */
     public boolean isReadonly() {
         return readonly;
     }

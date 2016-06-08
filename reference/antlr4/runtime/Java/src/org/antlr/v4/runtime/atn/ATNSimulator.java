@@ -156,7 +156,7 @@ public abstract class ATNSimulator {
 	@Deprecated
 	@NotNull
 	public static Transition edgeFactory(@NotNull ATN atn,
-										 int type, int src, int trg,
+										 TransitionType type, int src, int trg,
 										 int arg1, int arg2, int arg3,
 										 List<IntervalSet> sets)
 	{
@@ -167,7 +167,7 @@ public abstract class ATNSimulator {
 	 * @deprecated Use {@link ATNDeserializer#stateFactory} instead.
 	 */
 	@Deprecated
-	public static ATNState stateFactory(int type, int ruleIndex) {
+	public static ATNState stateFactory(StateType type, int ruleIndex) {
 		return new ATNDeserializer().stateFactory(type, ruleIndex);
 	}
 

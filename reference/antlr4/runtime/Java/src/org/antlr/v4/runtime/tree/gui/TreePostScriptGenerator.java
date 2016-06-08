@@ -44,6 +44,9 @@ import java.awt.Dimension;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+/**
+ * @sharpen.ignore
+ */
 public class TreePostScriptGenerator {
 	public class VariableExtentProvide implements NodeExtentProvider<Tree> {
 		@Override

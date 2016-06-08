@@ -68,10 +68,15 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 *  that overrides this to point to their String[] tokenNames.
 	 *
 	 * @deprecated Use {@link #getVocabulary()} instead.
+	 * 
+	 * @sharpen.property TokenNames
 	 */
 	@Deprecated
 	public abstract String[] getTokenNames();
 
+	/**
+	 * @sharpen.property RuleNames
+	 */
 	public abstract String[] getRuleNames();
 
 	/**
@@ -79,6 +84,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 *
 	 * @return A {@link Vocabulary} instance providing information about the
 	 * vocabulary used by the grammar.
+	 *
+	 * @sharpen.property Vocabulary
 	 */
 	@NotNull
 	@SuppressWarnings("deprecation")
@@ -90,6 +97,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 * Get a map from token names to token types.
 	 *
 	 * <p>Used for XPath and tree pattern compilation.</p>
+	 *
+	 * @sharpen.property TokenTypeMap
 	 */
 	@NotNull
 	public Map<String, Integer> getTokenTypeMap() {
@@ -123,6 +132,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 * Get a map from rule names to rule indexes.
 	 *
 	 * <p>Used for XPath and tree pattern compilation.</p>
+	 *
+	 * @sharpen.property RuleIndexMap
 	 */
 	@NotNull
 	public Map<String, Integer> getRuleIndexMap() {
@@ -154,6 +165,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 *
 	 * <p>For interpreters, we don't know their serialized ATN despite having
 	 * created the interpreter from it.</p>
+	 *
+	 * @sharpen.property SerializedAtn
 	 */
 	@NotNull
 	public String getSerializedATN() {
@@ -162,6 +175,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 
 	/** For debugging and other purposes, might want the grammar name.
 	 *  Have ANTLR generate an implementation for this method.
+	 * 
+	 * @sharpen.property GrammarFileName
 	 */
 	public abstract String getGrammarFileName();
 
@@ -169,6 +184,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 * Get the {@link ATN} used by the recognizer for prediction.
 	 *
 	 * @return The {@link ATN} used by the recognizer for prediction.
+	 *
+	 * @sharpen.property Atn
 	 */
 	@NotNull
 	public ATN getATN() {
@@ -179,6 +196,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 * Get the ATN interpreter used by the recognizer for prediction.
 	 *
 	 * @return The ATN interpreter used by the recognizer for prediction.
+	 *
+	 * @sharpen.property Interpreter
 	 */
 	@NotNull
 	public ATNInterpreter getInterpreter() {
@@ -189,6 +208,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 *  for each decision in recognizer in a ParseInfo object.
 	 *
 	 * @since 4.3
+	 *
+	 * @sharpen.property ParseInfo
 	 */
 	public ParseInfo getParseInfo() {
 		return null;
@@ -199,6 +220,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 *
 	 * @param interpreter The ATN interpreter used by the recognizer for
 	 * prediction.
+	 *
+	 * @sharpen.property Interpreter
 	 */
 	public void setInterpreter(@NotNull ATNInterpreter interpreter) {
 		_interp = interpreter;
@@ -259,11 +282,17 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 		_listeners.clear();
 	}
 
+	/**
+	 * @sharpen.property ErrorListeners
+	 */
 	@NotNull
 	public List<? extends ANTLRErrorListener<? super Symbol>> getErrorListeners() {
 		return new ArrayList<ANTLRErrorListener<? super Symbol>>(_listeners);
 	}
 
+	/**
+	 * @sharpen.property ErrorListenerDispatch
+	 */
 	public ANTLRErrorListener<? super Symbol> getErrorListenerDispatch() {
 		return new ProxyErrorListener<Symbol>(getErrorListeners());
 	}
@@ -281,6 +310,9 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	public void action(@Nullable RuleContext _localctx, int ruleIndex, int actionIndex) {
 	}
 
+	/**
+	 * @sharpen.property State
+	 */
 	public final int getState() {
 		return _stateNumber;
 	}
@@ -291,6 +323,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	 *  context objects form a stack that lets us see the stack of
 	 *  invoking rules. Combine this and we have complete ATN
 	 *  configuration information.
+	 * 
+	 * @sharpen.property State
 	 */
 	public final void setState(int atnState) {
 //		System.err.println("setState "+atnState);
@@ -298,5 +332,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 //		if ( traceATNStates ) _ctx.trace(atnState);
 	}
 
+	/**
+	 * @sharpen.property InputStream
+	 */
 	public abstract IntStream getInputStream();
 }

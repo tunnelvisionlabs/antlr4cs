@@ -114,6 +114,8 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
 
 	/** Return the List holding list of table elements.  Note that you are
      *  NOT getting a copy so don't write to the list.
+	 *
+	 * @sharpen.property Elements
      */
     public List<T> elements() {
         return elements;

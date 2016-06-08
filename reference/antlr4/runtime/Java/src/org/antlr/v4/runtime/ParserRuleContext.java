@@ -106,6 +106,9 @@ public class ParserRuleContext extends RuleContext {
 
 	public ParserRuleContext() { }
 
+	/**
+	 * @sharpen.property
+	 */
 	public static ParserRuleContext emptyContext() {
 		return EMPTY;
 	}
@@ -286,12 +289,16 @@ public class ParserRuleContext extends RuleContext {
 	 * Get the initial token in this context. 
 	 * Note that the range from start to stop is inclusive, so for rules that do not consume anything
 	 * (for example, zero length or error productions) this token may exceed stop.
+	 *
+	 * @sharpen.property Start
 	 */
 	public Token getStart() { return start; }
 	/** 
 	 * Get the final token in this context.
 	 * Note that the range from start to stop is inclusive, so for rules that do not consume anything
 	 * (for example, zero length or error productions) this token may precede start.
+	 *
+	 * @sharpen.property Stop
 	 */
 	public Token getStop() { return stop; }
 

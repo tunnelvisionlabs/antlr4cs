@@ -44,8 +44,8 @@ public final class AtomTransition extends Transition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return ATOM;
+	public TransitionType getSerializationType() {
+		return TransitionType.ATOM;
 	}
 
 	@Override

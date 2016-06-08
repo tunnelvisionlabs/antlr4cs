@@ -190,6 +190,8 @@ public interface IntStream {
 	 * <p>The behavior of this method is unspecified if no call to an
 	 * {@link IntStream initializing method} has occurred after this stream was
 	 * constructed.</p>
+	 * 
+	 * @sharpen.property
 	 */
 	int index();
 
@@ -229,6 +231,8 @@ public interface IntStream {
 	 *
 	 * @throws UnsupportedOperationException if the size of the stream is
 	 * unknown.
+	 * 
+	 * @sharpen.property
 	 */
 	int size();
 
@@ -236,6 +240,8 @@ public interface IntStream {
 	 * Gets the name of the underlying symbol source. This method returns a
 	 * non-null, non-empty string. If such a name is not known, this method
 	 * returns {@link #UNKNOWN_SOURCE_NAME}.
+	 * 
+	 * @sharpen.property SourceName
 	 */
 	@NotNull
 	public String getSourceName();

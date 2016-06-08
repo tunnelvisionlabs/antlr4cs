@@ -29,10 +29,17 @@
  */
 package org.antlr.v4.runtime.misc;
 
+import org.antlr.v4.runtime.Dependents;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.RuleDependencies;
 import org.antlr.v4.runtime.RuleDependency;
 import org.antlr.v4.runtime.RuleVersion;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.atn.ATNDeserializer;
+import org.antlr.v4.runtime.atn.ATNState;
+import org.antlr.v4.runtime.atn.RuleTransition;
+import org.antlr.v4.runtime.atn.Transition;
+import org.antlr.v4.runtime.atn.TransitionType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -43,9 +50,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.BitSet;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,9 +74,7 @@ public class RuleDependencyChecker {
 			return;
 		}
 
-		List<Class<?>> typesToCheck = new ArrayList<Class<?>>();
-		typesToCheck.add(dependentClass);
-		Collections.addAll(typesToCheck, dependentClass.getDeclaredClasses());
+		List<Class<?>> typesToCheck = getTypesToCheck(dependentClass);
 		for (final Class<?> clazz : typesToCheck) {
 			if (isChecked(clazz)) {
 				continue;
@@ -77,7 +85,41 @@ public class RuleDependencyChecker {
 				continue;
 			}
 
+			Map<Class<? extends Recognizer<?, ?>>, List<Tuple2<RuleDependency, AnnotatedElement>>> recognizerDependencies
+				= new HashMap<Class<? extends Recognizer<?, ?>>, List<Tuple2<RuleDependency, AnnotatedElement>>>();
+			for (Tuple2<RuleDependency, AnnotatedElement> dependency : dependencies) {
+				Class<? extends Recognizer<?, ?>> recognizerType = dependency.getItem1().recognizer();
+				List<Tuple2<RuleDependency, AnnotatedElement>> list = recognizerDependencies.get(recognizerType);
+				if (list == null) {
+					list = new ArrayList<Tuple2<RuleDependency, AnnotatedElement>>();
+					recognizerDependencies.put(recognizerType, list);
+				}
+
+				list.add(dependency);
+			}
+
+			for (Map.Entry<Class<? extends Recognizer<?, ?>>, List<Tuple2<RuleDependency, AnnotatedElement>>> entry : recognizerDependencies.entrySet()) {
+				//processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, String.format("ANTLR 4: Validating %d dependencies on rules in %s.", entry.getValue().size(), entry.getKey().toString()));
+				checkDependencies(entry.getValue(), entry.getKey());
+			}
+
 			checkDependencies(dependencies, dependencies.get(0).getItem1().recognizer());
+		}
+	}
+
+	private static List<Class<?>> getTypesToCheck(Class<?> clazz) {
+		Set<Class<?>> result = new HashSet<Class<?>>();
+		getTypesToCheck(clazz, result);
+		return new ArrayList<Class<?>>(result);
+	}
+
+	private static void getTypesToCheck(Class<?> clazz, Set<Class<?>> result) {
+		if (!result.add(clazz)) {
+			return;
+		}
+
+		for (Class<?> declared : clazz.getDeclaredClasses()) {
+			getTypesToCheck(declared, result);
 		}
 	}
 
@@ -93,38 +135,145 @@ public class RuleDependencyChecker {
 		}
 	}
 
-	private static void checkDependencies(List<Tuple2<RuleDependency, AnnotatedElement>> dependencies, Class<? extends Recognizer<?, ?>> recognizerClass) {
-		String[] ruleNames = getRuleNames(recognizerClass);
-		int[] ruleVersions = getRuleVersions(recognizerClass, ruleNames);
+	private static void checkDependencies(List<Tuple2<RuleDependency, AnnotatedElement>> dependencies, Class<? extends Recognizer<?, ?>> recognizerType) {
+		String[] ruleNames = getRuleNames(recognizerType);
+		int[] ruleVersions = getRuleVersions(recognizerType, ruleNames);
+		RuleRelations relations = extractRuleRelations(recognizerType);
+		StringBuilder errors = new StringBuilder();
 
-		StringBuilder incompatible = new StringBuilder();
 		for (Tuple2<RuleDependency, AnnotatedElement> dependency : dependencies) {
-			if (!recognizerClass.isAssignableFrom(dependency.getItem1().recognizer())) {
+			if (!dependency.getItem1().recognizer().isAssignableFrom(recognizerType)) {
 				continue;
 			}
 
-			if (dependency.getItem1().rule() < 0 || dependency.getItem1().rule() >= ruleVersions.length) {
-				incompatible.append(String.format("Element %s dependent on unknown rule %d@%d in %s\n",
-												  dependency.getItem2().toString(),
-												  dependency.getItem1().rule(),
-												  dependency.getItem1().version(),
-												  dependency.getItem1().recognizer().getSimpleName()));
+			// this is the rule in the dependency set with the highest version number
+			int effectiveRule = dependency.getItem1().rule();
+			if (effectiveRule < 0 || effectiveRule >= ruleVersions.length) {
+				String message = String.format("Rule dependency on unknown rule %d@%d in %s%n",
+											   dependency.getItem1().rule(),
+											   dependency.getItem1().version(),
+											   dependency.getItem1().recognizer().toString());
+
+				errors.append(message);
+				continue;
 			}
-			else if (ruleVersions[dependency.getItem1().rule()] != dependency.getItem1().version()) {
-				incompatible.append(String.format("Element %s dependent on rule %s@%d (found @%d) in %s\n",
-												  dependency.getItem2().toString(),
-												  ruleNames[dependency.getItem1().rule()],
-												  dependency.getItem1().version(),
-												  ruleVersions[dependency.getItem1().rule()],
-												  dependency.getItem1().recognizer().getSimpleName()));
+
+			EnumSet<Dependents> dependents = EnumSet.of(Dependents.SELF, dependency.getItem1().dependents());
+			reportUnimplementedDependents(errors, dependency, dependents);
+
+			BitSet checked = new BitSet();
+
+			int highestRequiredDependency = checkDependencyVersion(errors, dependency, ruleNames, ruleVersions, effectiveRule, null);
+
+			if (dependents.contains(Dependents.PARENTS)) {
+				BitSet parents = relations.parents[dependency.getItem1().rule()];
+				for (int parent = parents.nextSetBit(0); parent >= 0; parent = parents.nextSetBit(parent + 1)) {
+					if (parent < 0 || parent >= ruleVersions.length || checked.get(parent)) {
+						continue;
+					}
+
+					checked.set(parent);
+					int required = checkDependencyVersion(errors, dependency, ruleNames, ruleVersions, parent, "parent");
+					highestRequiredDependency = Math.max(highestRequiredDependency, required);
+				}
+			}
+
+			if (dependents.contains(Dependents.CHILDREN)) {
+				BitSet children = relations.children[dependency.getItem1().rule()];
+				for (int child = children.nextSetBit(0); child >= 0; child = children.nextSetBit(child + 1)) {
+					if (child < 0 || child >= ruleVersions.length || checked.get(child)) {
+						continue;
+					}
+
+					checked.set(child);
+					int required = checkDependencyVersion(errors, dependency, ruleNames, ruleVersions, child, "child");
+					highestRequiredDependency = Math.max(highestRequiredDependency, required);
+				}
+			}
+
+			if (dependents.contains(Dependents.ANCESTORS)) {
+				BitSet ancestors = relations.getAncestors(dependency.getItem1().rule());
+				for (int ancestor = ancestors.nextSetBit(0); ancestor >= 0; ancestor = ancestors.nextSetBit(ancestor + 1)) {
+					if (ancestor < 0 || ancestor >= ruleVersions.length || checked.get(ancestor)) {
+						continue;
+					}
+
+					checked.set(ancestor);
+					int required = checkDependencyVersion(errors, dependency, ruleNames, ruleVersions, ancestor, "ancestor");
+					highestRequiredDependency = Math.max(highestRequiredDependency, required);
+				}
+			}
+
+			if (dependents.contains(Dependents.DESCENDANTS)) {
+				BitSet descendants = relations.getDescendants(dependency.getItem1().rule());
+				for (int descendant = descendants.nextSetBit(0); descendant >= 0; descendant = descendants.nextSetBit(descendant + 1)) {
+					if (descendant < 0 || descendant >= ruleVersions.length || checked.get(descendant)) {
+						continue;
+					}
+
+					checked.set(descendant);
+					int required = checkDependencyVersion(errors, dependency, ruleNames, ruleVersions, descendant, "descendant");
+					highestRequiredDependency = Math.max(highestRequiredDependency, required);
+				}
+			}
+
+			int declaredVersion = dependency.getItem1().version();
+			if (declaredVersion > highestRequiredDependency) {
+				String message = String.format("Rule dependency version mismatch: %s has maximum dependency version %d (expected %d) in %s%n",
+											   ruleNames[dependency.getItem1().rule()],
+											   highestRequiredDependency,
+											   declaredVersion,
+											   dependency.getItem1().recognizer().toString());
+
+				errors.append(message);
 			}
 		}
 
-		if (incompatible.length() != 0) {
-			throw new IllegalStateException(incompatible.toString());
+		if (errors.length() > 0) {
+			throw new IllegalStateException(errors.toString());
 		}
 
-		markChecked(recognizerClass);
+		markChecked(recognizerType);
+	}
+
+	private static final Set<Dependents> IMPLEMENTED_DEPENDENTS = EnumSet.of(Dependents.SELF, Dependents.PARENTS, Dependents.CHILDREN, Dependents.ANCESTORS, Dependents.DESCENDANTS);
+
+	private static void reportUnimplementedDependents(StringBuilder errors, Tuple2<RuleDependency, AnnotatedElement> dependency, EnumSet<Dependents> dependents) {
+		EnumSet<Dependents> unimplemented = dependents.clone();
+		unimplemented.removeAll(IMPLEMENTED_DEPENDENTS);
+		if (!unimplemented.isEmpty()) {
+			String message = String.format("Cannot validate the following dependents of rule %d: %s%n",
+										   dependency.getItem1().rule(),
+										   unimplemented);
+
+			errors.append(message);
+		}
+	}
+
+	private static int checkDependencyVersion(StringBuilder errors, Tuple2<RuleDependency, AnnotatedElement> dependency, String[] ruleNames, int[] ruleVersions, int relatedRule, String relation) {
+		String ruleName = ruleNames[dependency.getItem1().rule()];
+		String path;
+		if (relation == null) {
+			path = ruleName;
+		}
+		else {
+			String mismatchedRuleName = ruleNames[relatedRule];
+			path = String.format("rule %s (%s of %s)", mismatchedRuleName, relation, ruleName);
+		}
+
+		int declaredVersion = dependency.getItem1().version();
+		int actualVersion = ruleVersions[relatedRule];
+		if (actualVersion > declaredVersion) {
+			String message = String.format("Rule dependency version mismatch: %s has version %d (expected <= %d) in %s%n",
+										   path,
+										   actualVersion,
+										   declaredVersion,
+										   dependency.getItem1().recognizer().toString());
+
+			errors.append(message);
+		}
+
+		return actualVersion;
 	}
 
 	private static int[] getRuleVersions(Class<? extends Recognizer<?, ?>> recognizerClass, String[] ruleNames) {
@@ -255,6 +404,124 @@ public class RuleDependencyChecker {
 					result.add(Tuple.create(d, annotatedElement));
 				}
 			}
+		}
+	}
+
+	private static RuleRelations extractRuleRelations(Class<? extends Recognizer<?, ?>> recognizer) {
+		String serializedATN = getSerializedATN(recognizer);
+		if (serializedATN == null) {
+			return null;
+		}
+
+		ATN atn = new ATNDeserializer().deserialize(serializedATN.toCharArray());
+		RuleRelations relations = new RuleRelations(atn.ruleToStartState.length);
+		for (ATNState state : atn.states) {
+			if (!state.epsilonOnlyTransitions) {
+				continue;
+			}
+
+			for (Transition transition : state.getTransitions()) {
+				if (transition.getSerializationType() != TransitionType.RULE) {
+					continue;
+				}
+
+				RuleTransition ruleTransition = (RuleTransition)transition;
+				relations.addRuleInvocation(state.ruleIndex, ruleTransition.target.ruleIndex);
+			}
+		}
+
+		return relations;
+	}
+
+	private static String getSerializedATN(Class<?> recognizerClass) {
+		try {
+			Field serializedAtnField = recognizerClass.getDeclaredField("_serializedATN");
+			if (Modifier.isStatic(serializedAtnField.getModifiers())) {
+				return (String)serializedAtnField.get(null);
+			}
+
+			return null;
+		} catch (NoSuchFieldException ex) {
+			if (recognizerClass.getSuperclass() != null) {
+				return getSerializedATN(recognizerClass.getSuperclass());
+			}
+
+			return null;
+		} catch (SecurityException ex) {
+			return null;
+		} catch (IllegalArgumentException ex) {
+			return null;
+		} catch (IllegalAccessException ex) {
+			return null;
+		}
+	}
+
+	private static final class RuleRelations {
+		private final BitSet[] parents;
+		private final BitSet[] children;
+
+		public RuleRelations(int ruleCount) {
+			parents = new BitSet[ruleCount];
+			for (int i = 0; i < ruleCount; i++) {
+				parents[i] = new BitSet();
+			}
+
+			children = new BitSet[ruleCount];
+			for (int i = 0; i < ruleCount; i++) {
+				children[i] = new BitSet();
+			}
+		}
+
+		public boolean addRuleInvocation(int caller, int callee) {
+			if (caller < 0) {
+				// tokens rule
+				return false;
+			}
+
+			if (children[caller].get(callee)) {
+				// already added
+				return false;
+			}
+
+			children[caller].set(callee);
+			parents[callee].set(caller);
+			return true;
+		}
+
+		public BitSet getAncestors(int rule) {
+			BitSet ancestors = new BitSet();
+			ancestors.or(parents[rule]);
+			while (true) {
+				int cardinality = ancestors.cardinality();
+				for (int i = ancestors.nextSetBit(0); i >= 0; i = ancestors.nextSetBit(i + 1)) {
+					ancestors.or(parents[i]);
+				}
+
+				if (ancestors.cardinality() == cardinality) {
+					// nothing changed
+					break;
+				}
+			}
+
+			return ancestors;
+		}
+
+		public BitSet getDescendants(int rule) {
+			BitSet descendants = new BitSet();
+			descendants.or(children[rule]);
+			while (true) {
+				int cardinality = descendants.cardinality();
+				for (int i = descendants.nextSetBit(0); i >= 0; i = descendants.nextSetBit(i + 1)) {
+					descendants.or(children[i]);
+				}
+
+				if (descendants.cardinality() == cardinality) {
+					// nothing changed
+					break;
+				}
+			}
+
+			return descendants;
 		}
 	}
 

@@ -101,21 +101,6 @@ import java.util.Locale;
 public abstract class ATNState {
 	public static final int INITIAL_NUM_TRANSITIONS = 4;
 
-	// constants for serialization
-	public static final int INVALID_TYPE = 0;
-	public static final int BASIC = 1;
-	public static final int RULE_START = 2;
-	public static final int BLOCK_START = 3;
-	public static final int PLUS_BLOCK_START = 4;
-	public static final int STAR_BLOCK_START = 5;
-	public static final int TOKEN_START = 6;
-	public static final int RULE_STOP = 7;
-	public static final int BLOCK_END = 8;
-	public static final int STAR_LOOP_BACK = 9;
-	public static final int STAR_LOOP_ENTRY = 10;
-	public static final int PLUS_LOOP_BACK = 11;
-	public static final int LOOP_END = 12;
-
 	public static final List<String> serializationNames =
 		Collections.unmodifiableList(Arrays.asList(
 			"INVALID",
@@ -155,7 +140,8 @@ public abstract class ATNState {
 
 	/**
 	 * Gets the state number.
-	 *
+	 * 
+	 * @sharpen.property StateNumber
 	 * @return the state number
 	 */
 	public final int getStateNumber() {
@@ -165,7 +151,8 @@ public abstract class ATNState {
 	/**
 	 * For all states except {@link RuleStopState}, this returns the state
 	 * number. Returns -1 for stop states.
-	 *
+	 * 
+	 * @sharpen.property NonStopStateNumber
 	 * @return -1 for {@link RuleStopState}, otherwise the state number
 	 */
 	public int getNonStopStateNumber() {
@@ -182,6 +169,9 @@ public abstract class ATNState {
 		return false;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public boolean isNonGreedyExitState() {
 		return false;
 	}
@@ -191,10 +181,16 @@ public abstract class ATNState {
 		return String.valueOf(stateNumber);
 	}
 
+	/**
+	 * @sharpen.property Transitions
+	 */
 	public Transition[] getTransitions() {
 		return transitions.toArray(new Transition[transitions.size()]);
 	}
 
+	/**
+	 * @sharpen.property NumberOfTransitions
+	 */
 	public int getNumberOfTransitions() {
 		return transitions.size();
 	}
@@ -227,18 +223,30 @@ public abstract class ATNState {
 		return transitions.remove(index);
 	}
 
-	public abstract int getStateType();
+	/**
+	 * @sharpen.property StateType
+	 */
+	public abstract StateType getStateType();
 
+	/**
+	 * @sharpen.property
+	 */
 	public final boolean onlyHasEpsilonTransitions() {
 		return epsilonOnlyTransitions;
 	}
 
 	public void setRuleIndex(int ruleIndex) { this.ruleIndex = ruleIndex; }
 
+	/**
+	 * @sharpen.property
+	 */
 	public boolean isOptimized() {
 		return optimizedTransitions != transitions;
 	}
 
+	/**
+	 * @sharpen.property NumberOfOptimizedTransitions
+	 */
 	public int getNumberOfOptimizedTransitions() {
 		return optimizedTransitions.size();
 	}

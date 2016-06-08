@@ -46,6 +46,8 @@ public interface SyntaxTree extends Tree {
 	 * token.
 	 *
 	 * <p>If source interval is unknown, this returns {@link Interval#INVALID}.</p>
+	 * 
+	 * @sharpen.property SourceInterval
 	 */
 	@NotNull
 	Interval getSourceInterval();

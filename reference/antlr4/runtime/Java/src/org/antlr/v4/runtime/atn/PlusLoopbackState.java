@@ -36,7 +36,7 @@ package org.antlr.v4.runtime.atn;
 public final class PlusLoopbackState extends DecisionState {
 
 	@Override
-	public int getStateType() {
-		return PLUS_LOOP_BACK;
+	public StateType getStateType() {
+		return StateType.PLUS_LOOP_BACK;
 	}
 }

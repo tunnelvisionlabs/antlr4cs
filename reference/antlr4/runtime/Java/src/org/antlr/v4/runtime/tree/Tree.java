@@ -42,6 +42,8 @@ import java.util.List;
 public interface Tree {
 	/** The parent of this node. If the return value is null, then this
 	 *  node is the root of the tree.
+	 * 
+	 * @sharpen.property Parent
 	 */
 	Tree getParent();
 
@@ -51,6 +53,8 @@ public interface Tree {
 	 * a leaf node or a {@link RuleContext} object representing a rule
 	 * invocation. For abstract syntax trees (ASTs), this is a {@link Token}
 	 * object.
+	 * 
+	 * @sharpen.property Payload
 	 */
 	Object getPayload();
 
@@ -59,6 +63,8 @@ public interface Tree {
 
 	/** How many children are there? If there is none, then this
 	 *  node represents a leaf node.
+	 * 
+	 * @sharpen.property ChildCount
 	 */
 	int getChildCount();
 

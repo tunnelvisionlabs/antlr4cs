@@ -176,7 +176,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * @see #addParseListener
 	 */
 	@Nullable
-	protected List<ParseTreeListener> _parseListeners;
+    protected List<ParseTreeListener> _parseListeners;
 
 	/**
 	 * The number of syntax errors reported during parsing. This value is
@@ -289,6 +289,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * <p>When we build parse trees, we are adding all of these contexts to
 	 * {@link ParserRuleContext#children} list. Contexts are then not candidates
 	 * for garbage collection.</p>
+	 * 
+	 * @sharpen.property BuildParseTree
 	 */
 	public void setBuildParseTree(boolean buildParseTrees) {
 		this._buildParseTrees = buildParseTrees;
@@ -300,6 +302,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 *
 	 * @return {@code true} if a complete parse tree will be constructed while
 	 * parsing, otherwise {@code false}
+	 *
+	 * @sharpen.property BuildParseTree
 	 */
 	public boolean getBuildParseTree() {
 		return _buildParseTrees;
@@ -309,6 +313,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * Trim the internal lists of the parse tree during parsing to conserve memory.
 	 * This property is set to {@code false} by default for a newly constructed parser.
 	 *
+	 * @sharpen.property TrimParseTree
+	 * 
 	 * @param trimParseTrees {@code true} to trim the capacity of the {@link ParserRuleContext#children}
 	 * list to its size after a rule is parsed.
 	 */
@@ -328,11 +334,16 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	/**
 	 * @return {@code true} if the {@link ParserRuleContext#children} list is trimmed
 	 * using the default {@link Parser.TrimToSizeListener} during the parse process.
+	 * 
+	 * @sharpen.property TrimParseTree
 	 */
 	public boolean getTrimParseTree() {
 		return getParseListeners().contains(TrimToSizeListener.INSTANCE);
 	}
 
+	/**
+	 * @sharpen.property ParseListeners
+	 */
 	@NotNull
     public List<ParseTreeListener> getParseListeners() {
 		List<ParseTreeListener> listeners = _parseListeners;
@@ -444,11 +455,16 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * incremented each time {@link #notifyErrorListeners} is called.
 	 *
 	 * @see #notifyErrorListeners
+	 * 
+	 * @sharpen.property NumberOfSyntaxErrors
 	 */
 	public int getNumberOfSyntaxErrors() {
 		return _syntaxErrors;
 	}
 
+	/**
+	 * @sharpen.property TokenFactory
+	 */
 	public TokenFactory getTokenFactory() {
 		return _input.getTokenSource().getTokenFactory();
 	}
@@ -513,11 +529,17 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		return m.compile(pattern, patternRuleIndex);
 	}
 
+	/**
+	 * @sharpen.property ErrorHandler
+	 */
 	@NotNull
 	public ANTLRErrorStrategy getErrorHandler() {
 		return _errHandler;
 	}
 
+	/**
+	 * @sharpen.property ErrorHandler
+	 */
 	public void setErrorHandler(@NotNull ANTLRErrorStrategy handler) {
 		this._errHandler = handler;
 	}
@@ -536,7 +558,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
     /** Match needs to return the current input symbol, which gets put
      *  into the label for the associated token ref; e.g., x=ID.
-     */
+	 * 
+	 * @sharpen.property CurrentToken
+	 */
 	@NotNull
     public Token getCurrentToken() {
 		return _input.LT(1);
@@ -675,6 +699,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 *
 	 * @return The precedence level for the top-most precedence rule, or -1 if
 	 * the parser context is not nested within a precedence rule.
+	 *
+	 * @sharpen.property Precedence
 	 */
 	public final int getPrecedence() {
 		if (_precedenceStack.isEmpty()) {
@@ -757,10 +783,16 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		return null;
 	}
 
+	/**
+	 * @sharpen.property Context
+	 */
 	public ParserRuleContext getContext() {
 		return _ctx;
 	}
 
+	/**
+	 * @sharpen.property Context
+	 */
 	public void setContext(ParserRuleContext ctx) {
 		_ctx = ctx;
 	}
@@ -948,6 +980,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		return -1;
 	}
 
+	/**
+	 * @sharpen.property RuleContext
+	 */
 	public ParserRuleContext getRuleContext() { return _ctx; }
 
 	/** Return List&lt;String&gt; of the rule names in your parser instance
@@ -998,6 +1033,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		}
 	}
 
+	/**
+	 * @sharpen.property SourceName
+	 */
 	public String getSourceName() {
 		return _input.getSourceName();
 	}
@@ -1013,6 +1051,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 
 	/**
 	 * @since 4.3
+	 * @sharpen.property Profile
 	 */
 	public void setProfile(boolean profile) {
 		ParserATNSimulator interp = getInterpreter();
@@ -1027,8 +1066,23 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		getInterpreter().setPredictionMode(interp.getPredictionMode());
 	}
 
+	/**
+	 * @sharpen.property Trace
+	 */
+	public boolean isTrace() {
+		for (Object o : getParseListeners()) {
+			if (o instanceof TraceListener) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/** During a parse is sometimes useful to listen in on the rule entry and exit
 	 *  events as well as token matches. This is for quick and dirty debugging.
+	 * 
+	 * @sharpen.property Trace
 	 */
 	public void setTrace(boolean trace) {
 		if ( !trace ) {
@@ -1040,15 +1094,5 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 			else _tracer = new TraceListener();
 			addParseListener(_tracer);
 		}
-	}
-
-	/**
-	 * Gets whether a {@link TraceListener} is registered as a parse listener
-	 * for the parser.
-	 *
-	 * @see #setTrace(boolean)
-	 */
-	public boolean isTrace() {
-		return _tracer != null;
 	}
 }

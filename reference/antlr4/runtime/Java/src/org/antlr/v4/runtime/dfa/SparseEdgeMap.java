@@ -70,14 +70,23 @@ public final class SparseEdgeMap<T> extends AbstractEdgeMap<T> {
 		}
 	}
 
+	/**
+	 * @sharpen.property Keys
+	 */
 	public final int[] getKeys() {
 		return keys;
 	}
 
+	/**
+	 * @sharpen.property Values
+	 */
 	public final List<T> getValues() {
 		return values;
 	}
 
+	/**
+	 * @sharpen.property MaxSparseSize
+	 */
 	public final int getMaxSparseSize() {
 		return keys.length;
 	}
@@ -196,6 +205,9 @@ public final class SparseEdgeMap<T> extends AbstractEdgeMap<T> {
 		}
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	@Override
 	public Set<Map.Entry<Integer, T>> entrySet() {
 		return toMap().entrySet();

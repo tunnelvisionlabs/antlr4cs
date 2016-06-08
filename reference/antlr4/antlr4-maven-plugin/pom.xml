@@ -38,7 +38,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.tunnelvisionlabs</groupId>
+        <groupId>com.tunnelvisionlabs.sharpen</groupId>
         <artifactId>antlr4-master</artifactId>
         <version>4.5.1-SNAPSHOT</version>
     </parent>
@@ -103,7 +103,7 @@
          than -1 -2 -3 etc patch releases.
           -->
         <dependency>
-            <groupId>com.tunnelvisionlabs</groupId>
+            <groupId>com.tunnelvisionlabs.sharpen</groupId>
             <artifactId>antlr4</artifactId>
             <version>${project.version}</version>
         </dependency>

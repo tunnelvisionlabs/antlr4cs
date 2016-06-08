@@ -137,6 +137,8 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	/**
 	 * Get the set of all alternatives represented by configurations in this
 	 * set.
+	 *
+	 * @sharpen.property RepresentedAlternatives
 	 */
 	@NotNull
 	public BitSet getRepresentedAlternatives() {
@@ -152,14 +154,23 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		return alts;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public final boolean isReadOnly() {
 		return mergedConfigs == null;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public boolean isOutermostConfigSet() {
 		return outermostConfigSet;
 	}
 
+	/**
+	 * @sharpen.property IsOutermostConfigSet
+	 */
 	public void setOutermostConfigSet(boolean outermostConfigSet) {
 		if (this.outermostConfigSet && !outermostConfigSet) {
 			throw new IllegalStateException();
@@ -169,6 +180,9 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		this.outermostConfigSet = outermostConfigSet;
 	}
 
+	/**
+	 * @sharpen.property States
+	 */
 	public Set<ATNState> getStates() {
 		Set<ATNState> states = new HashSet<ATNState>();
 		for (ATNConfig c : this.configs) {
@@ -240,6 +254,9 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		return configs.toArray();
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	@Override
 	public <T> T[] toArray(T[] a) {
 		return configs.toArray(a);
@@ -491,10 +508,16 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		return buf.toString();
 	}
 
+	/**
+	 * @sharpen.property UniqueAlt
+	 */
 	public int getUniqueAlt() {
 		return uniqueAlt;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public boolean hasSemanticContext() {
 		return hasSemanticContext;
 	}
@@ -509,15 +532,24 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		hasSemanticContext = true;
 	}
 
+	/**
+	 * @sharpen.property ConflictInformation
+	 */
 	public ConflictInfo getConflictInfo() {
 		return conflictInfo;
 	}
 
+	/**
+	 * @sharpen.property ConflictInformation
+	 */
 	public void setConflictInfo(ConflictInfo conflictInfo) {
 		ensureWritable();
 		this.conflictInfo = conflictInfo;
 	}
 
+	/**
+	 * @sharpen.property ConflictingAlts
+	 */
 	public BitSet getConflictingAlts() {
 		if (conflictInfo == null) {
 			return null;
@@ -526,6 +558,9 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		return conflictInfo.getConflictedAlts();
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public boolean isExactConflict() {
 		if (conflictInfo == null) {
 			return false;
@@ -534,10 +569,16 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		return conflictInfo.isExact();
 	}
 
+	/**
+	 * @sharpen.property DipsIntoOuterContext
+	 */
 	public boolean getDipsIntoOuterContext() {
 		return dipsIntoOuterContext;
 	}
 
+	/**
+	 * @sharpen.indexer
+	 */
 	public ATNConfig get(int index) {
 		return configs.get(index);
 	}
@@ -565,6 +606,9 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		}
 	}
 
+	/**
+	 * @sharpen.ignore
+	 */
 	private final class ATNConfigSetIterator implements Iterator<ATNConfig> {
 
 		int index = -1;

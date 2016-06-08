@@ -147,10 +147,16 @@ public class PredictionContextCache {
             this.y = y;
         }
 
+		/**
+		 * @sharpen.property X
+		 */
         public PredictionContext getX() {
             return x;
         }
 
+		/**
+		 * @sharpen.property Y
+		 */
         public PredictionContext getY() {
             return y;
         }

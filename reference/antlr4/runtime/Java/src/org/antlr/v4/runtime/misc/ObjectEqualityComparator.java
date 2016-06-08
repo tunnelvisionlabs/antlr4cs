@@ -30,9 +30,11 @@
 package org.antlr.v4.runtime.misc;
 
 /**
- * This default implementation of {@link EqualityComparator} uses object equality
- * for comparisons by calling {@link Object#hashCode} and {@link Object#equals}.
- *
+ * This default implementation of {@link EqualityComparator} uses object
+ * equality for comparisons by calling {@link Object#hashCode} and
+ * {@link Object#equals}.
+ * 
+ * @sharpen.ignore
  * @author Sam Harwell
  */
 public final class ObjectEqualityComparator extends AbstractEqualityComparator<Object> {

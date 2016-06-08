@@ -36,7 +36,7 @@ public final class RuleStartState extends ATNState {
 	public boolean leftFactored;
 
 	@Override
-	public int getStateType() {
-		return RULE_START;
+	public StateType getStateType() {
+		return StateType.RULE_START;
 	}
 }

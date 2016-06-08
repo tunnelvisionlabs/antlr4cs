@@ -72,25 +72,37 @@ public interface Token {
 
 	/**
 	 * Get the text of the token.
+	 * 
+	 * @sharpen.property Text
 	 */
 	String getText();
 
-	/** Get the token type of the token */
+	/**
+	 * Get the token type of the token.
+	 * 
+	 * @sharpen.property Type
+	 */
 	int getType();
 
 	/** The line number on which the 1st character of this token was matched,
 	 *  line=1..n
+	 * 
+	 * @sharpen.property Line
 	 */
 	int getLine();
 
 	/** The index of the first character of this token relative to the
 	 *  beginning of the line at which it occurs, 0..n-1
+	 * 
+	 * @sharpen.property Column
 	 */
 	int getCharPositionInLine();
 
 	/** Return the channel this token. Each token can arrive at the parser
 	 *  on a different channel, but the parser only "tunes" to a single channel.
 	 *  The parser ignores everything not on DEFAULT_CHANNEL.
+	 * 
+	 * @sharpen.property Channel
 	 */
 	int getChannel();
 
@@ -100,25 +112,35 @@ public interface Token {
 	 *
 	 *  Return -1 to indicate that this token was conjured up since
 	 *  it doesn't have a valid index.
+	 * 
+	 * @sharpen.property TokenIndex
 	 */
 	int getTokenIndex();
 
 	/** The starting character index of the token
 	 *  This method is optional; return -1 if not implemented.
+	 * 
+	 * @sharpen.property StartIndex
 	 */
 	int getStartIndex();
 
 	/** The last character index of the token.
 	 *  This method is optional; return -1 if not implemented.
+	 * 
+	 * @sharpen.property StopIndex
 	 */
 	int getStopIndex();
 
 	/** Gets the {@link TokenSource} which created this token.
+	 * 
+	 * @sharpen.property TokenSource
 	 */
 	TokenSource getTokenSource();
 
 	/**
 	 * Gets the {@link CharStream} from which this token was derived.
+	 * 
+	 * @sharpen.property InputStream
 	 */
 	CharStream getInputStream();
 }

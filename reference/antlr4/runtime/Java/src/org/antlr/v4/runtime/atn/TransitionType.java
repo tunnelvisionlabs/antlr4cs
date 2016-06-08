@@ -27,18 +27,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.antlr.v4.runtime.atn;
 
-/**
- *
- * @author Sam Harwell
- */
-public final class BasicState extends ATNState {
+public enum TransitionType {
 
-	@Override
-	public StateType getStateType() {
-		return StateType.BASIC;
-	}
+	INVALID,
+	EPSILON,
+	RANGE,
+	RULE,
+	PREDICATE, // e.g., {isType(input.LT(1))}?
+	ATOM,
+	ACTION,
+	SET, // ~(A|B) or ~atom, wildcard, which convert to next 2
+	NOT_SET,
+	WILDCARD,
+	PRECEDENCE,
 
 }

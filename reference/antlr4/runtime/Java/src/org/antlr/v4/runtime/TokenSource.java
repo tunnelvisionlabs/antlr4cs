@@ -63,6 +63,8 @@ public interface TokenSource {
 	 *
 	 * @return The line number for the current position in the input stream, or
 	 * 0 if the current token source does not track line numbers.
+	 *
+	 * @sharpen.property Line
 	 */
 	public int getLine();
 
@@ -72,6 +74,8 @@ public interface TokenSource {
 	 *
 	 * @return The line number for the current position in the input stream, or
 	 * -1 if the current token source does not track character positions.
+	 *
+	 * @sharpen.property Column
 	 */
 	public int getCharPositionInLine();
 
@@ -82,6 +86,8 @@ public interface TokenSource {
 	 * @return The {@link CharStream} associated with the current position in
 	 * the input, or {@code null} if no input stream is available for the token
 	 * source.
+	 *
+	 * @sharpen.property InputStream
 	 */
 	@Nullable
 	public CharStream getInputStream();
@@ -90,6 +96,8 @@ public interface TokenSource {
 	 * Gets the name of the underlying input source. This method returns a
 	 * non-null, non-empty string. If such a name is not known, this method
 	 * returns {@link IntStream#UNKNOWN_SOURCE_NAME}.
+	 * 
+	 * @sharpen.property SourceName
 	 */
 	@NotNull
 	public String getSourceName();
@@ -99,6 +107,8 @@ public interface TokenSource {
 	 * {@link Token} objects from the input.
 	 *
 	 * @param factory The {@link TokenFactory} to use for creating tokens.
+	 *
+	 * @sharpen.property TokenFactory
 	 */
 	public void setTokenFactory(@NotNull TokenFactory factory);
 
@@ -107,6 +117,8 @@ public interface TokenSource {
 	 * creating {@link Token} objects from the input.
 	 *
 	 * @return The {@link TokenFactory} currently used by this token source.
+	 *
+	 * @sharpen.property TokenFactory
 	 */
 	@NotNull
 	public TokenFactory getTokenFactory();

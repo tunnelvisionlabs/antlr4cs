@@ -122,6 +122,9 @@ public class DFAState {
 		this.contextEdges = emptyContextEdges;
 	}
 
+	/**
+	 * @sharpen.property
+	 */
 	public final boolean isContextSensitive() {
 		return contextSymbols != null;
 	}
@@ -156,18 +159,30 @@ public class DFAState {
 		}
 	}
 
+	/**
+	 * @sharpen.property AcceptStateInfo
+	 */
 	public final AcceptStateInfo getAcceptStateInfo() {
 		return acceptStateInfo;
 	}
 
+	/**
+	 * @sharpen.property AcceptStateInfo
+	 */
 	public final void setAcceptState(AcceptStateInfo acceptStateInfo) {
 		this.acceptStateInfo = acceptStateInfo;
 	}
 
+	/**
+	 * @sharpen.property IsAcceptState
+	 */
 	public final boolean isAcceptState() {
 		return acceptStateInfo != null;
 	}
 
+	/**
+	 * @sharpen.property Prediction
+	 */
 	public final int getPrediction() {
 		if (acceptStateInfo == null) {
 			return ATN.INVALID_ALT_NUMBER;
@@ -176,6 +191,9 @@ public class DFAState {
 		return acceptStateInfo.getPrediction();
 	}
 
+	/**
+	 * @sharpen.property LexerActionExecutor
+	 */
 	public final LexerActionExecutor getLexerActionExecutor() {
 		if (acceptStateInfo == null) {
 			return null;
@@ -192,6 +210,9 @@ public class DFAState {
 		edges = edges.put(symbol, target);
 	}
 
+	/**
+	 * @sharpen.property EdgeMap
+	 */
 	public Map<Integer, DFAState> getEdgeMap() {
 		return edges.toMap();
 	}
@@ -216,6 +237,9 @@ public class DFAState {
 		contextEdges = contextEdges.put(invokingState, target);
 	}
 
+	/**
+	 * @sharpen.property ContextEdgeMap
+	 */
 	public Map<Integer, DFAState> getContextEdgeMap() {
 		Map<Integer, DFAState> map = contextEdges.toMap();
 		if (map.containsKey(-1)) {

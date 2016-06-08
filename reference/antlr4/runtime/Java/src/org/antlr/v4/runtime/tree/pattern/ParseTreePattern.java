@@ -138,6 +138,8 @@ public class ParseTreePattern {
 	 *
 	 * @return The {@link ParseTreePatternMatcher} which created this tree
 	 * pattern.
+	 *
+	 * @sharpen.property Matcher
 	 */
 	@NotNull
 	public ParseTreePatternMatcher getMatcher() {
@@ -148,6 +150,8 @@ public class ParseTreePattern {
 	 * Get the tree pattern in concrete syntax form.
 	 *
 	 * @return The tree pattern in concrete syntax form.
+	 *
+	 * @sharpen.property Pattern
 	 */
 	@NotNull
 	public String getPattern() {
@@ -160,6 +164,8 @@ public class ParseTreePattern {
 	 *
 	 * @return The parser rule which serves as the outermost rule for the tree
 	 * pattern.
+	 *
+	 * @sharpen.property PatternRuleIndex
 	 */
 	public int getPatternRuleIndex() {
 		return patternRuleIndex;
@@ -171,6 +177,8 @@ public class ParseTreePattern {
 	 * of type {@link RuleTagToken} or {@link TokenTagToken}.
 	 *
 	 * @return The tree pattern as a {@link ParseTree}.
+	 *
+	 * @sharpen.property PatternTree
 	 */
 	@NotNull
 	public ParseTree getPatternTree() {

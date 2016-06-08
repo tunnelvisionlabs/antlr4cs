@@ -47,6 +47,8 @@ public interface LexerAction {
 	 * Gets the serialization type of the lexer action.
 	 *
 	 * @return The serialization type of the lexer action.
+	 *
+	 * @sharpen.property ActionType
 	 */
 	@NotNull
 	LexerActionType getActionType();
@@ -64,6 +66,8 @@ public interface LexerAction {
 	 * @return {@code true} if the lexer action semantics can be affected by the
 	 * position of the input {@link CharStream} at the time it is executed;
 	 * otherwise, {@code false}.
+	 *
+	 * @sharpen.property
 	 */
 	boolean isPositionDependent();
 

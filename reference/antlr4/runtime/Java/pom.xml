@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.tunnelvisionlabs</groupId>
+        <groupId>com.tunnelvisionlabs.sharpen</groupId>
         <artifactId>antlr4-master</artifactId>
         <version>4.5.1-SNAPSHOT</version>
         <relativePath>../..</relativePath>
@@ -28,7 +28,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.tunnelvisionlabs</groupId>
+            <groupId>com.tunnelvisionlabs.sharpen</groupId>
             <artifactId>antlr4-annotations</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -114,22 +114,6 @@
                         <compilerArg>org.antlr.v4.runtime.misc.NullUsageProcessor</compilerArg>
                     </compilerArgs>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.tunnelvisionlabs</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.4.1</version>
-                <configuration>
-                    <sourceDirectory>src</sourceDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

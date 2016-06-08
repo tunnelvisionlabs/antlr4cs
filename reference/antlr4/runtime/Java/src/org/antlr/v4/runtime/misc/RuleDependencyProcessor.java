@@ -56,6 +56,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
+import org.antlr.v4.runtime.atn.TransitionType;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -639,7 +640,7 @@ public class RuleDependencyProcessor extends AbstractProcessor {
 			}
 
 			for (Transition transition : state.getTransitions()) {
-				if (transition.getSerializationType() != Transition.RULE) {
+				if (transition.getSerializationType() != TransitionType.RULE) {
 					continue;
 				}
 

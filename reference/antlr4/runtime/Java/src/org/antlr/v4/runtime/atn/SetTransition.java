@@ -48,8 +48,8 @@ public class SetTransition extends Transition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return SET;
+	public TransitionType getSerializationType() {
+		return TransitionType.SET;
 	}
 
 	@Override

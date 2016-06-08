@@ -49,7 +49,7 @@ public final class StarLoopEntryState extends DecisionState {
 	public boolean precedenceRuleDecision;
 
 	@Override
-	public int getStateType() {
-		return STAR_LOOP_ENTRY;
+	public StateType getStateType() {
+		return StateType.STAR_LOOP_ENTRY;
 	}
 }

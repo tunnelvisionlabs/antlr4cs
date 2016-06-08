@@ -66,6 +66,7 @@ import org.antlr.v4.runtime.atn.SetTransition;
 import org.antlr.v4.runtime.atn.StarBlockStartState;
 import org.antlr.v4.runtime.atn.StarLoopEntryState;
 import org.antlr.v4.runtime.atn.StarLoopbackState;
+import org.antlr.v4.runtime.atn.StateType;
 import org.antlr.v4.runtime.atn.Transition;
 import org.antlr.v4.runtime.atn.WildcardTransition;
 import org.antlr.v4.runtime.misc.IntervalSet;
@@ -487,8 +488,8 @@ public class ParserATNFactory implements ATNFactory {
             Transition tr = null;
             if ( el.left.getNumberOfTransitions()==1 ) tr = el.left.transition(0);
             boolean isRuleTrans = tr instanceof RuleTransition;
-            if ( el.left.getStateType() == ATNState.BASIC &&
-				el.right.getStateType()== ATNState.BASIC &&
+            if ( el.left.getStateType() == StateType.BASIC &&
+				el.right.getStateType()== StateType.BASIC &&
 				tr!=null && (isRuleTrans && ((RuleTransition)tr).followState == el.right || tr.target == el.right) )
 			{
 				// we can avoid epsilon edge to next el
@@ -679,7 +680,7 @@ public class ParserATNFactory implements ATNFactory {
     public void addRuleFollowLinks() {
         for (ATNState p : atn.states) {
             if ( p!=null &&
-                 p.getStateType() == ATNState.BASIC && p.getNumberOfTransitions()==1 &&
+                 p.getStateType() == StateType.BASIC && p.getNumberOfTransitions()==1 &&
                  p.transition(0) instanceof RuleTransition )
             {
                 RuleTransition rt = (RuleTransition) p.transition(0);

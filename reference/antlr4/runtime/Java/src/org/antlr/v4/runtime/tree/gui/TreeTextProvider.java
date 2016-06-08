@@ -32,6 +32,9 @@ package org.antlr.v4.runtime.tree.gui;
 
 import org.antlr.v4.runtime.tree.Tree;
 
+/**
+ * @sharpen.ignore
+ */
 public interface TreeTextProvider {
 	String getText(Tree node);
 }

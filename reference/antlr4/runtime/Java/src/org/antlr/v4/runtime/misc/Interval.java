@@ -29,7 +29,11 @@
  */
 package org.antlr.v4.runtime.misc;
 
-/** An immutable inclusive interval a..b */
+/**
+ * An immutable inclusive interval a..b.
+ * 
+ * @sharpen.struct
+ */
 public class Interval {
 	public static final int INTERVAL_POOL_MAX_VALUE = 1000;
 
@@ -61,8 +65,11 @@ public class Interval {
 		return cache[a];
 	}
 
-	/** return number of elements between a and b inclusively. x..x is length 1.
-	 *  if b &lt; a, then length is 0.  9..10 has length 2.
+	/**
+	 * return number of elements between a and b inclusively. x..x is length 1.
+	 * if b &lt; a, then length is 0. 9..10 has length 2.
+	 * 
+	 * @sharpen.property
 	 */
 	public int length() {
 		if ( b<a ) return 0;

@@ -56,6 +56,8 @@ public final class LexerModeAction implements LexerAction {
 	 * Get the lexer mode this action should transition the lexer to.
 	 *
 	 * @return The lexer mode for this {@code mode} command.
+	 *
+	 * @sharpen.property Mode
 	 */
 	public int getMode() {
 		return mode;

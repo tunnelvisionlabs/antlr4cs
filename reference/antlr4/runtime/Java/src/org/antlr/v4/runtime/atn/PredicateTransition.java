@@ -51,8 +51,8 @@ public final class PredicateTransition extends AbstractPredicateTransition {
 	}
 
 	@Override
-	public int getSerializationType() {
-		return PREDICATE;
+	public TransitionType getSerializationType() {
+		return TransitionType.PREDICATE;
 	}
 
 	@Override
@@ -63,6 +63,9 @@ public final class PredicateTransition extends AbstractPredicateTransition {
 		return false;
 	}
 
+	/**
+	 * @sharpen.property Predicate
+	 */
     public SemanticContext.Predicate getPredicate() {
    		return new SemanticContext.Predicate(ruleIndex, predIndex, isCtxDependent);
    	}

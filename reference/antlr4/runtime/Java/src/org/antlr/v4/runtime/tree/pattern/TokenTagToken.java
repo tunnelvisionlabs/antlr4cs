@@ -81,6 +81,7 @@ public class TokenTagToken extends CommonToken {
 	/**
 	 * Gets the token name.
 	 * @return The token name.
+	 * @sharpen.property TokenName
 	 */
 	@NotNull
 	public final String getTokenName() {
@@ -92,6 +93,8 @@ public class TokenTagToken extends CommonToken {
 	 *
 	 * @return The name of the label associated with the rule tag, or
 	 * {@code null} if this is an unlabeled rule tag.
+	 *
+	 * @sharpen.property Label
 	 */
 	@Nullable
 	public final String getLabel() {

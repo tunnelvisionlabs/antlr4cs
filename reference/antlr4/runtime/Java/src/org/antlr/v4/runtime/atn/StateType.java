@@ -27,18 +27,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.antlr.v4.runtime.atn;
 
-/**
- *
- * @author Sam Harwell
- */
-public final class BasicState extends ATNState {
-
-	@Override
-	public StateType getStateType() {
-		return StateType.BASIC;
-	}
-
+public enum StateType {
+	INVALID_TYPE,
+	BASIC,
+	RULE_START,
+	BLOCK_START,
+	PLUS_BLOCK_START,
+	STAR_BLOCK_START,
+	TOKEN_START,
+	RULE_STOP,
+	BLOCK_END,
+	STAR_LOOP_BACK,
+	STAR_LOOP_ENTRY,
+	PLUS_LOOP_BACK,
+	LOOP_END,
 }

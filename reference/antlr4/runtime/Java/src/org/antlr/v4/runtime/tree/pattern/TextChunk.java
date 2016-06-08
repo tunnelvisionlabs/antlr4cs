@@ -61,6 +61,8 @@ class TextChunk extends Chunk {
 	 * Gets the raw text of this chunk.
 	 *
 	 * @return The text of the chunk.
+	 *
+	 * @sharpen.property Text
 	 */
 	@NotNull
 	public final String getText() {

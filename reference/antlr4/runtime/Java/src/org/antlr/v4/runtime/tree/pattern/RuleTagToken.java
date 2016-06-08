@@ -96,6 +96,8 @@ public class RuleTagToken implements Token {
 	 * Gets the name of the rule associated with this rule tag.
 	 *
 	 * @return The name of the parser rule associated with this rule tag.
+	 *
+	 * @sharpen.property RuleName
 	 */
 	@NotNull
 	public final String getRuleName() {
@@ -107,6 +109,8 @@ public class RuleTagToken implements Token {
 	 *
 	 * @return The name of the label associated with the rule tag, or
 	 * {@code null} if this is an unlabeled rule tag.
+	 *
+	 * @sharpen.property Label
 	 */
 	@Nullable
 	public final String getLabel() {

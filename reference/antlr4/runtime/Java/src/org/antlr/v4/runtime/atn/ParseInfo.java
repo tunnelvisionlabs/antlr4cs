@@ -55,6 +55,8 @@ public class ParseInfo {
 	 *
 	 * @return An array of {@link DecisionInfo} instances, indexed by decision
 	 * number.
+	 *
+	 * @sharpen.property DecisionInfo
 	 */
 	@NotNull
 	public DecisionInfo[] getDecisionInfo() {

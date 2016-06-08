@@ -39,12 +39,21 @@ import java.util.Set;
  */
 public interface EdgeMap<T> {
 
+	/**
+	 * @sharpen.property Count
+	 */
 	int size();
 
+	/**
+	 * @sharpen.property
+	 */
 	boolean isEmpty();
 
 	boolean containsKey(int key);
 
+	/**
+	 * @sharpen.indexer
+	 */
 	@Nullable
 	T get(int key);
 
@@ -63,6 +72,9 @@ public interface EdgeMap<T> {
 	@NotNull
 	Map<Integer, T> toMap();
 
+	/**
+	 * @sharpen.ignore
+	 */
 	@NotNull
 	Set<Map.Entry<Integer, T>> entrySet();
 
