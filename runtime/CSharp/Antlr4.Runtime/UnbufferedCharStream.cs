@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -103,18 +102,15 @@ namespace Antlr4.Runtime
         protected internal TextReader input;
 
         /// <summary>The name or source of this char stream.</summary>
-        /// <remarks>The name or source of this char stream.</remarks>
         public string name;
 
         /// <summary>Useful for subclasses that pull char from other than this.input.</summary>
-        /// <remarks>Useful for subclasses that pull char from other than this.input.</remarks>
         public UnbufferedCharStream()
             : this(256)
         {
         }
 
         /// <summary>Useful for subclasses that pull char from other than this.input.</summary>
-        /// <remarks>Useful for subclasses that pull char from other than this.input.</remarks>
         public UnbufferedCharStream(int bufferSize)
         {
             n = 0;
@@ -288,7 +284,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Decrement number of markers, resetting buffer if we hit 0.</summary>
-        /// <remarks>Decrement number of markers, resetting buffer if we hit 0.</remarks>
         /// <param name="marker"/>
         public virtual void Release(int marker)
         {

@@ -71,7 +71,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Gets the token name.</summary>
-        /// <remarks>Gets the token name.</remarks>
         /// <returns>The token name.</returns>
         [NotNull]
         public string TokenName
@@ -83,7 +82,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Gets the label associated with the rule tag.</summary>
-        /// <remarks>Gets the label associated with the rule tag.</remarks>
         /// <returns>
         /// The name of the label associated with the rule tag, or
         /// <see langword="null"/>

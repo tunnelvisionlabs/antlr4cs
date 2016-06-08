@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Tree;
-using Antlr4.Runtime.Tree.Pattern;
 using Antlr4.Runtime.Tree.Xpath;
 
 namespace Antlr4.Runtime.Tree.Pattern
@@ -82,7 +81,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Match a specific parse tree against this tree pattern.</summary>
-        /// <remarks>Match a specific parse tree against this tree pattern.</remarks>
         /// <param name="tree">The parse tree to match against this tree pattern.</param>
         /// <returns>
         /// A
@@ -100,7 +98,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Determine whether or not a parse tree matches this tree pattern.</summary>
-        /// <remarks>Determine whether or not a parse tree matches this tree pattern.</remarks>
         /// <param name="tree">The parse tree to match against this tree pattern.</param>
         /// <returns>
         /// 
@@ -121,10 +118,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// Find all nodes using XPath and then try to match those subtrees against
         /// this tree pattern.
         /// </summary>
-        /// <remarks>
-        /// Find all nodes using XPath and then try to match those subtrees against
-        /// this tree pattern.
-        /// </remarks>
         /// <param name="tree">
         /// The
         /// <see cref="Antlr4.Runtime.Tree.IParseTree"/>
@@ -175,7 +168,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Get the tree pattern in concrete syntax form.</summary>
-        /// <remarks>Get the tree pattern in concrete syntax form.</remarks>
         /// <returns>The tree pattern in concrete syntax form.</returns>
         [NotNull]
         public virtual string Pattern
@@ -190,10 +182,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// Get the parser rule which serves as the outermost rule for the tree
         /// pattern.
         /// </summary>
-        /// <remarks>
-        /// Get the parser rule which serves as the outermost rule for the tree
-        /// pattern.
-        /// </remarks>
         /// <returns>
         /// The parser rule which serves as the outermost rule for the tree
         /// pattern.

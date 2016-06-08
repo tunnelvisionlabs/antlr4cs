@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -16,7 +15,6 @@ namespace Antlr4.Runtime.Atn
         public static readonly int SerializedVersion = ATNDeserializer.SerializedVersion;
 
         /// <summary>This is the current serialized UUID.</summary>
-        /// <remarks>This is the current serialized UUID.</remarks>
         [Obsolete(@"Use ATNDeserializer.CheckCondition(bool) instead.")]
         public static readonly Guid SerializedUuid = ATNDeserializer.SerializedUuid;
 
@@ -115,5 +113,16 @@ namespace Antlr4.Runtime.Atn
         {
             return new ATNDeserializer().StateFactory(type, ruleIndex);
         }
+        /*
+        public static void dump(DFA dfa, Grammar g) {
+        DOTGenerator dot = new DOTGenerator(g);
+        String output = dot.getDOT(dfa, false);
+        System.out.println(output);
+        }
+        
+        public static void dump(DFA dfa) {
+        dump(dfa, null);
+        }
+        */
     }
 }

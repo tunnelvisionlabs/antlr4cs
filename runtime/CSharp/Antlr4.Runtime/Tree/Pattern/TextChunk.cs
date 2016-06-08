@@ -4,7 +4,6 @@
 using System;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree.Pattern;
 
 namespace Antlr4.Runtime.Tree.Pattern
 {
@@ -12,10 +11,6 @@ namespace Antlr4.Runtime.Tree.Pattern
     /// Represents a span of raw text (concrete syntax) between tags in a tree
     /// pattern string.
     /// </summary>
-    /// <remarks>
-    /// Represents a span of raw text (concrete syntax) between tags in a tree
-    /// pattern string.
-    /// </remarks>
     internal class TextChunk : Chunk
     {
         /// <summary>
@@ -50,7 +45,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         }
 
         /// <summary>Gets the raw text of this chunk.</summary>
-        /// <remarks>Gets the raw text of this chunk.</remarks>
         /// <returns>The text of the chunk.</returns>
         [NotNull]
         public string Text

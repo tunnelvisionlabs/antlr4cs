@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -13,10 +12,6 @@ namespace Antlr4.Runtime.Atn
     /// This class provides access to specific and aggregate statistics gathered
     /// during profiling of a parser.
     /// </summary>
-    /// <remarks>
-    /// This class provides access to specific and aggregate statistics gathered
-    /// during profiling of a parser.
-    /// </remarks>
     /// <since>4.3</since>
     public class ParseInfo
     {
@@ -147,10 +142,6 @@ namespace Antlr4.Runtime.Atn
         /// Gets the total number of ATN lookahead operations for SLL prediction
         /// across all decisions made during parsing.
         /// </summary>
-        /// <remarks>
-        /// Gets the total number of ATN lookahead operations for SLL prediction
-        /// across all decisions made during parsing.
-        /// </remarks>
         public virtual long GetTotalSLLATNLookaheadOps()
         {
             Antlr4.Runtime.Atn.DecisionInfo[] decisions = atnSimulator.DecisionInfo;
@@ -166,10 +157,6 @@ namespace Antlr4.Runtime.Atn
         /// Gets the total number of ATN lookahead operations for LL prediction
         /// across all decisions made during parsing.
         /// </summary>
-        /// <remarks>
-        /// Gets the total number of ATN lookahead operations for LL prediction
-        /// across all decisions made during parsing.
-        /// </remarks>
         public virtual long GetTotalLLATNLookaheadOps()
         {
             Antlr4.Runtime.Atn.DecisionInfo[] decisions = atnSimulator.DecisionInfo;
@@ -211,10 +198,6 @@ namespace Antlr4.Runtime.Atn
         /// Gets the total number of DFA states stored in the DFA cache for all
         /// decisions in the ATN.
         /// </summary>
-        /// <remarks>
-        /// Gets the total number of DFA states stored in the DFA cache for all
-        /// decisions in the ATN.
-        /// </remarks>
         public virtual int GetDFASize()
         {
             int n = 0;
@@ -230,10 +213,6 @@ namespace Antlr4.Runtime.Atn
         /// Gets the total number of DFA states stored in the DFA cache for a
         /// particular decision.
         /// </summary>
-        /// <remarks>
-        /// Gets the total number of DFA states stored in the DFA cache for a
-        /// particular decision.
-        /// </remarks>
         public virtual int GetDFASize(int decision)
         {
             DFA decisionToDFA = atnSimulator.atn.decisionToDFA[decision];

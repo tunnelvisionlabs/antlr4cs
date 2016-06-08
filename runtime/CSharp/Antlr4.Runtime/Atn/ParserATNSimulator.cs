@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -1043,6 +1042,10 @@ namespace Antlr4.Runtime.Atn
                             // filtering code below would be pointless
                             return alts.NextSetBit(0);
                         }
+                        /*
+                        * Try to find a configuration set that not only dipped into the outer
+                        * context, but also isn't eliminated by a predicate.
+                        */
                         ATNConfigSet filteredConfigs = new ATNConfigSet();
                         foreach (ATNConfig config_1 in previous.s0.configs)
                         {
@@ -1051,6 +1054,14 @@ namespace Antlr4.Runtime.Atn
                                 filteredConfigs.Add(config_1);
                             }
                         }
+                        /* The following code blocks are adapted from predicateDFAState with
+                        * the following key changes.
+                        *
+                        *  1. The code operates on an ATNConfigSet rather than a DFAState.
+                        *  2. Predicates are collected for all alternatives represented in
+                        *     filteredConfigs, rather than restricting the evaluation to
+                        *     conflicting and/or unique configurations.
+                        */
                         SemanticContext[] altToPred = GetPredsForAmbigAlts(alts, filteredConfigs, maxAlt);
                         if (altToPred != null)
                         {
@@ -1153,10 +1164,6 @@ namespace Antlr4.Runtime.Atn
         /// Compute a target state for an edge in the DFA, and attempt to add the
         /// computed state and corresponding edge to the DFA.
         /// </summary>
-        /// <remarks>
-        /// Compute a target state for an edge in the DFA, and attempt to add the
-        /// computed state and corresponding edge to the DFA.
-        /// </remarks>
         /// <param name="dfa"/>
         /// <param name="s">The current DFA state</param>
         /// <param name="remainingGlobalContext"/>
@@ -1188,6 +1195,16 @@ namespace Antlr4.Runtime.Atn
                     reach.IsOutermostConfigSet = true;
                 }
                 ATNConfigSet reachIntermediate = new ATNConfigSet();
+                /* Configurations already in a rule stop state indicate reaching the end
+                * of the decision rule (local context) or end of the start rule (full
+                * context). Once reached, these configurations are never updated by a
+                * closure operation, so they are handled separately for the performance
+                * advantage of having a smaller intermediate set when calling closure.
+                *
+                * For full-context reach operations, separate handling is required to
+                * ensure that the alternative matching the longest overall sequence is
+                * chosen when multiple such configurations can match the input.
+                */
                 IList<ATNConfig> skippedStopStates = null;
                 foreach (ATNConfig c in closureConfigs)
                 {
@@ -1216,20 +1233,52 @@ namespace Antlr4.Runtime.Atn
                         }
                     }
                 }
+                /* This block optimizes the reach operation for intermediate sets which
+                * trivially indicate a termination state for the overall
+                * adaptivePredict operation.
+                *
+                * The conditions assume that intermediate
+                * contains all configurations relevant to the reach set, but this
+                * condition is not true when one or more configurations have been
+                * withheld in skippedStopStates, or when the current symbol is EOF.
+                */
                 if (optimize_unique_closure && skippedStopStates == null && t != TokenConstants.Eof && reachIntermediate.UniqueAlt != ATN.InvalidAltNumber)
                 {
                     reachIntermediate.IsOutermostConfigSet = reach.IsOutermostConfigSet;
                     reach = reachIntermediate;
                     break;
                 }
+                /* If the reach set could not be trivially determined, perform a closure
+                * operation on the intermediate set to compute its initial value.
+                */
                 bool collectPredicates = false;
                 bool treatEofAsEpsilon = t == TokenConstants.Eof;
                 Closure(reachIntermediate, reach, collectPredicates, hasMoreContext, contextCache, treatEofAsEpsilon);
                 stepIntoGlobal = reach.DipsIntoOuterContext;
                 if (t == IntStreamConstants.Eof)
                 {
+                    /* After consuming EOF no additional input is possible, so we are
+                    * only interested in configurations which reached the end of the
+                    * decision rule (local context) or end of the start rule (full
+                    * context). Update reach to contain only these configurations. This
+                    * handles both explicit EOF transitions in the grammar and implicit
+                    * EOF transitions following the end of the decision or start rule.
+                    *
+                    * This is handled before the configurations in skippedStopStates,
+                    * because any configurations potentially added from that list are
+                    * already guaranteed to meet this condition whether or not it's
+                    * required.
+                    */
                     reach = RemoveAllConfigsNotInRuleStopState(reach, contextCache);
                 }
+                /* If skippedStopStates is not null, then it contains at least one
+                * configuration. For full-context reach operations, these
+                * configurations reached the end of the start rule, in which case we
+                * only add them back to reach if no configuration during the current
+                * closure operation reached such a state. This ensures adaptivePredict
+                * chooses an alternative matching the longest overall sequence when
+                * multiple alternatives are viable.
+                */
                 if (skippedStopStates != null && (!useContext || !Antlr4.Runtime.Atn.PredictionMode.HasConfigInRuleStopState(reach)))
                 {
                     System.Diagnostics.Debug.Assert(skippedStopStates.Count > 0);
@@ -1430,6 +1479,12 @@ namespace Antlr4.Runtime.Atn
                         }
                         else
                         {
+                            /* If this is a precedence DFA, we use applyPrecedenceFilter
+                            * to convert the computed start state to a precedence start
+                            * state. We then use DFA.setPrecedenceStartState to set the
+                            * appropriate start state for the precedence level rather
+                            * than simply setting DFA.s0.
+                            */
                             configs = ApplyPrecedenceFilter(configs, globalContext, contextCache);
                             next = AddDFAState(dfa, configs, contextCache);
                             dfa.SetPrecedenceStartState(parser.Precedence, useContext, next);
@@ -1586,15 +1641,19 @@ namespace Antlr4.Runtime.Atn
                     // already handled
                     continue;
                 }
-				if (!config_1.PrecedenceFilterSuppressed)
-				{
-	                PredictionContext context;
-	                if (statesFromAlt1.TryGetValue(config_1.State.stateNumber, out context) && context.Equals(config_1.Context))
-	                {
-	                    // eliminated
-	                    continue;
-	                }
-				}
+                if (!config_1.PrecedenceFilterSuppressed)
+                {
+                    /* In the future, this elimination step could be updated to also
+                    * filter the prediction context for alternatives predicting alt>1
+                    * (basically a graph subtraction algorithm).
+                    */
+                    PredictionContext context;
+                    if (statesFromAlt1.TryGetValue(config_1.State.stateNumber, out context) && context.Equals(config_1.Context))
+                    {
+                        // eliminated
+                        continue;
+                    }
+                }
                 configSet.Add(config_1, contextCache);
             }
             return configSet;
@@ -1630,6 +1689,17 @@ namespace Antlr4.Runtime.Atn
         protected internal virtual SemanticContext[] GetPredsForAmbigAlts(BitSet ambigAlts, ATNConfigSet configs, int nalts)
         {
             // REACH=[1|1|[]|0:0, 1|2|[]|0:1]
+            /* altToPred starts as an array of all null contexts. The entry at index i
+            * corresponds to alternative i. altToPred[i] may have one of three values:
+            *   1. null: no ATNConfig c is found such that c.alt==i
+            *   2. SemanticContext.NONE: At least one ATNConfig c exists such that
+            *      c.alt==i and c.semanticContext==SemanticContext.NONE. In other words,
+            *      alt i has at least one unpredicated config.
+            *   3. Non-NONE Semantic Context: There exists at least one, and for all
+            *      ATNConfig c such that c.alt==i, c.semanticContext!=SemanticContext.NONE.
+            *
+            * From this, it is clear that NONE||anything==NONE.
+            */
             SemanticContext[] altToPred = new SemanticContext[nalts + 1];
             int n = altToPred.Length;
             foreach (ATNConfig c in configs)
@@ -1785,6 +1855,12 @@ namespace Antlr4.Runtime.Atn
             return pred.Eval(parser, parserCallStack);
         }
 
+        /* TODO: If we are doing predicates, there is no point in pursuing
+        closure operations if we reach a DFA state that uniquely predicts
+        alternative. We will not be caching that DFA state and it is a
+        waste to pursue the closure. Might have to advance when we do
+        ambig detection thought :(
+        */
         protected internal virtual void Closure(ATNConfigSet sourceConfigs, ATNConfigSet configs, bool collectPredicates, bool hasMoreContext, PredictionContextCache contextCache, bool treatEofAsEpsilon)
         {
             if (contextCache == null)
@@ -2106,6 +2182,14 @@ namespace Antlr4.Runtime.Atn
             BitSet alts = new BitSet();
             int minAlt = configs[0].Alt;
             alts.Set(minAlt);
+            /* Quick checks come first (single pass, no context joining):
+            *  1. Make sure first config in the sorted list predicts the minimum
+            *     represented alternative.
+            *  2. Make sure every represented state has at least one configuration
+            *     which predicts the minimum represented alternative.
+            *  3. (exact only) make sure every represented state has at least one
+            *     configuration which predicts each represented alternative.
+            */
             // quick check 1 & 2 => if we assume #1 holds and check #2 against the
             // minAlt from the first state, #2 will fail if the assumption was
             // incorrect
@@ -2393,7 +2477,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>See comment on LexerInterpreter.addDFAState.</summary>
-        /// <remarks>See comment on LexerInterpreter.addDFAState.</remarks>
         [return: NotNull]
         protected internal virtual DFAState AddDFAContextState(DFA dfa, ATNConfigSet configs, int returnContext, PredictionContextCache contextCache)
         {
@@ -2416,7 +2499,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>See comment on LexerInterpreter.addDFAState.</summary>
-        /// <remarks>See comment on LexerInterpreter.addDFAState.</remarks>
         [return: NotNull]
         protected internal virtual DFAState AddDFAState(DFA dfa, ATNConfigSet configs, PredictionContextCache contextCache)
         {

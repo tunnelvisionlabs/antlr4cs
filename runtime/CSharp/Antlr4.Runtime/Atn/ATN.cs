@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -32,22 +31,18 @@ namespace Antlr4.Runtime.Atn
         public readonly IList<DecisionState> decisionToState = new List<DecisionState>();
 
         /// <summary>Maps from rule index to starting state number.</summary>
-        /// <remarks>Maps from rule index to starting state number.</remarks>
         public RuleStartState[] ruleToStartState;
 
         /// <summary>Maps from rule index to stop state number.</summary>
-        /// <remarks>Maps from rule index to stop state number.</remarks>
         public RuleStopState[] ruleToStopState;
 
         [NotNull]
         public readonly IDictionary<string, TokensStartState> modeNameToStartState = new Dictionary<string, TokensStartState>();
 
         /// <summary>The type of the ATN.</summary>
-        /// <remarks>The type of the ATN.</remarks>
         public readonly ATNType grammarType;
 
         /// <summary>The maximum value for any symbol recognized by a transition in the ATN.</summary>
-        /// <remarks>The maximum value for any symbol recognized by a transition in the ATN.</remarks>
         public readonly int maxTokenType;
 
         /// <summary>For lexer ATNs, this maps the rule index to the resulting token type.</summary>

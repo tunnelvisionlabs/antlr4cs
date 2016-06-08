@@ -1,7 +1,6 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -11,10 +10,6 @@ namespace Antlr4.Runtime
     /// This interface provides information about the vocabulary used by a
     /// recognizer.
     /// </summary>
-    /// <remarks>
-    /// This interface provides information about the vocabulary used by a
-    /// recognizer.
-    /// </remarks>
     /// <seealso cref="Recognizer{Symbol, ATNInterpreter}.Vocabulary()"/>
     /// <author>Sam Harwell</author>
     public interface IVocabulary

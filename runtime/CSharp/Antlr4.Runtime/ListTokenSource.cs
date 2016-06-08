@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -59,7 +58,6 @@ namespace Antlr4.Runtime
         protected internal int i;
 
         /// <summary>This field caches the EOF token for the token source.</summary>
-        /// <remarks>This field caches the EOF token for the token source.</remarks>
         protected internal IToken eofToken;
 
         /// <summary>

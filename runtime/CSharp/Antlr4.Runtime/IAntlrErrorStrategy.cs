@@ -1,7 +1,6 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -138,10 +137,6 @@ namespace Antlr4.Runtime
         /// This method is called by when the parser successfully matches an input
         /// symbol.
         /// </summary>
-        /// <remarks>
-        /// This method is called by when the parser successfully matches an input
-        /// symbol.
-        /// </remarks>
         /// <param name="recognizer">the parser instance</param>
         void ReportMatch(Parser recognizer);
 

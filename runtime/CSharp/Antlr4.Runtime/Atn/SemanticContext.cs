@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -65,7 +64,6 @@ namespace Antlr4.Runtime.Atn
         public abstract bool Eval<Symbol, ATNInterpreter>(Recognizer<Symbol, ATNInterpreter> parser, RuleContext parserCallStack)
             where ATNInterpreter : ATNSimulator;
         /// <summary>Evaluate the precedence predicates for the context and reduce the result.</summary>
-        /// <remarks>Evaluate the precedence predicates for the context and reduce the result.</remarks>
         /// <param name="parser">The parser instance.</param>
         /// <param name="parserCallStack"/>
         /// <returns>
@@ -229,15 +227,10 @@ namespace Antlr4.Runtime.Atn
         /// This is the base class for semantic context "operators", which operate on
         /// a collection of semantic context "operands".
         /// </summary>
-        /// <remarks>
-        /// This is the base class for semantic context "operators", which operate on
-        /// a collection of semantic context "operands".
-        /// </remarks>
         /// <since>4.3</since>
         public abstract class Operator : SemanticContext
         {
             /// <summary>Gets the operands for the semantic context operator.</summary>
-            /// <remarks>Gets the operands for the semantic context operator.</remarks>
             /// <returns>
             /// a collection of
             /// <see cref="SemanticContext"/>
@@ -256,10 +249,6 @@ namespace Antlr4.Runtime.Atn
         /// A semantic context which is true whenever none of the contained contexts
         /// is false.
         /// </summary>
-        /// <remarks>
-        /// A semantic context which is true whenever none of the contained contexts
-        /// is false.
-        /// </remarks>
         public class AND : SemanticContext.Operator
         {
             [NotNull]
@@ -388,10 +377,6 @@ namespace Antlr4.Runtime.Atn
         /// A semantic context which is true whenever at least one of the contained
         /// contexts is true.
         /// </summary>
-        /// <remarks>
-        /// A semantic context which is true whenever at least one of the contained
-        /// contexts is true.
-        /// </remarks>
         public class OR : SemanticContext.Operator
         {
             [NotNull]

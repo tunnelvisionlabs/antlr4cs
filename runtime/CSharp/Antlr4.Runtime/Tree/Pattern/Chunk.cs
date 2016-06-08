@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree.Pattern;
 
 namespace Antlr4.Runtime.Tree.Pattern
 {

@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -22,7 +21,6 @@ namespace Antlr4.Runtime.Atn
     public interface ILexerAction
     {
         /// <summary>Gets the serialization type of the lexer action.</summary>
-        /// <remarks>Gets the serialization type of the lexer action.</remarks>
         /// <returns>The serialization type of the lexer action.</returns>
         [NotNull]
         LexerActionType ActionType

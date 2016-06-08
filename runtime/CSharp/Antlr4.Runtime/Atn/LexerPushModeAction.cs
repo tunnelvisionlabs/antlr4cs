@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -37,7 +36,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Get the lexer mode this action should transition the lexer to.</summary>
-        /// <remarks>Get the lexer mode this action should transition the lexer to.</remarks>
         /// <returns>
         /// The lexer mode for this
         /// <c>pushMode</c>

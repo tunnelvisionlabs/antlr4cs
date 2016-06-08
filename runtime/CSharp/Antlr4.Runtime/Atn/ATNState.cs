@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -84,7 +83,6 @@ namespace Antlr4.Runtime.Atn
         public bool epsilonOnlyTransitions = false;
 
         /// <summary>Track the transitions emanating from this ATN state.</summary>
-        /// <remarks>Track the transitions emanating from this ATN state.</remarks>
         protected internal readonly List<Antlr4.Runtime.Atn.Transition> transitions = new List<Antlr4.Runtime.Atn.Transition>(InitialNumTransitions);
 
         protected internal List<Antlr4.Runtime.Atn.Transition> optimizedTransitions;
@@ -93,7 +91,6 @@ namespace Antlr4.Runtime.Atn
         public IntervalSet nextTokenWithinRule;
 
         /// <summary>Gets the state number.</summary>
-        /// <remarks>Gets the state number.</remarks>
         /// <returns>the state number</returns>
         public int StateNumber
         {

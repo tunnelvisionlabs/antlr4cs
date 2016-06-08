@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -13,11 +12,6 @@ namespace Antlr4.Runtime.Atn
     /// utility methods for analyzing configuration sets for conflicts and/or
     /// ambiguities.
     /// </summary>
-    /// <remarks>
-    /// This enumeration defines the prediction modes available in ANTLR 4 along with
-    /// utility methods for analyzing configuration sets for conflicts and/or
-    /// ambiguities.
-    /// </remarks>
     [System.Serializable]
     public sealed class PredictionMode
     {
@@ -88,7 +82,6 @@ namespace Antlr4.Runtime.Atn
         public static readonly PredictionMode LlExactAmbigDetection = new PredictionMode();
 
         /// <summary>A Map that uses just the state and the stack context as the key.</summary>
-        /// <remarks>A Map that uses just the state and the stack context as the key.</remarks>
         internal class AltAndContextMap : Dictionary<ATNConfig, BitSet>
         {
             public AltAndContextMap()
@@ -241,6 +234,11 @@ namespace Antlr4.Runtime.Atn
         /// </remarks>
         public static bool HasSLLConflictTerminatingPrediction(PredictionMode mode, ATNConfigSet configs)
         {
+            /* Configs in rule stop states indicate reaching the end of the decision
+            * rule (local context) or end of start rule (full context). If all
+            * configs meet this condition, then none of the configurations is able
+            * to match additional input so we terminate prediction.
+            */
             if (AllConfigsInRuleStopStates(configs))
             {
                 return true;
@@ -792,7 +790,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Get union of all alts from configs.</summary>
-        /// <remarks>Get union of all alts from configs.</remarks>
         /// <since>4.5</since>
         [return: NotNull]
         public static BitSet GetAlts(ATNConfigSet configs)

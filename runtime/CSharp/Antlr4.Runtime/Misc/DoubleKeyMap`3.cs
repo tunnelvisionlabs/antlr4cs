@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Misc
@@ -24,13 +23,13 @@ namespace Antlr4.Runtime.Misc
             if (data2 == null)
             {
                 data2 = new LinkedHashMap<Key2, Value>();
-                data.Put(k1, data2);
+                data[k1] = data2;
             }
             else
             {
                 prev = data2.Get(k2);
             }
-            data2.Put(k2, v);
+            data2[k2] = v;
             return prev;
         }
 

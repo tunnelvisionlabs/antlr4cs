@@ -1,7 +1,6 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -18,6 +17,7 @@ namespace Antlr4.Runtime.Atn
         internal SingletonPredictionContext(PredictionContext parent, int returnState)
             : base(CalculateHashCode(parent, returnState))
         {
+            /*package*/
             System.Diagnostics.Debug.Assert(returnState != EmptyFullStateKey && returnState != EmptyLocalStateKey);
             this.parent = parent;
             this.returnState = returnState;

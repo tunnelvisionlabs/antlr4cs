@@ -8,7 +8,6 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Tree;
-using Antlr4.Runtime.Tree.Pattern;
 
 namespace Antlr4.Runtime.Tree.Pattern
 {
@@ -187,10 +186,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// Set the delimiters used for marking rule and token tags within concrete
         /// syntax used by the tree pattern parser.
         /// </summary>
-        /// <remarks>
-        /// Set the delimiters used for marking rule and token tags within concrete
-        /// syntax used by the tree pattern parser.
-        /// </remarks>
         /// <param name="start">The start delimiter.</param>
         /// <param name="stop">The stop delimiter.</param>
         /// <param name="escapeLeft">The escape sequence to use for escaping a start or stop delimiter.</param>
@@ -346,10 +341,6 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// Used to collect to the grammar file name, token names, rule names for
         /// used to parse the pattern into a parse tree.
         /// </summary>
-        /// <remarks>
-        /// Used to collect to the grammar file name, token names, rule names for
-        /// used to parse the pattern into a parse tree.
-        /// </remarks>
         [NotNull]
         public virtual Parser Parser
         {

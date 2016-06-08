@@ -234,8 +234,7 @@ namespace Antlr4.Runtime.Misc
         /// <exception cref="System.MemberAccessException"/>
         /// <exception cref="System.Reflection.TargetInvocationException"/>
         /// <exception cref="Javax.Print.PrintException"/>
-        protected internal virtual void Process<_T0>(Lexer lexer, Type<_T0> parserClass, Parser parser, Stream @is, TextReader r)
-            where _T0 : Parser
+        protected internal virtual void Process(Lexer lexer, Type parserClass, Parser parser, Stream @is, TextReader r)
         {
             try
             {
@@ -287,7 +286,7 @@ namespace Antlr4.Runtime.Misc
                         tree.Save(parser, psFile);
                     }
                 }
-                catch (NoSuchMethodException)
+                catch (MissingMethodException)
                 {
                     // Generate postscript
                     System.Console.Error.WriteLine("No method for rule " + startRuleName + " or it has arguments");

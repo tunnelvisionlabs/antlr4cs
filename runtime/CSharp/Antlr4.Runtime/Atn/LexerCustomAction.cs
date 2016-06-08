@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -33,10 +32,6 @@ namespace Antlr4.Runtime.Atn
         /// Constructs a custom lexer action with the specified rule and action
         /// indexes.
         /// </summary>
-        /// <remarks>
-        /// Constructs a custom lexer action with the specified rule and action
-        /// indexes.
-        /// </remarks>
         /// <param name="ruleIndex">
         /// The rule index to use for calls to
         /// <see cref="Antlr4.Runtime.Recognizer{Symbol, ATNInterpreter}.Action(Antlr4.Runtime.RuleContext, int, int)"/>

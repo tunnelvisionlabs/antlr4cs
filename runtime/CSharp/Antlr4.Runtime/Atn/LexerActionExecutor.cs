@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -164,7 +163,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Gets the lexer actions to be executed by this executor.</summary>
-        /// <remarks>Gets the lexer actions to be executed by this executor.</remarks>
         /// <returns>The lexer actions to be executed by this executor.</returns>
         [NotNull]
         public virtual ILexerAction[] LexerActions

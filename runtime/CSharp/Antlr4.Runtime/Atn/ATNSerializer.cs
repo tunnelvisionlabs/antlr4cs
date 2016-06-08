@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -139,7 +138,7 @@ namespace Antlr4.Runtime.Atn
                         if (!setIndices.ContainsKey(st.set))
                         {
                             sets.Add(st.set);
-                            setIndices.Put(st.set, sets.Count - 1);
+                            setIndices[st.set] = sets.Count - 1;
                         }
                     }
                 }
@@ -440,7 +439,7 @@ namespace Antlr4.Runtime.Atn
 
         public virtual string Decode(char[] data)
         {
-            data = data.Clone();
+            data = (char[])data.Clone();
             // don't adjust the first value since that's the version number
             for (int i = 1; i < data.Length; i++)
             {
@@ -650,7 +649,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Used by Java target to encode short/int array as chars in string.</summary>
-        /// <remarks>Used by Java target to encode short/int array as chars in string.</remarks>
         public static string GetSerializedAsString(ATN atn, IList<string> ruleNames)
         {
             return new string(GetSerializedAsChars(atn, ruleNames));

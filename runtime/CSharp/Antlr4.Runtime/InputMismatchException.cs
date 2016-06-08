@@ -1,7 +1,6 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Antlr4.Runtime;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -10,10 +9,6 @@ namespace Antlr4.Runtime
     /// This signifies any kind of mismatched input exceptions such as
     /// when the current input does not match the expected token.
     /// </summary>
-    /// <remarks>
-    /// This signifies any kind of mismatched input exceptions such as
-    /// when the current input does not match the expected token.
-    /// </remarks>
     [System.Serializable]
     public class InputMismatchException : RecognitionException
     {

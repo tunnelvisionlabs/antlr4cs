@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
@@ -15,7 +14,6 @@ using Antlr4.Runtime.Tree.Pattern;
 namespace Antlr4.Runtime
 {
     /// <summary>This is all the parsing support code essentially; most of it is error recovery stuff.</summary>
-    /// <remarks>This is all the parsing support code essentially; most of it is error recovery stuff.</remarks>
     public abstract class Parser : Recognizer<IToken, ParserATNSimulator>
     {
 #if !PORTABLE
@@ -97,7 +95,6 @@ namespace Antlr4.Runtime
         protected internal IAntlrErrorStrategy _errHandler = new DefaultErrorStrategy();
 
         /// <summary>The input stream.</summary>
-        /// <remarks>The input stream.</remarks>
         /// <seealso cref="InputStream()"/>
         /// <seealso cref="SetInputStream(ITokenStream)"/>
         protected internal ITokenStream _input;
@@ -479,7 +476,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Remove all parse listeners.</summary>
-        /// <remarks>Remove all parse listeners.</remarks>
         /// <seealso cref="AddParseListener(Antlr4.Runtime.Tree.IParseTreeListener)"/>
         public virtual void RemoveParseListeners()
         {
@@ -487,7 +483,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Notify any parse listeners of an enter rule event.</summary>
-        /// <remarks>Notify any parse listeners of an enter rule event.</remarks>
         /// <seealso cref="AddParseListener(Antlr4.Runtime.Tree.IParseTreeListener)"/>
         protected internal virtual void TriggerEnterRuleEvent()
         {
@@ -499,7 +494,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Notify any parse listeners of an exit rule event.</summary>
-        /// <remarks>Notify any parse listeners of an exit rule event.</remarks>
         /// <seealso cref="AddParseListener(Antlr4.Runtime.Tree.IParseTreeListener)"/>
         protected internal virtual void TriggerExitRuleEvent()
         {
@@ -540,10 +534,6 @@ namespace Antlr4.Runtime
         /// The ATN with bypass alternatives is expensive to create so we create it
         /// lazily.
         /// </summary>
-        /// <remarks>
-        /// The ATN with bypass alternatives is expensive to create so we create it
-        /// lazily.
-        /// </remarks>
         /// <exception cref="System.NotSupportedException">
         /// if the current parser does not
         /// implement the
@@ -566,7 +556,7 @@ namespace Antlr4.Runtime
                     ATNDeserializationOptions deserializationOptions = new ATNDeserializationOptions();
                     deserializationOptions.GenerateRuleBypassTransitions = true;
                     result = new ATNDeserializer(deserializationOptions).Deserialize(serializedAtn.ToCharArray());
-                    bypassAltsAtnCache.Put(serializedAtn, result);
+                    bypassAltsAtnCache[serializedAtn] = result;
                 }
                 return result;
             }
@@ -632,7 +622,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Set the token stream and reset the parser.</summary>
-        /// <remarks>Set the token stream and reset the parser.</remarks>
         public virtual void SetInputStream(ITokenStream input)
         {
             this._input = null;
@@ -644,10 +633,6 @@ namespace Antlr4.Runtime
         /// Match needs to return the current input symbol, which gets put
         /// into the label for the associated token ref; e.g., x=ID.
         /// </summary>
-        /// <remarks>
-        /// Match needs to return the current input symbol, which gets put
-        /// into the label for the associated token ref; e.g., x=ID.
-        /// </remarks>
         public virtual IToken CurrentToken
         {
             get
@@ -826,7 +811,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>Get the precedence level for the top-most precedence rule.</summary>
-        /// <remarks>Get the precedence level for the top-most precedence rule.</remarks>
         /// <returns>
         /// The precedence level for the top-most precedence rule, or -1 if
         /// the parser context is not nested within a precedence rule.
@@ -1196,7 +1180,6 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>For debugging and other purposes.</summary>
-        /// <remarks>For debugging and other purposes.</remarks>
         public virtual IList<string> GetDFAStrings()
         {
             IList<string> s = new List<string>();
@@ -1210,7 +1193,6 @@ namespace Antlr4.Runtime
 
 #if !PORTABLE
         /// <summary>For debugging and other purposes.</summary>
-        /// <remarks>For debugging and other purposes.</remarks>
         public virtual void DumpDFA()
         {
             bool seenOne = false;

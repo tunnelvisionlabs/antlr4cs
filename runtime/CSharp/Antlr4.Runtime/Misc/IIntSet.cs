@@ -2,18 +2,15 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Misc
 {
     /// <summary>A generic set of integers.</summary>
-    /// <remarks>A generic set of integers.</remarks>
     /// <seealso cref="IntervalSet"/>
     public interface IIntSet
     {
         /// <summary>Adds the specified value to the current set.</summary>
-        /// <remarks>Adds the specified value to the current set.</remarks>
         /// <param name="el">the value to add</param>
         /// <exception>
         /// IllegalStateException
@@ -189,7 +186,6 @@ namespace Antlr4.Runtime.Misc
         IIntSet Subtract(IIntSet a);
 
         /// <summary>Return the total number of elements represented by the current set.</summary>
-        /// <remarks>Return the total number of elements represented by the current set.</remarks>
         /// <returns>
         /// the total number of elements represented by the current set,
         /// regardless of the manner in which the elements are stored.

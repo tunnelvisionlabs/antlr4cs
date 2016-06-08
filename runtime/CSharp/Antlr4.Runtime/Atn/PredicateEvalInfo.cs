@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -11,16 +10,11 @@ namespace Antlr4.Runtime.Atn
     /// This class represents profiling event information for semantic predicate
     /// evaluations which occur during prediction.
     /// </summary>
-    /// <remarks>
-    /// This class represents profiling event information for semantic predicate
-    /// evaluations which occur during prediction.
-    /// </remarks>
     /// <seealso cref="ParserATNSimulator.EvalSemanticContext(Antlr4.Runtime.Dfa.DFAState.PredPrediction[], Antlr4.Runtime.ParserRuleContext, bool)"/>
     /// <since>4.3</since>
     public class PredicateEvalInfo : DecisionEventInfo
     {
         /// <summary>The semantic context which was evaluated.</summary>
-        /// <remarks>The semantic context which was evaluated.</remarks>
         public readonly SemanticContext semctx;
 
         /// <summary>

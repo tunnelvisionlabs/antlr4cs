@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -11,10 +10,6 @@ namespace Antlr4.Runtime.Atn
     /// This class represents profiling event information for tracking the lookahead
     /// depth required in order to make a prediction.
     /// </summary>
-    /// <remarks>
-    /// This class represents profiling event information for tracking the lookahead
-    /// depth required in order to make a prediction.
-    /// </remarks>
     /// <since>4.3</since>
     public class LookaheadEventInfo : DecisionEventInfo
     {

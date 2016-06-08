@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -42,7 +41,6 @@ namespace Antlr4.Runtime.Atn
     public class AmbiguityInfo : DecisionEventInfo
     {
         /// <summary>The set of alternative numbers for this decision event that lead to a valid parse.</summary>
-        /// <remarks>The set of alternative numbers for this decision event that lead to a valid parse.</remarks>
         [NotNull]
         private readonly BitSet ambigAlts;
 
@@ -71,7 +69,6 @@ namespace Antlr4.Runtime.Atn
         }
 
         /// <summary>Gets the set of alternatives in the decision that lead to a valid parse.</summary>
-        /// <remarks>Gets the set of alternatives in the decision that lead to a valid parse.</remarks>
         /// <since>4.5</since>
         public virtual BitSet AmbiguousAlternatives
         {

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -18,7 +17,6 @@ namespace Antlr4.Runtime.Atn
         public static readonly int SerializedVersion = 3;
 
         /// <summary>This is the earliest supported serialized UUID.</summary>
-        /// <remarks>This is the earliest supported serialized UUID.</remarks>
         private static readonly Guid BaseSerializedUuid;
 
         /// <summary>
@@ -34,18 +32,16 @@ namespace Antlr4.Runtime.Atn
         /// This list contains all of the currently supported UUIDs, ordered by when
         /// the feature first appeared in this branch.
         /// </summary>
-        /// <remarks>
-        /// This list contains all of the currently supported UUIDs, ordered by when
-        /// the feature first appeared in this branch.
-        /// </remarks>
         private static readonly IList<Guid> SupportedUuids;
 
         /// <summary>This is the current serialized UUID.</summary>
-        /// <remarks>This is the current serialized UUID.</remarks>
         public static readonly Guid SerializedUuid;
 
         static ATNDeserializer()
         {
+            /* WARNING: DO NOT MERGE THESE LINES. If UUIDs differ during a merge,
+            * resolve the conflict by generating a new ID!
+            */
             BaseSerializedUuid = new Guid("E4178468-DF95-44D0-AD87-F22A5D5FB6D3");
             AddedLexerActions = new Guid("AB35191A-1603-487E-B75A-479B831EAF6D");
             SupportedUuids = new List<Guid>();
@@ -583,6 +579,10 @@ namespace Antlr4.Runtime.Atn
                 {
                     continue;
                 }
+                /* We analyze the ATN to determine if this ATN decision state is the
+                * decision for the closure block that determines whether a
+                * precedence rule should continue or complete.
+                */
                 if (atn.ruleToStartState[state.ruleIndex].isPrecedenceRule)
                 {
                     ATNState maybeLoopEndState = state.Transition(state.NumberOfTransitions - 1).target;

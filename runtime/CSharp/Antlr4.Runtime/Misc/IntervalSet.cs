@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Misc
@@ -40,7 +39,6 @@ namespace Antlr4.Runtime.Misc
         }
 
         /// <summary>The list of sorted, disjoint intervals.</summary>
-        /// <remarks>The list of sorted, disjoint intervals.</remarks>
         protected internal IList<Interval> intervals;
 
         protected internal bool @readonly;
@@ -74,7 +72,6 @@ namespace Antlr4.Runtime.Misc
         }
 
         /// <summary>Create a set with a single element, el.</summary>
-        /// <remarks>Create a set with a single element, el.</remarks>
         [return: NotNull]
         public static Antlr4.Runtime.Misc.IntervalSet Of(int a)
         {
@@ -505,6 +502,18 @@ namespace Antlr4.Runtime.Misc
         {
             get
             {
+                /*
+                for (ListIterator iter = intervals.listIterator(); iter.hasNext();) {
+                Interval I = (Interval) iter.next();
+                if ( el<I.a ) {
+                break; // list is sorted and el is before this interval; not here
+                }
+                if ( el>=I.a && el<=I.b ) {
+                return true; // found in this interval
+                }
+                }
+                return false;
+                */
                 return intervals == null || intervals.Count == 0;
             }
         }
@@ -530,7 +539,6 @@ namespace Antlr4.Runtime.Misc
         }
 
         /// <summary>Returns the maximum value contained in the set.</summary>
-        /// <remarks>Returns the maximum value contained in the set.</remarks>
         /// <returns>
         /// the maximum value contained in the set. If the set is empty, this
         /// method returns
@@ -551,7 +559,6 @@ namespace Antlr4.Runtime.Misc
         }
 
         /// <summary>Returns the minimum value contained in the set.</summary>
-        /// <remarks>Returns the minimum value contained in the set.</remarks>
         /// <returns>
         /// the minimum value contained in the set. If the set is empty, this
         /// method returns
@@ -571,7 +578,6 @@ namespace Antlr4.Runtime.Misc
         }
 
         /// <summary>Return a list of Interval objects.</summary>
-        /// <remarks>Return a list of Interval objects.</remarks>
         public virtual IList<Interval> GetIntervals()
         {
             return intervals;

@@ -1,7 +1,6 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
-using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
@@ -124,11 +123,6 @@ namespace Antlr4.Runtime
         /// configuration set, if that information was not already provided by the
         /// parser.
         /// </summary>
-        /// <remarks>
-        /// Computes the set of conflicting or ambiguous alternatives from a
-        /// configuration set, if that information was not already provided by the
-        /// parser.
-        /// </remarks>
         /// <param name="reportedAlts">
         /// The set of conflicting or ambiguous alternatives, as
         /// reported by the parser.

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using IEnumerable = System.Collections.IEnumerable;
@@ -53,7 +52,6 @@ namespace Antlr4.Runtime.Atn
         private readonly List<ATNConfig> unmerged;
 
         /// <summary>This is a list of all configs in this set.</summary>
-        /// <remarks>This is a list of all configs in this set.</remarks>
         private readonly List<ATNConfig> configs;
 
         private int uniqueAlt;
@@ -129,10 +127,6 @@ namespace Antlr4.Runtime.Atn
         /// Get the set of all alternatives represented by configurations in this
         /// set.
         /// </summary>
-        /// <remarks>
-        /// Get the set of all alternatives represented by configurations in this
-        /// set.
-        /// </remarks>
         [NotNull]
         public virtual BitSet RepresentedAlternatives
         {

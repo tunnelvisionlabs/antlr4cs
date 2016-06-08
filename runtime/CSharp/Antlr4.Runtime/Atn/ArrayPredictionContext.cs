@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -21,6 +20,7 @@ namespace Antlr4.Runtime.Atn
         internal ArrayPredictionContext(PredictionContext[] parents, int[] returnStates)
             : base(CalculateHashCode(parents, returnStates))
         {
+            /*package*/
             System.Diagnostics.Debug.Assert(parents.Length == returnStates.Length);
             System.Diagnostics.Debug.Assert(returnStates.Length > 1 || returnStates[0] != EmptyFullStateKey, "Should be using PredictionContext.EMPTY instead.");
             this.parents = parents;
@@ -30,6 +30,7 @@ namespace Antlr4.Runtime.Atn
         internal ArrayPredictionContext(PredictionContext[] parents, int[] returnStates, int hashCode)
             : base(hashCode)
         {
+            /*package*/
             System.Diagnostics.Debug.Assert(parents.Length == returnStates.Length);
             System.Diagnostics.Debug.Assert(returnStates.Length > 1 || returnStates[0] != EmptyFullStateKey, "Should be using PredictionContext.EMPTY instead.");
             this.parents = parents;

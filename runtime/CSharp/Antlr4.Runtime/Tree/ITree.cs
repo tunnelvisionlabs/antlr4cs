@@ -2,7 +2,6 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime.Sharpen;
-using Antlr4.Runtime.Tree;
 
 namespace Antlr4.Runtime.Tree
 {
@@ -52,10 +51,6 @@ namespace Antlr4.Runtime.Tree
         /// How many children are there? If there is none, then this
         /// node represents a leaf node.
         /// </summary>
-        /// <remarks>
-        /// How many children are there? If there is none, then this
-        /// node represents a leaf node.
-        /// </remarks>
         int ChildCount
         {
             get;

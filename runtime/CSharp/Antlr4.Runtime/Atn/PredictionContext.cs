@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -158,6 +157,7 @@ namespace Antlr4.Runtime.Atn
             return Join(context0, context1, PredictionContextCache.Uncached);
         }
 
+        /*package*/
         internal static Antlr4.Runtime.Atn.PredictionContext Join(Antlr4.Runtime.Atn.PredictionContext context0, Antlr4.Runtime.Atn.PredictionContext context1, PredictionContextCache contextCache)
         {
             if (context0 == context1)
