@@ -27,8 +27,10 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen;
+package org.antlr.v4.codegen.target;
 
+import org.antlr.v4.codegen.CodeGenerator;
+import org.antlr.v4.codegen.Target;
 import org.antlr.v4.tool.ErrorType;
 import org.antlr.v4.tool.ast.GrammarAST;
 import org.stringtemplate.v4.NumberRenderer;
