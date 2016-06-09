@@ -41,6 +41,8 @@ import org.antlr.v4.runtime.misc.Nullable;
  * @since 4.3
  */
 public class LookaheadEventInfo extends DecisionEventInfo {
+	private final int predictedAlt;
+
 	/**
 	 * Constructs a new instance of the {@link LookaheadEventInfo} class with
 	 * the specified detailed lookahead information.
@@ -57,9 +59,22 @@ public class LookaheadEventInfo extends DecisionEventInfo {
 	 * an SLL prediction
 	 */
 	public LookaheadEventInfo(int decision, @Nullable SimulatorState state,
+							  int predictedAlt,
 							  @NotNull TokenStream input, int startIndex, int stopIndex,
 							  boolean fullCtx)
 	{
 		super(decision, state, input, startIndex, stopIndex, fullCtx);
+		this.predictedAlt = predictedAlt;
+	}
+
+	/** The alternative chosen by adaptivePredict(), not necessarily
+	 *  the outermost alt shown for a rule; left-recursive rules have
+	 *  user-level alts that differ from the rewritten rule with a (...) block
+	 *  and a (..)* loop.
+	 *
+	 * @sharpen.property PredictedAlternative
+	 */
+	public final int getPredictedAlternative() {
+		return predictedAlt;
 	}
 }

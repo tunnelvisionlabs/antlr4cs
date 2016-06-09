@@ -337,10 +337,15 @@ namespace Antlr4.Runtime
         {
             get
             {
-                if (start == null || stop == null)
+                if (start == null)
                 {
                     return Interval.Invalid;
                 }
+                if (stop == null || stop.TokenIndex < start.TokenIndex)
+                {
+                    return Interval.Of(start.TokenIndex, start.TokenIndex - 1);
+                }
+                // empty
                 return Interval.Of(start.TokenIndex, stop.TokenIndex);
             }
         }

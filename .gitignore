@@ -20,6 +20,8 @@ reference/reference.net/
 
 # ignore Java (Maven) build directory
 tool/target/
+.idea/
+*.iml
 
 # ignore NuGet output folders
 /build/nuget/

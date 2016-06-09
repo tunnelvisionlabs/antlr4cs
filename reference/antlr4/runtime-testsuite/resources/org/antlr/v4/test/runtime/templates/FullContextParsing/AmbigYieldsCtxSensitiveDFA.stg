@@ -1,0 +1,32 @@
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": true
+]
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+Input() ::= "abc"
+
+Rule() ::= "s"
+
+Output() ::= <<
+Decision 0:
+s0-ID->:s1=>1<\n>
+>>
+
+Errors() ::= <<
+line 1:0 reportAmbiguity d=0 (s): ambigAlts={1, 2}, input='abc'<\n>
+>>
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+s
+@init {<LL_EXACT_AMBIG_DETECTION()>}
+@after {<DumpDFA()>}
+	: ID | ID {} ;
+ID : 'a'..'z'+;
+WS : (' '|'\t'|'\n')+ -> skip ;
+>>

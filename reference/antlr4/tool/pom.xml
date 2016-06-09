@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.tunnelvisionlabs.sharpen</groupId>
         <artifactId>antlr4-master</artifactId>
-        <version>4.5.1-SNAPSHOT</version>
+        <version>4.5.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>antlr4</artifactId>
@@ -42,6 +42,12 @@
             <groupId>org.antlr</groupId>
             <artifactId>ST4</artifactId>
             <version>4.0.8</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.abego.treelayout</groupId>
+            <artifactId>org.abego.treelayout.core</artifactId>
+            <version>1.0.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -105,6 +111,46 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>jacoco</id>
+            <activation>
+                <property>
+                    <name>ENABLE_JACOCO</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.7.201606060606</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report-aggregate</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report-aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <build>
@@ -143,6 +189,22 @@
             </plugin>
 
             <plugin>
+                <groupId>com.tunnelvisionlabs</groupId>
+                <artifactId>antlr4-testgen-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>antlr4.testgen</goal>
+                        </goals>
+                        <configuration>
+                            <runtimeTemplates>test/org/antlr/v4/test/runtime/java/Java.test.stg</runtimeTemplates>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
@@ -153,6 +215,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 

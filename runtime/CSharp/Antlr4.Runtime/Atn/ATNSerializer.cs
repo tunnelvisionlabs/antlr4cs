@@ -494,6 +494,12 @@ namespace Antlr4.Runtime.Atn
                 }
                 buf.Append(i_1).Append(":").Append(ATNState.serializationNames[(int)(stype)]).Append(" ").Append(ruleIndex).Append(arg).Append("\n");
             }
+            // this code is meant to model the form of ATNDeserializer.deserialize,
+            // since both need to be updated together whenever a change is made to
+            // the serialization format. The "dead" code is only used in debugging
+            // and testing scenarios, so the form you see here was kept for
+            // improved maintainability.
+            // start
             int numNonGreedyStates = ATNDeserializer.ToInt(data[p++]);
             for (int i_2 = 0; i_2 < numNonGreedyStates; i_2++)
             {
@@ -509,6 +515,7 @@ namespace Antlr4.Runtime.Atn
             {
                 int stateNumber = ATNDeserializer.ToInt(data[p++]);
             }
+            // finish
             int nrules = ATNDeserializer.ToInt(data[p++]);
             for (int i_5 = 0; i_5 < nrules; i_5++)
             {
@@ -571,6 +578,11 @@ namespace Antlr4.Runtime.Atn
             }
             if (atn.grammarType == ATNType.Lexer)
             {
+                // this code is meant to model the form of ATNDeserializer.deserialize,
+                // since both need to be updated together whenever a change is made to
+                // the serialization format. The "dead" code is only used in debugging
+                // and testing scenarios, so the form you see here was kept for
+                // improved maintainability.
                 int lexerActionCount = ATNDeserializer.ToInt(data[p++]);
                 for (int i_10 = 0; i_10 < lexerActionCount; i_10++)
                 {
