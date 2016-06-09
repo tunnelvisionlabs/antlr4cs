@@ -182,6 +182,7 @@
     <Compile Include="RecognitionException.cs" />
     <Compile Include="Recognizer`2.cs" />
     <Compile Include="RuleContext.cs" />
+    <Compile Include="RuleContextWithAltNum.cs" />
     <Compile Include="RuleDependencyAttribute.cs" />
     <Compile Include="RuleVersionAttribute.cs" />
     <Compile Include="Sharpen\Arrays.cs" />
