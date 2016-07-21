@@ -1,3 +1,7 @@
+param (
+	[string]$Source = 'https://www.nuget.org/api/v2/package'
+)
+
 . .\version.ps1
 
 If ($AntlrVersion.EndsWith('-dev')) {
@@ -25,5 +29,5 @@ ForEach ($package in $packages) {
 
 $nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
 ForEach ($package in $packages) {
-	&$nuget 'push' ".\nuget\$package.$AntlrVersion.nupkg"
+	&$nuget 'push' ".\nuget\$package.$AntlrVersion.nupkg" -Source $Source
 }
