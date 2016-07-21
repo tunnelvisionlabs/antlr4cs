@@ -62,6 +62,7 @@
     <Antlr4>
       <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>$(RootNamespace)</CustomToolNamespace>
+      <Encoding>UTF-8</Encoding>
       <TargetLanguage>CSharp</TargetLanguage>
       <Listener>true</Listener>
       <Visitor>true</Visitor>
@@ -113,6 +114,7 @@
       JavaExecutable="$(Antlr4JavaExecutable)"
       BuildTaskPath="$(Antlr4BuildTaskLocation)"
       OutputPath="$(IntermediateOutputPath)"
+      Encoding="%(Antlr4.Encoding)"
       TargetLanguage="%(Antlr4.TargetLanguage)"
       TargetFrameworkVersion="$(TargetFrameworkVersion)"
       TargetNamespace="%(Antlr4.CustomToolNamespace)"
