@@ -4,7 +4,7 @@ configuration: Debug
 init:
 - git config --global core.autocrlf true
 environment:
-  M2_HOME: C:\bin\apache-maven-3.3.1
+  M2_HOME: C:\tools\apache-maven-3.3.9
 install:
 - powershell -Command .\build\appveyor-install.ps1
 cache:

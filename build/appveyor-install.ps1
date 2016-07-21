@@ -8,4 +8,4 @@ If (-not (Test-Path 'NETCFv35PowerToys.msi')) {
 
 msiexec.exe /i NETCFSetupv35.msi /qn | Out-Null
 msiexec.exe /i NETCFv35PowerToys.msi /qn | Out-Null
-cinst maven -version 3.3.1
+cinst maven -version 3.3.9
