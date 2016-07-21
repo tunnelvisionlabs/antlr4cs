@@ -1,1 +1,1 @@
-$AntlrVersion = "4.5.3"
+$AntlrVersion = "4.5.4-dev"
