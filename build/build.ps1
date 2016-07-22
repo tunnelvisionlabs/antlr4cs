@@ -149,6 +149,7 @@ if (-not $SkipKeyCheck) {
 
 $packages = @(
 	'Antlr4.Runtime'
+	'Antlr4.CodeGenerator'
 	'Antlr4'
 	'Antlr4.VS2008')
 
