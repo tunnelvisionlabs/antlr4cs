@@ -1,6 +1,6 @@
 param (
 	[switch]$Debug,
-	[string]$VisualStudioVersion = "12.0",
+	[string]$VisualStudioVersion = "14.0",
 	[switch]$NoClean,
 	[string]$Verbosity = "normal",
 	[string]$Logger,
@@ -149,6 +149,7 @@ if (-not $SkipKeyCheck) {
 
 $packages = @(
 	'Antlr4.Runtime'
+	'Antlr4.CodeGenerator'
 	'Antlr4'
 	'Antlr4.VS2008')
 

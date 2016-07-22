@@ -1,4 +1,4 @@
-﻿#if PORTABLE
+﻿#if PORTABLE || NETSTANDARD
 
 namespace System
 {
