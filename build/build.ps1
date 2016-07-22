@@ -1,6 +1,6 @@
 param (
 	[switch]$Debug,
-	[string]$VisualStudioVersion = "12.0",
+	[string]$VisualStudioVersion = "14.0",
 	[switch]$NoClean,
 	[string]$Verbosity = "normal",
 	[string]$Logger,

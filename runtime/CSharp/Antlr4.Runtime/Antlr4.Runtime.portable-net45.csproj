@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Antlr4.4.5.3\build\Antlr4.props" Condition="Exists('..\packages\Antlr4.4.5.3\build\Antlr4.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{12269283-EE92-4FAA-B849-53CD24F341FA}</ProjectGuid>
@@ -11,8 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Antlr4.Runtime</RootNamespace>
     <AssemblyName>Antlr4.Runtime</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj\portable-net45\</BaseIntermediateOutputPath>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -24,7 +23,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\portable-net45\Debug\</OutputPath>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PORTABLE;NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
@@ -34,7 +33,7 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\portable-net45\Release\</OutputPath>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
-    <DefineConstants>TRACE;PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
@@ -230,15 +229,15 @@
     <Compile Include="Tree\Pattern\TokenTagToken.cs" />
     <Compile Include="Tree\TerminalNodeImpl.cs" />
     <Compile Include="Tree\Trees.cs" />
-    <Compile Include="Tree\Xpath\XPath.cs" />
+    <None Include="Tree\Xpath\XPath.cs" />
     <Compile Include="Tree\Xpath\XPathElement.cs" />
     <Compile Include="Tree\Xpath\XPathLexerErrorListener.cs" />
     <Compile Include="Tree\Xpath\XPathRuleAnywhereElement.cs" />
     <Compile Include="Tree\Xpath\XPathRuleElement.cs" />
     <Compile Include="Tree\Xpath\XPathTokenAnywhereElement.cs" />
     <Compile Include="Tree\Xpath\XPathTokenElement.cs" />
-    <Compile Include="Tree\Xpath\XPathWildcardAnywhereElement.cs" />
-    <Compile Include="Tree\Xpath\XPathWildcardElement.cs" />
+    <None Include="Tree\Xpath\XPathWildcardAnywhereElement.cs" />
+    <None Include="Tree\Xpath\XPathWildcardElement.cs" />
     <Compile Include="UnbufferedCharStream.cs" />
     <Compile Include="UnbufferedTokenStream.cs" />
     <Compile Include="Vocabulary.cs" />
@@ -256,23 +255,15 @@
     <None Include="..\..\..\build\keys\Antlr4.snk">
       <Link>Antlr4.snk</Link>
     </None>
+    <None Include="Antlr4.Runtime.portable-net45.project.json" />
     <None Include="Atn\ATNSerializer.cs" />
     <None Include="Misc\Array2DHashSet`1.cs" />
     <None Include="Misc\DoubleKeyMap`3.cs" />
     <None Include="Misc\OrderedHashSet`1.cs" />
     <None Include="Misc\RuleDependencyProcessor.cs" />
     <None Include="Misc\TestRig.cs" />
-    <None Include="packages.Antlr4.Runtime.portable-net45.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Antlr4.4.5.3\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.5.3\build\Antlr4.props'))" />
-    <Error Condition="!Exists('..\packages\Antlr4.4.5.3\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.5.3\build\Antlr4.targets'))" />
-  </Target>
-  <Import Project="..\packages\Antlr4.4.5.3\build\Antlr4.targets" Condition="Exists('..\packages\Antlr4.4.5.3\build\Antlr4.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

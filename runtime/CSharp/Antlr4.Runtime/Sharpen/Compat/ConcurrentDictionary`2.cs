@@ -22,7 +22,7 @@
 //
 //
 
-#if NET40PLUS && (!PORTABLE || WINRT)
+#if NET40PLUS && (!PORTABLE || WINRT || NETSTANDARD)
 
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
