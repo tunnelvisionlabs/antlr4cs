@@ -22,7 +22,7 @@
 //
 //
 
-#if !NET40PLUS || (PORTABLE && !WINRT)
+#if !NET40PLUS || (PORTABLE && !WINRT && !NETSTANDARD)
 
 using System;
 using System.Threading;

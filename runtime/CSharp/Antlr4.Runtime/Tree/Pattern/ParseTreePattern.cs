@@ -114,7 +114,6 @@ namespace Antlr4.Runtime.Tree.Pattern
             return matcher.Match(tree, this).Succeeded;
         }
 
-#if !NETSTANDARD
         /// <summary>
         /// Find all nodes using XPath and then try to match those subtrees against
         /// this tree pattern.
@@ -147,7 +146,6 @@ namespace Antlr4.Runtime.Tree.Pattern
             }
             return matches;
         }
-#endif
 
         /// <summary>
         /// Get the
