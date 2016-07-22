@@ -15,7 +15,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
     <tags>antlr antlr4 parsing</tags>
-    <title>ANTLR 4</title>
+    <title>ANTLR 4 Code Generator</title>
     <summary>The C# target of the ANTLR 4 parser generator for Visual Studio 2010+ projects.</summary>
   </metadata>
   <files>
@@ -44,8 +44,8 @@
 
     <!-- Build Configuration -->
 
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.props" target="build\Antlr4.props"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.targets" target="build\Antlr4.targets"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.props" target="build\Antlr4.CodeGenerator.props"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.targets" target="build\Antlr4.CodeGenerator.targets"/>
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4BuildTasks.net40.dll" target="build"/>
   </files>
 </package>
