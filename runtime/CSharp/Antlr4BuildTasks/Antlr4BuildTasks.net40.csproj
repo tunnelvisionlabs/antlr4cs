@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Antlr4.any.props" />
     <None Include="Antlr4.net40.props">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
