@@ -15,6 +15,13 @@
     <BaseIntermediateOutputPath>obj\netcore45\</BaseIntermediateOutputPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'True'">
+    <!-- Allow Visual Studio 2015 to load the project on Windows 8.1 without retargeting the project to Windows 8.1 -->
+    <NTVersion>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion@CurrentVersion)</NTVersion>
+    <IsWindows81 Condition="'$(NTVersion)' == '6.3'">True</IsWindows81>
+    <TargetPlatformVersion Condition="'$(IsWindows81)' == 'True'">8.1</TargetPlatformVersion>
+    <TargetFrameworkVersion Condition="'$(IsWindows81)' == 'True'" />
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
