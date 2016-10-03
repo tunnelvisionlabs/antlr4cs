@@ -46,6 +46,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public string Encoding
+        {
+            get;
+            set;
+        }
+
         public string TargetLanguage
         {
             get;
@@ -305,6 +311,7 @@ namespace Antlr4.Build.Tasks
             wrapper.TargetLanguage = TargetLanguage;
             wrapper.TargetFrameworkVersion = TargetFrameworkVersion;
             wrapper.OutputPath = OutputPath;
+            wrapper.Encoding = Encoding;
             wrapper.LanguageSourceExtensions = LanguageSourceExtensions;
             wrapper.TargetNamespace = TargetNamespace;
             wrapper.GenerateListener = GenerateListener;

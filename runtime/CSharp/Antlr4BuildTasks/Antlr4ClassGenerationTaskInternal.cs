@@ -57,6 +57,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public string Encoding
+        {
+            get;
+            set;
+        }
+
         public string TargetNamespace
         {
             get;
@@ -254,6 +260,12 @@ namespace Antlr4.Build.Tasks
 
                 arguments.Add("-o");
                 arguments.Add(OutputPath);
+
+                if (!string.IsNullOrEmpty(Encoding))
+                {
+                    arguments.Add("-encoding");
+                    arguments.Add(Encoding);
+                }
 
                 if (GenerateListener)
                     arguments.Add("-listener");
