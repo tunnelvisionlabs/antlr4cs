@@ -44,5 +44,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("4.5.0.0")]
 #if !COMPACT
 [assembly: AssemblyFileVersion("4.5.4.0")]
-[assembly: AssemblyInformationalVersion("4.5.4-beta001")]
+[assembly: AssemblyInformationalVersion("4.5.4-dev")]
 #endif
