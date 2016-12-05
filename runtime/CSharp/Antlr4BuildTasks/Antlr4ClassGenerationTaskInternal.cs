@@ -142,7 +142,11 @@ namespace Antlr4.Build.Tasks
         {
             get
             {
-                string javaHome;
+                // short-circuit for java environments that are copied and not installed
+                string javaHome = new Uri(JavaInstallation).LocalPath;
+                if (Directory.Exists(javaHome))
+                    return javaHome;
+
                 if (TryGetJavaHome(RegistryView.Default, JavaVendor, JavaInstallation, out javaHome))
                     return javaHome;
 
@@ -191,7 +195,11 @@ namespace Antlr4.Build.Tasks
         {
             get
             {
-                string javaHome;
+                // short-circuit for java environments that are copied and not installed
+                string javaHome = new Uri(JavaInstallation).LocalPath;
+                if (Directory.Exists(javaHome))
+                    return javaHome;
+
                 if (TryGetJavaHome(Registry.LocalMachine, JavaVendor, JavaInstallation, out javaHome))
                     return javaHome;
 
