@@ -28,13 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
-
-/** */
-public class ArgRef extends LocalRef {
-	public ArgRef(StructDecl ctx, String name) {
-		super(ctx, name);
-	}
+    /** */
+    public class ArgRef : LocalRef
+    {
+        public ArgRef(StructDecl ctx, string name)
+            : base(ctx, name)
+        {
+        }
+    }
 }

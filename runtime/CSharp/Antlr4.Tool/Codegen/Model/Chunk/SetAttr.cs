@@ -28,21 +28,24 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.ModelElement;
-import org.antlr.v4.codegen.model.decl.StructDecl;
+    /** */
+    public class SetAttr : ActionChunk
+    {
+        public string name;
 
-import java.util.List;
+        [ModelElement]
+        public IList<ActionChunk> rhsChunks;
 
-/** */
-public class SetAttr extends ActionChunk {
-	public String name;
-	@ModelElement public List<ActionChunk> rhsChunks;
-
-	public SetAttr(StructDecl ctx, String name, List<ActionChunk> rhsChunks) {
-		super(ctx);
-		this.name = name;
-		this.rhsChunks = rhsChunks;
-	}
+        public SetAttr(StructDecl ctx, string name, IList<ActionChunk> rhsChunks)
+            : base(ctx)
+        {
+            this.name = name;
+            this.rhsChunks = rhsChunks;
+        }
+    }
 }

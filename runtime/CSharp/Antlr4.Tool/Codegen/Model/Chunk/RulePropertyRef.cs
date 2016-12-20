@@ -28,16 +28,19 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
+    /** */
+    public class RulePropertyRef : ActionChunk
+    {
+        public string label;
 
-/** */
-public class RulePropertyRef extends ActionChunk {
-	public String label;
-
-	public RulePropertyRef(StructDecl ctx, String label) {
-		super(ctx);
-		this.label = label;
-	}
+        public RulePropertyRef(StructDecl ctx, string label)
+            : base(ctx)
+        {
+            this.label = label;
+        }
+    }
 }

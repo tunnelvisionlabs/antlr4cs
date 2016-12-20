@@ -28,10 +28,15 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
-
-public class ListLabelRef extends LabelRef {
-	public ListLabelRef(StructDecl ctx, String name) { super(ctx, name); }
+    public class ListLabelRef : LabelRef
+    {
+        public ListLabelRef(StructDecl ctx, string name)
+            : base(ctx, name)
+        {
+        }
+    }
 }

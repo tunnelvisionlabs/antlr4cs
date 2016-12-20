@@ -28,22 +28,23 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
+    public class SetNonLocalAttr : SetAttr
+    {
+        public string ruleName;
+        public int ruleIndex;
 
-import java.util.List;
-
-public class SetNonLocalAttr extends SetAttr {
-	public String ruleName;
-	public int ruleIndex;
-
-	public SetNonLocalAttr(StructDecl ctx,
-						   String ruleName, String name, int ruleIndex,
-						   List<ActionChunk> rhsChunks)
-	{
-		super(ctx, name, rhsChunks);
-		this.ruleName = ruleName;
-		this.ruleIndex = ruleIndex;
-	}
+        public SetNonLocalAttr(StructDecl ctx,
+                               string ruleName, string name, int ruleIndex,
+                               IList<ActionChunk> rhsChunks)
+                : base(ctx, name, rhsChunks)
+        {
+            this.ruleName = ruleName;
+            this.ruleIndex = ruleIndex;
+        }
+    }
 }

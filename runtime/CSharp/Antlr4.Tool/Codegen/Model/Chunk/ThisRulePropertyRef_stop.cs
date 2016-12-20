@@ -28,13 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
-
-/** */
-public class ThisRulePropertyRef_stop extends RulePropertyRef {
-	public ThisRulePropertyRef_stop(StructDecl ctx, String label) {
-		super(ctx, label);
-	}
+    /** */
+    public class ThisRulePropertyRef_stop : RulePropertyRef
+    {
+        public ThisRulePropertyRef_stop(StructDecl ctx, string label)
+            : base(ctx, label)
+        {
+        }
+    }
 }

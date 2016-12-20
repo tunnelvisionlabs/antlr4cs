@@ -28,16 +28,19 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.StringTemplate;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
-import org.stringtemplate.v4.ST;
+    public class ActionTemplate : ActionChunk
+    {
+        public Template st;
 
-public class ActionTemplate extends ActionChunk {
-	public ST st;
-
-	public ActionTemplate(StructDecl ctx, ST st) {
-		super(ctx);
-		this.st = st;
-	}
+        public ActionTemplate(StructDecl ctx, Template st)
+            : base(ctx)
+        {
+            this.st = st;
+        }
+    }
 }

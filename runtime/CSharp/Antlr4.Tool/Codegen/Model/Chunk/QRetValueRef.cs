@@ -28,15 +28,19 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
+    /** */
+    public class QRetValueRef : RetValueRef
+    {
+        public string dict;
 
-/** */
-public class QRetValueRef extends RetValueRef {
-	public String dict;
-	public QRetValueRef(StructDecl ctx, String dict, String name) {
-		super(ctx,name);
-		this.dict = dict;
-	}
+        public QRetValueRef(StructDecl ctx, string dict, string name)
+            : base(ctx, name)
+        {
+            this.dict = dict;
+        }
+    }
 }

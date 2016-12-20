@@ -28,13 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
-
-/** */
-public class TokenPropertyRef_int extends TokenPropertyRef {
-	public TokenPropertyRef_int(StructDecl ctx, String label) {
-		super(ctx, label);
-	}
+    /** */
+    public class TokenPropertyRef_int : TokenPropertyRef
+    {
+        public TokenPropertyRef_int(StructDecl ctx, string label)
+            : base(ctx, label)
+        {
+        }
+    }
 }

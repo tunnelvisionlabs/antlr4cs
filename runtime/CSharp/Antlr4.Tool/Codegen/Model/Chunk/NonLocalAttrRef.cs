@@ -28,20 +28,23 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.decl.StructDecl;
+    public class NonLocalAttrRef : ActionChunk
+    {
+        public string ruleName;
+        public string name;
+        public int ruleIndex;
 
-public class NonLocalAttrRef extends ActionChunk {
-	public String ruleName;
-	public String name;
-	public int ruleIndex;
+        public NonLocalAttrRef(StructDecl ctx, string ruleName, string name, int ruleIndex)
+            : base(ctx)
+        {
+            this.name = name;
+            this.ruleName = ruleName;
+            this.ruleIndex = ruleIndex;
+        }
 
-	public NonLocalAttrRef(StructDecl ctx, String ruleName, String name, int ruleIndex) {
-		super(ctx);
-		this.name = name;
-		this.ruleName = ruleName;
-		this.ruleIndex = ruleIndex;
-	}
-
+    }
 }

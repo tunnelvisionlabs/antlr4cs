@@ -28,17 +28,19 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.chunk;
+namespace Antlr4.Codegen.Model.Chunk
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.model.OutputModelObject;
-import org.antlr.v4.codegen.model.decl.StructDecl;
+    /** */
+    public class ActionChunk : OutputModelObject
+    {
+        /** Where is the ctx that defines attrs,labels etc... for this action? */
+        public StructDecl ctx;
 
-/** */
-public class ActionChunk extends OutputModelObject {
-	/** Where is the ctx that defines attrs,labels etc... for this action? */
-	public StructDecl ctx;
-
-	public ActionChunk(StructDecl ctx) {
-		this.ctx = ctx;
-	}
+        public ActionChunk(StructDecl ctx)
+        {
+            this.ctx = ctx;
+        }
+    }
 }
