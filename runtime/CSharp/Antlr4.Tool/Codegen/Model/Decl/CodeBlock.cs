@@ -28,58 +28,72 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    using System.Collections.Generic;
+    using Antlr4.Misc;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.ModelElement;
-import org.antlr.v4.codegen.model.SrcOp;
-import org.antlr.v4.runtime.misc.OrderedHashSet;
+    public class CodeBlock : SrcOp
+    {
+        public int codeBlockLevel;
+        public int treeLevel;
 
-import java.util.ArrayList;
-import java.util.List;
+        [ModelElement]
+        public OrderedHashSet<Decl> locals;
+        [ModelElement]
+        public IList<SrcOp> preamble;
+        [ModelElement]
+        public IList<SrcOp> ops;
 
-public class CodeBlock extends SrcOp {
-	public int codeBlockLevel;
-	public int treeLevel;
+        public CodeBlock(OutputModelFactory factory)
+            : base(factory)
+        {
+        }
 
-	@ModelElement public OrderedHashSet<Decl> locals;
-	@ModelElement public List<SrcOp> preamble;
-	@ModelElement public List<SrcOp> ops;
+        public CodeBlock(OutputModelFactory factory, int treeLevel, int codeBlockLevel)
+            : base(factory)
+        {
+            this.treeLevel = treeLevel;
+            this.codeBlockLevel = codeBlockLevel;
+        }
 
-	public CodeBlock(OutputModelFactory factory) {
-		super(factory);
-	}
+        /** Add local var decl */
+        public virtual void AddLocalDecl(Decl d)
+        {
+            if (locals == null)
+                locals = new OrderedHashSet<Decl>();
+            locals.Add(d);
+            d.isLocal = true;
+        }
 
-	public CodeBlock(OutputModelFactory factory, int treeLevel, int codeBlockLevel) {
-		super(factory);
-		this.treeLevel = treeLevel;
-		this.codeBlockLevel = codeBlockLevel;
-	}
+        public virtual void AddPreambleOp(SrcOp op)
+        {
+            if (preamble == null)
+                preamble = new List<SrcOp>();
+            preamble.Add(op);
+        }
 
-	/** Add local var decl */
-	public void addLocalDecl(Decl d) {
-		if ( locals==null ) locals = new OrderedHashSet<Decl>();
-		locals.add(d);
-		d.isLocal = true;
-	}
+        public virtual void AddOp(SrcOp op)
+        {
+            if (ops == null)
+                ops = new List<SrcOp>();
+            ops.Add(op);
+        }
 
-	public void addPreambleOp(SrcOp op) {
-		if ( preamble==null ) preamble = new ArrayList<SrcOp>();
-		preamble.add(op);
-	}
+        public virtual void InsertOp(int i, SrcOp op)
+        {
+            if (ops == null)
+                ops = new List<SrcOp>();
+            ops.Insert(i, op);
+        }
 
-	public void addOp(SrcOp op) {
-		if ( ops==null ) ops = new ArrayList<SrcOp>();
-		ops.add(op);
-	}
+        public virtual void AddOps(IList<SrcOp> ops)
+        {
+            if (this.ops == null)
+                this.ops = new List<SrcOp>();
 
-	public void insertOp(int i, SrcOp op) {
-		if ( ops==null ) ops = new ArrayList<SrcOp>();
-		ops.add(i, op);
-	}
-
-	public void addOps(List<SrcOp> ops) {
-		if ( this.ops==null ) this.ops = new ArrayList<SrcOp>();
-		this.ops.addAll(ops);
-	}
+            foreach (var op in ops)
+                this.ops.Add(op);
+        }
+    }
 }

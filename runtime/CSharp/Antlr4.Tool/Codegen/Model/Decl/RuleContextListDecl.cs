@@ -28,13 +28,14 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
-
-import org.antlr.v4.codegen.OutputModelFactory;
-
-public class RuleContextListDecl extends RuleContextDecl {
-	public RuleContextListDecl(OutputModelFactory factory, String name, String ctxName) {
-		super(factory, name, ctxName);
-		isImplicit = false;
-	}
+namespace Antlr4.Codegen.Model.Decl
+{
+    public class RuleContextListDecl : RuleContextDecl
+    {
+        public RuleContextListDecl(OutputModelFactory factory, string name, string ctxName)
+            : base(factory, name, ctxName)
+        {
+            isImplicit = false;
+        }
+    }
 }

@@ -28,13 +28,14 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
-
-import org.antlr.v4.codegen.OutputModelFactory;
-
-/** */
-public class TokenTypeDecl extends Decl {
-	public TokenTypeDecl(OutputModelFactory factory, String name) {
-		super(factory, name);
-	}
+namespace Antlr4.Codegen.Model.Decl
+{
+    /** */
+    public class TokenTypeDecl : Decl
+    {
+        public TokenTypeDecl(OutputModelFactory factory, string name)
+            : base(factory, name)
+        {
+        }
+    }
 }

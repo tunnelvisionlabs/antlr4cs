@@ -28,18 +28,21 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    using Antlr4.Tool;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Attribute;
+    /** */
+    public class AttributeDecl : Decl
+    {
+        public string type;
+        public string initValue;
 
-/** */
-public class AttributeDecl extends Decl {
-	public String type;
-	public String initValue;
-	public AttributeDecl(OutputModelFactory factory, Attribute a) {
-		super(factory, a.name, a.decl);
-		this.type = a.type;
-		this.initValue = a.initValue;
-	}
+        public AttributeDecl(OutputModelFactory factory, Attribute a)
+            : base(factory, a.name, a.decl)
+        {
+            this.type = a.type;
+            this.initValue = a.initValue;
+        }
+    }
 }

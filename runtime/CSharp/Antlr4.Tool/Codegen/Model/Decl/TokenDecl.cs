@@ -28,15 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    /** x=ID or implicit _tID label */
+    public class TokenDecl : Decl
+    {
+        public bool isImplicit;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-
-/** x=ID or implicit _tID label */
-public class TokenDecl extends Decl {
-	public boolean isImplicit;
-
-	public TokenDecl(OutputModelFactory factory, String varName) {
-		super(factory, varName);
-	}
+        public TokenDecl(OutputModelFactory factory, string varName)
+            : base(factory, varName)
+        {
+        }
+    }
 }

@@ -28,12 +28,13 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
-
-import org.antlr.v4.codegen.OutputModelFactory;
-
-public class ElementListDecl extends Decl {
-	public ElementListDecl(OutputModelFactory factory, String name) {
-		super(factory, name);
-	}
+namespace Antlr4.Codegen.Model.Decl
+{
+    public class ElementListDecl : Decl
+    {
+        public ElementListDecl(OutputModelFactory factory, string name)
+            : base(factory, name)
+        {
+        }
+    }
 }

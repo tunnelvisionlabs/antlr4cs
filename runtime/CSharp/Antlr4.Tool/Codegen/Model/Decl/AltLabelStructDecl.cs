@@ -28,48 +28,49 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.DispatchMethod;
-import org.antlr.v4.codegen.model.ListenerDispatchMethod;
-import org.antlr.v4.codegen.model.VisitorDispatchMethod;
-import org.antlr.v4.tool.Rule;
+    /** A StructDecl to handle a '#' label on alt */
+    public class AltLabelStructDecl : StructDecl
+    {
+        public AltLabelStructDecl(OutputModelFactory factory, Rule r, string label)
+            : base(factory, r)
+        {
+            this.name = // override name set in super to the label ctx
+                factory.GetTarget().GetAltLabelContextStructName(label);
+            derivedFromName = label;
+        }
 
-import java.util.ArrayList;
+        public override void AddDispatchMethods(Rule r)
+        {
+            dispatchMethods = new List<DispatchMethod>();
+            if (factory.GetGrammar().tool.gen_listener)
+            {
+                dispatchMethods.Add(new ListenerDispatchMethod(factory, true));
+                dispatchMethods.Add(new ListenerDispatchMethod(factory, false));
+            }
+            if (factory.GetGrammar().tool.gen_visitor)
+            {
+                dispatchMethods.Add(new VisitorDispatchMethod(factory));
+            }
+        }
 
-/** A StructDecl to handle a '#' label on alt */
-public class AltLabelStructDecl extends StructDecl {
-	public AltLabelStructDecl(OutputModelFactory factory, Rule r, String label)
-	{
-		super(factory, r);
-		this.name = // override name set in super to the label ctx
-			factory.getTarget().getAltLabelContextStructName(label);
-		derivedFromName = label;
-	}
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
 
-	@Override
-	public void addDispatchMethods(Rule r) {
-		dispatchMethods = new ArrayList<DispatchMethod>();
-		if ( factory.getGrammar().tool.gen_listener ) {
-			dispatchMethods.add(new ListenerDispatchMethod(factory, true));
-			dispatchMethods.add(new ListenerDispatchMethod(factory, false));
-		}
-		if ( factory.getGrammar().tool.gen_visitor ) {
-			dispatchMethods.add(new VisitorDispatchMethod(factory));
-		}
-	}
+        public override bool Equals(object obj)
+        {
+            if (obj == this)
+                return true;
+            if (!(obj is AltLabelStructDecl))
+                return false;
 
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if ( obj == this ) return true;
-		if (!(obj instanceof AltLabelStructDecl)) return false;
-
-		return name.equals(((AltLabelStructDecl)obj).name);
-	}
+            return name.Equals(((AltLabelStructDecl)obj).name);
+        }
+    }
 }

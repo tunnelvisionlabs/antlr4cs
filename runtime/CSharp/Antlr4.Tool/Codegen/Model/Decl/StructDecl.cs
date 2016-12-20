@@ -28,85 +28,101 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    using System.Collections.Generic;
+    using Antlr4.Misc;
+    using Antlr4.Tool;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.DispatchMethod;
-import org.antlr.v4.codegen.model.ListenerDispatchMethod;
-import org.antlr.v4.codegen.model.ModelElement;
-import org.antlr.v4.codegen.model.OutputModelObject;
-import org.antlr.v4.codegen.model.VisitorDispatchMethod;
-import org.antlr.v4.runtime.misc.OrderedHashSet;
-import org.antlr.v4.tool.Attribute;
-import org.antlr.v4.tool.Rule;
+    /** This object models the structure holding all of the parameters,
+     *  return values, local variables, and labels associated with a rule.
+     */
+    public class StructDecl : Decl
+    {
+        public string derivedFromName; // rule name or label name
+        public bool provideCopyFrom;
+        [ModelElement]
+        public OrderedHashSet<Decl> attrs = new OrderedHashSet<Decl>();
+        [ModelElement]
+        public OrderedHashSet<Decl> getters = new OrderedHashSet<Decl>();
+        [ModelElement]
+        public ICollection<AttributeDecl> ctorAttrs;
+        [ModelElement]
+        public IList<DispatchMethod> dispatchMethods;
+        [ModelElement]
+        public IList<OutputModelObject> interfaces;
+        [ModelElement]
+        public IList<OutputModelObject> extensionMembers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+        public StructDecl(OutputModelFactory factory, Rule r)
+            : base(factory, factory.GetTarget().GetRuleFunctionContextStructName(r))
+        {
+            AddDispatchMethods(r);
+            derivedFromName = r.name;
+            provideCopyFrom = r.HasAltSpecificContexts();
+        }
 
-/** This object models the structure holding all of the parameters,
- *  return values, local variables, and labels associated with a rule.
- */
-public class StructDecl extends Decl {
-	public String derivedFromName; // rule name or label name
-	public boolean provideCopyFrom;
-	@ModelElement public OrderedHashSet<Decl> attrs = new OrderedHashSet<Decl>();
-	@ModelElement public OrderedHashSet<Decl> getters = new OrderedHashSet<Decl>();
-	@ModelElement public Collection<AttributeDecl> ctorAttrs;
-	@ModelElement public List<? super DispatchMethod> dispatchMethods;
-	@ModelElement public List<OutputModelObject> interfaces;
-	@ModelElement public List<OutputModelObject> extensionMembers;
+        public virtual void AddDispatchMethods(Rule r)
+        {
+            dispatchMethods = new List<DispatchMethod>();
+            if (!r.HasAltSpecificContexts())
+            {
+                // no enter/exit for this ruleContext if rule has labels
+                if (factory.GetGrammar().tool.gen_listener)
+                {
+                    dispatchMethods.Add(new ListenerDispatchMethod(factory, true));
+                    dispatchMethods.Add(new ListenerDispatchMethod(factory, false));
+                }
+                if (factory.GetGrammar().tool.gen_visitor)
+                {
+                    dispatchMethods.Add(new VisitorDispatchMethod(factory));
+                }
+            }
+        }
 
-	public StructDecl(OutputModelFactory factory, Rule r) {
-		super(factory, factory.getTarget().getRuleFunctionContextStructName(r));
-		addDispatchMethods(r);
-		derivedFromName = r.name;
-		provideCopyFrom = r.hasAltSpecificContexts();
-	}
+        public virtual void AddDecl(Decl d)
+        {
+            d.ctx = this;
+            if (d is ContextGetterDecl)
+                getters.Add(d);
+            else
+                attrs.Add(d);
+        }
 
-	public void addDispatchMethods(Rule r) {
-		dispatchMethods = new ArrayList<DispatchMethod>();
-		if ( !r.hasAltSpecificContexts() ) {
-			// no enter/exit for this ruleContext if rule has labels
-			if ( factory.getGrammar().tool.gen_listener ) {
-				dispatchMethods.add(new ListenerDispatchMethod(factory, true));
-				dispatchMethods.add(new ListenerDispatchMethod(factory, false));
-			}
-			if ( factory.getGrammar().tool.gen_visitor ) {
-				dispatchMethods.add(new VisitorDispatchMethod(factory));
-			}
-		}
-	}
+        public virtual void AddDecl(Attribute a)
+        {
+            AddDecl(new AttributeDecl(factory, a));
+        }
 
-	public void addDecl(Decl d) {
-		d.ctx = this;
-		if ( d instanceof ContextGetterDecl ) getters.add(d);
-		else attrs.add(d);
-	}
+        public virtual void AddDecls(ICollection<Attribute> attrList)
+        {
+            foreach (Attribute a in attrList)
+                AddDecl(a);
+        }
 
-	public void addDecl(Attribute a) {
-		addDecl(new AttributeDecl(factory, a));
-	}
+        public virtual void ImplementInterface(OutputModelObject value)
+        {
+            if (interfaces == null)
+            {
+                interfaces = new List<OutputModelObject>();
+            }
 
-	public void addDecls(Collection<Attribute> attrList) {
-		for (Attribute a : attrList) addDecl(a);
-	}
+            interfaces.Add(value);
+        }
 
-	public void implementInterface(OutputModelObject value) {
-		if (interfaces == null) {
-			interfaces = new ArrayList<OutputModelObject>();
-		}
+        public virtual void AddExtensionMember(OutputModelObject member)
+        {
+            if (extensionMembers == null)
+            {
+                extensionMembers = new List<OutputModelObject>();
+            }
 
-		interfaces.add(value);
-	}
+            extensionMembers.Add(member);
+        }
 
-	public void addExtensionMember(OutputModelObject member) {
-		if (extensionMembers == null) {
-			extensionMembers = new ArrayList<OutputModelObject>();
-		}
-
-		extensionMembers.add(member);
-	}
-
-	public boolean isEmpty() { return attrs.isEmpty(); }
+        public virtual bool IsEmpty()
+        {
+            return attrs.Count == 0;
+        }
+    }
 }

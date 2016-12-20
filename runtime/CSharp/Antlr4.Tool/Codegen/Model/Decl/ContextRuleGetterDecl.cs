@@ -28,15 +28,17 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    /** {@code public XContext X() { }} */
+    public class ContextRuleGetterDecl : ContextGetterDecl
+    {
+        public string ctxName;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-
-/** {@code public XContext X() { }} */
-public class ContextRuleGetterDecl extends ContextGetterDecl {
-	public String ctxName;
-	public ContextRuleGetterDecl(OutputModelFactory factory, String name, String ctxName) {
-		super(factory, name);
-		this.ctxName = ctxName;
-	}
+        public ContextRuleGetterDecl(OutputModelFactory factory, string name, string ctxName)
+            : base(factory, name)
+        {
+            this.ctxName = ctxName;
+        }
+    }
 }

@@ -28,17 +28,18 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    /** */
+    public class RuleContextDecl : Decl
+    {
+        public string ctxName;
+        public bool isImplicit;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-
-/** */
-public class RuleContextDecl extends Decl {
-	public String ctxName;
-	public boolean isImplicit;
-
-	public RuleContextDecl(OutputModelFactory factory, String name, String ctxName) {
-		super(factory, name);
-		this.ctxName = ctxName;
-	}
+        public RuleContextDecl(OutputModelFactory factory, string name, string ctxName)
+            : base(factory, name)
+        {
+            this.ctxName = ctxName;
+        }
+    }
 }

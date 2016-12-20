@@ -28,40 +28,44 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    /** */
+    public class Decl : SrcOp
+    {
+        public string name;
+        public string decl;     // whole thing if copied from action
+        public bool isLocal; // if local var (not in RuleContext struct)
+        public StructDecl ctx;  // which context contains us? set by addDecl
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.SrcOp;
+        public Decl(OutputModelFactory factory, string name, string decl)
+            : this(factory, name)
+        {
+            this.decl = decl;
+        }
 
-/** */
-public class Decl extends SrcOp {
-	public String name;
-	public String decl; 	// whole thing if copied from action
-	public boolean isLocal; // if local var (not in RuleContext struct)
-	public StructDecl ctx;  // which context contains us? set by addDecl
+        public Decl(OutputModelFactory factory, string name)
+            : base(factory)
+        {
+            this.name = name;
+        }
 
-	public Decl(OutputModelFactory factory, String name, String decl) {
-		this(factory, name);
-		this.decl = decl;
-	}
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
 
-	public Decl(OutputModelFactory factory, String name) {
-		super(factory);
-		this.name = name;
-	}
-
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-
-	/** If same name, can't redefine, unless it's a getter */
-	@Override
-	public boolean equals(Object obj) {
-		if ( this==obj ) return true;
-		if ( !(obj instanceof Decl) ) return false;
-		// A() and label A are different
-		if ( obj instanceof ContextGetterDecl ) return false;
-		return name.equals(((Decl) obj).name);
-	}
+        /** If same name, can't redefine, unless it's a getter */
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+                return true;
+            if (!(obj is Decl))
+                return false;
+            // A() and label A are different
+            if (obj is ContextGetterDecl)
+                return false;
+            return name.Equals(((Decl)obj).name);
+        }
+    }
 }

@@ -28,15 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
-
-import org.antlr.v4.codegen.OutputModelFactory;
-
-/** {@code public List<Token> X() { }
- *  public Token X(int i) { }}
- */
-public class ContextTokenListGetterDecl extends ContextGetterDecl {
-	public ContextTokenListGetterDecl(OutputModelFactory factory, String name) {
-		super(factory, name);
-	}
+namespace Antlr4.Codegen.Model.Decl
+{
+    /** {@code public List&lt;Token&gt; X() { }
+     *  public Token X(int i) { }}
+     */
+    public class ContextTokenListGetterDecl : ContextGetterDecl
+    {
+        public ContextTokenListGetterDecl(OutputModelFactory factory, string name)
+            : base(factory, name)
+        {
+        }
+    }
 }

@@ -28,41 +28,49 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model.decl;
+namespace Antlr4.Codegen.Model.Decl
+{
+    using Antlr4.Runtime.Misc;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.misc.MurmurHash;
+    public abstract class ContextGetterDecl : Decl
+    {
+        protected ContextGetterDecl(OutputModelFactory factory, string name)
+            : base(factory, name)
+        {
+        }
 
-public abstract class ContextGetterDecl extends Decl {
-	public ContextGetterDecl(OutputModelFactory factory, String name) {
-		super(factory, name);
-	}
+        /** Not used for output; just used to distinguish between decl types
+         *  to avoid dups.
+         */
+        public virtual string GetArgType()
+        {
+            // assume no args
+            return "";
+        }
 
-	/** Not used for output; just used to distinguish between decl types
-	 *  to avoid dups.
-	 */
-	public String getArgType() { return ""; }; // assume no args
+        public override int GetHashCode()
+        {
+            int hash = MurmurHash.Initialize();
+            hash = MurmurHash.Update(hash, name);
+            hash = MurmurHash.Update(hash, GetArgType());
+            hash = MurmurHash.Finish(hash, 2);
+            return hash;
+        }
 
-	@Override
-	public int hashCode() {
-		int hash = MurmurHash.initialize();
-		hash = MurmurHash.update(hash, name);
-		hash = MurmurHash.update(hash, getArgType());
-		hash = MurmurHash.finish(hash, 2);
-		return hash;
-	}
-
-	/** Make sure that a getter does not equal a label. X() and X are ok.
-	 *  OTOH, treat X() with two diff return values as the same.  Treat
-	 *  two X() with diff args as different.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if ( this==obj ) return true;
-		// A() and label A are different
-		if ( !(obj instanceof ContextGetterDecl) ) return false;
-		return
-			name.equals(((Decl) obj).name) &&
-				getArgType().equals(((ContextGetterDecl) obj).getArgType());
-	}
+        /** Make sure that a getter does not equal a label. X() and X are ok.
+         *  OTOH, treat X() with two diff return values as the same.  Treat
+         *  two X() with diff args as different.
+         */
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+                return true;
+            // A() and label A are different
+            if (!(obj is ContextGetterDecl))
+                return false;
+            return
+                name.Equals(((Decl)obj).name) &&
+                    GetArgType().Equals(((ContextGetterDecl)obj).GetArgType());
+        }
+    }
 }
