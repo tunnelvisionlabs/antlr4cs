@@ -28,133 +28,154 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using Antlr4.Codegen.Model;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.StringTemplate;
+    using Antlr4.Tool;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
+    using NotSupportedException = System.NotSupportedException;
+    using NullableAttribute = Antlr4.Runtime.Misc.NullableAttribute;
 
-import org.antlr.v4.codegen.model.Action;
-import org.antlr.v4.codegen.model.CodeBlockForOuterMostAlt;
-import org.antlr.v4.codegen.model.OutputModelObject;
-import org.antlr.v4.codegen.model.RuleFunction;
-import org.antlr.v4.codegen.model.SrcOp;
-import org.antlr.v4.codegen.model.decl.CodeBlock;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.misc.Nullable;
-import org.antlr.v4.tool.Alternative;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.Rule;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
+    /** Create output objects for elements *within* rule functions except
+     *  buildOutputModel() which builds outer/root model object and any
+     *  objects such as RuleFunction that surround elements in rule
+     *  functions.
+     */
+    public abstract class DefaultOutputModelFactory : BlankOutputModelFactory
+    {
+        // Interface to outside world
+        [NotNull]
+        public readonly Grammar g;
+        [NotNull]
+        public readonly CodeGenerator gen;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+        public OutputModelController controller;
 
-/** Create output objects for elements *within* rule functions except
- *  buildOutputModel() which builds outer/root model object and any
- *  objects such as RuleFunction that surround elements in rule
- *  functions.
- */
-public abstract class DefaultOutputModelFactory extends BlankOutputModelFactory {
-	// Interface to outside world
-	@NotNull
-	public final Grammar g;
-	@NotNull
-	public final CodeGenerator gen;
+        protected DefaultOutputModelFactory([NotNull] CodeGenerator gen)
+        {
+            this.gen = gen;
+            this.g = gen.g;
 
-	public OutputModelController controller;
+            if (gen.GetTarget() == null)
+            {
+                throw new NotSupportedException("Cannot build an output model without a target.");
+            }
+        }
 
-	protected DefaultOutputModelFactory(@NotNull CodeGenerator gen) {
-		this.gen = gen;
-		this.g = gen.g;
+        public override void SetController(OutputModelController controller)
+        {
+            this.controller = controller;
+        }
 
-		if (gen.getTarget() == null) {
-			throw new UnsupportedOperationException("Cannot build an output model without a target.");
-		}
-	}
+        public override OutputModelController GetController()
+        {
+            return controller;
+        }
 
-	@Override
-	public void setController(OutputModelController controller) {
-		this.controller = controller;
-	}
+        public override IList<SrcOp> RulePostamble(RuleFunction function, Rule r)
+        {
+            if (r.namedActions.ContainsKey("after") || r.namedActions.ContainsKey("finally"))
+            {
+                // See OutputModelController.buildLeftRecursiveRuleFunction
+                // and Parser.exitRule for other places which set stop.
+                CodeGenerator gen = GetGenerator();
+                TemplateGroup codegenTemplates = gen.GetTemplates();
+                Template setStopTokenAST = codegenTemplates.GetInstanceOf("recRuleSetStopToken");
+                Action setStopTokenAction = new Action(this, function.ruleCtx, setStopTokenAST);
+                IList<SrcOp> ops = new List<SrcOp>(1);
+                ops.Add(setStopTokenAction);
+                return ops;
+            }
 
-	@Override
-	public OutputModelController getController() {
-		return controller;
-	}
+            return base.RulePostamble(function, r);
+        }
 
-	@Override
-	public List<SrcOp> rulePostamble(RuleFunction function, Rule r) {
-		if ( r.namedActions.containsKey("after") || r.namedActions.containsKey("finally") ) {
-			// See OutputModelController.buildLeftRecursiveRuleFunction
-			// and Parser.exitRule for other places which set stop.
-			CodeGenerator gen = getGenerator();
-			STGroup codegenTemplates = gen.getTemplates();
-			ST setStopTokenAST = codegenTemplates.getInstanceOf("recRuleSetStopToken");
-			Action setStopTokenAction = new Action(this, function.ruleCtx, setStopTokenAST);
-			List<SrcOp> ops = new ArrayList<SrcOp>(1);
-			ops.add(setStopTokenAction);
-			return ops;
-		}
-		return super.rulePostamble(function, r);
-	}
+        // Convenience methods
 
-	// Convenience methods
+        [return: NotNull]
+        public override Grammar GetGrammar()
+        {
+            return g;
+        }
 
-	@NotNull
-	@Override
-	public Grammar getGrammar() { return g; }
+        public override CodeGenerator GetGenerator()
+        {
+            return gen;
+        }
 
-	@Override
-	public CodeGenerator getGenerator() { return gen; }
+        public override AbstractTarget GetTarget()
+        {
+            AbstractTarget target = GetGenerator().GetTarget();
+            Debug.Assert(target != null);
+            return target;
+        }
 
-	@Override
-	public Target getTarget() {
-		Target target = getGenerator().getTarget();
-		assert target != null;
-		return target;
-	}
+        public override OutputModelObject GetRoot()
+        {
+            return controller.GetRoot();
+        }
 
-	@Override
-	public OutputModelObject getRoot() { return controller.getRoot(); }
+        public override RuleFunction GetCurrentRuleFunction()
+        {
+            return controller.GetCurrentRuleFunction();
+        }
 
-	@Override
-	public RuleFunction getCurrentRuleFunction() { return controller.getCurrentRuleFunction(); }
+        public override Alternative GetCurrentOuterMostAlt()
+        {
+            return controller.GetCurrentOuterMostAlt();
+        }
 
-	@Override
-	public Alternative getCurrentOuterMostAlt() { return controller.getCurrentOuterMostAlt(); }
+        public override CodeBlock GetCurrentBlock()
+        {
+            return controller.GetCurrentBlock();
+        }
 
-	@Override
-	public CodeBlock getCurrentBlock() { return controller.getCurrentBlock(); }
+        public override CodeBlockForOuterMostAlt GetCurrentOuterMostAlternativeBlock()
+        {
+            return controller.GetCurrentOuterMostAlternativeBlock();
+        }
 
-	@Override
-	public CodeBlockForOuterMostAlt getCurrentOuterMostAlternativeBlock() { return controller.getCurrentOuterMostAlternativeBlock(); }
+        public override int GetCodeBlockLevel()
+        {
+            return controller.codeBlockLevel;
+        }
 
-	@Override
-	public int getCodeBlockLevel() { return controller.codeBlockLevel; }
+        public override int GetTreeLevel()
+        {
+            return controller.treeLevel;
+        }
 
-	@Override
-	public int getTreeLevel() { return controller.treeLevel; }
+        // MISC
 
-	// MISC
+        [return: NotNull]
+        public static IList<SrcOp> List(params SrcOp[] values)
+        {
+            return new List<SrcOp>(values);
+        }
 
-	@NotNull
-	public static List<SrcOp> list(SrcOp... values) {
-		return new ArrayList<SrcOp>(Arrays.asList(values));
-	}
+        [return: NotNull]
+        public static IList<SrcOp> List(IEnumerable<SrcOp> values)
+        {
+            return new List<SrcOp>(values);
+        }
 
-	@NotNull
-	public static List<SrcOp> list(Collection<? extends SrcOp> values) {
-		return new ArrayList<SrcOp>(values);
-	}
+        [return: Nullable]
+        public virtual Decl GetCurrentDeclForName(string name)
+        {
+            if (GetCurrentBlock().locals == null)
+                return null;
 
-	@Nullable
-	public Decl getCurrentDeclForName(String name) {
-		if ( getCurrentBlock().locals==null ) return null;
-		for (Decl d : getCurrentBlock().locals.elements()) {
-			if ( d.name.equals(name) ) return d;
-		}
-		return null;
-	}
+            foreach (Decl d in GetCurrentBlock().locals.Elements)
+            {
+                if (d.name.Equals(name))
+                    return d;
+            }
 
+            return null;
+        }
+    }
 }

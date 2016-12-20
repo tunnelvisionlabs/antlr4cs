@@ -28,297 +28,306 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using System.Collections.Generic;
+    using System.Text;
+    using Antlr4.Codegen.Model;
+    using Antlr4.Codegen.Model.Chunk;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Parse;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using ANTLRStringStream = Antlr.Runtime.ANTLRStringStream;
+    using Exception = System.Exception;
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
-import org.antlr.v4.codegen.model.RuleFunction;
-import org.antlr.v4.codegen.model.chunk.ActionChunk;
-import org.antlr.v4.codegen.model.chunk.ActionText;
-import org.antlr.v4.codegen.model.chunk.ArgRef;
-import org.antlr.v4.codegen.model.chunk.LabelRef;
-import org.antlr.v4.codegen.model.chunk.ListLabelRef;
-import org.antlr.v4.codegen.model.chunk.LocalRef;
-import org.antlr.v4.codegen.model.chunk.NonLocalAttrRef;
-import org.antlr.v4.codegen.model.chunk.QRetValueRef;
-import org.antlr.v4.codegen.model.chunk.RetValueRef;
-import org.antlr.v4.codegen.model.chunk.RulePropertyRef;
-import org.antlr.v4.codegen.model.chunk.RulePropertyRef_ctx;
-import org.antlr.v4.codegen.model.chunk.RulePropertyRef_parser;
-import org.antlr.v4.codegen.model.chunk.RulePropertyRef_start;
-import org.antlr.v4.codegen.model.chunk.RulePropertyRef_stop;
-import org.antlr.v4.codegen.model.chunk.RulePropertyRef_text;
-import org.antlr.v4.codegen.model.chunk.SetAttr;
-import org.antlr.v4.codegen.model.chunk.SetNonLocalAttr;
-import org.antlr.v4.codegen.model.chunk.ThisRulePropertyRef_ctx;
-import org.antlr.v4.codegen.model.chunk.ThisRulePropertyRef_parser;
-import org.antlr.v4.codegen.model.chunk.ThisRulePropertyRef_start;
-import org.antlr.v4.codegen.model.chunk.ThisRulePropertyRef_stop;
-import org.antlr.v4.codegen.model.chunk.ThisRulePropertyRef_text;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_channel;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_index;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_int;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_line;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_pos;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_text;
-import org.antlr.v4.codegen.model.chunk.TokenPropertyRef_type;
-import org.antlr.v4.codegen.model.chunk.TokenRef;
-import org.antlr.v4.codegen.model.decl.StructDecl;
-import org.antlr.v4.parse.ActionSplitter;
-import org.antlr.v4.parse.ActionSplitterListener;
-import org.antlr.v4.tool.Attribute;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
+    /** */
+    public class ActionTranslator : ActionSplitterListener
+    {
+        public static readonly IDictionary<string, System.Func<StructDecl, string, RulePropertyRef>> thisRulePropToModelMap =
+            new Dictionary<string, System.Func<StructDecl, string, RulePropertyRef>>
+            {
+                { "start", (ctx, label) => new ThisRulePropertyRef_start(ctx, label) },
+                { "stop",  (ctx, label) => new ThisRulePropertyRef_stop(ctx, label) },
+                { "text",  (ctx, label) => new ThisRulePropertyRef_text(ctx, label) },
+                { "ctx",   (ctx, label) => new ThisRulePropertyRef_ctx(ctx, label) },
+                { "parser",  (ctx, label) => new ThisRulePropertyRef_parser(ctx, label) },
+            };
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+        public static readonly IDictionary<string, System.Func<StructDecl, string, RulePropertyRef>> rulePropToModelMap =
+            new Dictionary<string, System.Func<StructDecl, string, RulePropertyRef>>
+            {
+                { "start", (ctx, label) => new RulePropertyRef_start(ctx, label) },
+                { "stop",  (ctx, label) => new RulePropertyRef_stop(ctx, label) },
+                { "text",  (ctx, label) => new RulePropertyRef_text(ctx, label) },
+                { "ctx",   (ctx, label) => new RulePropertyRef_ctx(ctx, label) },
+                { "parser",  (ctx, label) => new RulePropertyRef_parser(ctx, label) },
+            };
 
-/** */
-public class ActionTranslator implements ActionSplitterListener {
-	public static final Map<String, Class<? extends RulePropertyRef>> thisRulePropToModelMap =
-		new HashMap<String, Class<? extends RulePropertyRef>>();
-	static {
-		thisRulePropToModelMap.put("start", ThisRulePropertyRef_start.class);
-		thisRulePropToModelMap.put("stop",  ThisRulePropertyRef_stop.class);
-		thisRulePropToModelMap.put("text",  ThisRulePropertyRef_text.class);
-		thisRulePropToModelMap.put("ctx",   ThisRulePropertyRef_ctx.class);
-		thisRulePropToModelMap.put("parser",  ThisRulePropertyRef_parser.class);
-	}
+        public static readonly IDictionary<string, System.Func<StructDecl, string, TokenPropertyRef>> tokenPropToModelMap =
+            new Dictionary<string, System.Func<StructDecl, string, TokenPropertyRef>>
+            {
+                { "text",  (ctx, label) => new TokenPropertyRef_text(ctx, label) },
+                { "type",  (ctx, label) => new TokenPropertyRef_type(ctx, label) },
+                { "line",  (ctx, label) => new TokenPropertyRef_line(ctx, label) },
+                { "index", (ctx, label) => new TokenPropertyRef_index(ctx, label) },
+                { "pos",   (ctx, label) => new TokenPropertyRef_pos(ctx, label) },
+                { "channel", (ctx, label) => new TokenPropertyRef_channel(ctx, label) },
+                { "int",   (ctx, label) => new TokenPropertyRef_int(ctx, label) },
+            };
 
-	public static final Map<String, Class<? extends RulePropertyRef>> rulePropToModelMap =
-		new HashMap<String, Class<? extends RulePropertyRef>>();
-	static {
-		rulePropToModelMap.put("start", RulePropertyRef_start.class);
-		rulePropToModelMap.put("stop",  RulePropertyRef_stop.class);
-		rulePropToModelMap.put("text",  RulePropertyRef_text.class);
-		rulePropToModelMap.put("ctx",   RulePropertyRef_ctx.class);
-		rulePropToModelMap.put("parser",  RulePropertyRef_parser.class);
-	}
+        internal CodeGenerator gen;
+        internal ActionAST node;
+        internal RuleFunction rf;
+        internal IList<ActionChunk> chunks = new List<ActionChunk>();
+        internal OutputModelFactory factory;
+        internal StructDecl nodeContext;
 
-	public static final Map<String, Class<? extends TokenPropertyRef>> tokenPropToModelMap =
-		new HashMap<String, Class<? extends TokenPropertyRef>>();
-	static {
-		tokenPropToModelMap.put("text",  TokenPropertyRef_text.class);
-		tokenPropToModelMap.put("type",  TokenPropertyRef_type.class);
-		tokenPropToModelMap.put("line",  TokenPropertyRef_line.class);
-		tokenPropToModelMap.put("index", TokenPropertyRef_index.class);
-		tokenPropToModelMap.put("pos",   TokenPropertyRef_pos.class);
-		tokenPropToModelMap.put("channel", TokenPropertyRef_channel.class);
-		tokenPropToModelMap.put("int",   TokenPropertyRef_int.class);
-	}
+        public ActionTranslator(OutputModelFactory factory, ActionAST node)
+        {
+            this.factory = factory;
+            this.node = node;
+            this.gen = factory.GetGenerator();
+        }
 
-	CodeGenerator gen;
-	ActionAST node;
-	RuleFunction rf;
-	List<ActionChunk> chunks = new ArrayList<ActionChunk>();
-	OutputModelFactory factory;
-	StructDecl nodeContext;
+        public static string ToString(IList<ActionChunk> chunks)
+        {
+            StringBuilder buf = new StringBuilder();
+            foreach (ActionChunk c in chunks)
+                buf.Append(c.ToString());
 
-	public ActionTranslator(OutputModelFactory factory, ActionAST node) {
-		this.factory = factory;
-		this.node = node;
-		this.gen = factory.getGenerator();
-	}
+            return buf.ToString();
+        }
 
-	public static String toString(List<ActionChunk> chunks) {
-		StringBuilder buf = new StringBuilder();
-		for (ActionChunk c : chunks) buf.append(c.toString());
-		return buf.toString();
-	}
+        public static IList<ActionChunk> TranslateAction(OutputModelFactory factory,
+                                                        RuleFunction rf,
+                                                        IToken tokenWithinAction,
+                                                        ActionAST node)
+        {
+            string action = tokenWithinAction.Text;
+            if (action != null && action.Length > 0 && action[0] == '{')
+            {
+                int firstCurly = action.IndexOf('{');
+                int lastCurly = action.LastIndexOf('}');
+                if (firstCurly >= 0 && lastCurly >= 0)
+                {
+                    action = action.Substring(firstCurly + 1, lastCurly - firstCurly - 1); // trim {...}
+                }
+            }
 
-	public static List<ActionChunk> translateAction(OutputModelFactory factory,
-													RuleFunction rf,
-													Token tokenWithinAction,
-													ActionAST node)
-	{
-		String action = tokenWithinAction.getText();
-		if ( action!=null && action.length()>0 && action.charAt(0)=='{' ) {
-			int firstCurly = action.indexOf('{');
-			int lastCurly = action.lastIndexOf('}');
-			if ( firstCurly>=0 && lastCurly>=0 ) {
-				action = action.substring(firstCurly+1, lastCurly); // trim {...}
-			}
-		}
-		return translateActionChunk(factory, rf, action, node);
-	}
+            return TranslateActionChunk(factory, rf, action, node);
+        }
 
-	public static List<ActionChunk> translateActionChunk(OutputModelFactory factory,
-														 RuleFunction rf,
-														 String action,
-														 ActionAST node)
-	{
-		Token tokenWithinAction = node.token;
-		ActionTranslator translator = new ActionTranslator(factory, node);
-		translator.rf = rf;
-        factory.getGrammar().tool.log("action-translator", "translate " + action);
-		String altLabel = node.getAltLabel();
-		if ( rf!=null ) {
-		    translator.nodeContext = rf.ruleCtx;
-	        if ( altLabel!=null ) translator.nodeContext = rf.altLabelCtxs.get(altLabel);
-		}
-		ANTLRStringStream in = new ANTLRStringStream(action);
-		in.setLine(tokenWithinAction.getLine());
-		in.setCharPositionInLine(tokenWithinAction.getCharPositionInLine());
-		ActionSplitter trigger = new ActionSplitter(in, translator);
-		// forces eval, triggers listener methods
-		trigger.getActionTokens();
-		return translator.chunks;
-	}
+        public static IList<ActionChunk> TranslateActionChunk(OutputModelFactory factory,
+                                                             RuleFunction rf,
+                                                             string action,
+                                                             ActionAST node)
+        {
+            IToken tokenWithinAction = node.Token;
+            ActionTranslator translator = new ActionTranslator(factory, node);
+            translator.rf = rf;
+            factory.GetGrammar().tool.Log("action-translator", "translate " + action);
+            string altLabel = node.GetAltLabel();
+            if (rf != null)
+            {
+                translator.nodeContext = rf.ruleCtx;
+                if (altLabel != null)
+                {
+                    AltLabelStructDecl decl;
+                    rf.altLabelCtxs.TryGetValue(altLabel, out decl);
+                    translator.nodeContext = decl;
+                }
+            }
+            ANTLRStringStream @in = new ANTLRStringStream(action);
+            @in.Line = tokenWithinAction.Line;
+            @in.CharPositionInLine = tokenWithinAction.CharPositionInLine;
+            ActionSplitter trigger = new ActionSplitter(@in, translator);
+            // forces eval, triggers listener methods
+            trigger.GetActionTokens();
+            return translator.chunks;
+        }
 
-	@Override
-	public void attr(String expr, Token x) {
-		gen.g.tool.log("action-translator", "attr "+x);
-		Attribute a = node.resolver.resolveToAttribute(x.getText(), node);
-		if ( a!=null ) {
-			switch ( a.dict.type ) {
-				case ARG: chunks.add(new ArgRef(nodeContext,x.getText())); break;
-				case RET: chunks.add(new RetValueRef(rf.ruleCtx, x.getText())); break;
-				case LOCAL: chunks.add(new LocalRef(nodeContext,x.getText())); break;
-				case PREDEFINED_RULE: chunks.add(getRulePropertyRef(x));	break;
-			}
-		}
-		if ( node.resolver.resolvesToToken(x.getText(), node) ) {
-			chunks.add(new TokenRef(nodeContext,getTokenLabel(x.getText()))); // $label
-			return;
-		}
-		if ( node.resolver.resolvesToLabel(x.getText(), node) ) {
-			chunks.add(new LabelRef(nodeContext,getTokenLabel(x.getText()))); // $x for x=ID etc...
-			return;
-		}
-		if ( node.resolver.resolvesToListLabel(x.getText(), node) ) {
-			chunks.add(new ListLabelRef(nodeContext,x.getText())); // $ids for ids+=ID etc...
-			return;
-		}
-		Rule r = factory.getGrammar().getRule(x.getText());
-		if ( r!=null ) {
-			chunks.add(new LabelRef(nodeContext,getRuleLabel(x.getText()))); // $r for r rule ref
-		}
-	}
+        public virtual void Attr(string expr, IToken x)
+        {
+            gen.g.tool.Log("action-translator", "attr " + x);
+            Attribute a = node.resolver.ResolveToAttribute(x.Text, node);
+            if (a != null)
+            {
+                switch (a.dict.type)
+                {
+                case AttributeDict.DictType.ARG:
+                    chunks.Add(new ArgRef(nodeContext, x.Text));
+                    break;
+                case AttributeDict.DictType.RET:
+                    chunks.Add(new RetValueRef(rf.ruleCtx, x.Text));
+                    break;
+                case AttributeDict.DictType.LOCAL:
+                    chunks.Add(new LocalRef(nodeContext, x.Text));
+                    break;
+                case AttributeDict.DictType.PREDEFINED_RULE:
+                    chunks.Add(GetRulePropertyRef(x));
+                    break;
+                }
+            }
+            if (node.resolver.ResolvesToToken(x.Text, node))
+            {
+                chunks.Add(new TokenRef(nodeContext, GetTokenLabel(x.Text))); // $label
+                return;
+            }
+            if (node.resolver.ResolvesToLabel(x.Text, node))
+            {
+                chunks.Add(new LabelRef(nodeContext, GetTokenLabel(x.Text))); // $x for x=ID etc...
+                return;
+            }
+            if (node.resolver.ResolvesToListLabel(x.Text, node))
+            {
+                chunks.Add(new ListLabelRef(nodeContext, x.Text)); // $ids for ids+=ID etc...
+                return;
+            }
+            Rule r = factory.GetGrammar().GetRule(x.Text);
+            if (r != null)
+            {
+                chunks.Add(new LabelRef(nodeContext, GetRuleLabel(x.Text))); // $r for r rule ref
+            }
+        }
 
-	@Override
-	public void qualifiedAttr(String expr, Token x, Token y) {
-		gen.g.tool.log("action-translator", "qattr "+x+"."+y);
-		if ( node.resolver.resolveToAttribute(x.getText(), node)!=null ) {
-			// must be a member access to a predefined attribute like $ctx.foo
-			attr(expr, x);
-			chunks.add(new ActionText(nodeContext, "."+y.getText()));
-			return;
-		}
-		Attribute a = node.resolver.resolveToAttribute(x.getText(), y.getText(), node);
-		switch ( a.dict.type ) {
-			case ARG: chunks.add(new ArgRef(nodeContext,y.getText())); break; // has to be current rule
-			case RET:
-				if ( factory.getCurrentRuleFunction()!=null &&
-					factory.getCurrentRuleFunction().name.equals(x.getText()) )
-				{
-					chunks.add(new RetValueRef(rf.ruleCtx, y.getText())); break;
-				}
-				else {
-					chunks.add(new QRetValueRef(nodeContext, getRuleLabel(x.getText()), y.getText())); break;
-				}
-			case PREDEFINED_RULE:
-				if ( factory.getCurrentRuleFunction()!=null &&
-					factory.getCurrentRuleFunction().name.equals(x.getText()) )
-				{
-					chunks.add(getRulePropertyRef(y));
-				}
-				else {
-					chunks.add(getRulePropertyRef(x, y));
-				}
-				break;
-			case TOKEN:
-				chunks.add(getTokenPropertyRef(x, y));
-				break;
-		}
-	}
+        public virtual void QualifiedAttr(string expr, IToken x, IToken y)
+        {
+            gen.g.tool.Log("action-translator", "qattr " + x + "." + y);
+            if (node.resolver.ResolveToAttribute(x.Text, node) != null)
+            {
+                // must be a member access to a predefined attribute like $ctx.foo
+                Attr(expr, x);
+                chunks.Add(new ActionText(nodeContext, "." + y.Text));
+                return;
+            }
+            Attribute a = node.resolver.ResolveToAttribute(x.Text, y.Text, node);
+            switch (a.dict.type)
+            {
+            case AttributeDict.DictType.ARG:
+                chunks.Add(new ArgRef(nodeContext, y.Text));
+                break; // has to be current rule
+            case AttributeDict.DictType.RET:
+                if (factory.GetCurrentRuleFunction() != null &&
+                    factory.GetCurrentRuleFunction().name.Equals(x.Text))
+                {
+                    chunks.Add(new RetValueRef(rf.ruleCtx, y.Text));
+                    break;
+                }
+                else
+                {
+                    chunks.Add(new QRetValueRef(nodeContext, GetRuleLabel(x.Text), y.Text));
+                    break;
+                }
+            case AttributeDict.DictType.PREDEFINED_RULE:
+                if (factory.GetCurrentRuleFunction() != null &&
+                    factory.GetCurrentRuleFunction().name.Equals(x.Text))
+                {
+                    chunks.Add(GetRulePropertyRef(y));
+                }
+                else
+                {
+                    chunks.Add(GetRulePropertyRef(x, y));
+                }
+                break;
+            case AttributeDict.DictType.TOKEN:
+                chunks.Add(GetTokenPropertyRef(x, y));
+                break;
+            }
+        }
 
-	@Override
-	public void setAttr(String expr, Token x, Token rhs) {
-		gen.g.tool.log("action-translator", "setAttr "+x+" "+rhs);
-		List<ActionChunk> rhsChunks = translateActionChunk(factory,rf,rhs.getText(),node);
-		SetAttr s = new SetAttr(nodeContext, x.getText(), rhsChunks);
-		chunks.add(s);
-	}
+        public virtual void SetAttr(string expr, IToken x, IToken rhs)
+        {
+            gen.g.tool.Log("action-translator", "setAttr " + x + " " + rhs);
+            IList<ActionChunk> rhsChunks = TranslateActionChunk(factory, rf, rhs.Text, node);
+            SetAttr s = new SetAttr(nodeContext, x.Text, rhsChunks);
+            chunks.Add(s);
+        }
 
-	@Override
-	public void nonLocalAttr(String expr, Token x, Token y) {
-		gen.g.tool.log("action-translator", "nonLocalAttr "+x+"::"+y);
-		Rule r = factory.getGrammar().getRule(x.getText());
-		chunks.add(new NonLocalAttrRef(nodeContext, x.getText(), y.getText(), r.index));
-	}
+        public virtual void NonLocalAttr(string expr, IToken x, IToken y)
+        {
+            gen.g.tool.Log("action-translator", "nonLocalAttr " + x + "::" + y);
+            Rule r = factory.GetGrammar().GetRule(x.Text);
+            chunks.Add(new NonLocalAttrRef(nodeContext, x.Text, y.Text, r.index));
+        }
 
-	@Override
-	public void setNonLocalAttr(String expr, Token x, Token y, Token rhs) {
-		gen.g.tool.log("action-translator", "setNonLocalAttr "+x+"::"+y+"="+rhs);
-		Rule r = factory.getGrammar().getRule(x.getText());
-		List<ActionChunk> rhsChunks = translateActionChunk(factory,rf,rhs.getText(),node);
-		SetNonLocalAttr s = new SetNonLocalAttr(nodeContext, x.getText(), y.getText(), r.index, rhsChunks);
-		chunks.add(s);
-	}
+        public virtual void SetNonLocalAttr(string expr, IToken x, IToken y, IToken rhs)
+        {
+            gen.g.tool.Log("action-translator", "setNonLocalAttr " + x + "::" + y + "=" + rhs);
+            Rule r = factory.GetGrammar().GetRule(x.Text);
+            IList<ActionChunk> rhsChunks = TranslateActionChunk(factory, rf, rhs.Text, node);
+            SetNonLocalAttr s = new SetNonLocalAttr(nodeContext, x.Text, y.Text, r.index, rhsChunks);
+            chunks.Add(s);
+        }
 
-	@Override
-	public void text(String text) {
-		chunks.add(new ActionText(nodeContext,text));
-	}
+        public virtual void Text(string text)
+        {
+            chunks.Add(new ActionText(nodeContext, text));
+        }
 
-	TokenPropertyRef getTokenPropertyRef(Token x, Token y) {
-		try {
-			Class<? extends TokenPropertyRef> c = tokenPropToModelMap.get(y.getText());
-			Constructor<? extends TokenPropertyRef> ctor = c.getConstructor(StructDecl.class, String.class);
-			TokenPropertyRef ref =
-				ctor.newInstance(nodeContext, getTokenLabel(x.getText()));
-			return ref;
-		}
-		catch (Exception e) {
-			factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
-		}
-		return null;
-	}
+        internal virtual TokenPropertyRef GetTokenPropertyRef(IToken x, IToken y)
+        {
+            try
+            {
+                System.Func<StructDecl, string, TokenPropertyRef> c = tokenPropToModelMap[y.Text];
+                TokenPropertyRef @ref =
+                    c(nodeContext, GetTokenLabel(x.Text));
+                return @ref;
+            }
+            catch (Exception e)
+            {
+                factory.GetGrammar().tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR, e);
+            }
+            return null;
+        }
 
-	// $text
-	RulePropertyRef getRulePropertyRef(Token prop) {
-		try {
-			Class<? extends RulePropertyRef> c = thisRulePropToModelMap.get(prop.getText());
-			Constructor<? extends RulePropertyRef> ctor = c.getConstructor(StructDecl.class, String.class);
-			RulePropertyRef ref =
-				ctor.newInstance(nodeContext, getRuleLabel(prop.getText()));
-			return ref;
-		}
-		catch (Exception e) {
-			factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
-		}
-		return null;
-	}
+        // $text
+        internal virtual RulePropertyRef GetRulePropertyRef(IToken prop)
+        {
+            try
+            {
+                System.Func<StructDecl, string, RulePropertyRef> c = thisRulePropToModelMap[prop.Text];
+                RulePropertyRef @ref =
+                    c(nodeContext, GetRuleLabel(prop.Text));
+                return @ref;
+            }
+            catch (Exception e)
+            {
+                factory.GetGrammar().tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR, e);
+            }
+            return null;
+        }
 
-	RulePropertyRef getRulePropertyRef(Token x, Token prop) {
-		Grammar g = factory.getGrammar();
-		try {
-			Class<? extends RulePropertyRef> c = rulePropToModelMap.get(prop.getText());
-			Constructor<? extends RulePropertyRef> ctor = c.getConstructor(StructDecl.class, String.class);
-			RulePropertyRef ref =
-				ctor.newInstance(nodeContext, getRuleLabel(x.getText()));
-			return ref;
-		}
-		catch (Exception e) {
-			g.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, e, prop.getText());
-		}
-		return null;
-	}
+        internal virtual RulePropertyRef GetRulePropertyRef(IToken x, IToken prop)
+        {
+            Grammar g = factory.GetGrammar();
+            try
+            {
+                System.Func<StructDecl, string, RulePropertyRef> c = rulePropToModelMap[prop.Text];
+                RulePropertyRef @ref =
+                    c(nodeContext, GetRuleLabel(x.Text));
+                return @ref;
+            }
+            catch (Exception e)
+            {
+                g.tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR, e, prop.Text);
+            }
+            return null;
+        }
 
-	public String getTokenLabel(String x) {
-		if ( node.resolver.resolvesToLabel(x, node) ) return x;
-		return factory.getTarget().getImplicitTokenLabel(x);
-	}
+        public virtual string GetTokenLabel(string x)
+        {
+            if (node.resolver.ResolvesToLabel(x, node))
+                return x;
+            return factory.GetTarget().GetImplicitTokenLabel(x);
+        }
 
-	public String getRuleLabel(String x) {
-		if ( node.resolver.resolvesToLabel(x, node) ) return x;
-		return factory.getTarget().getImplicitRuleLabel(x);
-	}
-
+        public virtual string GetRuleLabel(string x)
+        {
+            if (node.resolver.ResolvesToLabel(x, node))
+                return x;
+            return factory.GetTarget().GetImplicitRuleLabel(x);
+        }
+    }
 }

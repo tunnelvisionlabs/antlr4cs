@@ -28,103 +28,126 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using System.Collections.Generic;
+    using Antlr4.Parse;
+    using Antlr4.StringTemplate;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.gui.STViz;
+    public class CodeGenPipeline
+    {
+        internal Grammar g;
 
-import java.util.List;
+        public CodeGenPipeline(Grammar g)
+        {
+            this.g = g;
+        }
 
-public class CodeGenPipeline {
-	Grammar g;
+        public virtual void Process()
+        {
+            CodeGenerator gen = new CodeGenerator(g);
+            AbstractTarget target = gen.GetTarget();
+            if (target == null)
+            {
+                return;
+            }
 
-	public CodeGenPipeline(Grammar g) {
-		this.g = g;
-	}
+            IntervalSet idTypes = new IntervalSet();
+            idTypes.Add(ANTLRParser.ID);
+            idTypes.Add(ANTLRParser.RULE_REF);
+            idTypes.Add(ANTLRParser.TOKEN_REF);
+            IList<GrammarAST> idNodes = g.ast.GetNodesWithType(idTypes);
+            foreach (GrammarAST idNode in idNodes)
+            {
+                if (target.GrammarSymbolCausesIssueInGeneratedCode(idNode))
+                {
+                    g.tool.errMgr.GrammarError(ErrorType.USE_OF_BAD_WORD,
+                                               g.fileName, idNode.Token,
+                                               idNode.Text);
+                }
+            }
 
-	public void process() {
-		CodeGenerator gen = new CodeGenerator(g);
-		Target target = gen.getTarget();
-		if (target == null) {
-			return;
-		}
+            // all templates are generated in memory to report the most complete
+            // error information possible, but actually writing output files stops
+            // after the first error is reported
+            int errorCount = g.tool.errMgr.GetNumErrors();
 
-		IntervalSet idTypes = new IntervalSet();
-		idTypes.add(ANTLRParser.ID);
-		idTypes.add(ANTLRParser.RULE_REF);
-		idTypes.add(ANTLRParser.TOKEN_REF);
-		List<GrammarAST> idNodes = g.ast.getNodesWithType(idTypes);
-		for (GrammarAST idNode : idNodes) {
-			if ( target.grammarSymbolCausesIssueInGeneratedCode(idNode) ) {
-				g.tool.errMgr.grammarError(ErrorType.USE_OF_BAD_WORD,
-										   g.fileName, idNode.getToken(),
-										   idNode.getText());
-			}
-		}
+            if (g.IsLexer())
+            {
+                Template lexer = gen.GenerateLexer();
+                if (g.tool.errMgr.GetNumErrors() == errorCount)
+                {
+                    WriteRecognizer(lexer, gen);
+                }
+            }
+            else
+            {
+                Template parser = gen.GenerateParser();
+                if (g.tool.errMgr.GetNumErrors() == errorCount)
+                {
+                    WriteRecognizer(parser, gen);
+                }
+                if (g.tool.gen_listener)
+                {
+                    Template listener = gen.GenerateListener();
+                    if (g.tool.errMgr.GetNumErrors() == errorCount)
+                    {
+                        gen.WriteListener(listener);
+                    }
+                    if (target.WantsBaseListener())
+                    {
+                        Template baseListener = gen.GenerateBaseListener();
+                        if (g.tool.errMgr.GetNumErrors() == errorCount)
+                        {
+                            gen.WriteBaseListener(baseListener);
+                        }
+                    }
+                }
+                if (g.tool.gen_visitor)
+                {
+                    Template visitor = gen.GenerateVisitor();
+                    if (g.tool.errMgr.GetNumErrors() == errorCount)
+                    {
+                        gen.WriteVisitor(visitor);
+                    }
+                    if (target.WantsBaseVisitor())
+                    {
+                        Template baseVisitor = gen.GenerateBaseVisitor();
+                        if (g.tool.errMgr.GetNumErrors() == errorCount)
+                        {
+                            gen.WriteBaseVisitor(baseVisitor);
+                        }
+                    }
+                }
+                gen.WriteHeaderFile();
+            }
+            gen.WriteVocabFile();
+        }
 
-		// all templates are generated in memory to report the most complete
-		// error information possible, but actually writing output files stops
-		// after the first error is reported
-		int errorCount = g.tool.errMgr.getNumErrors();
+        protected virtual void WriteRecognizer(Template template, CodeGenerator gen)
+        {
+#if false
+            if (g.tool.launch_ST_inspector)
+            {
+                STViz viz = template.inspect();
+                if (g.tool.ST_inspector_wait_for_close)
+                {
+                    try
+                    {
+                        viz.waitForClose();
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        g.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
+                    }
+                }
+            }
+#endif
 
-		if ( g.isLexer() ) {
-			ST lexer = gen.generateLexer();
-			if (g.tool.errMgr.getNumErrors() == errorCount) {
-				writeRecognizer(lexer, gen);
-			}
-		}
-		else {
-			ST parser = gen.generateParser();
-			if (g.tool.errMgr.getNumErrors() == errorCount) {
-				writeRecognizer(parser, gen);
-			}
-			if ( g.tool.gen_listener ) {
-				ST listener = gen.generateListener();
-				if (g.tool.errMgr.getNumErrors() == errorCount) {
-					gen.writeListener(listener);
-				}
-				if (target.wantsBaseListener()) {
-					ST baseListener = gen.generateBaseListener();
-					if (g.tool.errMgr.getNumErrors() == errorCount) {
-						gen.writeBaseListener(baseListener);
-					}
-				}
-			}
-			if ( g.tool.gen_visitor ) {
-				ST visitor = gen.generateVisitor();
-				if (g.tool.errMgr.getNumErrors() == errorCount) {
-					gen.writeVisitor(visitor);
-				}
-				if (target.wantsBaseVisitor()) {
-					ST baseVisitor = gen.generateBaseVisitor();
-					if (g.tool.errMgr.getNumErrors() == errorCount) {
-						gen.writeBaseVisitor(baseVisitor);
-					}
-				}
-			}
-			gen.writeHeaderFile();
-		}
-		gen.writeVocabFile();
-	}
-
-	protected void writeRecognizer(ST template, CodeGenerator gen) {
-		if ( g.tool.launch_ST_inspector ) {
-			STViz viz = template.inspect();
-			if (g.tool.ST_inspector_wait_for_close) {
-				try {
-					viz.waitForClose();
-				}
-				catch (InterruptedException ex) {
-					g.tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
-				}
-			}
-		}
-
-		gen.writeRecognizer(template);
-	}
+            gen.WriteRecognizer(template);
+        }
+    }
 }

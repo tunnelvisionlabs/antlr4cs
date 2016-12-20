@@ -28,9 +28,14 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
-
-/** */
-public class LexerFactory extends DefaultOutputModelFactory {
-	public LexerFactory(CodeGenerator gen) { super(gen); }
+namespace Antlr4.Codegen
+{
+    /** */
+    public class LexerFactory : DefaultOutputModelFactory
+    {
+        public LexerFactory(CodeGenerator gen)
+            : base(gen)
+        {
+        }
+    }
 }

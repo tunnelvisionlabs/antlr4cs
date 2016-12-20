@@ -28,13 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using Antlr4.Codegen.Model;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.model.MatchToken;
-import org.antlr.v4.tool.ast.GrammarAST;
-
-public class Wildcard extends MatchToken {
-	public Wildcard(OutputModelFactory factory, GrammarAST ast) {
-		super(factory, ast);
-	}
+    public class Wildcard : MatchToken
+    {
+        public Wildcard(OutputModelFactory factory, GrammarAST ast)
+            : base(factory, ast)
+        {
+        }
+    }
 }

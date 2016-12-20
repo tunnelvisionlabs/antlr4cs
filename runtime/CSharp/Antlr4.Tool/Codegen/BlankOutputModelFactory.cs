@@ -28,103 +28,168 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
 
-import org.antlr.v4.codegen.model.Choice;
-import org.antlr.v4.codegen.model.CodeBlockForAlt;
-import org.antlr.v4.codegen.model.LabeledOp;
-import org.antlr.v4.codegen.model.Lexer;
-import org.antlr.v4.codegen.model.LexerFile;
-import org.antlr.v4.codegen.model.Parser;
-import org.antlr.v4.codegen.model.ParserFile;
-import org.antlr.v4.codegen.model.RuleFunction;
-import org.antlr.v4.codegen.model.SrcOp;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.Alternative;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.BlockAST;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public abstract class BlankOutputModelFactory : OutputModelFactory
+    {
+        public abstract Grammar GetGrammar();
 
-import java.util.List;
+        [return: NotNull]
+        public abstract CodeGenerator GetGenerator();
 
-public abstract class BlankOutputModelFactory implements OutputModelFactory {
-	@Override
-	public ParserFile parserFile(String fileName) { return null; }
+        [return: NotNull]
+        public abstract AbstractTarget GetTarget();
 
-	@Override
-	public Parser parser(ParserFile file) { return null; }
+        public abstract void SetController(OutputModelController controller);
 
-	@Override
-	public RuleFunction rule(Rule r) { return null; }
+        public abstract OutputModelController GetController();
 
-	@Override
-	public List<SrcOp> rulePostamble(RuleFunction function, Rule r) { return null; }
+        public abstract OutputModelObject GetRoot();
 
-	@Override
-	public LexerFile lexerFile(String fileName) { return null; }
+        public abstract RuleFunction GetCurrentRuleFunction();
 
-	@Override
-	public Lexer lexer(LexerFile file) { return null; }
+        public abstract Alternative GetCurrentOuterMostAlt();
 
-	// ALTERNATIVES / ELEMENTS
+        public abstract CodeBlock GetCurrentBlock();
 
-	@Override
-	public CodeBlockForAlt alternative(Alternative alt, boolean outerMost) { return null; }
+        public abstract CodeBlockForOuterMostAlt GetCurrentOuterMostAlternativeBlock();
 
-	@Override
-	public CodeBlockForAlt finishAlternative(CodeBlockForAlt blk, List<SrcOp> ops) { return blk; }
+        public abstract int GetCodeBlockLevel();
 
-	@Override
-	public CodeBlockForAlt epsilon(Alternative alt, boolean outerMost) { return null; }
+        public abstract int GetTreeLevel();
 
-	@Override
-	public List<SrcOp> ruleRef(GrammarAST ID, GrammarAST label, GrammarAST args) { return null; }
+        public virtual ParserFile ParserFile(string fileName)
+        {
+            return null;
+        }
 
-	@Override
-	public List<SrcOp> tokenRef(GrammarAST ID, GrammarAST label, GrammarAST args) { return null; }
+        public virtual Parser Parser(ParserFile file)
+        {
+            return null;
+        }
 
-	@Override
-	public List<SrcOp> stringRef(GrammarAST ID, GrammarAST label) { return tokenRef(ID, label, null); }
+        public virtual RuleFunction Rule(Rule r)
+        {
+            return null;
+        }
 
-	@Override
-	public List<SrcOp> set(GrammarAST setAST, GrammarAST label, boolean invert) {	return null; }
+        public virtual IList<SrcOp> RulePostamble(RuleFunction function, Rule r)
+        {
+            return null;
+        }
 
-	@Override
-	public List<SrcOp> wildcard(GrammarAST ast, GrammarAST labelAST) { return null; }
+        public virtual LexerFile LexerFile(string fileName)
+        {
+            return null;
+        }
 
-	// ACTIONS
+        public virtual Lexer Lexer(LexerFile file)
+        {
+            return null;
+        }
 
-	@Override
-	public List<SrcOp> action(ActionAST ast) { return null; }
+        // ALTERNATIVES / ELEMENTS
 
-	@Override
-	public List<SrcOp> sempred(ActionAST ast) { return null; }
+        public virtual CodeBlockForAlt Alternative(Alternative alt, bool outerMost)
+        {
+            return null;
+        }
 
-	// BLOCKS
+        public virtual CodeBlockForAlt FinishAlternative(CodeBlockForAlt blk, IList<SrcOp> ops)
+        {
+            return blk;
+        }
 
-	@Override
-	public Choice getChoiceBlock(BlockAST blkAST, List<CodeBlockForAlt> alts, GrammarAST label) { return null; }
+        public virtual CodeBlockForAlt Epsilon(Alternative alt, bool outerMost)
+        {
+            return null;
+        }
 
-	@Override
-	public Choice getEBNFBlock(GrammarAST ebnfRoot, List<CodeBlockForAlt> alts) { return null; }
+        public virtual IList<SrcOp> RuleRef(GrammarAST ID, GrammarAST label, GrammarAST args)
+        {
+            return null;
+        }
 
-	@Override
-	public Choice getLL1ChoiceBlock(BlockAST blkAST, List<CodeBlockForAlt> alts) { return null; }
+        public virtual IList<SrcOp> TokenRef(GrammarAST ID, GrammarAST label, GrammarAST args)
+        {
+            return null;
+        }
 
-	@Override
-	public Choice getComplexChoiceBlock(BlockAST blkAST, List<CodeBlockForAlt> alts) { return null; }
+        public virtual IList<SrcOp> StringRef(GrammarAST ID, GrammarAST label)
+        {
+            return TokenRef(ID, label, null);
+        }
 
-	@Override
-	public Choice getLL1EBNFBlock(GrammarAST ebnfRoot, List<CodeBlockForAlt> alts) { return null; }
+        public virtual IList<SrcOp> Set(GrammarAST setAST, GrammarAST label, bool invert)
+        {
+            return null;
+        }
 
-	@Override
-	public Choice getComplexEBNFBlock(GrammarAST ebnfRoot, List<CodeBlockForAlt> alts) { return null; }
+        public virtual IList<SrcOp> Wildcard(GrammarAST ast, GrammarAST labelAST)
+        {
+            return null;
+        }
 
-	@Override
-	public List<SrcOp> getLL1Test(IntervalSet look, GrammarAST blkAST) { return null; }
+        // ACTIONS
 
-	@Override
-	public boolean needsImplicitLabel(GrammarAST ID, LabeledOp op) { return false; }
+        public virtual IList<SrcOp> Action(ActionAST ast)
+        {
+            return null;
+        }
+
+        public virtual IList<SrcOp> Sempred(ActionAST ast)
+        {
+            return null;
+        }
+
+        // BLOCKS
+
+        public virtual Choice GetChoiceBlock(BlockAST blkAST, IList<CodeBlockForAlt> alts, GrammarAST label)
+        {
+            return null;
+        }
+
+        public virtual Choice GetEBNFBlock(GrammarAST ebnfRoot, IList<CodeBlockForAlt> alts)
+        {
+            return null;
+        }
+
+        public virtual Choice GetLL1ChoiceBlock(BlockAST blkAST, IList<CodeBlockForAlt> alts)
+        {
+            return null;
+        }
+
+        public virtual Choice GetComplexChoiceBlock(BlockAST blkAST, IList<CodeBlockForAlt> alts)
+        {
+            return null;
+        }
+
+        public virtual Choice GetLL1EBNFBlock(GrammarAST ebnfRoot, IList<CodeBlockForAlt> alts)
+        {
+            return null;
+        }
+
+        public virtual Choice GetComplexEBNFBlock(GrammarAST ebnfRoot, IList<CodeBlockForAlt> alts)
+        {
+            return null;
+        }
+
+        public virtual IList<SrcOp> GetLL1Test(IntervalSet look, GrammarAST blkAST)
+        {
+            return null;
+        }
+
+        public virtual bool NeedsImplicitLabel(GrammarAST ID, LabeledOp op)
+        {
+            return false;
+        }
+    }
 }
-

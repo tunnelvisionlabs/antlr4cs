@@ -28,69 +28,119 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model;
+    using Antlr4.Tool.Ast;
 
+    /** Filter list of SrcOps and return; default is pass-through filter */
+    public class CodeGeneratorExtension
+    {
+        public OutputModelFactory factory;
 
-import org.antlr.v4.codegen.model.Choice;
-import org.antlr.v4.codegen.model.CodeBlockForAlt;
-import org.antlr.v4.codegen.model.LabeledOp;
-import org.antlr.v4.codegen.model.Lexer;
-import org.antlr.v4.codegen.model.LexerFile;
-import org.antlr.v4.codegen.model.Parser;
-import org.antlr.v4.codegen.model.ParserFile;
-import org.antlr.v4.codegen.model.RuleFunction;
-import org.antlr.v4.codegen.model.SrcOp;
-import org.antlr.v4.tool.ast.GrammarAST;
+        public CodeGeneratorExtension(OutputModelFactory factory)
+        {
+            this.factory = factory;
+        }
 
-import java.util.List;
+        public virtual ParserFile ParserFile(ParserFile f)
+        {
+            return f;
+        }
 
-/** Filter list of SrcOps and return; default is pass-through filter */
-public class CodeGeneratorExtension {
-	public OutputModelFactory factory;
+        public virtual Parser Parser(Parser p)
+        {
+            return p;
+        }
 
-	public CodeGeneratorExtension(OutputModelFactory factory) {
-		this.factory = factory;
-	}
+        public virtual LexerFile LexerFile(LexerFile f)
+        {
+            return f;
+        }
 
-	public ParserFile parserFile(ParserFile f) { return f; }
+        public virtual Lexer Lexer(Lexer l)
+        {
+            return l;
+        }
 
-	public Parser parser(Parser p) { return p; }
+        public virtual RuleFunction Rule(RuleFunction rf)
+        {
+            return rf;
+        }
 
-	public LexerFile lexerFile(LexerFile f) { return f; }
+        public virtual IList<SrcOp> RulePostamble(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public Lexer lexer(Lexer l) { return l; }
+        public virtual CodeBlockForAlt Alternative(CodeBlockForAlt blk, bool outerMost)
+        {
+            return blk;
+        }
 
-	public RuleFunction rule(RuleFunction rf) { return rf; }
+        public virtual CodeBlockForAlt FinishAlternative(CodeBlockForAlt blk, bool outerMost)
+        {
+            return blk;
+        }
 
-	public List<SrcOp> rulePostamble(List<SrcOp> ops) { return ops; }
+        public virtual CodeBlockForAlt Epsilon(CodeBlockForAlt blk)
+        {
+            return blk;
+        }
 
-	public CodeBlockForAlt alternative(CodeBlockForAlt blk, boolean outerMost) { return blk; }
+        public virtual IList<SrcOp> RuleRef(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public CodeBlockForAlt finishAlternative(CodeBlockForAlt blk, boolean outerMost) { return blk; }
+        public virtual IList<SrcOp> TokenRef(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public CodeBlockForAlt epsilon(CodeBlockForAlt blk) { return blk; }
+        public virtual IList<SrcOp> Set(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public List<SrcOp> ruleRef(List<SrcOp> ops) { return ops; }
+        public virtual IList<SrcOp> StringRef(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public List<SrcOp> tokenRef(List<SrcOp> ops) { return ops; }
+        public virtual IList<SrcOp> Wildcard(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public List<SrcOp> set(List<SrcOp> ops) { return ops; }
+        // ACTIONS
 
-	public List<SrcOp> stringRef(List<SrcOp> ops) { return ops; }
+        public virtual IList<SrcOp> Action(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	public List<SrcOp> wildcard(List<SrcOp> ops) { return ops; }
+        public virtual IList<SrcOp> Sempred(IList<SrcOp> ops)
+        {
+            return ops;
+        }
 
-	// ACTIONS
+        // BLOCKS
 
-	public List<SrcOp> action(List<SrcOp> ops) { return ops; }
+        public virtual Choice GetChoiceBlock(Choice c)
+        {
+            return c;
+        }
 
-	public List<SrcOp> sempred(List<SrcOp> ops) { return ops; }
+        public virtual Choice GetEBNFBlock(Choice c)
+        {
+            return c;
+        }
 
-	// BLOCKS
-
-	public Choice getChoiceBlock(Choice c) { return c; }
-
-	public Choice getEBNFBlock(Choice c) { return c; }
-
-	public boolean needsImplicitLabel(GrammarAST ID, LabeledOp op) { return false; }
+        public virtual bool NeedsImplicitLabel(GrammarAST ID, LabeledOp op)
+        {
+            return false;
+        }
+    }
 }

@@ -28,349 +28,364 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen;
+namespace Antlr4.Codegen
+{
+    using System.Collections.Generic;
+    using Antlr4.Analysis;
+    using Antlr4.Codegen.Model;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Parse;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.analysis.AnalysisPipeline;
-import org.antlr.v4.codegen.model.Action;
-import org.antlr.v4.codegen.model.AddToLabelList;
-import org.antlr.v4.codegen.model.AltBlock;
-import org.antlr.v4.codegen.model.Choice;
-import org.antlr.v4.codegen.model.CodeBlockForAlt;
-import org.antlr.v4.codegen.model.CodeBlockForOuterMostAlt;
-import org.antlr.v4.codegen.model.InvokeRule;
-import org.antlr.v4.codegen.model.LL1AltBlock;
-import org.antlr.v4.codegen.model.LL1OptionalBlock;
-import org.antlr.v4.codegen.model.LL1OptionalBlockSingleAlt;
-import org.antlr.v4.codegen.model.LL1PlusBlockSingleAlt;
-import org.antlr.v4.codegen.model.LL1StarBlockSingleAlt;
-import org.antlr.v4.codegen.model.LabeledOp;
-import org.antlr.v4.codegen.model.LeftFactoredRuleFunction;
-import org.antlr.v4.codegen.model.LeftRecursiveRuleFunction;
-import org.antlr.v4.codegen.model.LeftUnfactoredRuleFunction;
-import org.antlr.v4.codegen.model.MatchNotSet;
-import org.antlr.v4.codegen.model.MatchSet;
-import org.antlr.v4.codegen.model.MatchToken;
-import org.antlr.v4.codegen.model.OptionalBlock;
-import org.antlr.v4.codegen.model.Parser;
-import org.antlr.v4.codegen.model.ParserFile;
-import org.antlr.v4.codegen.model.PlusBlock;
-import org.antlr.v4.codegen.model.RuleFunction;
-import org.antlr.v4.codegen.model.SemPred;
-import org.antlr.v4.codegen.model.SrcOp;
-import org.antlr.v4.codegen.model.StarBlock;
-import org.antlr.v4.codegen.model.TestSetInline;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.codegen.model.decl.RuleContextDecl;
-import org.antlr.v4.codegen.model.decl.TokenDecl;
-import org.antlr.v4.codegen.model.decl.TokenListDecl;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.runtime.atn.ATNSimulator;
-import org.antlr.v4.runtime.atn.DecisionState;
-import org.antlr.v4.runtime.atn.PlusLoopbackState;
-import org.antlr.v4.runtime.atn.StarLoopEntryState;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.Alternative;
-import org.antlr.v4.tool.LeftRecursiveRule;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.BlockAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.TerminalAST;
+    /** */
+    public class ParserFactory : DefaultOutputModelFactory
+    {
+        public ParserFactory(CodeGenerator gen)
+            : base(gen)
+        {
+        }
 
-import java.util.List;
+        public override ParserFile ParserFile(string fileName)
+        {
+            return new ParserFile(this, fileName);
+        }
 
-/** */
-public class ParserFactory extends DefaultOutputModelFactory {
-	public ParserFactory(CodeGenerator gen) { super(gen); }
+        public override Parser Parser(ParserFile file)
+        {
+            return new Parser(this, file);
+        }
 
-	@Override
-	public ParserFile parserFile(String fileName) {
-		return new ParserFile(this, fileName);
-	}
+        public override RuleFunction Rule(Rule r)
+        {
+            if (r is LeftRecursiveRule)
+            {
+                return new LeftRecursiveRuleFunction(this, (LeftRecursiveRule)r);
+            }
+            else if (r.name.Contains(ATNSimulator.RuleLfVariantMarker))
+            {
+                return new LeftFactoredRuleFunction(this, r);
+            }
+            else if (r.name.Contains(ATNSimulator.RuleNolfVariantMarker))
+            {
+                return new LeftUnfactoredRuleFunction(this, r);
+            }
+            else
+            {
+                RuleFunction rf = new RuleFunction(this, r);
+                return rf;
+            }
+        }
 
-	@Override
-	public Parser parser(ParserFile file) {
-		return new Parser(this, file);
-	}
+        public override CodeBlockForAlt Epsilon(Alternative alt, bool outerMost)
+        {
+            return Alternative(alt, outerMost);
+        }
 
-	@Override
-	public RuleFunction rule(Rule r) {
-		if ( r instanceof LeftRecursiveRule ) {
-			return new LeftRecursiveRuleFunction(this, (LeftRecursiveRule)r);
-		}
-		else if (r.name.contains(ATNSimulator.RULE_LF_VARIANT_MARKER)) {
-			return new LeftFactoredRuleFunction(this, r);
-		}
-		else if (r.name.contains(ATNSimulator.RULE_NOLF_VARIANT_MARKER)) {
-			return new LeftUnfactoredRuleFunction(this, r);
-		}
-		else {
-			RuleFunction rf = new RuleFunction(this, r);
-			return rf;
-		}
-	}
+        public override CodeBlockForAlt Alternative(Alternative alt, bool outerMost)
+        {
+            if (outerMost)
+                return new CodeBlockForOuterMostAlt(this, alt);
+            return new CodeBlockForAlt(this);
+        }
 
-	@Override
-	public CodeBlockForAlt epsilon(Alternative alt, boolean outerMost) {
-		return alternative(alt, outerMost);
-	}
+        public override CodeBlockForAlt FinishAlternative(CodeBlockForAlt blk, IList<SrcOp> ops)
+        {
+            blk.ops = ops;
+            return blk;
+        }
 
-	@Override
-	public CodeBlockForAlt alternative(Alternative alt, boolean outerMost) {
-		if ( outerMost ) return new CodeBlockForOuterMostAlt(this, alt);
-		return new CodeBlockForAlt(this);
-	}
+        public override IList<SrcOp> Action(ActionAST ast)
+        {
+            return List(new Action(this, ast));
+        }
 
-	@Override
-	public CodeBlockForAlt finishAlternative(CodeBlockForAlt blk, List<SrcOp> ops) {
-		blk.ops = ops;
-		return blk;
-	}
+        public override IList<SrcOp> Sempred(ActionAST ast)
+        {
+            return List(new SemPred(this, ast));
+        }
 
-	@Override
-	public List<SrcOp> action(ActionAST ast) { return list(new Action(this, ast)); }
+        public override IList<SrcOp> RuleRef(GrammarAST ID, GrammarAST label, GrammarAST args)
+        {
+            InvokeRule invokeOp = new InvokeRule(this, ID, label);
+            // If no manual label and action refs as token/rule not label, we need to define implicit label
+            if (controller.NeedsImplicitLabel(ID, invokeOp))
+                DefineImplicitLabel(ID, invokeOp);
+            AddToLabelList listLabelOp = GetAddToListOpIfListLabelPresent(invokeOp, label);
+            return List(invokeOp, listLabelOp);
+        }
 
-	@Override
-	public List<SrcOp> sempred(ActionAST ast) { return list(new SemPred(this, ast)); }
+        public override IList<SrcOp> TokenRef(GrammarAST ID, GrammarAST labelAST, GrammarAST args)
+        {
+            MatchToken matchOp = new MatchToken(this, (TerminalAST)ID);
+            if (labelAST != null)
+            {
+                string label = labelAST.Text;
+                RuleFunction rf = GetCurrentRuleFunction();
+                if (labelAST.Parent.Type == ANTLRParser.PLUS_ASSIGN)
+                {
+                    // add Token _X and List<Token> X decls
+                    DefineImplicitLabel(ID, matchOp); // adds _X
+                    TokenListDecl l = GetTokenListLabelDecl(label);
+                    rf.AddContextDecl(ID.GetAltLabel(), l);
+                }
+                else
+                {
+                    Decl d = GetTokenLabelDecl(label);
+                    matchOp.labels.Add(d);
+                    rf.AddContextDecl(ID.GetAltLabel(), d);
+                }
 
-	@Override
-	public List<SrcOp> ruleRef(GrammarAST ID, GrammarAST label, GrammarAST args) {
-		InvokeRule invokeOp = new InvokeRule(this, ID, label);
-		// If no manual label and action refs as token/rule not label, we need to define implicit label
-		if ( controller.needsImplicitLabel(ID, invokeOp) ) defineImplicitLabel(ID, invokeOp);
-		AddToLabelList listLabelOp = getAddToListOpIfListLabelPresent(invokeOp, label);
-		return list(invokeOp, listLabelOp);
-	}
+                //			Decl d = getTokenLabelDecl(label);
+                //			((MatchToken)matchOp).labels.add(d);
+                //			getCurrentRuleFunction().addContextDecl(ID.getAltLabel(), d);
+                //			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN ) {
+                //				TokenListDecl l = getTokenListLabelDecl(label);
+                //				getCurrentRuleFunction().addContextDecl(ID.getAltLabel(), l);
+                //			}
+            }
+            if (controller.NeedsImplicitLabel(ID, matchOp))
+                DefineImplicitLabel(ID, matchOp);
+            AddToLabelList listLabelOp = GetAddToListOpIfListLabelPresent(matchOp, labelAST);
+            return List(matchOp, listLabelOp);
+        }
 
-	@Override
-	public List<SrcOp> tokenRef(GrammarAST ID, GrammarAST labelAST, GrammarAST args) {
-		MatchToken matchOp = new MatchToken(this, (TerminalAST) ID);
-		if ( labelAST!=null ) {
-			String label = labelAST.getText();
-			RuleFunction rf = getCurrentRuleFunction();
-			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN ) {
-				// add Token _X and List<Token> X decls
-				defineImplicitLabel(ID, matchOp); // adds _X
-				TokenListDecl l = getTokenListLabelDecl(label);
-				rf.addContextDecl(ID.getAltLabel(), l);
-			}
-			else {
-				Decl d = getTokenLabelDecl(label);
-				matchOp.labels.add(d);
-				rf.addContextDecl(ID.getAltLabel(), d);
-			}
+        public virtual Decl GetTokenLabelDecl(string label)
+        {
+            return new TokenDecl(this, label);
+        }
 
-//			Decl d = getTokenLabelDecl(label);
-//			((MatchToken)matchOp).labels.add(d);
-//			getCurrentRuleFunction().addContextDecl(ID.getAltLabel(), d);
-//			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN ) {
-//				TokenListDecl l = getTokenListLabelDecl(label);
-//				getCurrentRuleFunction().addContextDecl(ID.getAltLabel(), l);
-//			}
-		}
-		if ( controller.needsImplicitLabel(ID, matchOp) ) defineImplicitLabel(ID, matchOp);
-		AddToLabelList listLabelOp = getAddToListOpIfListLabelPresent(matchOp, labelAST);
-		return list(matchOp, listLabelOp);
-	}
+        public virtual TokenListDecl GetTokenListLabelDecl(string label)
+        {
+            return new TokenListDecl(this, GetTarget().GetListLabel(label));
+        }
 
-	public Decl getTokenLabelDecl(String label) {
-		return new TokenDecl(this, label);
-	}
+        public override IList<SrcOp> Set(GrammarAST setAST, GrammarAST labelAST, bool invert)
+        {
+            MatchSet matchOp;
+            if (invert)
+                matchOp = new MatchNotSet(this, setAST);
+            else
+                matchOp = new MatchSet(this, setAST);
+            if (labelAST != null)
+            {
+                string label = labelAST.Text;
+                RuleFunction rf = GetCurrentRuleFunction();
+                if (labelAST.Parent.Type == ANTLRParser.PLUS_ASSIGN)
+                {
+                    DefineImplicitLabel(setAST, matchOp);
+                    TokenListDecl l = GetTokenListLabelDecl(label);
+                    rf.AddContextDecl(setAST.GetAltLabel(), l);
+                }
+                else
+                {
+                    Decl d = GetTokenLabelDecl(label);
+                    matchOp.labels.Add(d);
+                    rf.AddContextDecl(setAST.GetAltLabel(), d);
+                }
+            }
+            if (controller.NeedsImplicitLabel(setAST, matchOp))
+                DefineImplicitLabel(setAST, matchOp);
+            AddToLabelList listLabelOp = GetAddToListOpIfListLabelPresent(matchOp, labelAST);
+            return List(matchOp, listLabelOp);
+        }
 
-	public TokenListDecl getTokenListLabelDecl(String label) {
-		return new TokenListDecl(this, getTarget().getListLabel(label));
-	}
+        public override IList<SrcOp> Wildcard(GrammarAST ast, GrammarAST labelAST)
+        {
+            Wildcard wild = new Wildcard(this, ast);
+            // TODO: dup with tokenRef
+            if (labelAST != null)
+            {
+                string label = labelAST.Text;
+                Decl d = GetTokenLabelDecl(label);
+                wild.labels.Add(d);
+                GetCurrentRuleFunction().AddContextDecl(ast.GetAltLabel(), d);
+                if (labelAST.Parent.Type == ANTLRParser.PLUS_ASSIGN)
+                {
+                    TokenListDecl l = GetTokenListLabelDecl(label);
+                    GetCurrentRuleFunction().AddContextDecl(ast.GetAltLabel(), l);
+                }
+            }
+            if (controller.NeedsImplicitLabel(ast, wild))
+                DefineImplicitLabel(ast, wild);
+            AddToLabelList listLabelOp = GetAddToListOpIfListLabelPresent(wild, labelAST);
+            return List(wild, listLabelOp);
+        }
 
-	@Override
-	public List<SrcOp> set(GrammarAST setAST, GrammarAST labelAST, boolean invert) {
-		MatchSet matchOp;
-		if ( invert ) matchOp = new MatchNotSet(this, setAST);
-		else matchOp = new MatchSet(this, setAST);
-		if ( labelAST!=null ) {
-			String label = labelAST.getText();
-			RuleFunction rf = getCurrentRuleFunction();
-			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN ) {
-				defineImplicitLabel(setAST, matchOp);
-				TokenListDecl l = getTokenListLabelDecl(label);
-				rf.addContextDecl(setAST.getAltLabel(), l);
-			}
-			else {
-				Decl d = getTokenLabelDecl(label);
-				matchOp.labels.add(d);
-				rf.addContextDecl(setAST.getAltLabel(), d);
-			}
-		}
-		if ( controller.needsImplicitLabel(setAST, matchOp) ) defineImplicitLabel(setAST, matchOp);
-		AddToLabelList listLabelOp = getAddToListOpIfListLabelPresent(matchOp, labelAST);
-		return list(matchOp, listLabelOp);
-	}
+        public override Choice GetChoiceBlock(BlockAST blkAST, IList<CodeBlockForAlt> alts, GrammarAST labelAST)
+        {
+            int decision = ((DecisionState)blkAST.atnState).decision;
+            Choice c;
+            if (!g.tool.force_atn && AnalysisPipeline.Disjoint(g.decisionLOOK[decision]))
+            {
+                c = GetLL1ChoiceBlock(blkAST, alts);
+            }
+            else
+            {
+                c = GetComplexChoiceBlock(blkAST, alts);
+            }
 
-	@Override
-	public List<SrcOp> wildcard(GrammarAST ast, GrammarAST labelAST) {
-		Wildcard wild = new Wildcard(this, ast);
-		// TODO: dup with tokenRef
-		if ( labelAST!=null ) {
-			String label = labelAST.getText();
-			Decl d = getTokenLabelDecl(label);
-			wild.labels.add(d);
-			getCurrentRuleFunction().addContextDecl(ast.getAltLabel(), d);
-			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN ) {
-				TokenListDecl l = getTokenListLabelDecl(label);
-				getCurrentRuleFunction().addContextDecl(ast.getAltLabel(), l);
-			}
-		}
-		if ( controller.needsImplicitLabel(ast, wild) ) defineImplicitLabel(ast, wild);
-		AddToLabelList listLabelOp = getAddToListOpIfListLabelPresent(wild, labelAST);
-		return list(wild, listLabelOp);
-	}
+            if (labelAST != null)
+            { // for x=(...), define x or x_list
+                string label = labelAST.Text;
+                Decl d = GetTokenLabelDecl(label);
+                c.label = d;
+                GetCurrentRuleFunction().AddContextDecl(labelAST.GetAltLabel(), d);
+                if (labelAST.Parent.Type == ANTLRParser.PLUS_ASSIGN)
+                {
+                    string listLabel = GetTarget().GetListLabel(label);
+                    TokenListDecl l = new TokenListDecl(this, listLabel);
+                    GetCurrentRuleFunction().AddContextDecl(labelAST.GetAltLabel(), l);
+                }
+            }
 
-	@Override
-	public Choice getChoiceBlock(BlockAST blkAST, List<CodeBlockForAlt> alts, GrammarAST labelAST) {
-		int decision = ((DecisionState)blkAST.atnState).decision;
-		Choice c;
-		if ( !g.tool.force_atn && AnalysisPipeline.disjoint(g.decisionLOOK.get(decision)) ) {
-			c = getLL1ChoiceBlock(blkAST, alts);
-		}
-		else {
-			c = getComplexChoiceBlock(blkAST, alts);
-		}
+            return c;
+        }
 
-		if ( labelAST!=null ) { // for x=(...), define x or x_list
-			String label = labelAST.getText();
-			Decl d = getTokenLabelDecl(label);
-			c.label = d;
-			getCurrentRuleFunction().addContextDecl(labelAST.getAltLabel(), d);
-			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN  ) {
-				String listLabel = getTarget().getListLabel(label);
-				TokenListDecl l = new TokenListDecl(this, listLabel);
-				getCurrentRuleFunction().addContextDecl(labelAST.getAltLabel(), l);
-			}
-		}
+        public override Choice GetEBNFBlock(GrammarAST ebnfRoot, IList<CodeBlockForAlt> alts)
+        {
+            if (!g.tool.force_atn)
+            {
+                int decision;
+                if (ebnfRoot.Type == ANTLRParser.POSITIVE_CLOSURE)
+                {
+                    decision = ((PlusLoopbackState)ebnfRoot.atnState).decision;
+                }
+                else if (ebnfRoot.Type == ANTLRParser.CLOSURE)
+                {
+                    decision = ((StarLoopEntryState)ebnfRoot.atnState).decision;
+                }
+                else
+                {
+                    decision = ((DecisionState)ebnfRoot.atnState).decision;
+                }
 
-		return c;
-	}
+                if (AnalysisPipeline.Disjoint(g.decisionLOOK[decision]))
+                {
+                    return GetLL1EBNFBlock(ebnfRoot, alts);
+                }
+            }
 
-	@Override
-	public Choice getEBNFBlock(GrammarAST ebnfRoot, List<CodeBlockForAlt> alts) {
-		if (!g.tool.force_atn) {
-			int decision;
-			if ( ebnfRoot.getType()==ANTLRParser.POSITIVE_CLOSURE ) {
-				decision = ((PlusLoopbackState)ebnfRoot.atnState).decision;
-			}
-			else if ( ebnfRoot.getType()==ANTLRParser.CLOSURE ) {
-				decision = ((StarLoopEntryState)ebnfRoot.atnState).decision;
-			}
-			else {
-				decision = ((DecisionState)ebnfRoot.atnState).decision;
-			}
+            return GetComplexEBNFBlock(ebnfRoot, alts);
+        }
 
-			if ( AnalysisPipeline.disjoint(g.decisionLOOK.get(decision)) ) {
-				return getLL1EBNFBlock(ebnfRoot, alts);
-			}
-		}
+        public override Choice GetLL1ChoiceBlock(BlockAST blkAST, IList<CodeBlockForAlt> alts)
+        {
+            return new LL1AltBlock(this, blkAST, alts);
+        }
 
-		return getComplexEBNFBlock(ebnfRoot, alts);
-	}
+        public override Choice GetComplexChoiceBlock(BlockAST blkAST, IList<CodeBlockForAlt> alts)
+        {
+            return new AltBlock(this, blkAST, alts);
+        }
 
-	@Override
-	public Choice getLL1ChoiceBlock(BlockAST blkAST, List<CodeBlockForAlt> alts) {
-		return new LL1AltBlock(this, blkAST, alts);
-	}
+        public override Choice GetLL1EBNFBlock(GrammarAST ebnfRoot, IList<CodeBlockForAlt> alts)
+        {
+            int ebnf = 0;
+            if (ebnfRoot != null)
+                ebnf = ebnfRoot.Type;
+            Choice c = null;
+            switch (ebnf)
+            {
+            case ANTLRParser.OPTIONAL:
+                if (alts.Count == 1)
+                    c = new LL1OptionalBlockSingleAlt(this, ebnfRoot, alts);
+                else
+                    c = new LL1OptionalBlock(this, ebnfRoot, alts);
+                break;
+            case ANTLRParser.CLOSURE:
+                if (alts.Count == 1)
+                    c = new LL1StarBlockSingleAlt(this, ebnfRoot, alts);
+                else
+                    c = GetComplexEBNFBlock(ebnfRoot, alts);
+                break;
+            case ANTLRParser.POSITIVE_CLOSURE:
+                if (alts.Count == 1)
+                    c = new LL1PlusBlockSingleAlt(this, ebnfRoot, alts);
+                else
+                    c = GetComplexEBNFBlock(ebnfRoot, alts);
+                break;
+            }
+            return c;
+        }
 
-	@Override
-	public Choice getComplexChoiceBlock(BlockAST blkAST, List<CodeBlockForAlt> alts) {
-		return new AltBlock(this, blkAST, alts);
-	}
+        public override Choice GetComplexEBNFBlock(GrammarAST ebnfRoot, IList<CodeBlockForAlt> alts)
+        {
+            int ebnf = 0;
+            if (ebnfRoot != null)
+                ebnf = ebnfRoot.Type;
+            Choice c = null;
+            switch (ebnf)
+            {
+            case ANTLRParser.OPTIONAL:
+                c = new OptionalBlock(this, ebnfRoot, alts);
+                break;
+            case ANTLRParser.CLOSURE:
+                c = new StarBlock(this, ebnfRoot, alts);
+                break;
+            case ANTLRParser.POSITIVE_CLOSURE:
+                c = new PlusBlock(this, ebnfRoot, alts);
+                break;
+            }
+            return c;
+        }
 
-	@Override
-	public Choice getLL1EBNFBlock(GrammarAST ebnfRoot, List<CodeBlockForAlt> alts) {
-		int ebnf = 0;
-		if ( ebnfRoot!=null ) ebnf = ebnfRoot.getType();
-		Choice c = null;
-		switch ( ebnf ) {
-			case ANTLRParser.OPTIONAL :
-				if ( alts.size()==1 ) c = new LL1OptionalBlockSingleAlt(this, ebnfRoot, alts);
-				else c = new LL1OptionalBlock(this, ebnfRoot, alts);
-				break;
-			case ANTLRParser.CLOSURE :
-				if ( alts.size()==1 ) c = new LL1StarBlockSingleAlt(this, ebnfRoot, alts);
-				else c = getComplexEBNFBlock(ebnfRoot, alts);
-				break;
-			case ANTLRParser.POSITIVE_CLOSURE :
-				if ( alts.size()==1 ) c = new LL1PlusBlockSingleAlt(this, ebnfRoot, alts);
-				else c = getComplexEBNFBlock(ebnfRoot, alts);
-				break;
-		}
-		return c;
-	}
+        public override IList<SrcOp> GetLL1Test(IntervalSet look, GrammarAST blkAST)
+        {
+            return List(new TestSetInline(this, blkAST, look, gen.GetTarget().GetInlineTestSetWordSize()));
+        }
 
-	@Override
-	public Choice getComplexEBNFBlock(GrammarAST ebnfRoot, List<CodeBlockForAlt> alts) {
-		int ebnf = 0;
-		if ( ebnfRoot!=null ) ebnf = ebnfRoot.getType();
-		Choice c = null;
-		switch ( ebnf ) {
-			case ANTLRParser.OPTIONAL :
-				c = new OptionalBlock(this, ebnfRoot, alts);
-				break;
-			case ANTLRParser.CLOSURE :
-				c = new StarBlock(this, ebnfRoot, alts);
-				break;
-			case ANTLRParser.POSITIVE_CLOSURE :
-				c = new PlusBlock(this, ebnfRoot, alts);
-				break;
-		}
-		return c;
-	}
+        public override bool NeedsImplicitLabel(GrammarAST ID, LabeledOp op)
+        {
+            Alternative currentOuterMostAlt = GetCurrentOuterMostAlt();
+            bool actionRefsAsToken = currentOuterMostAlt.tokenRefsInActions.ContainsKey(ID.Text);
+            bool actionRefsAsRule = currentOuterMostAlt.ruleRefsInActions.ContainsKey(ID.Text);
+            return op.GetLabels().Count == 0 && (actionRefsAsToken || actionRefsAsRule);
+        }
 
-	@Override
-	public List<SrcOp> getLL1Test(IntervalSet look, GrammarAST blkAST) {
-		return list(new TestSetInline(this, blkAST, look, gen.getTarget().getInlineTestSetWordSize()));
-	}
+        // support
 
-	@Override
-	public boolean needsImplicitLabel(GrammarAST ID, LabeledOp op) {
-		Alternative currentOuterMostAlt = getCurrentOuterMostAlt();
-		boolean actionRefsAsToken = currentOuterMostAlt.tokenRefsInActions.containsKey(ID.getText());
-		boolean actionRefsAsRule = currentOuterMostAlt.ruleRefsInActions.containsKey(ID.getText());
-		return	op.getLabels().isEmpty() &&	(actionRefsAsToken || actionRefsAsRule);
-	}
+        public virtual void DefineImplicitLabel(GrammarAST ast, LabeledOp op)
+        {
+            Decl d;
+            if (ast.Type == ANTLRParser.SET || ast.Type == ANTLRParser.WILDCARD)
+            {
+                string implLabel =
+                    GetTarget().GetImplicitSetLabel(ast.Token.TokenIndex.ToString());
+                d = GetTokenLabelDecl(implLabel);
+                ((TokenDecl)d).isImplicit = true;
+            }
+            else if (ast.Type == ANTLRParser.RULE_REF)
+            { // a rule reference?
+                Rule r = g.GetRule(ast.Text);
+                string implLabel = GetTarget().GetImplicitRuleLabel(ast.Text);
+                string ctxName =
+                    GetTarget().GetRuleFunctionContextStructName(r);
+                d = new RuleContextDecl(this, implLabel, ctxName);
+                ((RuleContextDecl)d).isImplicit = true;
+            }
+            else
+            {
+                string implLabel = GetTarget().GetImplicitTokenLabel(ast.Text);
+                d = GetTokenLabelDecl(implLabel);
+                ((TokenDecl)d).isImplicit = true;
+            }
+            op.GetLabels().Add(d);
+            // all labels must be in scope struct in case we exec action out of context
+            GetCurrentRuleFunction().AddContextDecl(ast.GetAltLabel(), d);
+        }
 
-	// support
-
-	public void defineImplicitLabel(GrammarAST ast, LabeledOp op) {
-		Decl d;
-		if ( ast.getType()==ANTLRParser.SET || ast.getType()==ANTLRParser.WILDCARD ) {
-			String implLabel =
-				getTarget().getImplicitSetLabel(String.valueOf(ast.token.getTokenIndex()));
-			d = getTokenLabelDecl(implLabel);
-			((TokenDecl)d).isImplicit = true;
-		}
-		else if ( ast.getType()==ANTLRParser.RULE_REF ) { // a rule reference?
-			Rule r = g.getRule(ast.getText());
-			String implLabel = getTarget().getImplicitRuleLabel(ast.getText());
-			String ctxName =
-				getTarget().getRuleFunctionContextStructName(r);
-			d = new RuleContextDecl(this, implLabel, ctxName);
-			((RuleContextDecl)d).isImplicit = true;
-		}
-		else {
-			String implLabel = getTarget().getImplicitTokenLabel(ast.getText());
-			d = getTokenLabelDecl(implLabel);
-			((TokenDecl)d).isImplicit = true;
-		}
-		op.getLabels().add(d);
-		// all labels must be in scope struct in case we exec action out of context
-		getCurrentRuleFunction().addContextDecl(ast.getAltLabel(), d);
-	}
-
-	public AddToLabelList getAddToListOpIfListLabelPresent(LabeledOp op, GrammarAST label) {
-		AddToLabelList labelOp = null;
-		if ( label!=null && label.parent.getType()==ANTLRParser.PLUS_ASSIGN ) {
-			String listLabel = getTarget().getListLabel(label.getText());
-			labelOp = new AddToLabelList(this, listLabel, op.getLabels().get(0));
-		}
-		return labelOp;
-	}
-
+        public virtual AddToLabelList GetAddToListOpIfListLabelPresent(LabeledOp op, GrammarAST label)
+        {
+            AddToLabelList labelOp = null;
+            if (label != null && label.Parent.Type == ANTLRParser.PLUS_ASSIGN)
+            {
+                string listLabel = GetTarget().GetListLabel(label.Text);
+                labelOp = new AddToLabelList(this, listLabel, op.GetLabels()[0]);
+            }
+            return labelOp;
+        }
+    }
 }
