@@ -28,83 +28,107 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Collections.Generic;
+    using Antlr4.Misc;
+    using Antlr4.Tool.Ast;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
+    using NullableAttribute = Antlr4.Runtime.Misc.NullableAttribute;
 
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.misc.Nullable;
-import org.antlr.v4.tool.ast.GrammarAST;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Set;
-
-/** Track the attributes within retval, arg lists etc...
- *  <p>
- *  Each rule has potentially 3 scopes: return values,
- *  parameters, and an implicitly-named scope (i.e., a scope defined in a rule).
- *  Implicitly-defined scopes are named after the rule; rules and scopes then
- *  must live in the same name space--no collisions allowed.
- */
-public class AttributeDict {
-    public String name;
-    public GrammarAST ast;
-	public DictType type;
-
-    /** All {@link Token} scopes (token labels) share the same fixed scope of
-     *  of predefined attributes.  I keep this out of the {@link Token}
-     *  interface to avoid a runtime type leakage.
+    /** Track the attributes within retval, arg lists etc...
+     *  <p>
+     *  Each rule has potentially 3 scopes: return values,
+     *  parameters, and an implicitly-named scope (i.e., a scope defined in a rule).
+     *  Implicitly-defined scopes are named after the rule; rules and scopes then
+     *  must live in the same name space--no collisions allowed.</p>
      */
-    public static final AttributeDict predefinedTokenDict = new AttributeDict(DictType.TOKEN);
-    static {
-        predefinedTokenDict.add(new Attribute("text"));
-        predefinedTokenDict.add(new Attribute("type"));
-        predefinedTokenDict.add(new Attribute("line"));
-        predefinedTokenDict.add(new Attribute("index"));
-        predefinedTokenDict.add(new Attribute("pos"));
-        predefinedTokenDict.add(new Attribute("channel"));
-        predefinedTokenDict.add(new Attribute("int"));
-    }
+    public class AttributeDict
+    {
+        public string name;
+        public GrammarAST ast;
+        public DictType type;
 
-    public static enum DictType {
-        ARG, RET, LOCAL, TOKEN,
-		PREDEFINED_RULE, PREDEFINED_LEXER_RULE,
-    }
-
-    /** The list of {@link Attribute} objects. */
-	@NotNull
-    public final LinkedHashMap<String, Attribute> attributes =
-        new LinkedHashMap<String, Attribute>();
-
-	public AttributeDict() {}
-	public AttributeDict(DictType type) { this.type = type; }
-
-	public Attribute add(Attribute a) { a.dict = this; return attributes.put(a.name, a); }
-    public Attribute get(String name) { return attributes.get(name); }
-
-    public String getName() {
-        return name;
-    }
-
-    public int size() { return attributes.size(); }
-
-    /** Return the set of keys that collide from
-     *  {@code this} and {@code other}.
-     */
-	@NotNull
-    public Set<String> intersection(@Nullable AttributeDict other) {
-        if ( other==null || other.size()==0 || size()==0 ) {
-            return Collections.emptySet();
+        /** All {@link Token} scopes (token labels) share the same fixed scope of
+         *  of predefined attributes.  I keep this out of the {@link Token}
+         *  interface to avoid a runtime type leakage.
+         */
+        public static readonly AttributeDict predefinedTokenDict = new AttributeDict(DictType.TOKEN);
+        static AttributeDict()
+        {
+            predefinedTokenDict.Add(new Attribute("text"));
+            predefinedTokenDict.Add(new Attribute("type"));
+            predefinedTokenDict.Add(new Attribute("line"));
+            predefinedTokenDict.Add(new Attribute("index"));
+            predefinedTokenDict.Add(new Attribute("pos"));
+            predefinedTokenDict.Add(new Attribute("channel"));
+            predefinedTokenDict.Add(new Attribute("int"));
         }
 
-		Set<String> result = new HashSet<String>(attributes.keySet());
-		result.retainAll(other.attributes.keySet());
-		return result;
-    }
+        public enum DictType
+        {
+            ARG, RET, LOCAL, TOKEN,
+            PREDEFINED_RULE, PREDEFINED_LEXER_RULE,
+        }
 
-    @Override
-    public String toString() {
-        return getName()+":"+attributes;
+        /** The list of {@link Attribute} objects. */
+        [NotNull]
+        public readonly LinkedHashMap<string, Attribute> attributes =
+            new LinkedHashMap<string, Attribute>();
+
+        public AttributeDict()
+        {
+        }
+
+        public AttributeDict(DictType type)
+        {
+            this.type = type;
+        }
+
+        public virtual Attribute Add(Attribute a)
+        {
+            a.dict = this;
+            return attributes[a.name] = a;
+        }
+
+        public virtual Attribute Get(string name)
+        {
+            Attribute result;
+            if (!attributes.TryGetValue(name, out result))
+                return null;
+
+            return result;
+        }
+
+        public virtual string GetName()
+        {
+            return name;
+        }
+
+        public virtual int Size()
+        {
+            return attributes.Count;
+        }
+
+        /** Return the set of keys that collide from
+         *  {@code this} and {@code other}.
+         */
+        [return: NotNull]
+        public ISet<string> Intersection([Nullable] AttributeDict other)
+        {
+            if (other == null || other.Size() == 0 || Size() == 0)
+            {
+                return new HashSet<string>();
+            }
+
+            ISet<string> result = new HashSet<string>(attributes.Keys);
+            result.IntersectWith(other.attributes.Keys);
+            return result;
+        }
+
+        public override string ToString()
+        {
+            return GetName() + ":" + attributes;
+        }
     }
 }

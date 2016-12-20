@@ -28,34 +28,42 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Collections.Generic;
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.Token;
+    public class LeftRecursionCyclesMessage : ANTLRMessage
+    {
+        public LeftRecursionCyclesMessage(string fileName, IEnumerable<IEnumerable<Rule>> cycles)
+            : base(ErrorType.LEFT_RECURSION_CYCLES, GetStartTokenOfFirstRule(cycles), cycles)
+        {
+            this.fileName = fileName;
+        }
 
-import java.util.Collection;
+        protected static IToken GetStartTokenOfFirstRule(IEnumerable<IEnumerable<Rule>> cycles)
+        {
+            if (cycles == null)
+            {
+                return null;
+            }
 
-public class LeftRecursionCyclesMessage extends ANTLRMessage {
-	public LeftRecursionCyclesMessage(String fileName, Collection<? extends Collection<Rule>> cycles) {
-		super(ErrorType.LEFT_RECURSION_CYCLES, getStartTokenOfFirstRule(cycles), cycles);
-		this.fileName = fileName;
-	}
+            foreach (IEnumerable<Rule> collection in cycles)
+            {
+                if (collection == null)
+                {
+                    return null;
+                }
 
-	protected static Token getStartTokenOfFirstRule(Collection<? extends Collection<Rule>> cycles) {
-	    if (cycles == null) {
-	        return null;
-	    }
-
-	    for (Collection<Rule> collection : cycles) {
-	        if (collection == null) {
-	            return null;
-	        }
-
-	        for (Rule rule : collection) {
-	            if (rule.ast != null) {
-	                return rule.ast.getToken();
-	            }
-	        }
-	    }
-		return null;
-	}
+                foreach (Rule rule in collection)
+                {
+                    if (rule.ast != null)
+                    {
+                        return rule.ast.Token;
+                    }
+                }
+            }
+            return null;
+        }
+    }
 }

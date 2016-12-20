@@ -28,46 +28,55 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.Token;
+    /** Track the names of attributes define in arg lists, return values,
+     *  scope blocks etc...
+     */
+    public class Attribute
+    {
+        /** The entire declaration such as "String foo;" */
+        public string decl;
 
-/** Track the names of attributes define in arg lists, return values,
- *  scope blocks etc...
- */
-public class Attribute {
-    /** The entire declaration such as "String foo;" */
-    public String decl;
+        /** The type; might be empty such as for Python which has no static typing */
+        public string type;
 
-    /** The type; might be empty such as for Python which has no static typing */
-    public String type;
+        /** The name of the attribute "foo" */
+        public string name;
 
-    /** The name of the attribute "foo" */
-    public String name;
+        /** A {@link Token} giving the position of the name of this attribute in the grammar. */
+        public IToken token;
 
-	/** A {@link Token} giving the position of the name of this attribute in the grammar. */
-	public Token token;
+        /** The optional attribute initialization expression */
+        public string initValue;
 
-    /** The optional attribute initialization expression */
-    public String initValue;
+        /** Who contains us? */
+        public AttributeDict dict;
 
-	/** Who contains us? */
-	public AttributeDict dict;
-
-    public Attribute() {}
-
-    public Attribute(String name) { this(name,null); }
-
-    public Attribute(String name, String decl) {
-        this.name = name;
-        this.decl = decl;
-    }
-
-    @Override
-    public String toString() {
-        if ( initValue!=null ) {
-            return type+" "+name+"="+initValue;
+        public Attribute()
+        {
         }
-        return type+" "+name;
+
+        public Attribute(string name)
+            : this(name, null)
+        {
+        }
+
+        public Attribute(string name, string decl)
+        {
+            this.name = name;
+            this.decl = decl;
+        }
+
+        public override string ToString()
+        {
+            if (initValue != null)
+            {
+                return type + " " + name + "=" + initValue;
+            }
+            return type + " " + name;
+        }
     }
 }

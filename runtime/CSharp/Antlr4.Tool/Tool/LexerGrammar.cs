@@ -28,58 +28,65 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Diagnostics;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.runtime.RecognitionException;
-import org.antlr.v4.Tool;
-import org.antlr.v4.runtime.misc.MultiMap;
-import org.antlr.v4.tool.ast.GrammarRootAST;
+    /** */
+    public class LexerGrammar : Grammar
+    {
+        public static readonly string DEFAULT_MODE_NAME = "DEFAULT_MODE";
 
-/** */
-public class LexerGrammar extends Grammar {
-	public static final String DEFAULT_MODE_NAME = "DEFAULT_MODE";
+        /** The grammar from which this lexer grammar was derived (if implicit) */
+        public Grammar implicitLexerOwner;
 
-	/** The grammar from which this lexer grammar was derived (if implicit) */
-    public Grammar implicitLexerOwner;
+        /** DEFAULT_MODE rules are added first due to grammar syntax order */
+        public Runtime.Misc.MultiMap<string, Rule> modes;
 
-	/** DEFAULT_MODE rules are added first due to grammar syntax order */
-	public MultiMap<String, Rule> modes;
+        public LexerGrammar(AntlrTool tool, GrammarRootAST ast)
+            : base(tool, ast)
+        {
+        }
 
-	public LexerGrammar(Tool tool, GrammarRootAST ast) {
-		super(tool, ast);
-	}
+        public LexerGrammar(string grammarText)
+            : base(grammarText)
+        {
+        }
 
-	public LexerGrammar(String grammarText) throws RecognitionException {
-		super(grammarText);
-	}
+        public LexerGrammar(string grammarText, ANTLRToolListener listener)
+            : base(grammarText, listener)
+        {
+        }
 
-	public LexerGrammar(String grammarText, ANTLRToolListener listener) throws RecognitionException {
-		super(grammarText, listener);
-	}
+        public LexerGrammar(string fileName, string grammarText, ANTLRToolListener listener)
+            : base(fileName, grammarText, listener)
+        {
+        }
 
-	public LexerGrammar(String fileName, String grammarText, ANTLRToolListener listener) throws RecognitionException {
-		super(fileName, grammarText, listener);
-	}
+        public override bool DefineRule(Rule r)
+        {
+            if (!base.DefineRule(r))
+            {
+                return false;
+            }
 
-	@Override
-	public boolean defineRule(Rule r) {
-		if (!super.defineRule(r)) {
-			return false;
-		}
+            if (modes == null)
+                modes = new Runtime.Misc.MultiMap<string, Rule>();
+            modes.Map(r.mode, r);
+            return true;
+        }
 
-		if ( modes==null ) modes = new MultiMap<String, Rule>();
-		modes.map(r.mode, r);
-		return true;
-	}
+        public override bool UndefineRule(Rule r)
+        {
+            if (!base.UndefineRule(r))
+            {
+                return false;
+            }
 
-	@Override
-	public boolean undefineRule(Rule r) {
-		if (!super.undefineRule(r)) {
-			return false;
-		}
-
-		boolean removed = modes.get(r.mode).remove(r);
-		assert removed;
-		return true;
-	}
+            bool removed = modes[r.mode].Remove(r);
+            Debug.Assert(removed);
+            return true;
+        }
+    }
 }

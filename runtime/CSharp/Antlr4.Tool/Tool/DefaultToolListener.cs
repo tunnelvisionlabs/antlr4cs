@@ -28,42 +28,53 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using Antlr4.StringTemplate;
+    using Console = System.Console;
 
-import org.antlr.v4.Tool;
-import org.stringtemplate.v4.ST;
+    /** */
+    public class DefaultToolListener : ANTLRToolListener
+    {
+        public AntlrTool tool;
 
-/** */
-public class DefaultToolListener implements ANTLRToolListener {
-	public Tool tool;
+        public DefaultToolListener(AntlrTool tool)
+        {
+            this.tool = tool;
+        }
 
-	public DefaultToolListener(Tool tool) { this.tool = tool; }
+        public virtual void Info(string msg)
+        {
+            if (tool.errMgr.FormatWantsSingleLineMessage())
+            {
+                msg = msg.Replace('\n', ' ');
+            }
 
-	@Override
-	public void info(String msg) {
-		if (tool.errMgr.formatWantsSingleLineMessage()) {
-			msg = msg.replace('\n', ' ');
-		}
-		System.out.println(msg);
-	}
+            Console.WriteLine(msg);
+        }
 
-	@Override
-	public void error(ANTLRMessage msg) {
-		ST msgST = tool.errMgr.getMessageTemplate(msg);
-		String outputMsg = msgST.render();
-		if (tool.errMgr.formatWantsSingleLineMessage()) {
-			outputMsg = outputMsg.replace('\n', ' ');
-		}
-		System.err.println(outputMsg);
-	}
+        public virtual void Error(ANTLRMessage msg)
+        {
+            Template msgST = tool.errMgr.GetMessageTemplate(msg);
+            string outputMsg = msgST.Render();
+            if (tool.errMgr.FormatWantsSingleLineMessage())
+            {
+                outputMsg = outputMsg.Replace('\n', ' ');
+            }
 
-	@Override
-	public void warning(ANTLRMessage msg) {
-		ST msgST = tool.errMgr.getMessageTemplate(msg);
-		String outputMsg = msgST.render();
-		if (tool.errMgr.formatWantsSingleLineMessage()) {
-			outputMsg = outputMsg.replace('\n', ' ');
-		}
-		System.err.println(outputMsg);
-	}
+            Console.Error.WriteLine(outputMsg);
+        }
+
+        public virtual void Warning(ANTLRMessage msg)
+        {
+            Template msgST = tool.errMgr.GetMessageTemplate(msg);
+            string outputMsg = msgST.Render();
+            if (tool.errMgr.FormatWantsSingleLineMessage())
+            {
+                outputMsg = outputMsg.Replace('\n', ' ');
+            }
+
+            Console.Error.WriteLine(outputMsg);
+        }
+    }
 }

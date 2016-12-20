@@ -28,149 +28,174 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Collections.Generic;
+    using Antlr4.Analysis;
+    using Antlr4.Misc;
+    using Antlr4.Tool.Ast;
+    using Tuple = System.Tuple;
 
-import org.antlr.v4.analysis.LeftRecursiveRuleAltInfo;
-import org.antlr.v4.misc.OrderedHashMap;
-import org.antlr.v4.runtime.misc.Tuple;
-import org.antlr.v4.runtime.misc.Tuple2;
-import org.antlr.v4.tool.ast.AltAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.RuleAST;
+    public class LeftRecursiveRule : Rule
+    {
+        public IList<LeftRecursiveRuleAltInfo> recPrimaryAlts;
+        public OrderedHashMap<int, LeftRecursiveRuleAltInfo> recOpAlts;
+        public RuleAST originalAST;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+        /** Did we delete any labels on direct left-recur refs? Points at ID of ^(= ID el) */
+        public IList<System.Tuple<GrammarAST, string>> leftRecursiveRuleRefLabels =
+            new List<System.Tuple<GrammarAST, string>>();
 
-public class LeftRecursiveRule extends Rule {
-	public List<LeftRecursiveRuleAltInfo> recPrimaryAlts;
-	public OrderedHashMap<Integer, LeftRecursiveRuleAltInfo> recOpAlts;
-	public RuleAST originalAST;
+        public LeftRecursiveRule(Grammar g, string name, RuleAST ast)
+            : base(g, name, ast, 1)
+        {
+            originalAST = ast;
+            alt = new Alternative[numberOfAlts + 1]; // always just one
+            for (int i = 1; i <= numberOfAlts; i++)
+                alt[i] = new Alternative(this, i);
+        }
 
-	/** Did we delete any labels on direct left-recur refs? Points at ID of ^(= ID el) */
-	public List<Tuple2<GrammarAST,String>> leftRecursiveRuleRefLabels =
-		new ArrayList<Tuple2<GrammarAST,String>>();
+        public override bool HasAltSpecificContexts()
+        {
+            return base.HasAltSpecificContexts() || GetAltLabels() != null;
+        }
 
-	public LeftRecursiveRule(Grammar g, String name, RuleAST ast) {
-		super(g, name, ast, 1);
-		originalAST = ast;
-		alt = new Alternative[numberOfAlts+1]; // always just one
-		for (int i=1; i<=numberOfAlts; i++) alt[i] = new Alternative(this, i);
-	}
+        public override int GetOriginalNumberOfAlts()
+        {
+            int n = 0;
+            if (recPrimaryAlts != null)
+                n += recPrimaryAlts.Count;
+            if (recOpAlts != null)
+                n += recOpAlts.Count;
+            return n;
+        }
 
-	@Override
-	public boolean hasAltSpecificContexts() {
-		return super.hasAltSpecificContexts() || getAltLabels()!=null;
-	}
+        public RuleAST GetOriginalAST()
+        {
+            return originalAST;
+        }
 
-	@Override
-	public int getOriginalNumberOfAlts() {
-		int n = 0;
-		if ( recPrimaryAlts!=null ) n += recPrimaryAlts.size();
-		if ( recOpAlts!=null ) n += recOpAlts.size();
-		return n;
-	}
+        public override IList<AltAST> GetUnlabeledAltASTs()
+        {
+            IList<AltAST> alts = new List<AltAST>();
+            foreach (LeftRecursiveRuleAltInfo altInfo in recPrimaryAlts)
+            {
+                if (altInfo.altLabel == null)
+                    alts.Add(altInfo.originalAltAST);
+            }
+            for (int i = 0; i < recOpAlts.Count; i++)
+            {
+                LeftRecursiveRuleAltInfo altInfo = recOpAlts.GetElement(i);
+                if (altInfo.altLabel == null)
+                    alts.Add(altInfo.originalAltAST);
+            }
+            if (alts.Count == 0)
+                return null;
+            return alts;
+        }
 
-	public RuleAST getOriginalAST() {
-		return originalAST;
-	}
+        /** Return an array that maps predicted alt from primary decision
+         *  to original alt of rule. For following rule, return [0, 2, 4]
+         *
+            e : e '*' e
+              | INT
+              | e '+' e
+              | ID
+              ;
 
-	@Override
-	public List<AltAST> getUnlabeledAltASTs() {
-		List<AltAST> alts = new ArrayList<AltAST>();
-		for (LeftRecursiveRuleAltInfo altInfo : recPrimaryAlts) {
-			if (altInfo.altLabel == null) alts.add(altInfo.originalAltAST);
-		}
-		for (int i = 0; i < recOpAlts.size(); i++) {
-			LeftRecursiveRuleAltInfo altInfo = recOpAlts.getElement(i);
-			if ( altInfo.altLabel==null ) alts.add(altInfo.originalAltAST);
-		}
-		if ( alts.isEmpty() ) return null;
-		return alts;
-	}
+         *  That maps predicted alt 1 to original alt 2 and predicted 2 to alt 4.
+         *
+         *  @since 4.5.1
+         */
+        public virtual int[] GetPrimaryAlts()
+        {
+            if (recPrimaryAlts.Count == 0)
+                return null;
+            int[] alts = new int[recPrimaryAlts.Count + 1];
+            for (int i = 0; i < recPrimaryAlts.Count; i++)
+            { // recPrimaryAlts is a List not Map like recOpAlts
+                LeftRecursiveRuleAltInfo altInfo = recPrimaryAlts[i];
+                alts[i + 1] = altInfo.altNum;
+            }
+            return alts;
+        }
 
-	/** Return an array that maps predicted alt from primary decision
-	 *  to original alt of rule. For following rule, return [0, 2, 4]
-	 *
-		e : e '*' e
-		  | INT
-		  | e '+' e
-		  | ID
-		  ;
+        /** Return an array that maps predicted alt from recursive op decision
+         *  to original alt of rule. For following rule, return [0, 1, 3]
+         *
+            e : e '*' e
+              | INT
+              | e '+' e
+              | ID
+              ;
 
-	 *  That maps predicted alt 1 to original alt 2 and predicted 2 to alt 4.
-	 *
-	 *  @since 4.5.1
-	 */
-	public int[] getPrimaryAlts() {
-		if ( recPrimaryAlts.size()==0 ) return null;
-		int[] alts = new int[recPrimaryAlts.size()+1];
-		for (int i = 0; i < recPrimaryAlts.size(); i++) { // recPrimaryAlts is a List not Map like recOpAlts
-			LeftRecursiveRuleAltInfo altInfo = recPrimaryAlts.get(i);
-			alts[i+1] = altInfo.altNum;
-		}
-		return alts;
-	}
+         *  That maps predicted alt 1 to original alt 1 and predicted 2 to alt 3.
+         *
+         *  @since 4.5.1
+         */
+        public virtual int[] GetRecursiveOpAlts()
+        {
+            if (recOpAlts.Count == 0)
+                return null;
+            int[] alts = new int[recOpAlts.Count + 1];
+            int alt = 1;
+            foreach (LeftRecursiveRuleAltInfo altInfo in recOpAlts.Values)
+            {
+                alts[alt] = altInfo.altNum;
+                alt++; // recOpAlts has alts possibly with gaps
+            }
+            return alts;
+        }
 
-	/** Return an array that maps predicted alt from recursive op decision
-	 *  to original alt of rule. For following rule, return [0, 1, 3]
-	 *
-		e : e '*' e
-		  | INT
-		  | e '+' e
-		  | ID
-		  ;
+        /** Get -&gt; labels from those alts we deleted for left-recursive rules. */
+        public override IDictionary<string, IList<System.Tuple<int, AltAST>>> GetAltLabels()
+        {
+            IDictionary<string, IList<System.Tuple<int, AltAST>>> labels = new Dictionary<string, IList<System.Tuple<int, AltAST>>>();
+            IDictionary<string, IList<System.Tuple<int, AltAST>>> normalAltLabels = base.GetAltLabels();
+            if (normalAltLabels != null)
+            {
+                foreach (var pair in normalAltLabels)
+                    labels[pair.Key] = pair.Value;
+            }
 
-	 *  That maps predicted alt 1 to original alt 1 and predicted 2 to alt 3.
-	 *
-	 *  @since 4.5.1
-	 */
-	public int[] getRecursiveOpAlts() {
-		if ( recOpAlts.size()==0 ) return null;
-		int[] alts = new int[recOpAlts.size()+1];
-		int alt = 1;
-		for (LeftRecursiveRuleAltInfo altInfo : recOpAlts.values()) {
-			alts[alt] = altInfo.altNum;
-			alt++; // recOpAlts has alts possibly with gaps
-		}
-		return alts;
-	}
+            if (recPrimaryAlts != null)
+            {
+                foreach (LeftRecursiveRuleAltInfo altInfo in recPrimaryAlts)
+                {
+                    if (altInfo.altLabel != null)
+                    {
+                        IList<System.Tuple<int, AltAST>> pairs;
+                        if (!labels.TryGetValue(altInfo.altLabel, out pairs) || pairs == null)
+                        {
+                            pairs = new List<System.Tuple<int, AltAST>>();
+                            labels[altInfo.altLabel] = pairs;
+                        }
 
-	/** Get -&gt; labels from those alts we deleted for left-recursive rules. */
-	@Override
-	public Map<String, List<Tuple2<Integer, AltAST>>> getAltLabels() {
-		Map<String, List<Tuple2<Integer, AltAST>>> labels = new HashMap<String, List<Tuple2<Integer, AltAST>>>();
-		Map<String, List<Tuple2<Integer, AltAST>>> normalAltLabels = super.getAltLabels();
-		if ( normalAltLabels!=null ) labels.putAll(normalAltLabels);
-		if ( recPrimaryAlts!=null ) {
-			for (LeftRecursiveRuleAltInfo altInfo : recPrimaryAlts) {
-				if (altInfo.altLabel != null) {
-					List<Tuple2<Integer, AltAST>> pairs = labels.get(altInfo.altLabel);
-					if (pairs == null) {
-						pairs = new ArrayList<Tuple2<Integer, AltAST>>();
-						labels.put(altInfo.altLabel, pairs);
-					}
+                        pairs.Add(Tuple.Create(altInfo.altNum, altInfo.originalAltAST));
+                    }
+                }
+            }
+            if (recOpAlts != null)
+            {
+                for (int i = 0; i < recOpAlts.Count; i++)
+                {
+                    LeftRecursiveRuleAltInfo altInfo = recOpAlts.GetElement(i);
+                    if (altInfo.altLabel != null)
+                    {
+                        IList<System.Tuple<int, AltAST>> pairs;
+                        if (!labels.TryGetValue(altInfo.altLabel, out pairs) || pairs == null)
+                        {
+                            pairs = new List<System.Tuple<int, AltAST>>();
+                            labels[altInfo.altLabel] = pairs;
+                        }
 
-					pairs.add(Tuple.create(altInfo.altNum, altInfo.originalAltAST));
-				}
-			}
-		}
-		if ( recOpAlts!=null ) {
-			for (int i = 0; i < recOpAlts.size(); i++) {
-				LeftRecursiveRuleAltInfo altInfo = recOpAlts.getElement(i);
-				if ( altInfo.altLabel!=null ) {
-					List<Tuple2<Integer, AltAST>> pairs = labels.get(altInfo.altLabel);
-					if (pairs == null) {
-						pairs = new ArrayList<Tuple2<Integer, AltAST>>();
-						labels.put(altInfo.altLabel, pairs);
-					}
-
-					pairs.add(Tuple.create(altInfo.altNum, altInfo.originalAltAST));
-				}
-			}
-		}
-		if ( labels.isEmpty() ) return null;
-		return labels;
-	}
+                        pairs.Add(Tuple.Create(altInfo.altNum, altInfo.originalAltAST));
+                    }
+                }
+            }
+            if (labels.Count == 0)
+                return null;
+            return labels;
+        }
+    }
 }

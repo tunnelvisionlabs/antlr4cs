@@ -28,26 +28,35 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using CommonToken = Antlr.Runtime.CommonToken;
+    using Exception = System.Exception;
+    using TokenTypes = Antlr.Runtime.TokenTypes;
 
-import org.antlr.runtime.Token;
+    /** A generic message from the tool such as "file not found" type errors; there
+     *  is no reason to create a special object for each error unlike the grammar
+     *  errors, which may be rather complex.
+     *
+     *  Sometimes you need to pass in a filename or something to say it is "bad".
+     *  Allow a generic object to be passed in and the string template can deal
+     *  with just printing it or pulling a property out of it.
+     */
+    public class ToolMessage : ANTLRMessage
+    {
+        public ToolMessage(ErrorType errorType)
+            : base(errorType)
+        {
+        }
 
-/** A generic message from the tool such as "file not found" type errors; there
- *  is no reason to create a special object for each error unlike the grammar
- *  errors, which may be rather complex.
- *
- *  Sometimes you need to pass in a filename or something to say it is "bad".
- *  Allow a generic object to be passed in and the string template can deal
- *  with just printing it or pulling a property out of it.
- */
-public class ToolMessage extends ANTLRMessage {
-	public ToolMessage(ErrorType errorType) {
-		super(errorType);
-	}
-    public ToolMessage(ErrorType errorType, Object... args) {
-        super(errorType, null, Token.INVALID_TOKEN, args);
-    }
-    public ToolMessage(ErrorType errorType, Throwable e, Object... args) {
-        super(errorType, e, Token.INVALID_TOKEN, args);
+        public ToolMessage(ErrorType errorType, params object[] args)
+            : base(errorType, null, new CommonToken(TokenTypes.Invalid), args)
+        {
+        }
+
+        public ToolMessage(ErrorType errorType, Exception e, params object[] args)
+            : base(errorType, e, new CommonToken(TokenTypes.Invalid), args)
+        {
+        }
     }
 }

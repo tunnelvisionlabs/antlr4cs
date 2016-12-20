@@ -28,362 +28,426 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Collections.Generic;
+    using System.Text;
+    using Antlr4.Misc;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
+    using Tuple = System.Tuple;
 
-import org.antlr.v4.runtime.atn.ATNSimulator;
-import org.antlr.v4.runtime.misc.MultiMap;
-import org.antlr.v4.runtime.misc.Tuple;
-import org.antlr.v4.runtime.misc.Tuple2;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.AltAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.PredAST;
-import org.antlr.v4.tool.ast.RuleAST;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-public class Rule implements AttributeResolver {
-	/** Rule refs have a predefined set of attributes as well as
-     *  the return values and args.
-     *
-     *  These must be consistent with ActionTranslator.rulePropToModelMap, ...
-     */
-	public static final AttributeDict predefinedRulePropertiesDict =
-		new AttributeDict(AttributeDict.DictType.PREDEFINED_RULE);
-	static {
-		predefinedRulePropertiesDict.add(new Attribute("parser"));
-		predefinedRulePropertiesDict.add(new Attribute("text"));
-		predefinedRulePropertiesDict.add(new Attribute("start"));
-		predefinedRulePropertiesDict.add(new Attribute("stop"));
-		predefinedRulePropertiesDict.add(new Attribute("ctx"));
-	}
-
-	public static final Set<String> validLexerCommands = new HashSet<String>();
-	static {
-		// CALLS
-		validLexerCommands.add("mode");
-		validLexerCommands.add("pushMode");
-		validLexerCommands.add("type");
-		validLexerCommands.add("channel");
-
-		// ACTIONS
-		validLexerCommands.add("popMode");
-		validLexerCommands.add("skip");
-		validLexerCommands.add("more");
-	}
-
-	public String name;
-	private String baseContext;
-	public List<GrammarAST> modifiers;
-
-	public RuleAST ast;
-	public AttributeDict args;
-	public AttributeDict retvals;
-	public AttributeDict locals;
-
-	/** In which grammar does this rule live? */
-	public Grammar g;
-
-	/** If we're in a lexer grammar, we might be in a mode */
-	public String mode;
-
-    /** Map a name to an action for this rule like @init {...}.
-     *  The code generator will use this to fill holes in the rule template.
-     *  I track the AST node for the action in case I need the line number
-     *  for errors.
-     */
-    public Map<String, ActionAST> namedActions =
-        new HashMap<String, ActionAST>();
-
-    /** Track exception handlers; points at "catch" node of (catch exception action)
-	 *  don't track finally action
-	 */
-    public List<GrammarAST> exceptions = new ArrayList<GrammarAST>();
-
-	/** Track all executable actions other than named actions like @init
-	 *  and catch/finally (not in an alt). Also tracks predicates, rewrite actions.
-	 *  We need to examine these actions before code generation so
-	 *  that we can detect refs to $rule.attr etc...
-	 *
-	 *  This tracks per rule; Alternative objs also track per alt.
-	 */
-	public List<ActionAST> actions = new ArrayList<ActionAST>();
-
-	public ActionAST finallyAction;
-
-	public int numberOfAlts;
-
-	public boolean isStartRule = true; // nobody calls us
-
-	/** 1..n alts */
-	public Alternative[] alt;
-
-	/** All rules have unique index 0..n-1 */
-	public int index;
-
-	public int actionIndex = -1; // if lexer; 0..n-1 for n actions in a rule
-
-	public Rule(Grammar g, String name, RuleAST ast, int numberOfAlts) {
-		this.g = g;
-		this.name = name;
-		this.ast = ast;
-		this.numberOfAlts = numberOfAlts;
-		alt = new Alternative[numberOfAlts+1]; // 1..n
-		for (int i=1; i<=numberOfAlts; i++) alt[i] = new Alternative(this, i);
-	}
-
-	public String getBaseContext() {
-		if (baseContext != null && !baseContext.isEmpty()) {
-			return baseContext;
-		}
-
-		String optionBaseContext = ast.getOptionString("baseContext");
-		if (optionBaseContext != null && !optionBaseContext.isEmpty()) {
-			return optionBaseContext;
-		}
-
-		int variantDelimiter = name.indexOf(ATNSimulator.RULE_VARIANT_DELIMITER);
-		if (variantDelimiter >= 0) {
-			return name.substring(0, variantDelimiter);
-		}
-
-		return name;
-	}
-
-	public void setBaseContext(String baseContext) {
-		this.baseContext = baseContext;
-	}
-
-	public void defineActionInAlt(int currentAlt, ActionAST actionAST) {
-		actions.add(actionAST);
-		alt[currentAlt].actions.add(actionAST);
-		if ( g.isLexer() ) {
-			defineLexerAction(actionAST);
-		}
-	}
-
-	/** Lexer actions are numbered across rules 0..n-1 */
-	public void defineLexerAction(ActionAST actionAST) {
-		actionIndex = g.lexerActions.size();
-		if ( g.lexerActions.get(actionAST)==null ) {
-			g.lexerActions.put(actionAST, actionIndex);
-		}
-	}
-
-	public void definePredicateInAlt(int currentAlt, PredAST predAST) {
-		actions.add(predAST);
-		alt[currentAlt].actions.add(predAST);
-		if ( g.sempreds.get(predAST)==null ) {
-			g.sempreds.put(predAST, g.sempreds.size());
-		}
-	}
-
-	public Attribute resolveRetvalOrProperty(String y) {
-		if ( retvals!=null ) {
-			Attribute a = retvals.get(y);
-			if ( a!=null ) return a;
-		}
-		AttributeDict d = getPredefinedScope(LabelType.RULE_LABEL);
-		return d.get(y);
-	}
-
-	public Set<String> getTokenRefs() {
-        Set<String> refs = new HashSet<String>();
-		for (int i=1; i<=numberOfAlts; i++) {
-			refs.addAll(alt[i].tokenRefs.keySet());
-		}
-		return refs;
-    }
-
-    public Set<String> getElementLabelNames() {
-        Set<String> refs = new HashSet<String>();
-        for (int i=1; i<=numberOfAlts; i++) {
-            refs.addAll(alt[i].labelDefs.keySet());
+    public class Rule : AttributeResolver
+    {
+        /** Rule refs have a predefined set of attributes as well as
+         *  the return values and args.
+         *
+         *  These must be consistent with ActionTranslator.rulePropToModelMap, ...
+         */
+        public static readonly AttributeDict predefinedRulePropertiesDict =
+            new AttributeDict(AttributeDict.DictType.PREDEFINED_RULE);
+        static Rule()
+        {
+            predefinedRulePropertiesDict.Add(new Attribute("parser"));
+            predefinedRulePropertiesDict.Add(new Attribute("text"));
+            predefinedRulePropertiesDict.Add(new Attribute("start"));
+            predefinedRulePropertiesDict.Add(new Attribute("stop"));
+            predefinedRulePropertiesDict.Add(new Attribute("ctx"));
         }
-		if ( refs.isEmpty() ) return null;
-        return refs;
-    }
 
-    public MultiMap<String, LabelElementPair> getElementLabelDefs() {
-        MultiMap<String, LabelElementPair> defs =
-            new MultiMap<String, LabelElementPair>();
-        for (int i=1; i<=numberOfAlts; i++) {
-            for (List<LabelElementPair> pairs : alt[i].labelDefs.values()) {
-                for (LabelElementPair p : pairs) {
-                    defs.map(p.label.getText(), p);
-                }
+        public static readonly ISet<string> validLexerCommands =
+            new HashSet<string>
+            {
+		    // CALLS
+		    "mode",
+            "pushMode",
+            "type",
+            "channel",
+
+		    // ACTIONS
+		    "popMode",
+            "skip",
+            "more",
+            };
+
+        public string name;
+        private string baseContext;
+        public IList<GrammarAST> modifiers;
+
+        public RuleAST ast;
+        public AttributeDict args;
+        public AttributeDict retvals;
+        public AttributeDict locals;
+
+        /** In which grammar does this rule live? */
+        public Grammar g;
+
+        /** If we're in a lexer grammar, we might be in a mode */
+        public string mode;
+
+        /** Map a name to an action for this rule like @init {...}.
+         *  The code generator will use this to fill holes in the rule template.
+         *  I track the AST node for the action in case I need the line number
+         *  for errors.
+         */
+        public IDictionary<string, ActionAST> namedActions =
+            new Dictionary<string, ActionAST>();
+
+        /** Track exception handlers; points at "catch" node of (catch exception action)
+         *  don't track finally action
+         */
+        public IList<GrammarAST> exceptions = new List<GrammarAST>();
+
+        /** Track all executable actions other than named actions like @init
+         *  and catch/finally (not in an alt). Also tracks predicates, rewrite actions.
+         *  We need to examine these actions before code generation so
+         *  that we can detect refs to $rule.attr etc...
+         *
+         *  This tracks per rule; Alternative objs also track per alt.
+         */
+        public IList<ActionAST> actions = new List<ActionAST>();
+
+        public ActionAST finallyAction;
+
+        public int numberOfAlts;
+
+        public bool isStartRule = true; // nobody calls us
+
+        /** 1..n alts */
+        public Alternative[] alt;
+
+        /** All rules have unique index 0..n-1 */
+        public int index;
+
+        public int actionIndex = -1; // if lexer; 0..n-1 for n actions in a rule
+
+        public Rule(Grammar g, string name, RuleAST ast, int numberOfAlts)
+        {
+            this.g = g;
+            this.name = name;
+            this.ast = ast;
+            this.numberOfAlts = numberOfAlts;
+            alt = new Alternative[numberOfAlts + 1]; // 1..n
+            for (int i = 1; i <= numberOfAlts; i++)
+                alt[i] = new Alternative(this, i);
+        }
+
+        public virtual string GetBaseContext()
+        {
+            if (!string.IsNullOrEmpty(baseContext))
+            {
+                return baseContext;
+            }
+
+            string optionBaseContext = ast.GetOptionString("baseContext");
+            if (!string.IsNullOrEmpty(optionBaseContext))
+            {
+                return optionBaseContext;
+            }
+
+            int variantDelimiter = name.IndexOf(ATNSimulator.RuleVariantDelimiter);
+            if (variantDelimiter >= 0)
+            {
+                return name.Substring(0, variantDelimiter);
+            }
+
+            return name;
+        }
+
+        public virtual void SetBaseContext(string baseContext)
+        {
+            this.baseContext = baseContext;
+        }
+
+        public virtual void DefineActionInAlt(int currentAlt, ActionAST actionAST)
+        {
+            actions.Add(actionAST);
+            alt[currentAlt].actions.Add(actionAST);
+            if (g.IsLexer())
+            {
+                DefineLexerAction(actionAST);
             }
         }
-        return defs;
-    }
 
-	public boolean hasAltSpecificContexts() {
-		return getAltLabels()!=null;
-	}
+        /** Lexer actions are numbered across rules 0..n-1 */
+        public virtual void DefineLexerAction(ActionAST actionAST)
+        {
+            actionIndex = g.lexerActions.Count;
+            if (!g.lexerActions.ContainsKey(actionAST))
+            {
+                g.lexerActions[actionAST] = actionIndex;
+            }
+        }
 
-	/** Used for recursive rules (subclass), which have 1 alt, but many original alts */
-	public int getOriginalNumberOfAlts() {
-		return numberOfAlts;
-	}
+        public virtual void DefinePredicateInAlt(int currentAlt, PredAST predAST)
+        {
+            actions.Add(predAST);
+            alt[currentAlt].actions.Add(predAST);
+            if (!g.sempreds.ContainsKey(predAST))
+            {
+                g.sempreds[predAST] = g.sempreds.Count;
+            }
+        }
 
-	/**
-	 * Get {@code #} labels. The keys of the map are the labels applied to outer
-	 * alternatives of a lexer rule, and the values are collections of pairs
-	 * (alternative number and {@link AltAST}) identifying the alternatives with
-	 * this label. Unlabeled alternatives are not included in the result.
-	 */
-	public Map<String, List<Tuple2<Integer, AltAST>>> getAltLabels() {
-		Map<String, List<Tuple2<Integer, AltAST>>> labels = new LinkedHashMap<String, List<Tuple2<Integer, AltAST>>>();
-		for (int i=1; i<=numberOfAlts; i++) {
-			GrammarAST altLabel = alt[i].ast.altLabel;
-			if ( altLabel!=null ) {
-				List<Tuple2<Integer, AltAST>> list = labels.get(altLabel.getText());
-				if (list == null) {
-					list = new ArrayList<Tuple2<Integer, AltAST>>();
-					labels.put(altLabel.getText(), list);
-				}
+        public virtual Attribute ResolveRetvalOrProperty(string y)
+        {
+            if (retvals != null)
+            {
+                Attribute a = retvals.Get(y);
+                if (a != null)
+                    return a;
+            }
+            AttributeDict d = GetPredefinedScope(LabelType.RULE_LABEL);
+            return d.Get(y);
+        }
 
-				list.add(Tuple.create(i, alt[i].ast));
-			}
-		}
-		if ( labels.isEmpty() ) return null;
-		return labels;
-	}
+        public virtual ISet<string> GetTokenRefs()
+        {
+            ISet<string> refs = new HashSet<string>();
+            for (int i = 1; i <= numberOfAlts; i++)
+            {
+                refs.UnionWith(alt[i].tokenRefs.Keys);
+            }
+            return refs;
+        }
 
-	public List<AltAST> getUnlabeledAltASTs() {
-		List<AltAST> alts = new ArrayList<AltAST>();
-		for (int i=1; i<=numberOfAlts; i++) {
-			GrammarAST altLabel = alt[i].ast.altLabel;
-			if ( altLabel==null ) alts.add(alt[i].ast);
-		}
-		if ( alts.isEmpty() ) return null;
-		return alts;
-	}
+        public virtual ISet<string> GetElementLabelNames()
+        {
+            ISet<string> refs = new HashSet<string>();
+            for (int i = 1; i <= numberOfAlts; i++)
+            {
+                refs.UnionWith(alt[i].labelDefs.Keys);
+            }
+            if (refs.Count == 0)
+                return null;
+            return refs;
+        }
 
-	/**  $x		Attribute: rule arguments, return values, predefined rule prop.
-	 */
-	@Override
-	public Attribute resolveToAttribute(String x, ActionAST node) {
-		if ( args!=null ) {
-			Attribute a = args.get(x);   	if ( a!=null ) return a;
-		}
-		if ( retvals!=null ) {
-			Attribute a = retvals.get(x);	if ( a!=null ) return a;
-		}
-		if ( locals!=null ) {
-			Attribute a = locals.get(x);	if ( a!=null ) return a;
-		}
-		AttributeDict properties = getPredefinedScope(LabelType.RULE_LABEL);
-		return properties.get(x);
-	}
+        public virtual Runtime.Misc.MultiMap<string, LabelElementPair> GetElementLabelDefs()
+        {
+            Runtime.Misc.MultiMap<string, LabelElementPair> defs =
+                new Runtime.Misc.MultiMap<string, LabelElementPair>();
+            for (int i = 1; i <= numberOfAlts; i++)
+            {
+                foreach (IList<LabelElementPair> pairs in alt[i].labelDefs.Values)
+                {
+                    foreach (LabelElementPair p in pairs)
+                    {
+                        defs.Map(p.label.Text, p);
+                    }
+                }
+            }
+            return defs;
+        }
 
-	/** $x.y	Attribute: x is surrounding rule, label ref (in any alts) */
-	@Override
-	public Attribute resolveToAttribute(String x, String y, ActionAST node) {
-		LabelElementPair anyLabelDef = getAnyLabelDef(x);
-		if ( anyLabelDef!=null ) {
-			if ( anyLabelDef.type==LabelType.RULE_LABEL ) {
-				return g.getRule(anyLabelDef.element.getText()).resolveRetvalOrProperty(y);
-			}
-			else {
-				AttributeDict scope = getPredefinedScope(anyLabelDef.type);
-				if (scope == null) {
-					return null;
-				}
+        public virtual bool HasAltSpecificContexts()
+        {
+            return GetAltLabels() != null;
+        }
 
-				return scope.get(y);
-			}
-		}
-		return null;
+        /** Used for recursive rules (subclass), which have 1 alt, but many original alts */
+        public virtual int GetOriginalNumberOfAlts()
+        {
+            return numberOfAlts;
+        }
 
-	}
+        /**
+         * Get {@code #} labels. The keys of the map are the labels applied to outer
+         * alternatives of a lexer rule, and the values are collections of pairs
+         * (alternative number and {@link AltAST}) identifying the alternatives with
+         * this label. Unlabeled alternatives are not included in the result.
+         */
+        public virtual IDictionary<string, IList<System.Tuple<int, AltAST>>> GetAltLabels()
+        {
+            IDictionary<string, IList<System.Tuple<int, AltAST>>> labels = new LinkedHashMap<string, IList<System.Tuple<int, AltAST>>>();
+            for (int i = 1; i <= numberOfAlts; i++)
+            {
+                GrammarAST altLabel = alt[i].ast.altLabel;
+                if (altLabel != null)
+                {
+                    IList<System.Tuple<int, AltAST>> list;
+                    if (!labels.TryGetValue(altLabel.Text, out list) || list == null)
+                    {
+                        list = new List<System.Tuple<int, AltAST>>();
+                        labels[altLabel.Text] = list;
+                    }
 
-	@Override
-	public boolean resolvesToLabel(String x, ActionAST node) {
-		LabelElementPair anyLabelDef = getAnyLabelDef(x);
-		return anyLabelDef!=null &&
-			   (anyLabelDef.type==LabelType.RULE_LABEL ||
-				anyLabelDef.type==LabelType.TOKEN_LABEL);
-	}
+                    list.Add(Tuple.Create(i, alt[i].ast));
+                }
+            }
+            if (labels.Count == 0)
+                return null;
+            return labels;
+        }
 
-	@Override
-	public boolean resolvesToListLabel(String x, ActionAST node) {
-		LabelElementPair anyLabelDef = getAnyLabelDef(x);
-		return anyLabelDef!=null &&
-			   (anyLabelDef.type==LabelType.RULE_LIST_LABEL ||
-				anyLabelDef.type==LabelType.TOKEN_LIST_LABEL);
-	}
+        public virtual IList<AltAST> GetUnlabeledAltASTs()
+        {
+            IList<AltAST> alts = new List<AltAST>();
+            for (int i = 1; i <= numberOfAlts; i++)
+            {
+                GrammarAST altLabel = alt[i].ast.altLabel;
+                if (altLabel == null)
+                    alts.Add(alt[i].ast);
+            }
+            if (alts.Count == 0)
+                return null;
+            return alts;
+        }
 
-	@Override
-	public boolean resolvesToToken(String x, ActionAST node) {
-		LabelElementPair anyLabelDef = getAnyLabelDef(x);
-		if ( anyLabelDef!=null && anyLabelDef.type==LabelType.TOKEN_LABEL ) return true;
-		return false;
-	}
+        /**  $x		Attribute: rule arguments, return values, predefined rule prop.
+         */
+        public virtual Attribute ResolveToAttribute(string x, ActionAST node)
+        {
+            if (args != null)
+            {
+                Attribute a = args.Get(x);
+                if (a != null)
+                    return a;
+            }
+            if (retvals != null)
+            {
+                Attribute a = retvals.Get(x);
+                if (a != null)
+                    return a;
+            }
+            if (locals != null)
+            {
+                Attribute a = locals.Get(x);
+                if (a != null)
+                    return a;
+            }
+            AttributeDict properties = GetPredefinedScope(LabelType.RULE_LABEL);
+            return properties.Get(x);
+        }
 
-	@Override
-	public boolean resolvesToAttributeDict(String x, ActionAST node) {
-		if ( resolvesToToken(x, node) ) return true;
-		return false;
-	}
+        /** $x.y	Attribute: x is surrounding rule, label ref (in any alts) */
+        public virtual Attribute ResolveToAttribute(string x, string y, ActionAST node)
+        {
+            LabelElementPair anyLabelDef = GetAnyLabelDef(x);
+            if (anyLabelDef != null)
+            {
+                if (anyLabelDef.type == LabelType.RULE_LABEL)
+                {
+                    return g.GetRule(anyLabelDef.element.Text).ResolveRetvalOrProperty(y);
+                }
+                else
+                {
+                    AttributeDict scope = GetPredefinedScope(anyLabelDef.type);
+                    if (scope == null)
+                    {
+                        return null;
+                    }
 
-	public Rule resolveToRule(String x) {
-		if ( x.equals(this.name) ) return this;
-		LabelElementPair anyLabelDef = getAnyLabelDef(x);
-		if ( anyLabelDef!=null && anyLabelDef.type==LabelType.RULE_LABEL ) {
-			return g.getRule(anyLabelDef.element.getText());
-		}
-		return g.getRule(x);
-	}
+                    return scope.Get(y);
+                }
+            }
+            return null;
 
-	public LabelElementPair getAnyLabelDef(String x) {
-		List<LabelElementPair> labels = getElementLabelDefs().get(x);
-		if ( labels!=null ) return labels.get(0);
-		return null;
-	}
+        }
 
-    public AttributeDict getPredefinedScope(LabelType ltype) {
-        String grammarLabelKey = g.getTypeString() + ":" + ltype;
-        return Grammar.grammarAndLabelRefTypeToScope.get(grammarLabelKey);
-    }
+        public virtual bool ResolvesToLabel(string x, ActionAST node)
+        {
+            LabelElementPair anyLabelDef = GetAnyLabelDef(x);
+            return anyLabelDef != null &&
+                   (anyLabelDef.type == LabelType.RULE_LABEL ||
+                    anyLabelDef.type == LabelType.TOKEN_LABEL);
+        }
 
-	public boolean isFragment() {
-		if ( modifiers==null ) return false;
-		for (GrammarAST a : modifiers) {
-			if ( a.getText().equals("fragment") ) return true;
-		}
-		return false;
-	}
+        public virtual bool ResolvesToListLabel(string x, ActionAST node)
+        {
+            LabelElementPair anyLabelDef = GetAnyLabelDef(x);
+            return anyLabelDef != null &&
+                   (anyLabelDef.type == LabelType.RULE_LIST_LABEL ||
+                    anyLabelDef.type == LabelType.TOKEN_LIST_LABEL);
+        }
 
-	@Override
-	public int hashCode() { return name.hashCode(); }
+        public virtual bool ResolvesToToken(string x, ActionAST node)
+        {
+            LabelElementPair anyLabelDef = GetAnyLabelDef(x);
+            if (anyLabelDef != null && anyLabelDef.type == LabelType.TOKEN_LABEL)
+                return true;
+            return false;
+        }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
+        public virtual bool ResolvesToAttributeDict(string x, ActionAST node)
+        {
+            if (ResolvesToToken(x, node))
+                return true;
+            return false;
+        }
 
-		if (!(obj instanceof Rule)) {
-			return false;
-		}
+        public virtual Rule resolveToRule(string x)
+        {
+            if (x.Equals(this.name))
+                return this;
+            LabelElementPair anyLabelDef = GetAnyLabelDef(x);
+            if (anyLabelDef != null && anyLabelDef.type == LabelType.RULE_LABEL)
+            {
+                return g.GetRule(anyLabelDef.element.Text);
+            }
+            return g.GetRule(x);
+        }
 
-		return name.equals(((Rule)obj).name);
-	}
+        public virtual LabelElementPair GetAnyLabelDef(string x)
+        {
+            IList<LabelElementPair> labels;
+            if (GetElementLabelDefs().TryGetValue(x, out labels) && labels != null)
+                return labels[0];
 
-	@Override
-    public String toString() {
-		StringBuilder buf = new StringBuilder();
-		buf.append("Rule{name=").append(name);
-		if ( args!=null ) buf.append(", args=").append(args);
-		if ( retvals!=null ) buf.append(", retvals=").append(retvals);
-		buf.append("}");
-		return buf.toString();
+            return null;
+        }
+
+        public virtual AttributeDict GetPredefinedScope(LabelType ltype)
+        {
+            string grammarLabelKey = g.GetTypeString() + ":" + ltype;
+
+            AttributeDict result;
+            Grammar.grammarAndLabelRefTypeToScope.TryGetValue(grammarLabelKey, out result);
+            return result;
+        }
+
+        public virtual bool IsFragment()
+        {
+            if (modifiers == null)
+                return false;
+            foreach (GrammarAST a in modifiers)
+            {
+                if (a.Text.Equals("fragment"))
+                    return true;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+
+            if (!(obj is Rule))
+            {
+                return false;
+            }
+
+            return name.Equals(((Rule)obj).name);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder buf = new StringBuilder();
+            buf.Append("Rule{name=").Append(name);
+            if (args != null)
+                buf.Append(", args=").Append(args);
+            if (retvals != null)
+                buf.Append(", retvals=").Append(retvals);
+            buf.Append("}");
+            return buf.ToString();
+        }
     }
 }

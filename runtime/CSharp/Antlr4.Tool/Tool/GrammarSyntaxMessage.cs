@@ -28,32 +28,35 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using IToken = Antlr.Runtime.IToken;
+    using RecognitionException = Antlr.Runtime.RecognitionException;
 
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.Token;
+    /** A problem with the syntax of your antlr grammar such as
+     *  "The '{' came as a complete surprise to me at this point in your program"
+     */
+    public class GrammarSyntaxMessage : ANTLRMessage
+    {
+        public GrammarSyntaxMessage(ErrorType etype,
+                                    string fileName,
+                                    IToken offendingToken,
+                                    RecognitionException antlrException,
+                                    params object[] args)
+            : base(etype, antlrException, offendingToken, args)
+        {
+            this.fileName = fileName;
+            this.offendingToken = offendingToken;
+            if (offendingToken != null)
+            {
+                line = offendingToken.Line;
+                charPosition = offendingToken.CharPositionInLine;
+            }
+        }
 
-/** A problem with the syntax of your antlr grammar such as
- *  "The '{' came as a complete surprise to me at this point in your program"
- */
-public class GrammarSyntaxMessage extends ANTLRMessage {
-	public GrammarSyntaxMessage(ErrorType etype,
-								String fileName,
-								Token offendingToken,
-								RecognitionException antlrException,
-								Object... args)
-	{
-		super(etype, antlrException, offendingToken, args);
-		this.fileName = fileName;
-		this.offendingToken = offendingToken;
-		if ( offendingToken!=null ) {
-			line = offendingToken.getLine();
-			charPosition = offendingToken.getCharPositionInLine();
-		}
-	}
-
-    @Override
-    public RecognitionException getCause() {
-        return (RecognitionException)super.getCause();
+        public new RecognitionException GetCause()
+        {
+            return (RecognitionException)base.GetCause();
+        }
     }
 }

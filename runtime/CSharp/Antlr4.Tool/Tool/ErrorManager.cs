@@ -28,296 +28,339 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text;
+    using Antlr4.StringTemplate;
+    using Console = System.Console;
+    using ErrorBuffer = Antlr4.StringTemplate.Misc.ErrorBuffer;
+    using Exception = System.Exception;
+    using File = System.IO.File;
+    using Path = System.IO.Path;
+    using StringSplitOptions = System.StringSplitOptions;
 
-import org.antlr.runtime.Token;
-import org.antlr.v4.Tool;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
-import org.stringtemplate.v4.STGroupFile;
-import org.stringtemplate.v4.misc.ErrorBuffer;
+    public class ErrorManager
+    {
+        public static readonly string FORMATS_DIR = Path.Combine("Tool", "Templates", "Messages", "Formats");
 
-import java.io.File;
-import java.net.URL;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.Set;
+        public AntlrTool tool;
+        public int errors;
+        public int warnings;
 
-public class ErrorManager {
-	public static final String FORMATS_DIR = "org/antlr/v4/tool/templates/messages/formats/";
+        /** All errors that have been generated */
+        public ISet<ErrorType> errorTypes = new HashSet<ErrorType>();
 
-	public Tool tool;
-	public int errors;
-	public int warnings;
+        /** The group of templates that represent the current message format. */
+        TemplateGroup format;
 
-	/** All errors that have been generated */
-	public Set<ErrorType> errorTypes = EnumSet.noneOf(ErrorType.class);
+        /** Messages should be sensitive to the locale. */
+        CultureInfo locale;
+        string formatName;
 
-    /** The group of templates that represent the current message format. */
-    STGroup format;
+        ErrorBuffer initSTListener = new ErrorBuffer();
 
-    /** Messages should be sensitive to the locale. */
-    Locale locale;
-    String formatName;
+        public ErrorManager(AntlrTool tool)
+        {
+            this.tool = tool;
+        }
 
-    ErrorBuffer initSTListener = new ErrorBuffer();
+        public virtual void ResetErrorState()
+        {
+            errors = 0;
+            warnings = 0;
+        }
 
-	public ErrorManager(Tool tool) {
-		this.tool = tool;
-	}
+        public virtual Template GetMessageTemplate(ANTLRMessage msg)
+        {
+            Template messageST = msg.GetMessageTemplate(tool.longMessages);
+            Template locationST = GetLocationFormat();
+            Template reportST = GetReportFormat(msg.GetErrorType().severity);
+            Template messageFormatST = GetMessageFormat();
 
-	public void resetErrorState() {
-		errors = 0;
-		warnings = 0;
-	}
+            bool locationValid = false;
+            if (msg.line != -1)
+            {
+                locationST.Add("line", msg.line);
+                locationValid = true;
+            }
+            if (msg.charPosition != -1)
+            {
+                locationST.Add("column", msg.charPosition);
+                locationValid = true;
+            }
+            if (msg.fileName != null)
+            {
+                string f = msg.fileName;
+                // Don't show path to file in messages; too long.
+                string displayFileName = msg.fileName;
+                if (File.Exists(f))
+                {
+                    displayFileName = Path.GetFileName(f);
+                }
+                locationST.Add("file", displayFileName);
+                locationValid = true;
+            }
 
-	public ST getMessageTemplate(ANTLRMessage msg) {
-		ST messageST = msg.getMessageTemplate(tool.longMessages);
-		ST locationST = getLocationFormat();
-		ST reportST = getReportFormat(msg.getErrorType().severity);
-		ST messageFormatST = getMessageFormat();
+            messageFormatST.Add("id", msg.GetErrorType().code);
+            messageFormatST.Add("text", messageST);
 
-		boolean locationValid = false;
-		if (msg.line != -1) {
-			locationST.add("line", msg.line);
-			locationValid = true;
-		}
-		if (msg.charPosition != -1) {
-			locationST.add("column", msg.charPosition);
-			locationValid = true;
-		}
-		if (msg.fileName != null) {
-			File f = new File(msg.fileName);
-			// Don't show path to file in messages; too long.
-			String displayFileName = msg.fileName;
-			if ( f.exists() ) {
-				displayFileName = f.getName();
-			}
-			locationST.add("file", displayFileName);
-			locationValid = true;
-		}
+            if (locationValid)
+                reportST.Add("location", locationST);
+            reportST.Add("message", messageFormatST);
+            //((DebugST)reportST).inspect();
+            //		reportST.impl.dump();
+            return reportST;
+        }
 
-		messageFormatST.add("id", msg.getErrorType().code);
-		messageFormatST.add("text", messageST);
+        /** Return a StringTemplate that refers to the current format used for
+         * emitting messages.
+         */
+        public virtual Template GetLocationFormat()
+        {
+            return format.GetInstanceOf("location");
+        }
 
-		if (locationValid) reportST.add("location", locationST);
-		reportST.add("message", messageFormatST);
-		//((DebugST)reportST).inspect();
-//		reportST.impl.dump();
-		return reportST;
-	}
+        public virtual Template GetReportFormat(ErrorSeverity severity)
+        {
+            Template st = format.GetInstanceOf("report");
+            st.Add("type", severity.GetText());
+            return st;
+        }
 
-    /** Return a StringTemplate that refers to the current format used for
-     * emitting messages.
-     */
-    public ST getLocationFormat() {
-        return format.getInstanceOf("location");
-    }
+        public virtual Template GetMessageFormat()
+        {
+            return format.GetInstanceOf("message");
+        }
+        public virtual bool FormatWantsSingleLineMessage()
+        {
+            return format.GetInstanceOf("wantsSingleLineMessage").Render().Equals("true");
+        }
 
-    public ST getReportFormat(ErrorSeverity severity) {
-        ST st = format.getInstanceOf("report");
-        st.add("type", severity.getText());
-        return st;
-    }
+        public virtual void Info(string msg)
+        {
+            tool.Info(msg);
+        }
 
-    public ST getMessageFormat() {
-        return format.getInstanceOf("message");
-    }
-    public boolean formatWantsSingleLineMessage() {
-        return format.getInstanceOf("wantsSingleLineMessage").render().equals("true");
-    }
+        public virtual void SyntaxError(ErrorType etype,
+                                       string fileName,
+                                       Antlr.Runtime.IToken token,
+                                       Antlr.Runtime.RecognitionException antlrException,
+                                       params object[] args)
+        {
+            ANTLRMessage msg = new GrammarSyntaxMessage(etype, fileName, token, antlrException, args);
+            Emit(etype, msg);
+        }
 
-	public void info(String msg) { tool.info(msg); }
+        public static void FatalInternalError(string error, Exception e)
+        {
+            InternalError(error, e);
+            throw new Exception(error, e);
+        }
 
-	public void syntaxError(ErrorType etype,
-								   String fileName,
-								   org.antlr.runtime.Token token,
-								   org.antlr.runtime.RecognitionException antlrException,
-								   Object... args)
-	{
-		ANTLRMessage msg = new GrammarSyntaxMessage(etype,fileName,token,antlrException,args);
-		emit(etype, msg);
-	}
+        public static void InternalError(string error, Exception e)
+        {
+            string location = GetLastNonErrorManagerCodeLocation(e);
+            InternalError("Exception " + e + "@" + location + ": " + error);
+        }
 
-	public static void fatalInternalError(String error, Throwable e) {
-		internalError(error, e);
-		throw new RuntimeException(error, e);
-	}
+        public static void InternalError(string error)
+        {
+            string location =
+                GetLastNonErrorManagerCodeLocation(new Exception());
+            string msg = location + ": " + error;
+            Console.Error.WriteLine("internal error: " + msg);
+        }
 
-	public static void internalError(String error, Throwable e) {
-        StackTraceElement location = getLastNonErrorManagerCodeLocation(e);
-		internalError("Exception "+e+"@"+location+": "+error);
-    }
+        /**
+         * Raise a predefined message with some number of paramters for the StringTemplate but for which there
+         * is no location information possible.
+         * @param errorType The Message Descriptor
+         * @param args The arguments to pass to the StringTemplate
+         */
+        public virtual void ToolError(ErrorType errorType, params object[] args)
+        {
+            ToolError(errorType, null, args);
+        }
 
-    public static void internalError(String error) {
-        StackTraceElement location =
-            getLastNonErrorManagerCodeLocation(new Exception());
-        String msg = location+": "+error;
-        System.err.println("internal error: "+msg);
-    }
+        public virtual void ToolError(ErrorType errorType, Exception e, params object[] args)
+        {
+            ToolMessage msg = new ToolMessage(errorType, e, args);
+            Emit(errorType, msg);
+        }
 
-    /**
-     * Raise a predefined message with some number of paramters for the StringTemplate but for which there
-     * is no location information possible.
-     * @param errorType The Message Descriptor
-     * @param args The arguments to pass to the StringTemplate
-     */
-	public void toolError(ErrorType errorType, Object... args) {
-		toolError(errorType, null, args);
-	}
+        public virtual void GrammarError(ErrorType etype,
+                                 string fileName,
+                                 Antlr.Runtime.IToken token,
+                                 params object[] args)
+        {
+            ANTLRMessage msg = new GrammarSemanticsMessage(etype, fileName, token, args);
+            Emit(etype, msg);
 
-	public void toolError(ErrorType errorType, Throwable e, Object... args) {
-		ToolMessage msg = new ToolMessage(errorType, e, args);
-		emit(errorType, msg);
-	}
+        }
 
-    public void grammarError(ErrorType etype,
-							 String fileName,
-							 org.antlr.runtime.Token token,
-							 Object... args)
-	{
-        ANTLRMessage msg = new GrammarSemanticsMessage(etype,fileName,token,args);
-		emit(etype, msg);
+        public virtual void LeftRecursionCycles(string fileName, IEnumerable<IEnumerable<Rule>> cycles)
+        {
+            errors++;
+            ANTLRMessage msg = new LeftRecursionCyclesMessage(fileName, cycles);
+            tool.Error(msg);
+        }
 
-	}
+        public virtual int GetNumErrors()
+        {
+            return errors;
+        }
 
-	public void leftRecursionCycles(String fileName, Collection<? extends Collection<Rule>> cycles) {
-		errors++;
-		ANTLRMessage msg = new LeftRecursionCyclesMessage(fileName, cycles);
-		tool.error(msg);
-	}
+        /** Return first non ErrorManager code location for generating messages */
+        private static string GetLastNonErrorManagerCodeLocation(Exception e)
+        {
+            string[] stack = e.StackTrace.Split(new[] { '\n', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            int i = 0;
+            for (; i < stack.Length; i++)
+            {
+                string t = stack[i];
+                if (!t.Contains(nameof(ErrorManager)))
+                    return t;
+            }
 
-    public int getNumErrors() {
-        return errors;
-    }
+            return stack.LastOrDefault() ?? "<Uknown>";
+        }
 
-    /** Return first non ErrorManager code location for generating messages */
-    private static StackTraceElement getLastNonErrorManagerCodeLocation(Throwable e) {
-        StackTraceElement[] stack = e.getStackTrace();
-        int i = 0;
-        for (; i < stack.length; i++) {
-            StackTraceElement t = stack[i];
-            if (!t.toString().contains("ErrorManager")) {
-                break;
+        // S U P P O R T  C O D E
+
+        public virtual void Emit(ErrorType etype, ANTLRMessage msg)
+        {
+            var severity = etype.severity;
+            if (severity == ErrorSeverity.WARNING_ONE_OFF || severity == ErrorSeverity.WARNING)
+            {
+                if (severity == ErrorSeverity.WARNING || !errorTypes.Contains(etype))
+                {
+                    warnings++;
+                    tool.Warning(msg);
+                }
+            }
+            else if (severity == ErrorSeverity.ERROR_ONE_OFF || severity == ErrorSeverity.ERROR)
+            {
+                if (severity == ErrorSeverity.ERROR || !errorTypes.Contains(etype))
+                {
+                    errors++;
+                    tool.Error(msg);
+                }
+            }
+
+            errorTypes.Add(etype);
+        }
+
+        /** The format gets reset either from the Tool if the user supplied a command line option to that effect
+         *  Otherwise we just use the default "antlr".
+         */
+        public virtual void SetFormat(string formatName)
+        {
+            this.formatName = formatName;
+            string fileName = Path.Combine(FORMATS_DIR, formatName + TemplateGroup.GroupFileExtension);
+            if (!File.Exists(fileName) && formatName != "antlr")
+            {
+                SetFormat("antlr");
+                return;
+            }
+
+            //format.EnableCache = AntlrTool.EnableTemplateCache;
+            if (!File.Exists(fileName))
+            {
+                RawError("ANTLR installation corrupted; cannot find ANTLR messages format file " + fileName);
+                Panic();
+            }
+            //else if (url == null)
+            //{
+            //    RawError("no such message format file " + fileName + " retrying with default ANTLR format");
+            //    SetFormat("antlr"); // recurse on this rule, trying the default message format
+            //    return;
+            //}
+
+            format = new TemplateGroupFile(Path.GetFullPath(fileName), Encoding.UTF8);
+            format.Load();
+
+            if (initSTListener.Errors.Count > 0)
+            {
+                RawError("ANTLR installation corrupted; can't load messages format file:\n" +
+                         initSTListener.ToString());
+                Panic();
+            }
+
+            bool formatOK = VerifyFormat();
+            if (!formatOK && formatName.Equals("antlr"))
+            {
+                RawError("ANTLR installation corrupted; ANTLR messages format file " + formatName + ".stg incomplete");
+                Panic();
+            }
+            else if (!formatOK)
+            {
+                SetFormat("antlr"); // recurse on this rule, trying the default message format
             }
         }
-        StackTraceElement location = stack[i];
-        return location;
-    }
 
-    // S U P P O R T  C O D E
-
-	@SuppressWarnings("fallthrough")
-	public void emit(ErrorType etype, ANTLRMessage msg) {
-		switch ( etype.severity ) {
-			case WARNING_ONE_OFF:
-				if ( errorTypes.contains(etype) ) break;
-				// fall thru
-			case WARNING:
-				warnings++;
-				tool.warning(msg);
-				break;
-			case ERROR_ONE_OFF:
-				if ( errorTypes.contains(etype) ) break;
-				// fall thru
-			case ERROR:
-				errors++;
-				tool.error(msg);
-				break;
-		}
-		errorTypes.add(etype);
-	}
-
-    /** The format gets reset either from the Tool if the user supplied a command line option to that effect
-     *  Otherwise we just use the default "antlr".
-     */
-    public void setFormat(String formatName) {
-        this.formatName = formatName;
-        String fileName = FORMATS_DIR +formatName+STGroup.GROUP_FILE_EXTENSION;
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        URL url = cl.getResource(fileName);
-        if ( url==null ) {
-            cl = ErrorManager.class.getClassLoader();
-            url = cl.getResource(fileName);
-        }
-        if ( url==null && formatName.equals("antlr") ) {
-            rawError("ANTLR installation corrupted; cannot find ANTLR messages format file "+fileName);
-            panic();
-        }
-        else if ( url==null ) {
-            rawError("no such message format file "+fileName+" retrying with default ANTLR format");
-            setFormat("antlr"); // recurse on this rule, trying the default message format
-            return;
+        /** Verify the message format template group */
+        protected virtual bool VerifyFormat()
+        {
+            bool ok = true;
+            if (!format.IsDefined("location"))
+            {
+                Console.Error.WriteLine("Format template 'location' not found in " + formatName);
+                ok = false;
+            }
+            if (!format.IsDefined("message"))
+            {
+                Console.Error.WriteLine("Format template 'message' not found in " + formatName);
+                ok = false;
+            }
+            if (!format.IsDefined("report"))
+            {
+                Console.Error.WriteLine("Format template 'report' not found in " + formatName);
+                ok = false;
+            }
+            return ok;
         }
 
-        format = new STGroupFile(fileName, "UTF-8");
-        format.load();
-
-        if ( !initSTListener.errors.isEmpty() ) {
-            rawError("ANTLR installation corrupted; can't load messages format file:\n"+
-                     initSTListener.toString());
-            panic();
+        /** If there are errors during ErrorManager init, we have no choice
+         *  but to go to System.err.
+         */
+        internal static void RawError(string msg)
+        {
+            Console.Error.WriteLine(msg);
         }
 
-        boolean formatOK = verifyFormat();
-        if ( !formatOK && formatName.equals("antlr") ) {
-            rawError("ANTLR installation corrupted; ANTLR messages format file "+formatName+".stg incomplete");
-            panic();
+        internal static void RawError(string msg, Exception e)
+        {
+            RawError(msg);
+            Console.Error.WriteLine(e.Message);
+            Console.Error.WriteLine(e.StackTrace);
         }
-        else if ( !formatOK ) {
-            setFormat("antlr"); // recurse on this rule, trying the default message format
+
+        public virtual void Panic(ErrorType errorType, params object[] args)
+        {
+            ToolMessage msg = new ToolMessage(errorType, args);
+            Template msgST = GetMessageTemplate(msg);
+            string outputMsg = msgST.Render();
+            if (FormatWantsSingleLineMessage())
+            {
+                outputMsg = outputMsg.Replace('\n', ' ');
+            }
+            Panic(outputMsg);
         }
-    }
 
-    /** Verify the message format template group */
-    protected boolean verifyFormat() {
-        boolean ok = true;
-        if (!format.isDefined("location")) {
-            System.err.println("Format template 'location' not found in " + formatName);
-            ok = false;
+        public static void Panic(string msg)
+        {
+            RawError(msg);
+            Panic();
         }
-        if (!format.isDefined("message")) {
-            System.err.println("Format template 'message' not found in " + formatName);
-            ok = false;
+
+        public static void Panic()
+        {
+            // can't call tool.panic since there may be multiple tools; just
+            // one error manager
+            throw new Exception("ANTLR ErrorManager panic");
         }
-        if (!format.isDefined("report")) {
-            System.err.println("Format template 'report' not found in " + formatName);
-            ok = false;
-        }
-        return ok;
-    }
-
-    /** If there are errors during ErrorManager init, we have no choice
-     *  but to go to System.err.
-     */
-    static void rawError(String msg) {
-        System.err.println(msg);
-    }
-
-    static void rawError(String msg, Throwable e) {
-        rawError(msg);
-        e.printStackTrace(System.err);
-    }
-
-	public void panic(ErrorType errorType, Object... args) {
-		ToolMessage msg = new ToolMessage(errorType, args);
-		ST msgST = getMessageTemplate(msg);
-		String outputMsg = msgST.render();
-		if ( formatWantsSingleLineMessage() ) {
-			outputMsg = outputMsg.replace('\n', ' ');
-		}
-		panic(outputMsg);
-	}
-
-	public static void panic(String msg) {
-		rawError(msg);
-		panic();
-	}
-
-    public static void panic() {
-        // can't call tool.panic since there may be multiple tools; just
-        // one error manager
-        throw new Error("ANTLR ErrorManager panic");
     }
 }

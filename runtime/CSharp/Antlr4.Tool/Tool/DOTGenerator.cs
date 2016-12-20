@@ -28,449 +28,493 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using System.Collections.Generic;
+    using System.Text;
+    using Antlr4.Misc;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Runtime.Dfa;
+    using Antlr4.StringTemplate;
+    using Path = System.IO.Path;
 
-import org.antlr.v4.misc.Utils;
-import org.antlr.v4.runtime.atn.ATNConfig;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.AbstractPredicateTransition;
-import org.antlr.v4.runtime.atn.ActionTransition;
-import org.antlr.v4.runtime.atn.AtomTransition;
-import org.antlr.v4.runtime.atn.BlockEndState;
-import org.antlr.v4.runtime.atn.BlockStartState;
-import org.antlr.v4.runtime.atn.DecisionState;
-import org.antlr.v4.runtime.atn.NotSetTransition;
-import org.antlr.v4.runtime.atn.PlusBlockStartState;
-import org.antlr.v4.runtime.atn.PlusLoopbackState;
-import org.antlr.v4.runtime.atn.RangeTransition;
-import org.antlr.v4.runtime.atn.RuleStartState;
-import org.antlr.v4.runtime.atn.RuleStopState;
-import org.antlr.v4.runtime.atn.RuleTransition;
-import org.antlr.v4.runtime.atn.SetTransition;
-import org.antlr.v4.runtime.atn.StarBlockStartState;
-import org.antlr.v4.runtime.atn.StarLoopEntryState;
-import org.antlr.v4.runtime.atn.StarLoopbackState;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.dfa.DFAState;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
-import org.stringtemplate.v4.STGroupFile;
+    /** The DOT (part of graphviz) generation aspect. */
+    public class DOTGenerator
+    {
+        public static readonly bool STRIP_NONREDUCED_STATES = false;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+        protected string arrowhead = "normal";
+        protected string rankdir = "LR";
 
-/** The DOT (part of graphviz) generation aspect. */
-public class DOTGenerator {
-	public static final boolean STRIP_NONREDUCED_STATES = false;
+        /** Library of output templates; use {@code &lt;attrname&gt;} format. */
+        public static TemplateGroup stlib = new TemplateGroupFile(Path.GetFullPath(Path.Combine("Tool", "Templates", "Dot", "graphs.stg")));
 
-	protected String arrowhead="normal";
-	protected String rankdir="LR";
+        protected Grammar grammar;
 
-	/** Library of output templates; use {@code <attrname>} format. */
-    public static STGroup stlib = new STGroupFile("org/antlr/v4/tool/templates/dot/graphs.stg");
+        /** This aspect is associated with a grammar */
+        public DOTGenerator(Grammar grammar)
+        {
+            this.grammar = grammar;
+        }
 
-    protected Grammar grammar;
+        public virtual string GetDOT(DFA dfa, bool isLexer)
+        {
+            if (dfa.s0.Get() == null)
+                return null;
 
-    /** This aspect is associated with a grammar */
-	public DOTGenerator(Grammar grammar) {
-		this.grammar = grammar;
-	}
+            Template dot = stlib.GetInstanceOf("dfa");
+            dot.Add("name", "DFA" + dfa.decision);
+            dot.Add("startState", dfa.s0.Get().stateNumber);
+            //		dot.add("useBox", Tool.internalOption_ShowATNConfigsInDFA);
+            dot.Add("rankdir", rankdir);
 
-	public String getDOT(DFA dfa, boolean isLexer) {
-		if ( dfa.s0.get()==null )	return null;
+            // define stop states first; seems to be a bug in DOT where doublecircle
+            foreach (DFAState d in dfa.states.Keys)
+            {
+                if (!d.IsAcceptState)
+                    continue;
+                Template st = stlib.GetInstanceOf("stopstate");
+                st.Add("name", "s" + d.stateNumber);
+                st.Add("label", GetStateLabel(d));
+                dot.Add("states", st);
+            }
 
-		ST dot = stlib.getInstanceOf("dfa");
-		dot.add("name", "DFA"+dfa.decision);
-		dot.add("startState", dfa.s0.get().stateNumber);
-//		dot.add("useBox", Tool.internalOption_ShowATNConfigsInDFA);
-		dot.add("rankdir", rankdir);
+            foreach (DFAState d in dfa.states.Keys)
+            {
+                if (d.IsAcceptState)
+                    continue;
+                if (d.stateNumber == int.MaxValue)
+                    continue;
+                Template st = stlib.GetInstanceOf("state");
+                st.Add("name", "s" + d.stateNumber);
+                st.Add("label", GetStateLabel(d));
+                dot.Add("states", st);
+            }
 
-		// define stop states first; seems to be a bug in DOT where doublecircle
-		for (DFAState d : dfa.states.keySet()) {
-			if ( !d.isAcceptState() ) continue;
-			ST st = stlib.getInstanceOf("stopstate");
-			st.add("name", "s"+d.stateNumber);
-			st.add("label", getStateLabel(d));
-			dot.add("states", st);
-		}
+            foreach (DFAState d in dfa.states.Keys)
+            {
+                IDictionary<int, DFAState> edges = d.EdgeMap;
+                foreach (KeyValuePair<int, DFAState> entry in edges)
+                {
+                    DFAState target = entry.Value;
+                    if (target == null)
+                        continue;
+                    if (target.stateNumber == int.MaxValue)
+                        continue;
+                    int ttype = entry.Key;
+                    string label = ttype.ToString();
+                    if (isLexer)
+                        label = "'" + GetEdgeLabel(((char)ttype).ToString()) + "'";
+                    else if (grammar != null)
+                        label = grammar.GetTokenDisplayName(ttype);
+                    Template st = stlib.GetInstanceOf("edge");
+                    st.Add("label", label);
+                    st.Add("src", "s" + d.stateNumber);
+                    st.Add("target", "s" + target.stateNumber);
+                    st.Add("arrowhead", arrowhead);
+                    dot.Add("edges", st);
+                }
+            }
 
-		for (DFAState d : dfa.states.keySet()) {
-			if ( d.isAcceptState() ) continue;
-			if ( d.stateNumber == Integer.MAX_VALUE ) continue;
-			ST st = stlib.getInstanceOf("state");
-			st.add("name", "s"+d.stateNumber);
-			st.add("label", getStateLabel(d));
-			dot.add("states", st);
-		}
+            string output = dot.Render();
+            return Utils.SortLinesInString(output);
+        }
 
-		for (DFAState d : dfa.states.keySet()) {
-			Map<Integer, DFAState> edges = d.getEdgeMap();
-			for (Map.Entry<Integer, DFAState> entry : edges.entrySet()) {
-				DFAState target = entry.getValue();
-				if ( target==null) continue;
-				if ( target.stateNumber == Integer.MAX_VALUE ) continue;
-				int ttype = entry.getKey();
-				String label = String.valueOf(ttype);
-				if ( isLexer ) label = "'"+getEdgeLabel(String.valueOf((char)ttype))+"'";
-				else if ( grammar!=null ) label = grammar.getTokenDisplayName(ttype);
-				ST st = stlib.getInstanceOf("edge");
-				st.add("label", label);
-				st.add("src", "s"+d.stateNumber);
-				st.add("target", "s"+target.stateNumber);
-				st.add("arrowhead", arrowhead);
-				dot.add("edges", st);
-			}
-		}
+        protected virtual string GetStateLabel(DFAState s)
+        {
+            if (s == null)
+                return "null";
+            StringBuilder buf = new StringBuilder(250);
+            buf.Append('s');
+            buf.Append(s.stateNumber);
+            if (s.IsAcceptState)
+            {
+                buf.Append("=>").Append(s.Prediction);
+            }
+            if (grammar != null)
+            {
+                Runtime.Sharpen.BitSet alts = s.configs.RepresentedAlternatives;
+                buf.Append("\\n");
+                IEnumerable<ATNConfig> configurations = s.configs;
+                for (int alt = alts.NextSetBit(0); alt >= 0; alt = alts.NextSetBit(alt + 1))
+                {
+                    if (alt > alts.NextSetBit(0))
+                    {
+                        buf.Append("\\n");
+                    }
+                    buf.Append("alt");
+                    buf.Append(alt);
+                    buf.Append(':');
+                    // get a list of configs for just this alt
+                    // it will help us print better later
+                    IList<ATNConfig> configsInAlt = new List<ATNConfig>();
+                    foreach (ATNConfig c in configurations)
+                    {
+                        if (c.Alt != alt)
+                            continue;
+                        configsInAlt.Add(c);
+                    }
+                    int n = 0;
+                    for (int cIndex = 0; cIndex < configsInAlt.Count; cIndex++)
+                    {
+                        ATNConfig c = configsInAlt[cIndex];
+                        n++;
+                        buf.Append(c.ToString(null, false));
+                        if ((cIndex + 1) < configsInAlt.Count)
+                        {
+                            buf.Append(", ");
+                        }
+                        if (n % 5 == 0 && (configsInAlt.Count - cIndex) > 3)
+                        {
+                            buf.Append("\\n");
+                        }
+                    }
+                }
+            }
+            string stateLabel = buf.ToString();
+            return stateLabel;
+        }
 
-		String output = dot.render();
-		return Utils.sortLinesInString(output);
-	}
+        public virtual string GetDOT(ATNState startState)
+        {
+            return GetDOT(startState, false);
+        }
 
-	protected String getStateLabel(DFAState s) {
-		if ( s==null ) return "null";
-		StringBuilder buf = new StringBuilder(250);
-		buf.append('s');
-		buf.append(s.stateNumber);
-		if ( s.isAcceptState() ) {
-			buf.append("=>").append(s.getPrediction());
-		}
-		if ( grammar!=null ) {
-			BitSet alts = s.configs.getRepresentedAlternatives();
-			buf.append("\\n");
-			Set<ATNConfig> configurations = s.configs;
-			for (int alt = alts.nextSetBit(0); alt >= 0; alt = alts.nextSetBit(alt + 1)) {
-				if ( alt>alts.nextSetBit(0) ) {
-					buf.append("\\n");
-				}
-				buf.append("alt");
-				buf.append(alt);
-				buf.append(':');
-				// get a list of configs for just this alt
-				// it will help us print better later
-				List<ATNConfig> configsInAlt = new ArrayList<ATNConfig>();
-				for (ATNConfig c : configurations) {
-					if ( c.getAlt()!=alt ) continue;
-					configsInAlt.add(c);
-				}
-				int n = 0;
-				for (int cIndex = 0; cIndex < configsInAlt.size(); cIndex++) {
-					ATNConfig c = configsInAlt.get(cIndex);
-					n++;
-					buf.append(c.toString(null, false));
-					if ( (cIndex+1)<configsInAlt.size() ) {
-						buf.append(", ");
-					}
-					if ( n%5==0 && (configsInAlt.size()-cIndex)>3 ) {
-						buf.append("\\n");
-					}
-				}
-			}
-		}
-		String stateLabel = buf.toString();
-        return stateLabel;
+        public virtual string GetDOT(ATNState startState, bool isLexer)
+        {
+            ICollection<string> ruleNames = grammar.rules.Keys;
+            string[] names = new string[ruleNames.Count + 1];
+            int i = 0;
+            foreach (string s in ruleNames)
+                names[i++] = s;
+            return GetDOT(startState, names, isLexer);
+        }
+
+        /** Return a String containing a DOT description that, when displayed,
+         *  will show the incoming state machine visually.  All nodes reachable
+         *  from startState will be included.
+         */
+        public virtual string GetDOT(ATNState startState, string[] ruleNames, bool isLexer)
+        {
+            if (startState == null)
+                return null;
+
+            // The output DOT graph for visualization
+            ISet<ATNState> markedStates = new HashSet<ATNState>();
+            Template dot = stlib.GetInstanceOf("atn");
+            dot.Add("startState", startState.stateNumber);
+            dot.Add("rankdir", rankdir);
+
+            Queue<ATNState> work = new Queue<ATNState>();
+
+            work.Enqueue(startState);
+            while (work.Count > 0)
+            {
+                ATNState s = work.Peek();
+                if (markedStates.Contains(s))
+                {
+                    work.Dequeue();
+                    continue;
+                }
+                markedStates.Add(s);
+
+                // don't go past end of rule node to the follow states
+                if (s is RuleStopState)
+                    continue;
+
+                // special case: if decision point, then line up the alt start states
+                // unless it's an end of block
+                //			if ( s instanceof BlockStartState ) {
+                //				ST rankST = stlib.getInstanceOf("decision-rank");
+                //				DecisionState alt = (DecisionState)s;
+                //				for (int i=0; i<alt.getNumberOfTransitions(); i++) {
+                //					ATNState target = alt.transition(i).target;
+                //					if ( target!=null ) {
+                //						rankST.add("states", target.stateNumber);
+                //					}
+                //				}
+                //				dot.add("decisionRanks", rankST);
+                //			}
+
+                // make a DOT edge for each transition
+                Template edgeST;
+                for (int i = 0; i < s.NumberOfTransitions; i++)
+                {
+                    Transition edge = s.Transition(i);
+                    if (edge is RuleTransition)
+                    {
+                        RuleTransition rr = ((RuleTransition)edge);
+                        // don't jump to other rules, but display edge to follow node
+                        edgeST = stlib.GetInstanceOf("edge");
+
+                        string label = "<" + ruleNames[rr.ruleIndex];
+                        if (((RuleStartState)rr.target).isPrecedenceRule)
+                        {
+                            label += "[" + rr.precedence + "]";
+                        }
+                        label += ">";
+
+                        edgeST.Add("label", label);
+                        edgeST.Add("src", "s" + s.stateNumber);
+                        edgeST.Add("target", "s" + rr.followState.stateNumber);
+                        edgeST.Add("arrowhead", arrowhead);
+                        dot.Add("edges", edgeST);
+                        work.Enqueue(rr.followState);
+                        continue;
+                    }
+                    if (edge is ActionTransition)
+                    {
+                        edgeST = stlib.GetInstanceOf("action-edge");
+                        edgeST.Add("label", GetEdgeLabel(edge.ToString()));
+                    }
+                    else if (edge is AbstractPredicateTransition)
+                    {
+                        edgeST = stlib.GetInstanceOf("edge");
+                        edgeST.Add("label", GetEdgeLabel(edge.ToString()));
+                    }
+                    else if (edge.IsEpsilon)
+                    {
+                        edgeST = stlib.GetInstanceOf("epsilon-edge");
+                        edgeST.Add("label", GetEdgeLabel(edge.ToString()));
+                        bool loopback = false;
+                        if (edge.target is PlusBlockStartState)
+                        {
+                            loopback = s.Equals(((PlusBlockStartState)edge.target).loopBackState);
+                        }
+                        else if (edge.target is StarLoopEntryState)
+                        {
+                            loopback = s.Equals(((StarLoopEntryState)edge.target).loopBackState);
+                        }
+                        edgeST.Add("loopback", loopback);
+                    }
+                    else if (edge is AtomTransition)
+                    {
+                        edgeST = stlib.GetInstanceOf("edge");
+                        AtomTransition atom = (AtomTransition)edge;
+                        string label = atom.label.ToString();
+                        if (isLexer)
+                            label = "'" + GetEdgeLabel(((char)atom.label).ToString()) + "'";
+                        else if (grammar != null)
+                            label = grammar.GetTokenDisplayName(atom.label);
+                        edgeST.Add("label", GetEdgeLabel(label));
+                    }
+                    else if (edge is SetTransition)
+                    {
+                        edgeST = stlib.GetInstanceOf("edge");
+                        SetTransition set = (SetTransition)edge;
+                        string label = set.Label.ToString();
+                        if (isLexer)
+                            label = set.Label.ToString(true);
+                        else if (grammar != null)
+                            label = set.Label.ToString(grammar.GetVocabulary());
+                        if (edge is NotSetTransition)
+                            label = "~" + label;
+                        edgeST.Add("label", GetEdgeLabel(label));
+                    }
+                    else if (edge is RangeTransition)
+                    {
+                        edgeST = stlib.GetInstanceOf("edge");
+                        RangeTransition range = (RangeTransition)edge;
+                        string label = range.Label.ToString();
+                        if (isLexer)
+                            label = range.ToString();
+                        else if (grammar != null)
+                            label = range.Label.ToString(grammar.GetVocabulary());
+                        edgeST.Add("label", GetEdgeLabel(label));
+                    }
+                    else
+                    {
+                        edgeST = stlib.GetInstanceOf("edge");
+                        edgeST.Add("label", GetEdgeLabel(edge.ToString()));
+                    }
+                    edgeST.Add("src", "s" + s.stateNumber);
+                    edgeST.Add("target", "s" + edge.target.stateNumber);
+                    edgeST.Add("arrowhead", arrowhead);
+                    if (s.NumberOfTransitions > 1)
+                    {
+                        edgeST.Add("transitionIndex", i);
+                    }
+                    else
+                    {
+                        edgeST.Add("transitionIndex", false);
+                    }
+                    dot.Add("edges", edgeST);
+                    work.Enqueue(edge.target);
+                }
+            }
+
+            // define nodes we visited (they will appear first in DOT output)
+            // this is an example of ST's lazy eval :)
+            // define stop state first; seems to be a bug in DOT where doublecircle
+            // shape only works if we define them first. weird.
+            //		ATNState stopState = startState.atn.ruleToStopState.get(startState.rule);
+            //		if ( stopState!=null ) {
+            //			ST st = stlib.getInstanceOf("stopstate");
+            //			st.add("name", "s"+stopState.stateNumber);
+            //			st.add("label", getStateLabel(stopState));
+            //			dot.add("states", st);
+            //		}
+            foreach (ATNState s in markedStates)
+            {
+                if (!(s is RuleStopState))
+                    continue;
+                Template st = stlib.GetInstanceOf("stopstate");
+                st.Add("name", "s" + s.stateNumber);
+                st.Add("label", GetStateLabel(s));
+                dot.Add("states", st);
+            }
+
+            foreach (ATNState s in markedStates)
+            {
+                if (s is RuleStopState)
+                    continue;
+                Template st = stlib.GetInstanceOf("state");
+                st.Add("name", "s" + s.stateNumber);
+                st.Add("label", GetStateLabel(s));
+                st.Add("transitions", s.Transitions);
+                dot.Add("states", st);
+            }
+
+            return dot.Render();
+        }
+
+
+        /////** Do a depth-first walk of the state machine graph and
+        //// *  fill a DOT description template.  Keep filling the
+        //// *  states and edges attributes.  We know this is an ATN
+        //// *  for a rule so don't traverse edges to other rules and
+        //// *  don't go past rule end state.
+        //// */
+        //    protected void walkRuleATNCreatingDOT(ST dot,
+        //                                          ATNState s)
+        //    {
+        //        if ( markedStates.contains(s) ) {
+        //            return; // already visited this node
+        //        }
+        //
+        //        markedStates.add(s.stateNumber); // mark this node as completed.
+        //
+        //        // first add this node
+        //        ST stateST;
+        //        if ( s instanceof RuleStopState ) {
+        //            stateST = stlib.getInstanceOf("stopstate");
+        //        }
+        //        else {
+        //            stateST = stlib.getInstanceOf("state");
+        //        }
+        //        stateST.add("name", getStateLabel(s));
+        //        dot.add("states", stateST);
+        //
+        //        if ( s instanceof RuleStopState )  {
+        //            return; // don't go past end of rule node to the follow states
+        //        }
+        //
+        //        // special case: if decision point, then line up the alt start states
+        //        // unless it's an end of block
+        //		if ( s instanceof DecisionState ) {
+        //			GrammarAST n = ((ATNState)s).ast;
+        //			if ( n!=null && s instanceof BlockEndState ) {
+        //				ST rankST = stlib.getInstanceOf("decision-rank");
+        //				ATNState alt = (ATNState)s;
+        //				while ( alt!=null ) {
+        //					rankST.add("states", getStateLabel(alt));
+        //					if ( alt.transition(1) !=null ) {
+        //						alt = (ATNState)alt.transition(1).target;
+        //					}
+        //					else {
+        //						alt=null;
+        //					}
+        //				}
+        //				dot.add("decisionRanks", rankST);
+        //			}
+        //		}
+        //
+        //        // make a DOT edge for each transition
+        //		ST edgeST = null;
+        //		for (int i = 0; i < s.getNumberOfTransitions(); i++) {
+        //            Transition edge = (Transition) s.transition(i);
+        //            if ( edge instanceof RuleTransition ) {
+        //                RuleTransition rr = ((RuleTransition)edge);
+        //                // don't jump to other rules, but display edge to follow node
+        //                edgeST = stlib.getInstanceOf("edge");
+        //				if ( rr.rule.g != grammar ) {
+        //					edgeST.add("label", "<"+rr.rule.g.name+"."+rr.rule.name+">");
+        //				}
+        //				else {
+        //					edgeST.add("label", "<"+rr.rule.name+">");
+        //				}
+        //				edgeST.add("src", getStateLabel(s));
+        //				edgeST.add("target", getStateLabel(rr.followState));
+        //				edgeST.add("arrowhead", arrowhead);
+        //                dot.add("edges", edgeST);
+        //				walkRuleATNCreatingDOT(dot, rr.followState);
+        //                continue;
+        //            }
+        //			if ( edge instanceof ActionTransition ) {
+        //				edgeST = stlib.getInstanceOf("action-edge");
+        //			}
+        //			else if ( edge instanceof PredicateTransition ) {
+        //				edgeST = stlib.getInstanceOf("edge");
+        //			}
+        //			else if ( edge.isEpsilon() ) {
+        //				edgeST = stlib.getInstanceOf("epsilon-edge");
+        //			}
+        //			else {
+        //				edgeST = stlib.getInstanceOf("edge");
+        //			}
+        //			edgeST.add("label", getEdgeLabel(edge.toString(grammar)));
+        //            edgeST.add("src", getStateLabel(s));
+        //			edgeST.add("target", getStateLabel(edge.target));
+        //			edgeST.add("arrowhead", arrowhead);
+        //            dot.add("edges", edgeST);
+        //            walkRuleATNCreatingDOT(dot, edge.target); // keep walkin'
+        //        }
+        //    }
+
+        /** Fix edge strings so they print out in DOT properly;
+         *  generate any gated predicates on edge too.
+         */
+        protected virtual string GetEdgeLabel(string label)
+        {
+            label = label.Replace("\\", "\\\\");
+            label = label.Replace("\"", "\\\"");
+            label = label.Replace("\n", "\\\\n");
+            label = label.Replace("\r", "");
+            return label;
+        }
+
+        protected virtual string GetStateLabel(ATNState s)
+        {
+            if (s == null)
+                return "null";
+            string stateLabel = "";
+
+            if (s is BlockStartState)
+            {
+                stateLabel += "&rarr;\\n";
+            }
+            else if (s is BlockEndState)
+            {
+                stateLabel += "&larr;\\n";
+            }
+
+            stateLabel += s.stateNumber.ToString();
+
+            if (s is PlusBlockStartState || s is PlusLoopbackState)
+            {
+                stateLabel += "+";
+            }
+            else if (s is StarBlockStartState || s is StarLoopEntryState || s is StarLoopbackState)
+            {
+                stateLabel += "*";
+            }
+
+            if (s is DecisionState && ((DecisionState)s).decision >= 0)
+            {
+                stateLabel = stateLabel + "\\nd=" + ((DecisionState)s).decision;
+            }
+
+            return stateLabel;
+        }
     }
-
-	public String getDOT(ATNState startState) {
-		return getDOT(startState, false);
-	}
-
-	public String getDOT(ATNState startState, boolean isLexer) {
-		Set<String> ruleNames = grammar.rules.keySet();
-		String[] names = new String[ruleNames.size()+1];
-		int i = 0;
-		for (String s : ruleNames) names[i++] = s;
-		return getDOT(startState, names, isLexer);
-	}
-
-    /** Return a String containing a DOT description that, when displayed,
-     *  will show the incoming state machine visually.  All nodes reachable
-     *  from startState will be included.
-     */
-	public String getDOT(ATNState startState, String[] ruleNames, boolean isLexer) {
-		if ( startState==null )	return null;
-
-		// The output DOT graph for visualization
-		Set<ATNState> markedStates = new HashSet<ATNState>();
-		ST dot = stlib.getInstanceOf("atn");
-		dot.add("startState", startState.stateNumber);
-		dot.add("rankdir", rankdir);
-
-		List<ATNState> work = new LinkedList<ATNState>();
-
-		work.add(startState);
-		while ( !work.isEmpty() ) {
-			ATNState s = work.get(0);
-			if ( markedStates.contains(s) ) { work.remove(0); continue; }
-			markedStates.add(s);
-
-			// don't go past end of rule node to the follow states
-			if ( s instanceof RuleStopState) continue;
-
-			// special case: if decision point, then line up the alt start states
-			// unless it's an end of block
-//			if ( s instanceof BlockStartState ) {
-//				ST rankST = stlib.getInstanceOf("decision-rank");
-//				DecisionState alt = (DecisionState)s;
-//				for (int i=0; i<alt.getNumberOfTransitions(); i++) {
-//					ATNState target = alt.transition(i).target;
-//					if ( target!=null ) {
-//						rankST.add("states", target.stateNumber);
-//					}
-//				}
-//				dot.add("decisionRanks", rankST);
-//			}
-
-			// make a DOT edge for each transition
-			ST edgeST;
-			for (int i = 0; i < s.getNumberOfTransitions(); i++) {
-				Transition edge = s.transition(i);
-				if ( edge instanceof RuleTransition ) {
-					RuleTransition rr = ((RuleTransition)edge);
-					// don't jump to other rules, but display edge to follow node
-					edgeST = stlib.getInstanceOf("edge");
-
-					String label = "<" + ruleNames[rr.ruleIndex];
-					if (((RuleStartState)rr.target).isPrecedenceRule) {
-						label += "[" + rr.precedence + "]";
-					}
-					label += ">";
-
-					edgeST.add("label", label);
-					edgeST.add("src", "s"+s.stateNumber);
-					edgeST.add("target", "s"+rr.followState.stateNumber);
-					edgeST.add("arrowhead", arrowhead);
-					dot.add("edges", edgeST);
-					work.add(rr.followState);
-					continue;
-				}
-				if ( edge instanceof ActionTransition) {
-					edgeST = stlib.getInstanceOf("action-edge");
-					edgeST.add("label", getEdgeLabel(edge.toString()));
-				}
-				else if ( edge instanceof AbstractPredicateTransition ) {
-					edgeST = stlib.getInstanceOf("edge");
-					edgeST.add("label", getEdgeLabel(edge.toString()));
-				}
-				else if ( edge.isEpsilon() ) {
-					edgeST = stlib.getInstanceOf("epsilon-edge");
-					edgeST.add("label", getEdgeLabel(edge.toString()));
-					boolean loopback = false;
-					if (edge.target instanceof PlusBlockStartState) {
-						loopback = s.equals(((PlusBlockStartState)edge.target).loopBackState);
-					}
-					else if (edge.target instanceof StarLoopEntryState) {
-						loopback = s.equals(((StarLoopEntryState)edge.target).loopBackState);
-					}
-					edgeST.add("loopback", loopback);
-				}
-				else if ( edge instanceof AtomTransition ) {
-					edgeST = stlib.getInstanceOf("edge");
-					AtomTransition atom = (AtomTransition)edge;
-					String label = String.valueOf(atom.label);
-					if ( isLexer ) label = "'"+getEdgeLabel(String.valueOf((char)atom.label))+"'";
-					else if ( grammar!=null ) label = grammar.getTokenDisplayName(atom.label);
-					edgeST.add("label", getEdgeLabel(label));
-				}
-				else if ( edge instanceof SetTransition ) {
-					edgeST = stlib.getInstanceOf("edge");
-					SetTransition set = (SetTransition)edge;
-					String label = set.label().toString();
-					if ( isLexer ) label = set.label().toString(true);
-					else if ( grammar!=null ) label = set.label().toString(grammar.getVocabulary());
-					if ( edge instanceof NotSetTransition ) label = "~"+label;
-					edgeST.add("label", getEdgeLabel(label));
-				}
-				else if ( edge instanceof RangeTransition ) {
-					edgeST = stlib.getInstanceOf("edge");
-					RangeTransition range = (RangeTransition)edge;
-					String label = range.label().toString();
-					if ( isLexer ) label = range.toString();
-					else if ( grammar!=null ) label = range.label().toString(grammar.getVocabulary());
-					edgeST.add("label", getEdgeLabel(label));
-				}
-				else {
-					edgeST = stlib.getInstanceOf("edge");
-					edgeST.add("label", getEdgeLabel(edge.toString()));
-				}
-				edgeST.add("src", "s"+s.stateNumber);
-				edgeST.add("target", "s"+edge.target.stateNumber);
-				edgeST.add("arrowhead", arrowhead);
-				if (s.getNumberOfTransitions() > 1) {
-					edgeST.add("transitionIndex", i);
-				} else {
-					edgeST.add("transitionIndex", false);
-				}
-				dot.add("edges", edgeST);
-				work.add(edge.target);
-			}
-		}
-
-		// define nodes we visited (they will appear first in DOT output)
-		// this is an example of ST's lazy eval :)
-		// define stop state first; seems to be a bug in DOT where doublecircle
-		// shape only works if we define them first. weird.
-//		ATNState stopState = startState.atn.ruleToStopState.get(startState.rule);
-//		if ( stopState!=null ) {
-//			ST st = stlib.getInstanceOf("stopstate");
-//			st.add("name", "s"+stopState.stateNumber);
-//			st.add("label", getStateLabel(stopState));
-//			dot.add("states", st);
-//		}
-		for (ATNState s : markedStates) {
-			if ( !(s instanceof RuleStopState) ) continue;
-			ST st = stlib.getInstanceOf("stopstate");
-			st.add("name", "s"+s.stateNumber);
-			st.add("label", getStateLabel(s));
-			dot.add("states", st);
-		}
-
-		for (ATNState s : markedStates) {
-			if ( s instanceof RuleStopState ) continue;
-			ST st = stlib.getInstanceOf("state");
-			st.add("name", "s"+s.stateNumber);
-			st.add("label", getStateLabel(s));
-			st.add("transitions", s.getTransitions());
-			dot.add("states", st);
-		}
-
-		return dot.render();
-	}
-
-
-    /** Do a depth-first walk of the state machine graph and
-     *  fill a DOT description template.  Keep filling the
-     *  states and edges attributes.  We know this is an ATN
-     *  for a rule so don't traverse edges to other rules and
-     *  don't go past rule end state.
-     */
-//    protected void walkRuleATNCreatingDOT(ST dot,
-//                                          ATNState s)
-//    {
-//        if ( markedStates.contains(s) ) {
-//            return; // already visited this node
-//        }
-//
-//        markedStates.add(s.stateNumber); // mark this node as completed.
-//
-//        // first add this node
-//        ST stateST;
-//        if ( s instanceof RuleStopState ) {
-//            stateST = stlib.getInstanceOf("stopstate");
-//        }
-//        else {
-//            stateST = stlib.getInstanceOf("state");
-//        }
-//        stateST.add("name", getStateLabel(s));
-//        dot.add("states", stateST);
-//
-//        if ( s instanceof RuleStopState )  {
-//            return; // don't go past end of rule node to the follow states
-//        }
-//
-//        // special case: if decision point, then line up the alt start states
-//        // unless it's an end of block
-//		if ( s instanceof DecisionState ) {
-//			GrammarAST n = ((ATNState)s).ast;
-//			if ( n!=null && s instanceof BlockEndState ) {
-//				ST rankST = stlib.getInstanceOf("decision-rank");
-//				ATNState alt = (ATNState)s;
-//				while ( alt!=null ) {
-//					rankST.add("states", getStateLabel(alt));
-//					if ( alt.transition(1) !=null ) {
-//						alt = (ATNState)alt.transition(1).target;
-//					}
-//					else {
-//						alt=null;
-//					}
-//				}
-//				dot.add("decisionRanks", rankST);
-//			}
-//		}
-//
-//        // make a DOT edge for each transition
-//		ST edgeST = null;
-//		for (int i = 0; i < s.getNumberOfTransitions(); i++) {
-//            Transition edge = (Transition) s.transition(i);
-//            if ( edge instanceof RuleTransition ) {
-//                RuleTransition rr = ((RuleTransition)edge);
-//                // don't jump to other rules, but display edge to follow node
-//                edgeST = stlib.getInstanceOf("edge");
-//				if ( rr.rule.g != grammar ) {
-//					edgeST.add("label", "<"+rr.rule.g.name+"."+rr.rule.name+">");
-//				}
-//				else {
-//					edgeST.add("label", "<"+rr.rule.name+">");
-//				}
-//				edgeST.add("src", getStateLabel(s));
-//				edgeST.add("target", getStateLabel(rr.followState));
-//				edgeST.add("arrowhead", arrowhead);
-//                dot.add("edges", edgeST);
-//				walkRuleATNCreatingDOT(dot, rr.followState);
-//                continue;
-//            }
-//			if ( edge instanceof ActionTransition ) {
-//				edgeST = stlib.getInstanceOf("action-edge");
-//			}
-//			else if ( edge instanceof PredicateTransition ) {
-//				edgeST = stlib.getInstanceOf("edge");
-//			}
-//			else if ( edge.isEpsilon() ) {
-//				edgeST = stlib.getInstanceOf("epsilon-edge");
-//			}
-//			else {
-//				edgeST = stlib.getInstanceOf("edge");
-//			}
-//			edgeST.add("label", getEdgeLabel(edge.toString(grammar)));
-//            edgeST.add("src", getStateLabel(s));
-//			edgeST.add("target", getStateLabel(edge.target));
-//			edgeST.add("arrowhead", arrowhead);
-//            dot.add("edges", edgeST);
-//            walkRuleATNCreatingDOT(dot, edge.target); // keep walkin'
-//        }
-//    }
-
-    /** Fix edge strings so they print out in DOT properly;
-	 *  generate any gated predicates on edge too.
-	 */
-    protected String getEdgeLabel(String label) {
-		label = label.replace("\\", "\\\\");
-		label = label.replace("\"", "\\\"");
-		label = label.replace("\n", "\\\\n");
-		label = label.replace("\r", "");
-        return label;
-    }
-
-	protected String getStateLabel(ATNState s) {
-		if ( s==null ) return "null";
-		String stateLabel = "";
-
-		if (s instanceof BlockStartState) {
-			stateLabel += "&rarr;\\n";
-		}
-		else if (s instanceof BlockEndState) {
-			stateLabel += "&larr;\\n";
-		}
-
-		stateLabel += String.valueOf(s.stateNumber);
-
-		if (s instanceof PlusBlockStartState || s instanceof PlusLoopbackState) {
-			stateLabel += "+";
-		}
-		else if (s instanceof StarBlockStartState || s instanceof StarLoopEntryState || s instanceof StarLoopbackState) {
-			stateLabel += "*";
-		}
-
-		if ( s instanceof DecisionState && ((DecisionState)s).decision>=0 ) {
-			stateLabel = stateLabel+"\\nd="+((DecisionState)s).decision;
-		}
-
-		return stateLabel;
-	}
-
 }

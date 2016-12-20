@@ -28,25 +28,27 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool;
+namespace Antlr4.Tool
+{
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.Token;
-
-/** A problem with the symbols and/or meaning of a grammar such as rule
- *  redefinition. Any msg where we can point to a location in the grammar.
- */
-public class GrammarSemanticsMessage extends ANTLRMessage {
-    public GrammarSemanticsMessage(ErrorType etype,
-                                   String fileName,
-                                   Token offendingToken,
-                                   Object... args)
+    /** A problem with the symbols and/or meaning of a grammar such as rule
+     *  redefinition. Any msg where we can point to a location in the grammar.
+     */
+    public class GrammarSemanticsMessage : ANTLRMessage
     {
-        super(etype,offendingToken,args);
-        this.fileName = fileName;
-		if ( offendingToken!=null ) {
-            line = offendingToken.getLine();
-            charPosition = offendingToken.getCharPositionInLine();
+        public GrammarSemanticsMessage(ErrorType etype,
+                                       string fileName,
+                                       IToken offendingToken,
+                                       params object[] args)
+            : base(etype, offendingToken, args)
+        {
+            this.fileName = fileName;
+            if (offendingToken != null)
+            {
+                line = offendingToken.Line;
+                charPosition = offendingToken.CharPositionInLine;
+            }
         }
     }
 }
-

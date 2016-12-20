@@ -27,42 +27,41 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.tool;
 
-import org.antlr.v4.runtime.InterpreterRuleContext;
-import org.antlr.v4.runtime.ParserRuleContext;
+namespace Antlr4.Tool
+{
+    using Antlr4.Runtime;
 
-/** An {@link InterpreterRuleContext} that knows which alternative
- *  for a rule was matched.
- *
- *  @see GrammarParserInterpreter
- *  @since 4.5.1
- */
-public class GrammarInterpreterRuleContext extends InterpreterRuleContext {
-	protected int outerAltNum = 1;
+    /** An {@link InterpreterRuleContext} that knows which alternative
+     *  for a rule was matched.
+     *
+     *  @see GrammarParserInterpreter
+     *  @since 4.5.1
+     */
+    public class GrammarInterpreterRuleContext : InterpreterRuleContext
+    {
+        protected int outerAltNum = 1;
 
-	public GrammarInterpreterRuleContext(ParserRuleContext parent, int invokingStateNumber, int ruleIndex) {
-		super(parent, invokingStateNumber, ruleIndex);
-	}
+        public GrammarInterpreterRuleContext(ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
+            : base(parent, invokingStateNumber, ruleIndex)
+        {
+        }
 
-	/** The predicted outermost alternative for the rule associated
-	 *  with this context object.  If this node left recursive, the true original
-	 *  outermost alternative is returned.
-	 */
-	public int getOuterAltNum() { return outerAltNum; }
+        /** The predicted outermost alternative for the rule associated
+         *  with this context object.  If this node left recursive, the true original
+         *  outermost alternative is returned.
+         */
+        public override int OuterAlternative
+        {
+            get
+            {
+                return outerAltNum;
+            }
 
-	public void setOuterAltNum(int outerAltNum) {
-		this.outerAltNum = outerAltNum;
-	}
-
-	@Override
-	public int getAltNumber() {
-		// override here and called old functionality; makes it backward compatible vs changing names
-		return getOuterAltNum();
-	}
-
-	@Override
-	public void setAltNumber(int altNumber) {
-		setOuterAltNum(altNumber);
-	}
+            set
+            {
+                outerAltNum = value;
+            }
+        }
+    }
 }
