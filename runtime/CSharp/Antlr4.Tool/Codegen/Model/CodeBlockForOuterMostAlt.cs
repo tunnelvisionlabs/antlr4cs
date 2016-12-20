@@ -27,28 +27,31 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen.model;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Alternative;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool;
 
-/** The code associated with the outermost alternative of a rule.
- *  Sometimes we might want to treat them differently in the
- *  code generation.
- */
-public class CodeBlockForOuterMostAlt extends CodeBlockForAlt {
-	/**
-	 * The label for the alternative; or null if the alternative is not labeled.
-	 */
-	public String altLabel;
-	/**
-	 * The alternative.
-	 */
-	public Alternative alt;
+    /** The code associated with the outermost alternative of a rule.
+     *  Sometimes we might want to treat them differently in the
+     *  code generation.
+     */
+    public class CodeBlockForOuterMostAlt : CodeBlockForAlt
+    {
+        /**
+         * The label for the alternative; or null if the alternative is not labeled.
+         */
+        public string altLabel;
+        /**
+         * The alternative.
+         */
+        public Alternative alt;
 
-	public CodeBlockForOuterMostAlt(OutputModelFactory factory, Alternative alt) {
-		super(factory);
-		this.alt = alt;
-		altLabel = alt.ast.altLabel!=null ? alt.ast.altLabel.getText() : null;
-	}
+        public CodeBlockForOuterMostAlt(OutputModelFactory factory, Alternative alt)
+            : base(factory)
+        {
+            this.alt = alt;
+            altLabel = alt.ast.altLabel != null ? alt.ast.altLabel.Text : null;
+        }
+    }
 }

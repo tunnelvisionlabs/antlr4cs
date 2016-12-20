@@ -28,19 +28,19 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    /** */
+    public class AddToLabelList : SrcOp
+    {
+        public Decl.Decl label;
+        public string listName;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.Decl;
-
-/** */
-public class AddToLabelList extends SrcOp {
-	public Decl label;
-	public String listName;
-
-	public AddToLabelList(OutputModelFactory factory, String listName, Decl label) {
-		super(factory);
-		this.label = label;
-		this.listName = listName;
-	}
+        public AddToLabelList(OutputModelFactory factory, string listName, Decl.Decl label)
+            : base(factory)
+        {
+            this.label = label;
+            this.listName = listName;
+        }
+    }
 }

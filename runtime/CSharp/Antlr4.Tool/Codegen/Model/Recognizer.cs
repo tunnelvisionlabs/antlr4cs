@@ -27,110 +27,122 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen.model;
 
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.chunk.ActionChunk;
-import org.antlr.v4.codegen.model.chunk.ActionText;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.Rule;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model.Chunk;
+    using Antlr4.Misc;
+    using Antlr4.Tool;
+    using Array = System.Array;
+    using Path = System.IO.Path;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+    public abstract class Recognizer : OutputModelObject
+    {
+        public string name;
+        public string grammarName;
+        public string grammarFileName;
+        public IDictionary<string, int> tokens;
 
-public abstract class Recognizer extends OutputModelObject {
-	public String name;
-	public String grammarName;
-	public String grammarFileName;
-	public Map<String,Integer> tokens;
+        /**
+         * @deprecated This field is provided only for compatibility with code
+         * generation targets which have not yet been updated to use
+         * {@link #literalNames} and {@link #symbolicNames}.
+         */
+        [System.Obsolete]
+        public string[] tokenNames;
 
-	/**
-	 * @deprecated This field is provided only for compatibility with code
-	 * generation targets which have not yet been updated to use
-	 * {@link #literalNames} and {@link #symbolicNames}.
-	 */
-	@Deprecated
-	public String[] tokenNames;
+        public string[] literalNames;
+        public string[] symbolicNames;
+        public ICollection<string> ruleNames;
+        public ICollection<Rule> rules;
+        [ModelElement]
+        public ActionChunk superClass;
+        public bool abstractRecognizer;
 
-	public String[] literalNames;
-	public String[] symbolicNames;
-	public Set<String> ruleNames;
-	public Collection<Rule> rules;
-	@ModelElement public ActionChunk superClass;
-	public boolean abstractRecognizer;
+        [ModelElement]
+        public SerializedATN atn;
+        [ModelElement]
+        public LinkedHashMap<Rule, RuleSempredFunction> sempredFuncs =
+            new LinkedHashMap<Rule, RuleSempredFunction>();
 
-	@ModelElement public SerializedATN atn;
-	@ModelElement public LinkedHashMap<Rule, RuleSempredFunction> sempredFuncs =
-		new LinkedHashMap<Rule, RuleSempredFunction>();
+        protected Recognizer(OutputModelFactory factory)
+            : base(factory)
+        {
+            Grammar g = factory.GetGrammar();
+            grammarFileName = Path.GetFileName(g.fileName);
+            grammarName = g.name;
+            name = g.GetRecognizerName();
+            tokens = new LinkedHashMap<string, int>();
+            foreach (KeyValuePair<string, int> entry in g.tokenNameToTypeMap)
+            {
+                int ttype = entry.Value;
+                if (ttype > 0)
+                {
+                    tokens[entry.Key] = ttype;
+                }
+            }
 
-	public Recognizer(OutputModelFactory factory) {
-		super(factory);
+            ruleNames = g.rules.Keys;
+            rules = g.rules.Values;
+            atn = new SerializedATN(factory, g.atn, g.GetRuleNames());
+            if (g.GetOptionString("superClass") != null)
+            {
+                superClass = new ActionText(null, g.GetOptionString("superClass"));
+            }
+            else
+            {
+                superClass = null;
+            }
 
-		Grammar g = factory.getGrammar();
-		grammarFileName = new File(g.fileName).getName();
-		grammarName = g.name;
-		name = g.getRecognizerName();
-		tokens = new LinkedHashMap<String,Integer>();
-		for (Map.Entry<String, Integer> entry : g.tokenNameToTypeMap.entrySet()) {
-			Integer ttype = entry.getValue();
-			if ( ttype>0 ) {
-				tokens.put(entry.getKey(), ttype);
-			}
-		}
+#pragma warning disable CS0612 // Type or member is obsolete
+            tokenNames = TranslateTokenStringsToTarget(g.GetTokenDisplayNames(), factory);
+#pragma warning restore CS0612 // Type or member is obsolete
+            literalNames = TranslateTokenStringsToTarget(g.GetTokenLiteralNames(), factory);
+            symbolicNames = TranslateTokenStringsToTarget(g.GetTokenSymbolicNames(), factory);
+            abstractRecognizer = g.IsAbstract();
+        }
 
-		ruleNames = g.rules.keySet();
-		rules = g.rules.values();
-		atn = new SerializedATN(factory, g.atn, Arrays.asList(g.getRuleNames()));
-		if (g.getOptionString("superClass") != null) {
-			superClass = new ActionText(null, g.getOptionString("superClass"));
-		}
-		else {
-			superClass = null;
-		}
+        protected static string[] TranslateTokenStringsToTarget(string[] tokenStrings, OutputModelFactory factory)
+        {
+            string[] result = (string[])tokenStrings.Clone();
+            for (int i = 0; i < tokenStrings.Length; i++)
+            {
+                result[i] = TranslateTokenStringToTarget(tokenStrings[i], factory);
+            }
 
-		tokenNames = translateTokenStringsToTarget(g.getTokenDisplayNames(), factory);
-		literalNames = translateTokenStringsToTarget(g.getTokenLiteralNames(), factory);
-		symbolicNames = translateTokenStringsToTarget(g.getTokenSymbolicNames(), factory);
-		abstractRecognizer = g.isAbstract();
-	}
+            int lastTrueEntry = result.Length - 1;
+            while (lastTrueEntry >= 0 && result[lastTrueEntry] == null)
+            {
+                lastTrueEntry--;
+            }
 
-	protected static String[] translateTokenStringsToTarget(String[] tokenStrings, OutputModelFactory factory) {
-		String[] result = tokenStrings.clone();
-		for (int i = 0; i < tokenStrings.length; i++) {
-			result[i] = translateTokenStringToTarget(tokenStrings[i], factory);
-		}
+            if (lastTrueEntry < result.Length - 1)
+            {
+                Array.Resize(ref result, lastTrueEntry + 1);
+            }
 
-		int lastTrueEntry = result.length - 1;
-		while (lastTrueEntry >= 0 && result[lastTrueEntry] == null) {
-			lastTrueEntry --;
-		}
+            return result;
+        }
 
-		if (lastTrueEntry < result.length - 1) {
-			result = Arrays.copyOf(result, lastTrueEntry + 1);
-		}
+        protected static string TranslateTokenStringToTarget(string tokenName, OutputModelFactory factory)
+        {
+            if (tokenName == null)
+            {
+                return null;
+            }
 
-		return result;
-	}
-
-	protected static String translateTokenStringToTarget(String tokenName, OutputModelFactory factory) {
-		if (tokenName == null) {
-			return null;
-		}
-
-		if (tokenName.charAt(0) == '\'') {
-			boolean addQuotes = false;
-			String targetString =
-				factory.getTarget().getTargetStringLiteralFromANTLRStringLiteral(factory.getGenerator(), tokenName, addQuotes);
-			return "\"'" + targetString + "'\"";
-		}
-		else {
-			return factory.getTarget().getTargetStringLiteralFromString(tokenName, true);
-		}
-	}
-
+            if (tokenName[0] == '\'')
+            {
+                bool addQuotes = false;
+                string targetString =
+                    factory.GetTarget().GetTargetStringLiteralFromANTLRStringLiteral(factory.GetGenerator(), tokenName, addQuotes);
+                return "\"'" + targetString + "'\"";
+            }
+            else
+            {
+                return factory.GetTarget().GetTargetStringLiteralFromString(tokenName, true);
+            }
+        }
+    }
 }

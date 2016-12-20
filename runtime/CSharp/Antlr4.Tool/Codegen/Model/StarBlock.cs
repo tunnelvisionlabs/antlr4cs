@@ -28,25 +28,25 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.StarLoopEntryState;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public class StarBlock : Loop
+    {
+        public string loopLabel;
 
-import java.util.List;
-
-public class StarBlock extends Loop {
-	public String loopLabel;
-
-	public StarBlock(OutputModelFactory factory,
-					 GrammarAST blkOrEbnfRootAST,
-					 List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkOrEbnfRootAST, alts);
-		loopLabel = factory.getTarget().getLoopLabel(blkOrEbnfRootAST);
-		StarLoopEntryState star = (StarLoopEntryState)blkOrEbnfRootAST.atnState;
-		loopBackStateNumber = star.loopBackState.stateNumber;
-		decision = star.decision;
-	}
+        public StarBlock(OutputModelFactory factory,
+                         GrammarAST blkOrEbnfRootAST,
+                         IList<CodeBlockForAlt> alts)
+            : base(factory, blkOrEbnfRootAST, alts)
+        {
+            loopLabel = factory.GetTarget().GetLoopLabel(blkOrEbnfRootAST);
+            StarLoopEntryState star = (StarLoopEntryState)blkOrEbnfRootAST.atnState;
+            loopBackStateNumber = star.loopBackState.stateNumber;
+            decision = star.decision;
+        }
+    }
 }

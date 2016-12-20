@@ -28,15 +28,16 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Codegen.Model.Decl;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.CodeBlock;
-
-/** Contains Rewrite block (usually as last op) */
-public class CodeBlockForAlt extends CodeBlock {
-
-	public CodeBlockForAlt(OutputModelFactory factory) {
-		super(factory);
-	}
+    /** Contains Rewrite block (usually as last op) */
+    public class CodeBlockForAlt : CodeBlock
+    {
+        public CodeBlockForAlt(OutputModelFactory factory)
+            : base(factory)
+        {
+        }
+    }
 }

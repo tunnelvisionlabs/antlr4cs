@@ -28,57 +28,64 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using System.Linq;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public class TestSetInline : SrcOp
+    {
+        public int bitsetWordSize;
+        public string varName;
+        public Bitset[] bitsets;
 
-import java.util.ArrayList;
-import java.util.List;
+        public TestSetInline(OutputModelFactory factory, GrammarAST ast, IntervalSet set, int wordSize)
+            : base(factory, ast)
+        {
+            bitsetWordSize = wordSize;
+            Bitset[] withZeroOffset = CreateBitsets(factory, set, wordSize, true);
+            Bitset[] withoutZeroOffset = CreateBitsets(factory, set, wordSize, false);
+            this.bitsets = withZeroOffset.Length <= withoutZeroOffset.Length ? withZeroOffset : withoutZeroOffset;
+            this.varName = "_la";
+        }
 
-/** */
-public class TestSetInline extends SrcOp {
-	public int bitsetWordSize;
-	public String varName;
-	public Bitset[] bitsets;
+        private static Bitset[] CreateBitsets(OutputModelFactory factory,
+                                              IntervalSet set,
+                                              int wordSize,
+                                              bool useZeroOffset)
+        {
+            IList<Bitset> bitsetList = new List<Bitset>();
+            foreach (int ttype in set.ToArray())
+            {
+                Bitset current = bitsetList.Count > 0 ? bitsetList[bitsetList.Count - 1] : null;
+                if (current == null || ttype > (current.shift + wordSize - 1))
+                {
+                    current = new Bitset();
+                    if (useZeroOffset && ttype >= 0 && ttype < wordSize - 1)
+                    {
+                        current.shift = 0;
+                    }
+                    else
+                    {
+                        current.shift = ttype;
+                    }
 
-	public TestSetInline(OutputModelFactory factory, GrammarAST ast, IntervalSet set, int wordSize) {
-		super(factory, ast);
-		bitsetWordSize = wordSize;
-		Bitset[] withZeroOffset = createBitsets(factory, set, wordSize, true);
-		Bitset[] withoutZeroOffset = createBitsets(factory, set, wordSize, false);
-		this.bitsets = withZeroOffset.length <= withoutZeroOffset.length ? withZeroOffset : withoutZeroOffset;
-		this.varName = "_la";
-	}
+                    bitsetList.Add(current);
+                }
 
-	private static Bitset[] createBitsets(OutputModelFactory factory,
-										  IntervalSet set,
-										  int wordSize,
-										  boolean useZeroOffset) {
-		List<Bitset> bitsetList = new ArrayList<Bitset>();
-		for (int ttype : set.toArray()) {
-			Bitset current = !bitsetList.isEmpty() ? bitsetList.get(bitsetList.size() - 1) : null;
-			if (current == null || ttype > (current.shift + wordSize-1)) {
-				current = new Bitset();
-				if (useZeroOffset && ttype >= 0 && ttype < wordSize-1) {
-					current.shift = 0;
-				}
-				else {
-					current.shift = ttype;
-				}
+                current.ttypes.Add(factory.GetTarget().GetTokenTypeAsTargetLabel(factory.GetGrammar(), ttype));
+            }
 
-				bitsetList.add(current);
-			}
+            return bitsetList.ToArray();
+        }
 
-			current.ttypes.add(factory.getTarget().getTokenTypeAsTargetLabel(factory.getGrammar(), ttype));
-		}
-
-		return bitsetList.toArray(new Bitset[bitsetList.size()]);
-	}
-
-	public static final class Bitset {
-		public int shift;
-		public final List<String> ttypes = new ArrayList<String>();
-	}
+        public sealed class Bitset
+        {
+            public int shift;
+            public readonly IList<string> ttypes = new List<string>();
+        }
+    }
 }

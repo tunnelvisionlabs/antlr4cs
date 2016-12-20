@@ -28,78 +28,80 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model.Chunk;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Misc;
+    using Antlr4.Parse;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.ActionTranslator;
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.codegen.ParserFactory;
-import org.antlr.v4.codegen.model.chunk.ActionChunk;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.codegen.model.decl.RuleContextDecl;
-import org.antlr.v4.codegen.model.decl.RuleContextListDecl;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.runtime.atn.RuleTransition;
-import org.antlr.v4.runtime.misc.OrderedHashSet;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public class InvokeRule : RuleElement, LabeledOp
+    {
+        public string name;
+        public OrderedHashSet<Decl.Decl> labels = new OrderedHashSet<Decl.Decl>(); // TODO: should need just 1
+        public string ctxName;
 
-import java.util.List;
+        [ModelElement]
+        public IList<ActionChunk> argExprsChunks;
 
-/** */
-public class InvokeRule extends RuleElement implements LabeledOp {
-	public String name;
-	public OrderedHashSet<Decl> labels = new OrderedHashSet<Decl>(); // TODO: should need just 1
-	public String ctxName;
+        public InvokeRule(ParserFactory factory, GrammarAST ast, GrammarAST labelAST)
+            : base(factory, ast)
+        {
+            if (ast.atnState != null)
+            {
+                RuleTransition ruleTrans = (RuleTransition)ast.atnState.Transition(0);
+                stateNumber = ast.atnState.stateNumber;
+            }
 
-	@ModelElement public List<ActionChunk> argExprsChunks;
+            this.name = ast.Text;
+            Rule r = factory.GetGrammar().GetRule(name);
+            ctxName = factory.GetTarget().GetRuleFunctionContextStructName(r);
 
-	public InvokeRule(ParserFactory factory, GrammarAST ast, GrammarAST labelAST) {
-		super(factory, ast);
-		if ( ast.atnState!=null ) {
-			@SuppressWarnings("unused")
-			RuleTransition ruleTrans = (RuleTransition)ast.atnState.transition(0);
-			stateNumber = ast.atnState.stateNumber;
-		}
+            // TODO: move to factory
+            RuleFunction rf = factory.GetCurrentRuleFunction();
+            if (labelAST != null)
+            {
+                // for x=r, define <rule-context-type> x and list_x
+                string label = labelAST.Text;
+                if (labelAST.Parent.Type == ANTLRParser.PLUS_ASSIGN)
+                {
+                    factory.DefineImplicitLabel(ast, this);
+                    string listLabel = factory.GetTarget().GetListLabel(label);
+                    RuleContextListDecl l = new RuleContextListDecl(factory, listLabel, ctxName);
+                    rf.AddContextDecl(ast.GetAltLabel(), l);
+                }
+                else
+                {
+                    RuleContextDecl d = new RuleContextDecl(factory, label, ctxName);
+                    labels.Add(d);
+                    rf.AddContextDecl(ast.GetAltLabel(), d);
+                }
+            }
 
-		this.name = ast.getText();
-		Rule r = factory.getGrammar().getRule(name);
-		ctxName = factory.getTarget().getRuleFunctionContextStructName(r);
+            ActionAST arg = (ActionAST)ast.GetFirstChildWithType(ANTLRParser.ARG_ACTION);
+            if (arg != null)
+            {
+                argExprsChunks = ActionTranslator.TranslateAction(factory, rf, arg.Token, arg);
+            }
 
-		// TODO: move to factory
-		RuleFunction rf = factory.getCurrentRuleFunction();
-		if ( labelAST!=null ) {
-			// for x=r, define <rule-context-type> x and list_x
-			String label = labelAST.getText();
-			if ( labelAST.parent.getType() == ANTLRParser.PLUS_ASSIGN  ) {
-				factory.defineImplicitLabel(ast, this);
-				String listLabel = factory.getTarget().getListLabel(label);
-				RuleContextListDecl l = new RuleContextListDecl(factory, listLabel, ctxName);
-				rf.addContextDecl(ast.getAltLabel(), l);
-			}
-			else {
-				RuleContextDecl d = new RuleContextDecl(factory,label,ctxName);
-				labels.add(d);
-				rf.addContextDecl(ast.getAltLabel(), d);
-			}
-		}
+            // If action refs rule as rulename not label, we need to define implicit label
+            if (factory.GetCurrentOuterMostAlt().ruleRefsInActions.ContainsKey(ast.Text))
+            {
+                string label = factory.GetTarget().GetImplicitRuleLabel(ast.Text);
+                RuleContextDecl d = new RuleContextDecl(factory, label, ctxName);
+                labels.Add(d);
+                rf.AddContextDecl(ast.GetAltLabel(), d);
+            }
+        }
 
-		ActionAST arg = (ActionAST)ast.getFirstChildWithType(ANTLRParser.ARG_ACTION);
-		if ( arg != null ) {
-			argExprsChunks = ActionTranslator.translateAction(factory, rf, arg.token, arg);
-		}
-
-		// If action refs rule as rulename not label, we need to define implicit label
-		if ( factory.getCurrentOuterMostAlt().ruleRefsInActions.containsKey(ast.getText()) ) {
-			String label = factory.getTarget().getImplicitRuleLabel(ast.getText());
-			RuleContextDecl d = new RuleContextDecl(factory,label,ctxName);
-			labels.add(d);
-			rf.addContextDecl(ast.getAltLabel(), d);
-		}
-	}
-
-	@Override
-	public List<Decl> getLabels() {
-		return labels.elements();
-	}
+        public virtual IList<Decl.Decl> GetLabels()
+        {
+            return labels.Elements;
+        }
+    }
 }

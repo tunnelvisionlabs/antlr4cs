@@ -28,44 +28,50 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public abstract class LL1Loop : Choice
+    {
+        /** The state associated wih the (A|B|...) block not loopback, which
+         *  is super.stateNumber
+         */
+        public int blockStartStateNumber;
+        public int loopBackStateNumber;
 
-import java.util.ArrayList;
-import java.util.List;
+        [ModelElement]
+        public OutputModelObject loopExpr;
+        [ModelElement]
+        public IList<SrcOp> iteration;
 
-/** */
-public abstract class LL1Loop extends Choice {
-	/** The state associated wih the (A|B|...) block not loopback, which
-	 *  is super.stateNumber
-	 */
-	public int blockStartStateNumber;
-	public int loopBackStateNumber;
+        public LL1Loop(OutputModelFactory factory,
+                       GrammarAST blkAST,
+                       IList<CodeBlockForAlt> alts)
+            : base(factory, blkAST, alts)
+        {
+        }
 
-	@ModelElement public OutputModelObject loopExpr;
-	@ModelElement public List<SrcOp> iteration;
+        public virtual void AddIterationOp(SrcOp op)
+        {
+            if (iteration == null)
+                iteration = new List<SrcOp>();
+            iteration.Add(op);
+        }
 
-	public LL1Loop(OutputModelFactory factory,
-				   GrammarAST blkAST,
-				   List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkAST, alts);
-	}
+        public virtual SrcOp AddCodeForLoopLookaheadTempVar(IntervalSet look)
+        {
+            TestSetInline expr = AddCodeForLookaheadTempVar(look);
+            if (expr != null)
+            {
+                CaptureNextTokenType nextType = new CaptureNextTokenType(factory, expr.varName);
+                AddIterationOp(nextType);
+            }
 
-	public void addIterationOp(SrcOp op) {
-		if ( iteration==null ) iteration = new ArrayList<SrcOp>();
-		iteration.add(op);
-	}
-
-	public SrcOp addCodeForLoopLookaheadTempVar(IntervalSet look) {
-		TestSetInline expr = addCodeForLookaheadTempVar(look);
-		if (expr != null) {
-			CaptureNextTokenType nextType = new CaptureNextTokenType(factory, expr.varName);
-			addIterationOp(nextType);
-		}
-		return expr;
-	}
+            return expr;
+        }
+    }
 }

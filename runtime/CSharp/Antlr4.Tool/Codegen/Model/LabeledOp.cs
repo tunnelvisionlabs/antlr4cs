@@ -28,13 +28,13 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
 
-import org.antlr.v4.codegen.model.decl.Decl;
-
-import java.util.List;
-
-/** All the rule elements we can label like tokens, rules, sets, wildcard. */
-public interface LabeledOp {
-	public List<Decl> getLabels();
+    /** All the rule elements we can label like tokens, rules, sets, wildcard. */
+    public interface LabeledOp
+    {
+        IList<Decl.Decl> GetLabels();
+    }
 }

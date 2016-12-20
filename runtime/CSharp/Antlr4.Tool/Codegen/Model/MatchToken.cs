@@ -28,35 +28,35 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.TerminalAST;
+    /** */
+    public class MatchToken : RuleElement, LabeledOp
+    {
+        public string name;
+        public int ttype;
+        public IList<Decl.Decl> labels = new List<Decl.Decl>();
 
-import java.util.ArrayList;
-import java.util.List;
+        public MatchToken(OutputModelFactory factory, TerminalAST ast)
+            : base(factory, ast)
+        {
+            Grammar g = factory.GetGrammar();
+            ttype = g.GetTokenType(ast.Text);
+            name = factory.GetTarget().GetTokenTypeAsTargetLabel(g, ttype);
+        }
 
-/** */
-public class MatchToken extends RuleElement implements LabeledOp {
-	public String name;
-	public int ttype;
-	public List<Decl> labels = new ArrayList<Decl>();
+        public MatchToken(OutputModelFactory factory, GrammarAST ast)
+            : base(factory, ast)
+        {
+        }
 
-	public MatchToken(OutputModelFactory factory, TerminalAST ast) {
-		super(factory, ast);
-		Grammar g = factory.getGrammar();
-		ttype = g.getTokenType(ast.getText());
-		name = factory.getTarget().getTokenTypeAsTargetLabel(g, ttype);
-	}
-
-	public MatchToken(OutputModelFactory factory, GrammarAST ast) {
-		super(factory, ast);
-	}
-
-	@Override
-	public List<Decl> getLabels() { return labels; }
+        public virtual IList<Decl.Decl> GetLabels()
+        {
+            return labels;
+        }
+    }
 }

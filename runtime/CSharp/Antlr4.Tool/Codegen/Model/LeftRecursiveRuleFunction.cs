@@ -28,48 +28,51 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Parse;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.RuleContextDecl;
-import org.antlr.v4.codegen.model.decl.RuleContextListDecl;
-import org.antlr.v4.codegen.model.decl.StructDecl;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.runtime.misc.Tuple2;
-import org.antlr.v4.tool.LeftRecursiveRule;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public class LeftRecursiveRuleFunction : RuleFunction
+    {
+        public LeftRecursiveRuleFunction(OutputModelFactory factory, LeftRecursiveRule r)
+            : base(factory, r)
+        {
+            // Since we delete x=lr, we have to manually add decls for all labels
+            // on left-recur refs to proper structs
+            foreach (System.Tuple<GrammarAST, string> pair in r.leftRecursiveRuleRefLabels)
+            {
+                GrammarAST idAST = pair.Item1;
+                string altLabel = pair.Item2;
+                string label = idAST.Text;
+                GrammarAST rrefAST = (GrammarAST)idAST.Parent.GetChild(1);
+                if (rrefAST.Type == ANTLRParser.RULE_REF)
+                {
+                    Rule targetRule = factory.GetGrammar().GetRule(rrefAST.Text);
+                    string ctxName = factory.GetTarget().GetRuleFunctionContextStructName(targetRule);
+                    RuleContextDecl d;
+                    if (idAST.Parent.Type == ANTLRParser.ASSIGN)
+                    {
+                        d = new RuleContextDecl(factory, label, ctxName);
+                    }
+                    else
+                    {
+                        d = new RuleContextListDecl(factory, label, ctxName);
+                    }
 
-public class LeftRecursiveRuleFunction extends RuleFunction {
-	public LeftRecursiveRuleFunction(OutputModelFactory factory, LeftRecursiveRule r) {
-		super(factory, r);
+                    StructDecl @struct = ruleCtx;
+                    if (altLabelCtxs != null)
+                    {
+                        AltLabelStructDecl s;
+                        if (altLabelCtxs.TryGetValue(altLabel, out s) && s != null)
+                            @struct = s; // if alt label, use subctx
+                    }
 
-		// Since we delete x=lr, we have to manually add decls for all labels
-		// on left-recur refs to proper structs
-		for (Tuple2<GrammarAST,String> pair : r.leftRecursiveRuleRefLabels) {
-			GrammarAST idAST = pair.getItem1();
-			String altLabel = pair.getItem2();
-			String label = idAST.getText();
-			GrammarAST rrefAST = (GrammarAST)idAST.getParent().getChild(1);
-			if ( rrefAST.getType() == ANTLRParser.RULE_REF ) {
-				Rule targetRule = factory.getGrammar().getRule(rrefAST.getText());
-				String ctxName = factory.getTarget().getRuleFunctionContextStructName(targetRule);
-				RuleContextDecl d;
-				if (idAST.getParent().getType() == ANTLRParser.ASSIGN) {
-					d = new RuleContextDecl(factory, label, ctxName);
-				}
-				else {
-					d = new RuleContextListDecl(factory, label, ctxName);
-				}
-
-				StructDecl struct = ruleCtx;
-				if ( altLabelCtxs!=null ) {
-					StructDecl s = altLabelCtxs.get(altLabel);
-					if ( s!=null ) struct = s; // if alt label, use subctx
-				}
-				struct.addDecl(d); // stick in overall rule's ctx
-			}
-		}
-	}
+                    @struct.AddDecl(d); // stick in overall rule's ctx
+                }
+            }
+        }
+    }
 }

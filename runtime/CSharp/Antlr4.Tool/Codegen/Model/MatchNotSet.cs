@@ -28,14 +28,17 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public class MatchNotSet : MatchSet
+    {
+        public string varName = "_la";
 
-public class MatchNotSet extends MatchSet {
-	public String varName = "_la";
-	public MatchNotSet(OutputModelFactory factory, GrammarAST ast) {
-		super(factory, ast);
-	}
+        public MatchNotSet(OutputModelFactory factory, GrammarAST ast)
+            : base(factory, ast)
+        {
+        }
+    }
 }

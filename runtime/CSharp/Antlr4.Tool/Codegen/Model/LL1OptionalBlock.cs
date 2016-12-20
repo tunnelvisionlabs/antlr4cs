@@ -28,20 +28,21 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.ast.GrammarAST;
-
-import java.util.List;
-
-/** An optional block is just an alternative block where the last alternative
- *  is epsilon. The analysis takes care of adding to the empty alternative.
- *
- *  (A | B | C)?
- */
-public class LL1OptionalBlock extends LL1AltBlock {
-	public LL1OptionalBlock(OutputModelFactory factory, GrammarAST blkAST, List<CodeBlockForAlt> alts) {
-		super(factory, blkAST, alts);
-	}
+    /** An optional block is just an alternative block where the last alternative
+     *  is epsilon. The analysis takes care of adding to the empty alternative.
+     *
+     *  (A | B | C)?
+     */
+    public class LL1OptionalBlock : LL1AltBlock
+    {
+        public LL1OptionalBlock(OutputModelFactory factory, GrammarAST blkAST, IList<CodeBlockForAlt> alts)
+            : base(factory, blkAST, alts)
+        {
+        }
+    }
 }

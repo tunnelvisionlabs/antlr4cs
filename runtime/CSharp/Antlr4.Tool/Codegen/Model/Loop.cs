@@ -28,33 +28,34 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.QuantifierAST;
+    public class Loop : Choice
+    {
+        public int blockStartStateNumber;
+        public int loopBackStateNumber;
+        public readonly int exitAlt;
 
-import java.util.ArrayList;
-import java.util.List;
+        [ModelElement]
+        public IList<SrcOp> iteration;
 
-public class Loop extends Choice {
-	public int blockStartStateNumber;
-	public int loopBackStateNumber;
-	public final int exitAlt;
+        public Loop(OutputModelFactory factory,
+                    GrammarAST blkOrEbnfRootAST,
+                    IList<CodeBlockForAlt> alts)
+            : base(factory, blkOrEbnfRootAST, alts)
+        {
+            bool nongreedy = (blkOrEbnfRootAST is QuantifierAST) && !((QuantifierAST)blkOrEbnfRootAST).GetGreedy();
+            exitAlt = nongreedy ? 1 : alts.Count + 1;
+        }
 
-	@ModelElement public List<SrcOp> iteration;
-
-	public Loop(OutputModelFactory factory,
-				GrammarAST blkOrEbnfRootAST,
-				List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkOrEbnfRootAST, alts);
-		boolean nongreedy = (blkOrEbnfRootAST instanceof QuantifierAST) && !((QuantifierAST)blkOrEbnfRootAST).isGreedy();
-		exitAlt = nongreedy ? 1 : alts.size() + 1;
-	}
-
-	public void addIterationOp(SrcOp op) {
-		if ( iteration==null ) iteration = new ArrayList<SrcOp>();
-		iteration.add(op);
-	}
+        public virtual void AddIterationOp(SrcOp op)
+        {
+            if (iteration == null)
+                iteration = new List<SrcOp>();
+            iteration.Add(op);
+        }
+    }
 }

@@ -28,17 +28,18 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
-
-/** */
-public class ThrowNoViableAlt extends ThrowRecognitionException {
-	public ThrowNoViableAlt(OutputModelFactory factory, GrammarAST blkOrEbnfRootAST,
-							IntervalSet expecting)
-	{
-		super(factory, blkOrEbnfRootAST, expecting);
-	}
+    /** */
+    public class ThrowNoViableAlt : ThrowRecognitionException
+    {
+        public ThrowNoViableAlt(OutputModelFactory factory, GrammarAST blkOrEbnfRootAST,
+                                IntervalSet expecting)
+            : base(factory, blkOrEbnfRootAST, expecting)
+        {
+        }
+    }
 }

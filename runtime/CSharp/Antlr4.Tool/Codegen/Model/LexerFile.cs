@@ -28,28 +28,33 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.ast.ActionAST;
+    public class LexerFile : OutputFile
+    {
+        public string genPackage; // from -package cmd-line
+        [ModelElement]
+        public Lexer lexer;
+        [ModelElement]
+        public IDictionary<string, Action> namedActions;
 
-import java.util.HashMap;
-import java.util.Map;
+        public LexerFile(OutputModelFactory factory, string fileName)
+            : base(factory, fileName)
+        {
+            namedActions = new Dictionary<string, Action>();
+            Grammar g = factory.GetGrammar();
+            foreach (string name in g.namedActions.Keys)
+            {
+                ActionAST ast;
+                g.namedActions.TryGetValue(name, out ast);
+                namedActions[name] = new Action(factory, ast);
+            }
 
-public class LexerFile extends OutputFile {
-	public String genPackage; // from -package cmd-line
-	@ModelElement public Lexer lexer;
-	@ModelElement public Map<String, Action> namedActions;
-
-	public LexerFile(OutputModelFactory factory, String fileName) {
-		super(factory, fileName);
-		namedActions = new HashMap<String, Action>();
-		Grammar g = factory.getGrammar();
-		for (String name : g.namedActions.keySet()) {
-			ActionAST ast = g.namedActions.get(name);
-			namedActions.put(name, new Action(factory, ast));
-		}
-		genPackage = factory.getGrammar().tool.genPackage;
-	}
+            genPackage = factory.GetGrammar().tool.genPackage;
+        }
+    }
 }

@@ -28,20 +28,21 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
 
-import org.antlr.v4.codegen.OutputModelFactory;
+    public class Parser : Recognizer
+    {
+        public ParserFile file;
 
-import java.util.ArrayList;
-import java.util.List;
+        [ModelElement]
+        public IList<RuleFunction> funcs = new List<RuleFunction>();
 
-public class Parser extends Recognizer {
-	public ParserFile file;
-
-	@ModelElement public List<RuleFunction> funcs = new ArrayList<RuleFunction>();
-
-	public Parser(OutputModelFactory factory, ParserFile file) {
-		super(factory);
-		this.file = file; // who contains us?
-	}
+        public Parser(OutputModelFactory factory, ParserFile file)
+            : base(factory)
+        {
+            this.file = file; // who contains us?
+        }
+    }
 }

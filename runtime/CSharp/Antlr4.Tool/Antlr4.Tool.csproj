@@ -293,6 +293,12 @@
       <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
     </Antlr3>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.portable-net45.csproj">
+      <Project>{12269283-ee92-4faa-b849-53cd24f341fa}</Project>
+      <Name>Antlr4.Runtime.portable-net45</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

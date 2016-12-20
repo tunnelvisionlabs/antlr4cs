@@ -28,307 +28,352 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr.Runtime;
+    using Antlr.Runtime.Tree;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Misc;
+    using Antlr4.Parse;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.AltLabelStructDecl;
-import org.antlr.v4.codegen.model.decl.AttributeDecl;
-import org.antlr.v4.codegen.model.decl.ContextRuleGetterDecl;
-import org.antlr.v4.codegen.model.decl.ContextRuleListGetterDecl;
-import org.antlr.v4.codegen.model.decl.ContextRuleListIndexedGetterDecl;
-import org.antlr.v4.codegen.model.decl.ContextTokenGetterDecl;
-import org.antlr.v4.codegen.model.decl.ContextTokenListGetterDecl;
-import org.antlr.v4.codegen.model.decl.ContextTokenListIndexedGetterDecl;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.codegen.model.decl.StructDecl;
-import org.antlr.v4.misc.FrequencySet;
-import org.antlr.v4.misc.Utils;
-import static org.antlr.v4.parse.ANTLRParser.RULE_REF;
-import static org.antlr.v4.parse.ANTLRParser.TOKEN_REF;
-import org.antlr.v4.parse.GrammarASTAdaptor;
-import org.antlr.v4.runtime.atn.ATNSimulator;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.runtime.misc.OrderedHashSet;
-import org.antlr.v4.runtime.misc.Tuple2;
-import org.antlr.v4.tool.Attribute;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.AltAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.RuleAST;
+    /** */
+    public class RuleFunction : OutputModelObject
+    {
+        public string name;
+        public IList<string> modifiers;
+        public string ctxType;
+        public ICollection<string> ruleLabels;
+        public ICollection<string> tokenLabels;
+        public ATNState startState;
+        public int index;
+        public Rule rule;
+        public bool hasLookaheadBlock;
+        public string variantOf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+        [ModelElement]
+        public IList<SrcOp> code;
+        [ModelElement]
+        public OrderedHashSet<Decl.Decl> locals; // TODO: move into ctx?
+        [ModelElement]
+        public ICollection<AttributeDecl> args = null;
+        [ModelElement]
+        public StructDecl ruleCtx;
+        [ModelElement]
+        public IDictionary<string, AltLabelStructDecl> altLabelCtxs;
+        [ModelElement]
+        public IDictionary<string, Action> namedActions;
+        [ModelElement]
+        public Action finallyAction;
+        [ModelElement]
+        public IList<ExceptionClause> exceptions;
+        [ModelElement]
+        public IList<SrcOp> postamble;
 
-/** */
-public class RuleFunction extends OutputModelObject {
-	public String name;
-	public List<String> modifiers;
-	public String ctxType;
-	public Collection<String> ruleLabels;
-	public Collection<String> tokenLabels;
-	public ATNState startState;
-	public int index;
-	public Rule rule;
-	public boolean hasLookaheadBlock;
-	public String variantOf;
+        public RuleFunction(OutputModelFactory factory, Rule r)
+            : base(factory)
+        {
+            this.name = r.name;
+            this.rule = r;
+            if (r.modifiers != null && r.modifiers.Count > 0)
+            {
+                this.modifiers = new List<string>();
+                foreach (GrammarAST t in r.modifiers)
+                    modifiers.Add(t.Text);
+            }
+            modifiers = Utils.NodesToStrings(r.modifiers);
 
-	@ModelElement public List<SrcOp> code;
-	@ModelElement public OrderedHashSet<Decl> locals; // TODO: move into ctx?
-	@ModelElement public Collection<AttributeDecl> args = null;
-	@ModelElement public StructDecl ruleCtx;
-	@ModelElement public Map<String,AltLabelStructDecl> altLabelCtxs;
-	@ModelElement public Map<String,Action> namedActions;
-	@ModelElement public Action finallyAction;
-	@ModelElement public List<ExceptionClause> exceptions;
-	@ModelElement public List<SrcOp> postamble;
+            index = r.index;
+            int lfIndex = name.IndexOf(ATNSimulator.RuleVariantDelimiter);
+            if (lfIndex >= 0)
+            {
+                variantOf = name.Substring(0, lfIndex);
+            }
 
-	public RuleFunction(OutputModelFactory factory, Rule r) {
-		super(factory);
-		this.name = r.name;
-		this.rule = r;
-		if ( r.modifiers!=null && !r.modifiers.isEmpty() ) {
-			this.modifiers = new ArrayList<String>();
-			for (GrammarAST t : r.modifiers) modifiers.add(t.getText());
-		}
-		modifiers = Utils.nodesToStrings(r.modifiers);
+            if (r.name.Equals(r.GetBaseContext()))
+            {
+                ruleCtx = new StructDecl(factory, r);
+                AddContextGetters(factory, r.g.contextASTs[r.name]);
 
-		index = r.index;
-		int lfIndex = name.indexOf(ATNSimulator.RULE_VARIANT_DELIMITER);
-		if (lfIndex >= 0) {
-			variantOf = name.substring(0, lfIndex);
-		}
+                if (r.args != null)
+                {
+                    ICollection<Attribute> decls = r.args.attributes.Values;
+                    if (decls.Count > 0)
+                    {
+                        args = new List<AttributeDecl>();
+                        ruleCtx.AddDecls(decls);
+                        foreach (Attribute a in decls)
+                        {
+                            args.Add(new AttributeDecl(factory, a));
+                        }
+                        ruleCtx.ctorAttrs = args;
+                    }
+                }
+                if (r.retvals != null)
+                {
+                    ruleCtx.AddDecls(r.retvals.attributes.Values);
+                }
+                if (r.locals != null)
+                {
+                    ruleCtx.AddDecls(r.locals.attributes.Values);
+                }
+            }
+            else
+            {
+                if (r.args != null || r.retvals != null || r.locals != null)
+                {
+                    throw new System.NotSupportedException("customized fields are not yet supported for customized context objects");
+                }
+            }
 
-		if (r.name.equals(r.getBaseContext())) {
-			ruleCtx = new StructDecl(factory, r);
-			addContextGetters(factory, r.g.contextASTs.get(r.name));
+            ruleLabels = r.GetElementLabelNames();
+            tokenLabels = r.GetTokenRefs();
+            if (r.exceptions != null)
+            {
+                exceptions = new List<ExceptionClause>();
+                foreach (GrammarAST e in r.exceptions)
+                {
+                    ActionAST catchArg = (ActionAST)e.GetChild(0);
+                    ActionAST catchAction = (ActionAST)e.GetChild(1);
+                    exceptions.Add(new ExceptionClause(factory, catchArg, catchAction));
+                }
+            }
 
-			if ( r.args!=null ) {
-				Collection<Attribute> decls = r.args.attributes.values();
-				if ( decls.size()>0 ) {
-					args = new ArrayList<AttributeDecl>();
-					ruleCtx.addDecls(decls);
-					for (Attribute a : decls) {
-						args.add(new AttributeDecl(factory, a));
-					}
-					ruleCtx.ctorAttrs = args;
-				}
-			}
-			if ( r.retvals!=null ) {
-				ruleCtx.addDecls(r.retvals.attributes.values());
-			}
-			if ( r.locals!=null ) {
-				ruleCtx.addDecls(r.locals.attributes.values());
-			}
-		}
-		else {
-			if (r.args != null || r.retvals != null || r.locals != null) {
-				throw new UnsupportedOperationException("customized fields are not yet supported for customized context objects");
-			}
-		}
+            startState = factory.GetGrammar().atn.ruleToStartState[r.index];
+        }
 
-		ruleLabels = r.getElementLabelNames();
-		tokenLabels = r.getTokenRefs();
-		if ( r.exceptions!=null ) {
-			exceptions = new ArrayList<ExceptionClause>();
-			for (GrammarAST e : r.exceptions) {
-				ActionAST catchArg = (ActionAST)e.getChild(0);
-				ActionAST catchAction = (ActionAST)e.getChild(1);
-				exceptions.add(new ExceptionClause(factory, catchArg, catchAction));
-			}
-		}
+        public virtual void AddContextGetters(OutputModelFactory factory, ICollection<RuleAST> contextASTs)
+        {
+            IList<AltAST> unlabeledAlternatives = new List<AltAST>();
+            IDictionary<string, IList<AltAST>> labeledAlternatives = new Dictionary<string, IList<AltAST>>();
 
-		startState = factory.getGrammar().atn.ruleToStartState[r.index];
-	}
+            foreach (RuleAST ast in contextASTs)
+            {
+                try
+                {
+                    foreach (var altAst in rule.g.GetUnlabeledAlternatives(ast))
+                        unlabeledAlternatives.Add(altAst);
 
-	public void addContextGetters(OutputModelFactory factory, Collection<RuleAST> contextASTs) {
-		List<AltAST> unlabeledAlternatives = new ArrayList<AltAST>();
-		Map<String, List<AltAST>> labeledAlternatives = new HashMap<String, List<AltAST>>();
+                    foreach (KeyValuePair<string, IList<System.Tuple<int, AltAST>>> entry in rule.g.GetLabeledAlternatives(ast))
+                    {
+                        IList<AltAST> list;
+                        if (!labeledAlternatives.TryGetValue(entry.Key, out list))
+                        {
+                            list = new List<AltAST>();
+                            labeledAlternatives[entry.Key] = list;
+                        }
 
-		for (RuleAST ast : contextASTs) {
-			try {
-				unlabeledAlternatives.addAll(rule.g.getUnlabeledAlternatives(ast));
-				for (Map.Entry<String, List<Tuple2<Integer, AltAST>>> entry : rule.g.getLabeledAlternatives(ast).entrySet()) {
-					List<AltAST> list = labeledAlternatives.get(entry.getKey());
-					if (list == null) {
-						list = new ArrayList<AltAST>();
-						labeledAlternatives.put(entry.getKey(), list);
-					}
+                        foreach (System.Tuple<int, AltAST> tuple in entry.Value)
+                        {
+                            list.Add(tuple.Item2);
+                        }
+                    }
+                }
+                catch (RecognitionException)
+                {
+                }
+            }
 
-					for (Tuple2<Integer, AltAST> tuple : entry.getValue()) {
-						list.add(tuple.getItem2());
-					}
-				}
-			}
-			catch (RecognitionException ex) {
-			}
-		}
+            // Add ctx labels for elements in alts with no '#' label
+            if (unlabeledAlternatives.Count > 0)
+            {
+                ISet<Decl.Decl> decls = GetDeclsForAllElements(unlabeledAlternatives);
 
-		// Add ctx labels for elements in alts with no '#' label
-		if (!unlabeledAlternatives.isEmpty()) {
-			Set<Decl> decls = getDeclsForAllElements(unlabeledAlternatives);
+                // put directly in base context
+                foreach (Decl.Decl decl in decls)
+                {
+                    ruleCtx.AddDecl(decl);
+                }
+            }
 
-			// put directly in base context
-			for (Decl decl : decls) {
-				ruleCtx.addDecl(decl);
-			}
-		}
+            // make structs for '#' labeled alts, define ctx labels for elements
+            altLabelCtxs = new Dictionary<string, AltLabelStructDecl>();
+            if (labeledAlternatives.Count > 0)
+            {
+                foreach (KeyValuePair<string, IList<AltAST>> entry in labeledAlternatives)
+                {
+                    AltLabelStructDecl labelDecl = new AltLabelStructDecl(factory, rule, entry.Key);
+                    altLabelCtxs[entry.Key] = labelDecl;
+                    ISet<Decl.Decl> decls = GetDeclsForAllElements(entry.Value);
+                    foreach (Decl.Decl decl in decls)
+                    {
+                        labelDecl.AddDecl(decl);
+                    }
+                }
+            }
+        }
 
-		// make structs for '#' labeled alts, define ctx labels for elements
-		altLabelCtxs = new HashMap<String, AltLabelStructDecl>();
-		if (!labeledAlternatives.isEmpty()) {
-			for (Map.Entry<String, List<AltAST>> entry : labeledAlternatives.entrySet()) {
-				AltLabelStructDecl labelDecl = new AltLabelStructDecl(factory, rule, entry.getKey());
-				altLabelCtxs.put(entry.getKey(), labelDecl);
-				Set<Decl> decls = getDeclsForAllElements(entry.getValue());
-				for (Decl decl : decls) {
-					labelDecl.addDecl(decl);
-				}
-			}
-		}
-	}
+        public virtual void FillNamedActions(OutputModelFactory factory, Rule r)
+        {
+            if (r.finallyAction != null)
+            {
+                finallyAction = new Action(factory, r.finallyAction);
+            }
 
-	public void fillNamedActions(OutputModelFactory factory, Rule r) {
-		if ( r.finallyAction!=null ) {
-			finallyAction = new Action(factory, r.finallyAction);
-		}
+            namedActions = new Dictionary<string, Action>();
+            foreach (string name in r.namedActions.Keys)
+            {
+                ActionAST ast;
+                r.namedActions.TryGetValue(name, out ast);
+                namedActions[name] = new Action(factory, ast);
+            }
+        }
 
-		namedActions = new HashMap<String, Action>();
-		for (String name : r.namedActions.keySet()) {
-			ActionAST ast = r.namedActions.get(name);
-			namedActions.put(name, new Action(factory, ast));
-		}
-	}
+        /** for all alts, find which ref X or r needs List
+           Must see across alts.  If any alt needs X or r as list, then
+           define as list.
+         */
+        public virtual ISet<Decl.Decl> GetDeclsForAllElements(IList<AltAST> altASTs)
+        {
+            ISet<string> needsList = new HashSet<string>();
+            ISet<string> suppress = new HashSet<string>();
+            IList<GrammarAST> allRefs = new List<GrammarAST>();
+            foreach (AltAST ast in altASTs)
+            {
+                IntervalSet reftypes = new IntervalSet(ANTLRParser.RULE_REF, ANTLRParser.TOKEN_REF);
+                IList<GrammarAST> refs = ast.GetNodesWithType(reftypes);
+                foreach (var @ref in refs)
+                    allRefs.Add(@ref);
 
-	/** for all alts, find which ref X or r needs List
-	   Must see across alts.  If any alt needs X or r as list, then
-	   define as list.
-	 */
-	public Set<Decl> getDeclsForAllElements(List<AltAST> altASTs) {
-		Set<String> needsList = new HashSet<String>();
-		Set<String> suppress = new HashSet<String>();
-		List<GrammarAST> allRefs = new ArrayList<GrammarAST>();
-		for (AltAST ast : altASTs) {
-			IntervalSet reftypes = new IntervalSet(RULE_REF, TOKEN_REF);
-			List<GrammarAST> refs = ast.getNodesWithType(reftypes);
-			allRefs.addAll(refs);
-			FrequencySet<String> altFreq = getElementFrequenciesForAlt(ast);
-			for (GrammarAST t : refs) {
-				String refLabelName = getLabelName(rule.g, t);
-				if (altFreq.count(refLabelName)==0) {
-					suppress.add(refLabelName);
-				}
-				if ( altFreq.count(refLabelName)>1 ) {
-					needsList.add(refLabelName);
-				}
-			}
-		}
-		Set<Decl> decls = new LinkedHashSet<Decl>();
-		for (GrammarAST t : allRefs) {
-			String refLabelName = getLabelName(rule.g, t);
-			if (suppress.contains(refLabelName)) {
-				continue;
-			}
-			List<Decl> d = getDeclForAltElement(t,
-												refLabelName,
-												needsList.contains(refLabelName));
-			decls.addAll(d);
-		}
-		return decls;
-	}
+                FrequencySet<string> altFreq = GetElementFrequenciesForAlt(ast);
+                foreach (GrammarAST t in refs)
+                {
+                    string refLabelName = GetLabelName(rule.g, t);
+                    if (altFreq.GetCount(refLabelName) == 0)
+                    {
+                        suppress.Add(refLabelName);
+                    }
+                    if (altFreq.GetCount(refLabelName) > 1)
+                    {
+                        needsList.Add(refLabelName);
+                    }
+                }
+            }
 
-	public static String getLabelName(Grammar g, GrammarAST t) {
-		String labelName = t.getText();
-		Rule referencedRule = g.rules.get(labelName);
-		if (referencedRule != null) {
-			labelName = referencedRule.getBaseContext();
-		}
+            ISet<Decl.Decl> decls = new LinkedHashSet<Decl.Decl>();
+            foreach (GrammarAST t in allRefs)
+            {
+                string refLabelName = GetLabelName(rule.g, t);
+                if (suppress.Contains(refLabelName))
+                {
+                    continue;
+                }
 
-		return labelName;
-	}
+                IList<Decl.Decl> d = GetDeclForAltElement(t,
+                                                    refLabelName,
+                                                    needsList.Contains(refLabelName));
+                decls.UnionWith(d);
+            }
 
-	/** Given list of X and r refs in alt, compute how many of each there are */
-	protected FrequencySet<String> getElementFrequenciesForAlt(AltAST ast) {
-		try {
-			ElementFrequenciesVisitor visitor = new ElementFrequenciesVisitor(rule.g, new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
-			visitor.outerAlternative();
-			if (visitor.frequencies.size() != 1) {
-				factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR);
-				return new FrequencySet<String>();
-			}
+            return decls;
+        }
 
-			return visitor.frequencies.peek();
-		}
-		catch (RecognitionException ex) {
-			factory.getGrammar().tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, ex);
-			return new FrequencySet<String>();
-		}
-	}
+        public static string GetLabelName(Grammar g, GrammarAST t)
+        {
+            string labelName = t.Text;
+            Rule referencedRule;
+            if (g.rules.TryGetValue(labelName, out referencedRule) && referencedRule != null)
+            {
+                labelName = referencedRule.GetBaseContext();
+            }
 
-	public List<Decl> getDeclForAltElement(GrammarAST t, String refLabelName, boolean needList) {
-		int lfIndex = refLabelName.indexOf(ATNSimulator.RULE_VARIANT_DELIMITER);
-		if (lfIndex >= 0) {
-			refLabelName = refLabelName.substring(0, lfIndex);
-		}
+            return labelName;
+        }
 
-		List<Decl> decls = new ArrayList<Decl>();
-		if ( t.getType()==RULE_REF ) {
-			Rule rref = factory.getGrammar().getRule(t.getText());
-			String ctxName = factory.getTarget()
-							 .getRuleFunctionContextStructName(rref);
-			if ( needList) {
-				if(factory.getTarget().supportsOverloadedMethods())
-					decls.add( new ContextRuleListGetterDecl(factory, refLabelName, ctxName) );
-				decls.add( new ContextRuleListIndexedGetterDecl(factory, refLabelName, ctxName) );
-			}
-			else {
-				decls.add( new ContextRuleGetterDecl(factory, refLabelName, ctxName) );
-			}
-		}
-		else {
-			if ( needList ) {
-				if(factory.getTarget().supportsOverloadedMethods())
-					decls.add( new ContextTokenListGetterDecl(factory, refLabelName) );
-				decls.add( new ContextTokenListIndexedGetterDecl(factory, refLabelName) );
-			}
-			else {
-				decls.add( new ContextTokenGetterDecl(factory, refLabelName) );
-			}
-		}
-		return decls;
-	}
+        /** Given list of X and r refs in alt, compute how many of each there are */
+        protected virtual FrequencySet<string> GetElementFrequenciesForAlt(AltAST ast)
+        {
+            try
+            {
+                ElementFrequenciesVisitor visitor = new ElementFrequenciesVisitor(rule.g, new CommonTreeNodeStream(new GrammarASTAdaptor(), ast));
+                visitor.outerAlternative();
+                if (visitor.frequencies.Count != 1)
+                {
+                    factory.GetGrammar().tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR);
+                    return new FrequencySet<string>();
+                }
 
-	/** Add local var decl */
-	public void addLocalDecl(Decl d) {
-		if ( locals ==null ) locals = new OrderedHashSet<Decl>();
-		locals.add(d);
-		d.isLocal = true;
-	}
+                return visitor.frequencies.Peek();
+            }
+            catch (RecognitionException ex)
+            {
+                factory.GetGrammar().tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR, ex);
+                return new FrequencySet<string>();
+            }
+        }
 
-	/** Add decl to struct ctx for rule or alt if labeled */
-	public void addContextDecl(String altLabel, Decl d) {
-		CodeBlockForOuterMostAlt alt = d.getOuterMostAltCodeBlock();
-		// if we found code blk and might be alt label, try to add to that label ctx
-		if ( alt!=null && altLabelCtxs!=null ) {
-//			System.out.println(d.name+" lives in alt "+alt.alt.altNum);
-			AltLabelStructDecl altCtx = altLabelCtxs.get(altLabel);
-			if ( altCtx!=null ) { // we have an alt ctx
-//				System.out.println("ctx is "+ altCtx.name);
-				altCtx.addDecl(d);
-				return;
-			}
-		}
-		ruleCtx.addDecl(d); // stick in overall rule's ctx
-	}
+        public virtual IList<Decl.Decl> GetDeclForAltElement(GrammarAST t, string refLabelName, bool needList)
+        {
+            int lfIndex = refLabelName.IndexOf(ATNSimulator.RuleVariantDelimiter);
+            if (lfIndex >= 0)
+            {
+                refLabelName = refLabelName.Substring(0, lfIndex);
+            }
+
+            IList<Decl.Decl> decls = new List<Decl.Decl>();
+            if (t.Type == ANTLRParser.RULE_REF)
+            {
+                Rule rref = factory.GetGrammar().GetRule(t.Text);
+                string ctxName = factory.GetTarget()
+                                 .GetRuleFunctionContextStructName(rref);
+                if (needList)
+                {
+                    if (factory.GetTarget().SupportsOverloadedMethods())
+                        decls.Add(new ContextRuleListGetterDecl(factory, refLabelName, ctxName));
+                    decls.Add(new ContextRuleListIndexedGetterDecl(factory, refLabelName, ctxName));
+                }
+                else
+                {
+                    decls.Add(new ContextRuleGetterDecl(factory, refLabelName, ctxName));
+                }
+            }
+            else
+            {
+                if (needList)
+                {
+                    if (factory.GetTarget().SupportsOverloadedMethods())
+                        decls.Add(new ContextTokenListGetterDecl(factory, refLabelName));
+                    decls.Add(new ContextTokenListIndexedGetterDecl(factory, refLabelName));
+                }
+                else
+                {
+                    decls.Add(new ContextTokenGetterDecl(factory, refLabelName));
+                }
+            }
+            return decls;
+        }
+
+        /** Add local var decl */
+        public virtual void AddLocalDecl(Decl.Decl d)
+        {
+            if (locals == null)
+                locals = new OrderedHashSet<Decl.Decl>();
+            locals.Add(d);
+            d.isLocal = true;
+        }
+
+        /** Add decl to struct ctx for rule or alt if labeled */
+        public virtual void AddContextDecl(string altLabel, Decl.Decl d)
+        {
+            CodeBlockForOuterMostAlt alt = d.GetOuterMostAltCodeBlock();
+            // if we found code blk and might be alt label, try to add to that label ctx
+            if (alt != null && altLabelCtxs != null)
+            {
+                //System.Console.WriteLine(d.name + " lives in alt " + alt.alt.altNum);
+                AltLabelStructDecl altCtx;
+                if (altLabel != null && altLabelCtxs.TryGetValue(altLabel, out altCtx))
+                {
+                    // we have an alt ctx
+                    //System.Console.WriteLine("ctx is " + altCtx.name);
+                    altCtx.AddDecl(d);
+                    return;
+                }
+            }
+            ruleCtx.AddDecl(d); // stick in overall rule's ctx
+        }
+    }
 }

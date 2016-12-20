@@ -28,31 +28,30 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Misc;
+    using Antlr4.Tool;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.LexerGrammar;
-import org.antlr.v4.tool.Rule;
+    public class Lexer : Recognizer
+    {
+        public IDictionary<string, int> channels;
+        public LexerFile file;
+        public ICollection<string> modes;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+        [ModelElement]
+        public LinkedHashMap<Rule, RuleActionFunction> actionFuncs =
+            new LinkedHashMap<Rule, RuleActionFunction>();
 
-public class Lexer extends Recognizer {
-	public Map<String,Integer> channels;
-	public LexerFile file;
-	public Collection<String> modes;
+        public Lexer(OutputModelFactory factory, LexerFile file)
+            : base(factory)
+        {
+            this.file = file; // who contains us?
 
-	@ModelElement public LinkedHashMap<Rule, RuleActionFunction> actionFuncs =
-		new LinkedHashMap<Rule, RuleActionFunction>();
-
-	public Lexer(OutputModelFactory factory, LexerFile file) {
-		super(factory);
-		this.file = file; // who contains us?
-
-		Grammar g = factory.getGrammar();
-		channels = new LinkedHashMap<String, Integer>(g.channelNameToValueMap);
-		modes = ((LexerGrammar)g).modes.keySet();
-	}
+            Grammar g = factory.GetGrammar();
+            channels = new LinkedHashMap<string, int>(g.channelNameToValueMap);
+            modes = ((LexerGrammar)g).modes.Keys;
+        }
+    }
 }

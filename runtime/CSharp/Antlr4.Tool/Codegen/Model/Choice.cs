@@ -28,70 +28,77 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Misc;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.codegen.model.decl.TokenTypeDecl;
-import org.antlr.v4.misc.Utils;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** The class hierarchy underneath SrcOp is pretty deep but makes sense that,
+     *  for example LL1StarBlock is a kind of LL1Loop which is a kind of Choice.
+     *  The problem is it's impossible to figure
+     *  out how to construct one of these deeply nested objects because of the
+     *  long super constructor call chain. Instead, I decided to in-line all of
+     *  this and then look for opportunities to re-factor code into functions.
+     *  It makes sense to use a class hierarchy to share data fields, but I don't
+     *  think it makes sense to factor code using super constructors because
+     *  it has too much work to do.
+     */
+    public abstract class Choice : RuleElement
+    {
+        public int decision = -1;
+        public Decl.Decl label;
 
-import java.util.ArrayList;
-import java.util.List;
+        [ModelElement]
+        public IList<CodeBlockForAlt> alts;
+        [ModelElement]
+        public IList<SrcOp> preamble = new List<SrcOp>();
 
-/** The class hierarchy underneath SrcOp is pretty deep but makes sense that,
- *  for example LL1StarBlock is a kind of LL1Loop which is a kind of Choice.
- *  The problem is it's impossible to figure
- *  out how to construct one of these deeply nested objects because of the
- *  long super constructor call chain. Instead, I decided to in-line all of
- *  this and then look for opportunities to re-factor code into functions.
- *  It makes sense to use a class hierarchy to share data fields, but I don't
- *  think it makes sense to factor code using super constructors because
- *  it has too much work to do.
- */
-public abstract class Choice extends RuleElement {
-	public int decision = -1;
-	public Decl label;
+        public Choice(OutputModelFactory factory,
+                      GrammarAST blkOrEbnfRootAST,
+                      IList<CodeBlockForAlt> alts)
+            : base(factory, blkOrEbnfRootAST)
+        {
+            this.alts = alts;
+        }
 
-	@ModelElement public List<CodeBlockForAlt> alts;
-	@ModelElement public List<SrcOp> preamble = new ArrayList<SrcOp>();
+        public virtual void AddPreambleOp(SrcOp op)
+        {
+            preamble.Add(op);
+        }
 
-	public Choice(OutputModelFactory factory,
-				  GrammarAST blkOrEbnfRootAST,
-				  List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkOrEbnfRootAST);
-		this.alts = alts;
-	}
+        public virtual IList<string[]> GetAltLookaheadAsStringLists(IntervalSet[] altLookSets)
+        {
+            IList<string[]> altLook = new List<string[]>();
+            foreach (IntervalSet s in altLookSets)
+            {
+                altLook.Add(factory.GetTarget().GetTokenTypesAsTargetLabels(factory.GetGrammar(), s.ToArray()));
+            }
 
-	public void addPreambleOp(SrcOp op) {
-		preamble.add(op);
-	}
+            return altLook;
+        }
 
-	public List<String[]> getAltLookaheadAsStringLists(IntervalSet[] altLookSets) {
-		List<String[]> altLook = new ArrayList<String[]>();
-		for (IntervalSet s : altLookSets) {
-			altLook.add(factory.getTarget().getTokenTypesAsTargetLabels(factory.getGrammar(), s.toArray()));
-		}
-		return altLook;
-	}
+        public virtual TestSetInline AddCodeForLookaheadTempVar(IntervalSet look)
+        {
+            IList<SrcOp> testOps = factory.GetLL1Test(look, ast);
+            TestSetInline expr = Utils.Find<TestSetInline>(testOps);
+            if (expr != null)
+            {
+                Decl.Decl d = new TokenTypeDecl(factory, expr.varName);
+                factory.GetCurrentRuleFunction().AddLocalDecl(d);
+                CaptureNextTokenType nextType = new CaptureNextTokenType(factory, expr.varName);
+                AddPreambleOp(nextType);
+            }
+            return expr;
+        }
 
-	public TestSetInline addCodeForLookaheadTempVar(IntervalSet look) {
-		List<SrcOp> testOps = factory.getLL1Test(look, ast);
-		TestSetInline expr = Utils.find(testOps, TestSetInline.class);
-		if (expr != null) {
-			Decl d = new TokenTypeDecl(factory, expr.varName);
-			factory.getCurrentRuleFunction().addLocalDecl(d);
-			CaptureNextTokenType nextType = new CaptureNextTokenType(factory,expr.varName);
-			addPreambleOp(nextType);
-		}
-		return expr;
-	}
-
-	public ThrowNoViableAlt getThrowNoViableAlt(OutputModelFactory factory,
-												GrammarAST blkAST,
-												IntervalSet expecting) {
-		return new ThrowNoViableAlt(factory, blkAST, expecting);
-	}
+        public virtual ThrowNoViableAlt GetThrowNoViableAlt(OutputModelFactory factory,
+                                                    GrammarAST blkAST,
+                                                    IntervalSet expecting)
+        {
+            return new ThrowNoViableAlt(factory, blkAST, expecting);
+        }
+    }
 }

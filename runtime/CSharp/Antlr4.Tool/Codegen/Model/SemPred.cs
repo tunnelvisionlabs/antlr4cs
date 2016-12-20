@@ -28,70 +28,74 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using Antlr4.Codegen.Model.Chunk;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
 
-import org.antlr.v4.codegen.ActionTranslator;
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.chunk.ActionChunk;
-import org.antlr.v4.runtime.atn.AbstractPredicateTransition;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public class SemPred : Action
+    {
+        /**
+         * The user-specified terminal option {@code fail}, if it was used and the
+         * value is a string literal. For example:
+         *
+         * <p>
+         * {@code {pred}?&lt;fail='message'>}</p>
+         */
+        public string msg;
+        /**
+         * The predicate string with <code>{</code> and <code>}?</code> stripped from the ends.
+         */
+        public string predicate;
 
-import java.util.List;
+        /**
+         * The translated chunks of the user-specified terminal option {@code fail},
+         * if it was used and the value is an action. For example:
+         *
+         * <p>
+         * {@code {pred}?&lt;fail={"Java literal"}>}</p>
+         */
+        [ModelElement]
+        public IList<ActionChunk> failChunks;
 
-/** */
-public class SemPred extends Action {
-	/**
-	 * The user-specified terminal option {@code fail}, if it was used and the
-	 * value is a string literal. For example:
-	 *
-	 * <p>
-	 * {@code {pred}?<fail='message'>}</p>
-	 */
-	public String msg;
-	/**
-	 * The predicate string with <code>{</code> and <code>}?</code> stripped from the ends.
-	 */
-	public String predicate;
+        public SemPred(OutputModelFactory factory, [NotNull] ActionAST ast)
+            : base(factory, ast)
+        {
 
-	/**
-	 * The translated chunks of the user-specified terminal option {@code fail},
-	 * if it was used and the value is an action. For example:
-	 *
-	 * <p>
-	 * {@code {pred}?<fail={"Java literal"}>}</p>
-	 */
-	@ModelElement public List<ActionChunk> failChunks;
+            Debug.Assert(ast.atnState != null
+                && ast.atnState.NumberOfTransitions == 1
+                && ast.atnState.Transition(0) is AbstractPredicateTransition);
 
-	public SemPred(OutputModelFactory factory, @NotNull ActionAST ast) {
-		super(factory,ast);
+            GrammarAST failNode = ast.GetOptionAST("fail");
+            predicate = ast.Text;
+            if (predicate.StartsWith("{") && predicate.EndsWith("}?"))
+            {
+                predicate = predicate.Substring(1, predicate.Length - 3);
+            }
+            predicate = factory.GetTarget().GetTargetStringLiteralFromString(predicate);
 
-		assert ast.atnState != null
-			&& ast.atnState.getNumberOfTransitions() == 1
-			&& ast.atnState.transition(0) instanceof AbstractPredicateTransition;
+            if (failNode == null)
+                return;
 
-		GrammarAST failNode = ast.getOptionAST("fail");
-		predicate = ast.getText();
-		if (predicate.startsWith("{") && predicate.endsWith("}?")) {
-			predicate = predicate.substring(1, predicate.length() - 2);
-		}
-		predicate = factory.getTarget().getTargetStringLiteralFromString(predicate);
-
-		if ( failNode==null ) return;
-
-		if ( failNode instanceof ActionAST ) {
-			ActionAST failActionNode = (ActionAST)failNode;
-			RuleFunction rf = factory.getCurrentRuleFunction();
-			failChunks = ActionTranslator.translateAction(factory, rf,
-														  failActionNode.token,
-														  failActionNode);
-		}
-		else {
-			msg = factory.getTarget().getTargetStringLiteralFromANTLRStringLiteral(factory.getGenerator(),
-																		  failNode.getText(),
-																		  true);
-		}
-	}
+            if (failNode is ActionAST)
+            {
+                ActionAST failActionNode = (ActionAST)failNode;
+                RuleFunction rf = factory.GetCurrentRuleFunction();
+                failChunks = ActionTranslator.TranslateAction(factory, rf,
+                                                              failActionNode.Token,
+                                                              failActionNode);
+            }
+            else
+            {
+                msg = factory.GetTarget().GetTargetStringLiteralFromANTLRStringLiteral(factory.GetGenerator(),
+                                                                              failNode.Text,
+                                                                              true);
+            }
+        }
+    }
 }

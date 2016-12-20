@@ -28,21 +28,22 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public abstract class LL1Choice : Choice
+    {
+        /** Token names for each alt 0..n-1 */
+        public IList<string[]> altLook;
+        [ModelElement]
+        public ThrowNoViableAlt error;
 
-import java.util.List;
-
-public abstract class LL1Choice extends Choice {
-	/** Token names for each alt 0..n-1 */
-	public List<String[]> altLook;
-	@ModelElement public ThrowNoViableAlt error;
-
-	public LL1Choice(OutputModelFactory factory, GrammarAST blkAST,
-					 List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkAST, alts);
-	}
+        public LL1Choice(OutputModelFactory factory, GrammarAST blkAST,
+                         IList<CodeBlockForAlt> alts)
+            : base(factory, blkAST, alts)
+        {
+        }
+    }
 }

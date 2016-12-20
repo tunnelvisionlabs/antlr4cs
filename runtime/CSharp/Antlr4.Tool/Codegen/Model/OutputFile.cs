@@ -28,26 +28,27 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool;
 
-import org.antlr.v4.Tool;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Grammar;
+    public abstract class OutputFile : OutputModelObject
+    {
+        public readonly string fileName;
+        public readonly string grammarFileName;
+        public readonly string ANTLRVersion;
+        public readonly string TokenLabelType;
+        public readonly string InputSymbolType;
 
-public abstract class OutputFile extends OutputModelObject {
-	public final String fileName;
-	public final String grammarFileName;
-	public final String ANTLRVersion;
-    public final String TokenLabelType;
-    public final String InputSymbolType;
-
-    public OutputFile(OutputModelFactory factory, String fileName) {
-        super(factory);
-        this.fileName = fileName;
-        Grammar g = factory.getGrammar();
-		grammarFileName = g.fileName;
-		ANTLRVersion = Tool.VERSION;
-        TokenLabelType = g.getOptionString("TokenLabelType");
-        InputSymbolType = TokenLabelType;
+        protected OutputFile(OutputModelFactory factory, string fileName)
+            : base(factory)
+        {
+            this.fileName = fileName;
+            Grammar g = factory.GetGrammar();
+            grammarFileName = g.fileName;
+            ANTLRVersion = AntlrTool.VERSION;
+            TokenLabelType = g.GetOptionString("TokenLabelType");
+            InputSymbolType = TokenLabelType;
+        }
     }
 }

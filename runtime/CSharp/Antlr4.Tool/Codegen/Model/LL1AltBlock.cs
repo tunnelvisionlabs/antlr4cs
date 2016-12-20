@@ -28,26 +28,27 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.DecisionState;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** (A | B | C) */
+    public class LL1AltBlock : LL1Choice
+    {
+        public LL1AltBlock(OutputModelFactory factory, GrammarAST blkAST, IList<CodeBlockForAlt> alts)
+            : base(factory, blkAST, alts)
+        {
+            this.decision = ((DecisionState)blkAST.atnState).decision;
 
-import java.util.List;
+            /* Lookahead for each alt 1..n */
+            IntervalSet[] altLookSets = factory.GetGrammar().decisionLOOK[decision];
+            altLook = GetAltLookaheadAsStringLists(altLookSets);
 
-/** (A | B | C) */
-public class LL1AltBlock extends LL1Choice {
-	public LL1AltBlock(OutputModelFactory factory, GrammarAST blkAST, List<CodeBlockForAlt> alts) {
-		super(factory, blkAST, alts);
-		this.decision = ((DecisionState)blkAST.atnState).decision;
-
-		/** Lookahead for each alt 1..n */
-		IntervalSet[] altLookSets = factory.getGrammar().decisionLOOK.get(decision);
-		altLook = getAltLookaheadAsStringLists(altLookSets);
-
-		IntervalSet expecting = IntervalSet.or(altLookSets); // combine alt sets
-		this.error = getThrowNoViableAlt(factory, blkAST, expecting);
-	}
+            IntervalSet expecting = IntervalSet.Or(altLookSets); // combine alt sets
+            this.error = GetThrowNoViableAlt(factory, blkAST, expecting);
+        }
+    }
 }

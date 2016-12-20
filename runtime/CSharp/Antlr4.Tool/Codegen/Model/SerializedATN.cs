@@ -28,38 +28,42 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using System.Linq;
+    using Antlr4.Runtime.Atn;
+    using Math = System.Math;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNSerializer;
-import org.antlr.v4.runtime.misc.IntegerList;
+    public class SerializedATN : OutputModelObject
+    {
+        // TODO: make this into a kind of decl or multiple?
+        public IList<string> serialized;
 
-import java.util.ArrayList;
-import java.util.List;
+        public SerializedATN(OutputModelFactory factory, ATN atn, IList<string> ruleNames)
+            : base(factory)
+        {
+            List<int> data = ATNSerializer.GetSerialized(atn, ruleNames);
+            serialized = new List<string>(data.Count);
+            foreach (int c in data)
+            {
+                string encoded = factory.GetTarget().EncodeIntAsCharEscape(c == -1 ? char.MaxValue : c);
+                serialized.Add(encoded);
+            }
+            //System.Console.WriteLine(ATNSerializer.GetDecoded(factory.GetGrammar(), atn));
+        }
 
-public class SerializedATN extends OutputModelObject {
-	// TODO: make this into a kind of decl or multiple?
-	public List<String> serialized;
-	public SerializedATN(OutputModelFactory factory, ATN atn, List<String> ruleNames) {
-		super(factory);
-		IntegerList data = ATNSerializer.getSerialized(atn, ruleNames);
-		serialized = new ArrayList<String>(data.size());
-		for (int c : data.toArray()) {
-			String encoded = factory.getTarget().encodeIntAsCharEscape(c == -1 ? Character.MAX_VALUE : c);
-			serialized.add(encoded);
-		}
-//		System.out.println(ATNSerializer.getDecoded(factory.getGrammar(), atn));
-	}
+        public virtual string[][] GetSegments()
+        {
+            IList<string[]> segments = new List<string[]>();
+            int segmentLimit = factory.GetTarget().GetSerializedATNSegmentLimit();
+            for (int i = 0; i < serialized.Count; i += segmentLimit)
+            {
+                IList<string> currentSegment = new System.ArraySegment<string>(serialized.ToArray(), i, Math.Min(i + segmentLimit, serialized.Count) - i);
+                segments.Add(currentSegment.ToArray());
+            }
 
-	public String[][] getSegments() {
-		List<String[]> segments = new ArrayList<String[]>();
-		int segmentLimit = factory.getTarget().getSerializedATNSegmentLimit();
-		for (int i = 0; i < serialized.size(); i += segmentLimit) {
-			List<String> currentSegment = serialized.subList(i, Math.min(i + segmentLimit, serialized.size()));
-			segments.add(currentSegment.toArray(new String[currentSegment.size()]));
-		}
-
-		return segments.toArray(new String[segments.size()][]);
-	}
+            return segments.ToArray();
+        }
+    }
 }

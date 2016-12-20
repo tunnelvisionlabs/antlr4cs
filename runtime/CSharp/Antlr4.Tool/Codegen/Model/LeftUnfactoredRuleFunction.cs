@@ -25,19 +25,20 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen.model;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Rule;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool;
 
-/**
- *
- * @author Sam Harwell
- */
-public class LeftUnfactoredRuleFunction extends RuleFunction {
-
-	public LeftUnfactoredRuleFunction(OutputModelFactory factory, Rule r) {
-		super(factory, r);
-	}
-
+    /**
+     *
+     * @author Sam Harwell
+     */
+    public class LeftUnfactoredRuleFunction : RuleFunction
+    {
+        public LeftUnfactoredRuleFunction(OutputModelFactory factory, Rule r)
+            : base(factory, r)
+        {
+        }
+    }
 }

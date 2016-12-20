@@ -28,38 +28,40 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.DecisionState;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** (A B C)? */
+    public class LL1OptionalBlockSingleAlt : LL1Choice
+    {
+        [ModelElement]
+        public SrcOp expr;
+        [ModelElement]
+        public IList<SrcOp> followExpr; // might not work in template if size>1
 
-import java.util.List;
+        public LL1OptionalBlockSingleAlt(OutputModelFactory factory,
+                                         GrammarAST blkAST,
+                                         IList<CodeBlockForAlt> alts)
+            : base(factory, blkAST, alts)
+        {
+            this.decision = ((DecisionState)blkAST.atnState).decision;
 
-/** (A B C)? */
-public class LL1OptionalBlockSingleAlt extends LL1Choice {
-	@ModelElement public SrcOp expr;
-	@ModelElement public List<SrcOp> followExpr; // might not work in template if size>1
+            /* Lookahead for each alt 1..n */
+            //		IntervalSet[] altLookSets = LinearApproximator.getLL1LookaheadSets(dfa);
+            IntervalSet[] altLookSets = factory.GetGrammar().decisionLOOK[decision];
+            altLook = GetAltLookaheadAsStringLists(altLookSets);
+            IntervalSet look = altLookSets[0];
+            IntervalSet followLook = altLookSets[1];
 
-	public LL1OptionalBlockSingleAlt(OutputModelFactory factory,
-									 GrammarAST blkAST,
-									 List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkAST, alts);
-		this.decision = ((DecisionState)blkAST.atnState).decision;
+            IntervalSet expecting = look.Or(followLook);
+            this.error = GetThrowNoViableAlt(factory, blkAST, expecting);
 
-		/** Lookahead for each alt 1..n */
-//		IntervalSet[] altLookSets = LinearApproximator.getLL1LookaheadSets(dfa);
-		IntervalSet[] altLookSets = factory.getGrammar().decisionLOOK.get(decision);
-		altLook = getAltLookaheadAsStringLists(altLookSets);
-		IntervalSet look = altLookSets[0];
-		IntervalSet followLook = altLookSets[1];
-
-		IntervalSet expecting = look.or(followLook);
-		this.error = getThrowNoViableAlt(factory, blkAST, expecting);
-
-		expr = addCodeForLookaheadTempVar(look);
-		followExpr = factory.getLL1Test(followLook, blkAST);
-	}
+            expr = AddCodeForLookaheadTempVar(look);
+            followExpr = factory.GetLL1Test(followLook, blkAST);
+        }
+    }
 }

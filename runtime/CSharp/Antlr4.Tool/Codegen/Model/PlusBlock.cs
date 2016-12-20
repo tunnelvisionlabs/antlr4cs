@@ -28,31 +28,30 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.PlusBlockStartState;
-import org.antlr.v4.runtime.atn.PlusLoopbackState;
-import org.antlr.v4.tool.ast.BlockAST;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public class PlusBlock : Loop
+    {
+        [ModelElement]
+        public ThrowNoViableAlt error;
 
-import java.util.List;
-
-public class PlusBlock extends Loop {
-	@ModelElement public ThrowNoViableAlt error;
-
-	public PlusBlock(OutputModelFactory factory,
-					 GrammarAST plusRoot,
-					 List<CodeBlockForAlt> alts)
-	{
-		super(factory, plusRoot, alts);
-		BlockAST blkAST = (BlockAST)plusRoot.getChild(0);
-		PlusBlockStartState blkStart = (PlusBlockStartState)blkAST.atnState;
-		PlusLoopbackState loop = blkStart.loopBackState;
-		stateNumber = blkStart.loopBackState.stateNumber;
-		blockStartStateNumber = blkStart.stateNumber;
-		loopBackStateNumber = loop.stateNumber;
-		this.error = getThrowNoViableAlt(factory, plusRoot, null);
-		decision = loop.decision;
-	}
+        public PlusBlock(OutputModelFactory factory,
+                         GrammarAST plusRoot,
+                         IList<CodeBlockForAlt> alts)
+            : base(factory, plusRoot, alts)
+        {
+            BlockAST blkAST = (BlockAST)plusRoot.GetChild(0);
+            PlusBlockStartState blkStart = (PlusBlockStartState)blkAST.atnState;
+            PlusLoopbackState loop = blkStart.loopBackState;
+            stateNumber = blkStart.loopBackState.stateNumber;
+            blockStartStateNumber = blkStart.stateNumber;
+            loopBackStateNumber = loop.stateNumber;
+            this.error = GetThrowNoViableAlt(factory, plusRoot, null);
+            decision = loop.decision;
+        }
+    }
 }

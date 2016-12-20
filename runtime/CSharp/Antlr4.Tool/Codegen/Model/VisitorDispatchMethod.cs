@@ -27,12 +27,14 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen.model;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-
-public class VisitorDispatchMethod extends DispatchMethod {
-	public VisitorDispatchMethod(OutputModelFactory factory) {
-		super(factory);
-	}
+namespace Antlr4.Codegen.Model
+{
+    public class VisitorDispatchMethod : DispatchMethod
+    {
+        public VisitorDispatchMethod(OutputModelFactory factory)
+            : base(factory)
+        {
+        }
+    }
 }

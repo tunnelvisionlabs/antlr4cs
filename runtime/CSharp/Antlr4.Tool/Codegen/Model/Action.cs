@@ -28,56 +28,59 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr.Runtime;
+    using Antlr4.Codegen.Model.Chunk;
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Parse;
+    using Antlr4.StringTemplate;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.runtime.CommonToken;
-import org.antlr.v4.codegen.ActionTranslator;
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.chunk.ActionChunk;
-import org.antlr.v4.codegen.model.chunk.ActionTemplate;
-import org.antlr.v4.codegen.model.chunk.ActionText;
-import org.antlr.v4.codegen.model.decl.StructDecl;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.stringtemplate.v4.ST;
+    /** */
+    public class Action : RuleElement
+    {
+        [ModelElement]
+        public IList<ActionChunk> chunks;
 
-import java.util.ArrayList;
-import java.util.List;
+        public Action(OutputModelFactory factory, ActionAST ast)
+            : base(factory, ast)
+        {
+            RuleFunction rf = factory.GetCurrentRuleFunction();
+            if (ast != null)
+            {
+                chunks = ActionTranslator.TranslateAction(factory, rf, ast.Token, ast);
+            }
+            else
+            {
+                chunks = new List<ActionChunk>();
+            }
+            //System.out.println("actions="+chunks);
+        }
 
-/** */
-public class Action extends RuleElement {
-	@ModelElement public List<ActionChunk> chunks;
+        public Action(OutputModelFactory factory, StructDecl ctx, string action)
+            : base(factory, null)
+        {
+            ActionAST ast = new ActionAST(new CommonToken(ANTLRParser.ACTION, action));
+            RuleFunction rf = factory.GetCurrentRuleFunction();
+            if (rf != null)
+            { // we can translate
+                ast.resolver = rf.rule;
+                chunks = ActionTranslator.TranslateActionChunk(factory, rf, action, ast);
+            }
+            else
+            {
+                chunks = new List<ActionChunk>();
+                chunks.Add(new ActionText(ctx, action));
+            }
+        }
 
-	public Action(OutputModelFactory factory, ActionAST ast) {
-		super(factory,ast);
-		RuleFunction rf = factory.getCurrentRuleFunction();
-		if (ast != null) {
-			chunks = ActionTranslator.translateAction(factory, rf, ast.token, ast);
-		}
-		else {
-			chunks = new ArrayList<ActionChunk>();
-		}
-		//System.out.println("actions="+chunks);
-	}
-
-	public Action(OutputModelFactory factory, StructDecl ctx, String action) {
-		super(factory,null);
-		ActionAST ast = new ActionAST(new CommonToken(ANTLRParser.ACTION, action));
-		RuleFunction rf = factory.getCurrentRuleFunction();
-		if ( rf!=null ) { // we can translate
-			ast.resolver = rf.rule;
-			chunks = ActionTranslator.translateActionChunk(factory, rf, action, ast);
-		}
-		else {
-			chunks = new ArrayList<ActionChunk>();
-			chunks.add(new ActionText(ctx, action));
-		}
-	}
-
-	public Action(OutputModelFactory factory, StructDecl ctx, ST actionST) {
-		super(factory, null);
-		chunks = new ArrayList<ActionChunk>();
-		chunks.add(new ActionTemplate(ctx, actionST));
-	}
-
+        public Action(OutputModelFactory factory, StructDecl ctx, Template actionST)
+            : base(factory, null)
+        {
+            chunks = new List<ActionChunk>();
+            chunks.Add(new ActionTemplate(ctx, actionST));
+        }
+    }
 }

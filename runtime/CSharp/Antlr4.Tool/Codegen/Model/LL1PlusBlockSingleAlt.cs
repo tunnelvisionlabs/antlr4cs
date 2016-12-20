@@ -28,32 +28,30 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.PlusBlockStartState;
-import org.antlr.v4.runtime.atn.PlusLoopbackState;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.BlockAST;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public class LL1PlusBlockSingleAlt : LL1Loop
+    {
+        public LL1PlusBlockSingleAlt(OutputModelFactory factory, GrammarAST plusRoot, IList<CodeBlockForAlt> alts)
+            : base(factory, plusRoot, alts)
+        {
+            BlockAST blkAST = (BlockAST)plusRoot.GetChild(0);
+            PlusBlockStartState blkStart = (PlusBlockStartState)blkAST.atnState;
 
-import java.util.List;
+            stateNumber = blkStart.loopBackState.stateNumber;
+            blockStartStateNumber = blkStart.stateNumber;
+            PlusBlockStartState plus = (PlusBlockStartState)blkAST.atnState;
+            this.decision = plus.loopBackState.decision;
+            IntervalSet[] altLookSets = factory.GetGrammar().decisionLOOK[decision];
 
-/** */
-public class LL1PlusBlockSingleAlt extends LL1Loop {
-	public LL1PlusBlockSingleAlt(OutputModelFactory factory, GrammarAST plusRoot, List<CodeBlockForAlt> alts) {
-		super(factory, plusRoot, alts);
-
-		BlockAST blkAST = (BlockAST)plusRoot.getChild(0);
-		PlusBlockStartState blkStart = (PlusBlockStartState)blkAST.atnState;
-
-		stateNumber = blkStart.loopBackState.stateNumber;
-		blockStartStateNumber = blkStart.stateNumber;
-		PlusBlockStartState plus = (PlusBlockStartState)blkAST.atnState;
-		this.decision = plus.loopBackState.decision;
-		IntervalSet[] altLookSets = factory.getGrammar().decisionLOOK.get(decision);
-
-		IntervalSet loopBackLook = altLookSets[0];
-		loopExpr = addCodeForLoopLookaheadTempVar(loopBackLook);
-	}
+            IntervalSet loopBackLook = altLookSets[0];
+            loopExpr = AddCodeForLoopLookaheadTempVar(loopBackLook);
+        }
+    }
 }

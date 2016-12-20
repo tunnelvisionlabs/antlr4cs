@@ -28,15 +28,17 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    /** */
+    public class CaptureNextTokenType : SrcOp
+    {
+        public string varName;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-
-/** */
-public class CaptureNextTokenType extends SrcOp {
-	public String varName;
-	public CaptureNextTokenType(OutputModelFactory factory, String varName) {
-		super(factory);
-		this.varName = varName;
-	}
+        public CaptureNextTokenType(OutputModelFactory factory, string varName)
+            : base(factory)
+        {
+            this.varName = varName;
+        }
+    }
 }

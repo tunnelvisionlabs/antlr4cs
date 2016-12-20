@@ -28,15 +28,17 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool.Ast;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.ast.GrammarAST;
-
-/** */
-public class ThrowEarlyExitException extends ThrowRecognitionException {
-	public ThrowEarlyExitException(OutputModelFactory factory, GrammarAST ast, IntervalSet expecting) {
-		super(factory, ast, expecting);
-	}
+    /** */
+    public class ThrowEarlyExitException : ThrowRecognitionException
+    {
+        public ThrowEarlyExitException(OutputModelFactory factory, GrammarAST ast, IntervalSet expecting)
+            : base(factory, ast, expecting)
+        {
+        }
+    }
 }

@@ -27,12 +27,14 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen.model;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-
-public class BaseListenerFile extends ListenerFile {
-	public BaseListenerFile(OutputModelFactory factory, String fileName) {
-		super(factory, fileName);
-	}
+namespace Antlr4.Codegen.Model
+{
+    public class BaseListenerFile : ListenerFile
+    {
+        public BaseListenerFile(OutputModelFactory factory, string fileName)
+            : base(factory, fileName)
+        {
+        }
+    }
 }

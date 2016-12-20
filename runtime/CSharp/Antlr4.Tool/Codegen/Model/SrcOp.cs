@@ -28,55 +28,68 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.CodeBlock;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public abstract class SrcOp : OutputModelObject
+    {
+        /** Used to create unique var names etc... */
+        public int uniqueID; // TODO: do we need?
 
-/** */
-public abstract class SrcOp extends OutputModelObject {
-	/** Used to create unique var names etc... */
-	public int uniqueID; // TODO: do we need?
+        /** All operations know in which block they live:
+         *
+         *  	CodeBlock, CodeBlockForAlt
+         *
+         *  Templates might need to know block nesting level or find
+         *  a specific declaration, etc...
+         */
+        public CodeBlock enclosingBlock;
 
-	/** All operations know in which block they live:
-	 *
-	 *  	CodeBlock, CodeBlockForAlt
-	 *
-	 *  Templates might need to know block nesting level or find
-	 *  a specific declaration, etc...
-	 */
-	public CodeBlock enclosingBlock;
+        public RuleFunction enclosingRuleRunction;
 
-	public RuleFunction enclosingRuleRunction;
+        protected SrcOp(OutputModelFactory factory)
+            : this(factory, null)
+        {
+        }
 
-	public SrcOp(OutputModelFactory factory) { this(factory,null); }
-	public SrcOp(OutputModelFactory factory, GrammarAST ast) {
-		super(factory,ast);
-		if ( ast!=null ) uniqueID = ast.token.getTokenIndex();
-		enclosingBlock = factory.getCurrentBlock();
-		enclosingRuleRunction = factory.getCurrentRuleFunction();
-	}
+        protected SrcOp(OutputModelFactory factory, GrammarAST ast)
+            : base(factory, ast)
+        {
+            if (ast != null)
+                uniqueID = ast.Token.TokenIndex;
+            enclosingBlock = factory.GetCurrentBlock();
+            enclosingRuleRunction = factory.GetCurrentRuleFunction();
+        }
 
-	/** Walk upwards in model tree, looking for outer alt's code block */
-	public CodeBlockForOuterMostAlt getOuterMostAltCodeBlock() {
-		if ( this instanceof CodeBlockForOuterMostAlt ) {
-			return (CodeBlockForOuterMostAlt)this;
-		}
-		CodeBlock p = enclosingBlock;
-		while ( p!=null ) {
-			if ( p instanceof CodeBlockForOuterMostAlt ) {
-				return (CodeBlockForOuterMostAlt)p;
-			}
-			p = p.enclosingBlock;
-		}
-		return null;
-	}
+        /** Walk upwards in model tree, looking for outer alt's code block */
+        public virtual CodeBlockForOuterMostAlt GetOuterMostAltCodeBlock()
+        {
+            if (this is CodeBlockForOuterMostAlt)
+            {
+                return (CodeBlockForOuterMostAlt)this;
+            }
+            CodeBlock p = enclosingBlock;
+            while (p != null)
+            {
+                if (p is CodeBlockForOuterMostAlt)
+                {
+                    return (CodeBlockForOuterMostAlt)p;
+                }
+                p = p.enclosingBlock;
+            }
+            return null;
+        }
 
-	/** Return label alt or return name of rule */
-	public String getContextName() {
-		CodeBlockForOuterMostAlt alt = getOuterMostAltCodeBlock();
-		if ( alt!=null && alt.altLabel!=null ) return alt.altLabel;
-		return enclosingRuleRunction.name;
-	}
+        /** Return label alt or return name of rule */
+        public virtual string GetContextName()
+        {
+            CodeBlockForOuterMostAlt alt = GetOuterMostAltCodeBlock();
+            if (alt != null && alt.altLabel != null)
+                return alt.altLabel;
+            return enclosingRuleRunction.name;
+        }
+    }
 }

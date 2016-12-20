@@ -28,26 +28,28 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Misc;
+    using Antlr4.Tool;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Rule;
+    public class RuleActionFunction : OutputModelObject
+    {
+        public string name;
+        public string ctxType;
+        public int ruleIndex;
 
-import java.util.LinkedHashMap;
+        /** Map actionIndex to Action */
+        [ModelElement]
+        public LinkedHashMap<int, Action> actions =
+            new LinkedHashMap<int, Action>();
 
-public class RuleActionFunction extends OutputModelObject {
-	public String name;
-	public String ctxType;
-	public int ruleIndex;
-
-	/** Map actionIndex to Action */
-	@ModelElement public LinkedHashMap<Integer, Action> actions =
-		new LinkedHashMap<Integer, Action>();
-
-	public RuleActionFunction(OutputModelFactory factory, Rule r, String ctxType) {
-		super(factory);
-		name = r.name;
-		ruleIndex = r.index;
-		this.ctxType = ctxType;
-	}
+        public RuleActionFunction(OutputModelFactory factory, Rule r, string ctxType)
+            : base(factory)
+        {
+            name = r.name;
+            ruleIndex = r.index;
+            this.ctxType = ctxType;
+        }
+    }
 }

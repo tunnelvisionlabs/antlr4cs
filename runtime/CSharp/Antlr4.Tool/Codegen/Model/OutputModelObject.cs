@@ -28,22 +28,29 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public abstract class OutputModelObject
+    {
+        public OutputModelFactory factory;
+        public GrammarAST ast;
 
-/** */
-public abstract class OutputModelObject {
-	public OutputModelFactory factory;
-	public GrammarAST ast;
+        protected OutputModelObject()
+        {
+        }
 
-	public OutputModelObject() {}
+        protected OutputModelObject(OutputModelFactory factory)
+            : this(factory, null)
+        {
+        }
 
-	public OutputModelObject(OutputModelFactory factory) { this(factory, null); }
-
-	public OutputModelObject(OutputModelFactory factory, GrammarAST ast) {
-		this.factory = factory;
-		this.ast = ast;
-	}
+        protected OutputModelObject(OutputModelFactory factory, GrammarAST ast)
+        {
+            this.factory = factory;
+            this.ast = ast;
+        }
+    }
 }

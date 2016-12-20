@@ -28,43 +28,49 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Codegen.Model.Chunk;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.chunk.ActionChunk;
-import org.antlr.v4.codegen.model.chunk.ActionText;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.ast.ActionAST;
+    /** */
+    public class ParserFile : OutputFile
+    {
+        public string genPackage; // from -package cmd-line
+        [ModelElement]
+        public Parser parser;
+        [ModelElement]
+        public IDictionary<string, Action> namedActions;
+        [ModelElement]
+        public ActionChunk contextSuperClass;
+        public bool genListener = false;
+        public bool genVisitor = false;
+        public string grammarName;
 
-import java.util.HashMap;
-import java.util.Map;
+        public ParserFile(OutputModelFactory factory, string fileName)
+            : base(factory, fileName)
+        {
+            Grammar g = factory.GetGrammar();
+            namedActions = new Dictionary<string, Action>();
+            foreach (string name in g.namedActions.Keys)
+            {
+                ActionAST ast;
+                g.namedActions.TryGetValue(name, out ast);
+                namedActions[name] = new Action(factory, ast);
+            }
 
-/** */
-public class ParserFile extends OutputFile {
-	public String genPackage; // from -package cmd-line
-	@ModelElement public Parser parser;
-	@ModelElement public Map<String, Action> namedActions;
-	@ModelElement public ActionChunk contextSuperClass;
-	public Boolean genListener = false;
-	public Boolean genVisitor = false;
-	public String grammarName;
+            genPackage = g.tool.genPackage;
+            // need the below members in the ST for Python
+            genListener = g.tool.gen_listener;
+            genVisitor = g.tool.gen_visitor;
+            grammarName = g.name;
 
-	public ParserFile(OutputModelFactory factory, String fileName) {
-		super(factory, fileName);
-		Grammar g = factory.getGrammar();
-		namedActions = new HashMap<String, Action>();
-		for (String name : g.namedActions.keySet()) {
-			ActionAST ast = g.namedActions.get(name);
-			namedActions.put(name, new Action(factory, ast));
-		}
-		genPackage = g.tool.genPackage;
-		// need the below members in the ST for Python
-		genListener = g.tool.gen_listener;
-		genVisitor = g.tool.gen_visitor;
-		grammarName = g.name;
-
-		if (g.getOptionString("contextSuperClass") != null) {
-			contextSuperClass = new ActionText(null, g.getOptionString("contextSuperClass"));
-		}
-	}
+            if (g.GetOptionString("contextSuperClass") != null)
+            {
+                contextSuperClass = new ActionText(null, g.GetOptionString("contextSuperClass"));
+            }
+        }
+    }
 }

@@ -28,14 +28,15 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-/** Indicate field of OutputModelObject is an element to be walked by
- *  OutputModelWalker.
- */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ModelElement {
+    /** Indicate field of OutputModelObject is an element to be walked by
+     *  OutputModelWalker.
+     */
+    [AttributeUsage(AttributeTargets.All, Inherited = true, AllowMultiple = false)]
+    public sealed class ModelElementAttribute : Attribute
+    {
+    }
 }

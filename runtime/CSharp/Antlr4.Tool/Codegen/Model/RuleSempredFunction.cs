@@ -28,13 +28,15 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.Rule;
-
-public class RuleSempredFunction extends RuleActionFunction {
-	public RuleSempredFunction(OutputModelFactory factory, Rule r, String ctxType) {
-		super(factory, r, ctxType);
-	}
+    public class RuleSempredFunction : RuleActionFunction
+    {
+        public RuleSempredFunction(OutputModelFactory factory, Rule r, string ctxType)
+            : base(factory, r, ctxType)
+        {
+        }
+    }
 }

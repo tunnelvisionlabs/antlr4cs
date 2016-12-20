@@ -28,25 +28,28 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Codegen.Model.Decl;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.codegen.model.decl.Decl;
-import org.antlr.v4.codegen.model.decl.TokenTypeDecl;
-import org.antlr.v4.runtime.atn.SetTransition;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public class MatchSet : MatchToken
+    {
+        [ModelElement]
+        public TestSetInline expr;
+        [ModelElement]
+        public CaptureNextTokenType capture;
 
-public class MatchSet extends MatchToken {
-	@ModelElement public TestSetInline expr;
-	@ModelElement public CaptureNextTokenType capture;
-
-	public MatchSet(OutputModelFactory factory, GrammarAST ast) {
-		super(factory, ast);
-		SetTransition st = (SetTransition)ast.atnState.transition(0);
-		int wordSize = factory.getGenerator().getTarget().getInlineTestSetWordSize();
-		expr = new TestSetInline(factory, null, st.set, wordSize);
-		Decl d = new TokenTypeDecl(factory, expr.varName);
-		factory.getCurrentRuleFunction().addLocalDecl(d);
-		capture = new CaptureNextTokenType(factory,expr.varName);
-	}
+        public MatchSet(OutputModelFactory factory, GrammarAST ast)
+            : base(factory, ast)
+        {
+            SetTransition st = (SetTransition)ast.atnState.Transition(0);
+            int wordSize = factory.GetGenerator().GetTarget().GetInlineTestSetWordSize();
+            expr = new TestSetInline(factory, null, st.set, wordSize);
+            Decl.Decl d = new TokenTypeDecl(factory, expr.varName);
+            factory.GetCurrentRuleFunction().AddLocalDecl(d);
+            capture = new CaptureNextTokenType(factory, expr.varName);
+        }
+    }
 }

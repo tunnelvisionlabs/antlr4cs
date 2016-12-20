@@ -28,16 +28,19 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.tool.ast.ActionAST;
+    public class ArgAction : Action
+    {
+        /** Context type of invoked rule */
+        public string ctxType;
 
-public class ArgAction extends Action {
-	/** Context type of invoked rule */
-	public String ctxType;
-	public ArgAction(OutputModelFactory factory, ActionAST ast, String ctxType) {
-		super(factory, ast);
-		this.ctxType = ctxType;
-	}
+        public ArgAction(OutputModelFactory factory, ActionAST ast, string ctxType)
+            : base(factory, ast)
+        {
+            this.ctxType = ctxType;
+        }
+    }
 }

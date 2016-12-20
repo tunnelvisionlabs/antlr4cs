@@ -28,24 +28,24 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.codegen.model;
+namespace Antlr4.Codegen.Model
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.codegen.OutputModelFactory;
-import org.antlr.v4.runtime.atn.BlockStartState;
-import org.antlr.v4.tool.ast.GrammarAST;
+    public class AltBlock : Choice
+    {
+        //	@ModelElement public ThrowNoViableAlt error;
 
-import java.util.List;
-
-public class AltBlock extends Choice {
-//	@ModelElement public ThrowNoViableAlt error;
-
-	public AltBlock(OutputModelFactory factory,
-					GrammarAST blkOrEbnfRootAST,
-					List<CodeBlockForAlt> alts)
-	{
-		super(factory, blkOrEbnfRootAST, alts);
-		decision = ((BlockStartState)blkOrEbnfRootAST.atnState).decision;
-		// interp.predict() throws exception
-//		this.error = new ThrowNoViableAlt(factory, blkOrEbnfRootAST, null);
-	}
+        public AltBlock(OutputModelFactory factory,
+                        GrammarAST blkOrEbnfRootAST,
+                        IList<CodeBlockForAlt> alts)
+            : base(factory, blkOrEbnfRootAST, alts)
+        {
+            decision = ((BlockStartState)blkOrEbnfRootAST.atnState).decision;
+            // interp.predict() throws exception
+            //		this.error = new ThrowNoViableAlt(factory, blkOrEbnfRootAST, null);
+        }
+    }
 }
