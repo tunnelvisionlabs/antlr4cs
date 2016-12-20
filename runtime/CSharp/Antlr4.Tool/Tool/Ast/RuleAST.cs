@@ -28,47 +28,66 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using Antlr4.Parse;
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.Tree;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.tool.Grammar;
+    public class RuleAST : GrammarASTWithOptions
+    {
+        public RuleAST(RuleAST node)
+            : base(node)
+        {
+        }
 
-public class RuleAST extends GrammarASTWithOptions {
-	public RuleAST(RuleAST node) {
-		super(node);
-	}
+        public RuleAST(IToken t)
+            : base(t)
+        {
+        }
 
-	public RuleAST(Token t) { super(t); }
-    public RuleAST(int type) { super(type); }
+        public RuleAST(int type)
+            : base(type)
+        {
+        }
 
-	public boolean isLexerRule() {
-		String name = getRuleName();
-		return name!=null && Grammar.isTokenName(name);
-	}
+        public virtual bool IsLexerRule()
+        {
+            string name = GetRuleName();
+            return name != null && Grammar.IsTokenName(name);
+        }
 
-	public String getRuleName() {
-		GrammarAST nameNode = (GrammarAST)getChild(0);
-		if ( nameNode!=null ) return nameNode.getText();
-		return null;
-	}
+        public virtual string GetRuleName()
+        {
+            GrammarAST nameNode = (GrammarAST)GetChild(0);
+            if (nameNode != null)
+                return nameNode.Text;
+            return null;
+        }
 
-	@Override
-	public RuleAST dupNode() { return new RuleAST(this); }
+        public override ITree DupNode()
+        {
+            return new RuleAST(this);
+        }
 
-	public ActionAST getLexerAction() {
-		Tree blk = getFirstChildWithType(ANTLRParser.BLOCK);
-		if ( blk.getChildCount()==1 ) {
-			Tree onlyAlt = blk.getChild(0);
-			Tree lastChild = onlyAlt.getChild(onlyAlt.getChildCount()-1);
-			if ( lastChild.getType()==ANTLRParser.ACTION ) {
-				return (ActionAST)lastChild;
-			}
-		}
-		return null;
-	}
+        public virtual ActionAST GetLexerAction()
+        {
+            ITree blk = GetFirstChildWithType(ANTLRParser.BLOCK);
+            if (blk.ChildCount == 1)
+            {
+                ITree onlyAlt = blk.GetChild(0);
+                ITree lastChild = onlyAlt.GetChild(onlyAlt.ChildCount - 1);
+                if (lastChild.Type == ANTLRParser.ACTION)
+                {
+                    return (ActionAST)lastChild;
+                }
+            }
+            return null;
+        }
 
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

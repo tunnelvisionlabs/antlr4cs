@@ -28,23 +28,41 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
+    public class TerminalAST : GrammarASTWithOptions, RuleElementAST
+    {
+        public TerminalAST(TerminalAST node)
+            : base(node)
+        {
+        }
 
-public class TerminalAST extends GrammarASTWithOptions implements RuleElementAST {
+        public TerminalAST(IToken t)
+            : base(t)
+        {
+        }
 
-	public TerminalAST(TerminalAST node) {
-		super(node);
-	}
+        public TerminalAST(int type)
+            : base(type)
+        {
+        }
 
-	public TerminalAST(Token t) { super(t); }
-    public TerminalAST(int type) { super(type); }
-    public TerminalAST(int type, Token t) { super(type, t); }
+        public TerminalAST(int type, IToken t)
+            : base(type, t)
+        {
+        }
 
-	@Override
-	public TerminalAST dupNode() { return new TerminalAST(this); }
+        public override ITree DupNode()
+        {
+            return new TerminalAST(this);
+        }
 
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

@@ -28,22 +28,41 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
+    public class PredAST : ActionAST
+    {
+        public PredAST(PredAST node)
+            : base(node)
+        {
+        }
 
-public class PredAST extends ActionAST {
-	public PredAST(PredAST node) {
-		super(node);
-	}
+        public PredAST(IToken t)
+            : base(t)
+        {
+        }
 
-	public PredAST(Token t) { super(t); }
-    public PredAST(int type) { super(type); }
-    public PredAST(int type, Token t) { super(type, t); }
+        public PredAST(int type)
+            : base(type)
+        {
+        }
 
-	@Override
-	public PredAST dupNode() { return new PredAST(this); }
+        public PredAST(int type, IToken t)
+            : base(type, t)
+        {
+        }
 
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        public override ITree DupNode()
+        {
+            return new PredAST(this);
+        }
+
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

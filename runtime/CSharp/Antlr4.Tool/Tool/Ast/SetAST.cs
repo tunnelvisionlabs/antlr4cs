@@ -28,23 +28,31 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
+    public class SetAST : GrammarAST, RuleElementAST
+    {
+        public SetAST(SetAST node)
+            : base(node)
+        {
+        }
 
-public class SetAST extends GrammarAST implements RuleElementAST {
+        public SetAST(int type, IToken t, string text)
+            : base(type, t, text)
+        {
+        }
 
-	public SetAST(SetAST node) {
-		super(node);
-	}
+        public override ITree DupNode()
+        {
+            return new SetAST(this);
+        }
 
-	public SetAST(int type, Token t, String text) { super(type,t,text); }
-
-	@Override
-	public SetAST dupNode() {
-		return new SetAST(this);
-	}
-
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

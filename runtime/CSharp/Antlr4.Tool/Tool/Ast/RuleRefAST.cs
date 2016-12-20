@@ -28,33 +28,50 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using CommonToken = Antlr.Runtime.CommonToken;
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.Token;
+    public class RuleRefAST : GrammarASTWithOptions, RuleElementAST
+    {
+        public RuleRefAST(RuleRefAST node)
+            : base(node)
+        {
+        }
 
-public class RuleRefAST extends GrammarASTWithOptions implements RuleElementAST {
-	public RuleRefAST(RuleRefAST node) {
-		super(node);
-	}
+        public RuleRefAST(IToken t)
+            : base(t)
+        {
+        }
 
-	public RuleRefAST(Token t) { super(t); }
-    public RuleRefAST(int type) { super(type); }
-    public RuleRefAST(int type, Token t) { super(type, t); }
+        public RuleRefAST(int type)
+            : base(type)
+        {
+        }
 
-	/** Dup token too since we overwrite during LR rule transform */
-	@Override
-	public RuleRefAST dupNode() {
-		RuleRefAST r = new RuleRefAST(this);
-		// In LR transform, we alter original token stream to make e -> e[n]
-		// Since we will be altering the dup, we need dup to have the
-		// original token.  We can set this tree (the original) to have
-		// a new token.
-		r.token = this.token;
-		this.token = new CommonToken(r.token);
-		return r;
-	}
+        public RuleRefAST(int type, IToken t)
+            : base(type, t)
+        {
+        }
 
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        /** Dup token too since we overwrite during LR rule transform */
+        public override ITree DupNode()
+        {
+            RuleRefAST r = new RuleRefAST(this);
+            // In LR transform, we alter original token stream to make e -> e[n]
+            // Since we will be altering the dup, we need dup to have the
+            // original token.  We can set this tree (the original) to have
+            // a new token.
+            r.Token = this.Token;
+            this.Token = new CommonToken(r.Token);
+            return r;
+        }
+
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

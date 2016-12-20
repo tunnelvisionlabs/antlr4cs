@@ -28,70 +28,102 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using System.Collections.Generic;
+    using Antlr4.Misc;
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
 
-import org.antlr.runtime.Token;
-import org.antlr.v4.misc.CharSupport;
-import org.antlr.v4.runtime.misc.NotNull;
+    public abstract class GrammarASTWithOptions : GrammarAST
+    {
+        protected IDictionary<string, GrammarAST> options;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+        public GrammarASTWithOptions(GrammarASTWithOptions node)
+            : base(node)
+        {
+            this.options = node.options;
+        }
 
-public abstract class GrammarASTWithOptions extends GrammarAST {
-    protected Map<String, GrammarAST> options;
+        public GrammarASTWithOptions(IToken t)
+            : base(t)
+        {
+        }
 
-	public GrammarASTWithOptions(GrammarASTWithOptions node) {
-		super(node);
-		this.options = node.options;
-	}
+        public GrammarASTWithOptions(int type)
+            : base(type)
+        {
+        }
 
-	public GrammarASTWithOptions(Token t) { super(t); }
-    public GrammarASTWithOptions(int type) { super(type); }
-    public GrammarASTWithOptions(int type, Token t) { super(type, t); }
-    public GrammarASTWithOptions(int type, Token t, String text) { super(type,t,text); }
+        public GrammarASTWithOptions(int type, IToken t)
+            : base(type, t)
+        {
+        }
 
-    public void setOption(String key, GrammarAST node) {
-        if ( options==null ) options = new HashMap<String, GrammarAST>();
-        options.put(key, node);
+        public GrammarASTWithOptions(int type, IToken t, string text)
+            : base(type, t, text)
+        {
+        }
+
+        public virtual void SetOption(string key, GrammarAST node)
+        {
+            if (options == null)
+                options = new Dictionary<string, GrammarAST>();
+            options[key] = node;
+        }
+
+        public virtual string GetOptionString(string key)
+        {
+            GrammarAST value = GetOptionAST(key);
+            if (value == null)
+                return null;
+            if (value is ActionAST)
+            {
+                return value.Text;
+            }
+            else
+            {
+                string v = value.Text;
+                if (v.StartsWith("'") || v.StartsWith("\""))
+                {
+                    v = CharSupport.GetStringFromGrammarStringLiteral(v);
+                }
+                return v;
+            }
+        }
+
+        /** Gets AST node holding value for option key; ignores default options
+         *  and command-line forced options.
+         */
+        public virtual GrammarAST GetOptionAST(string key)
+        {
+            if (options == null)
+                return null;
+
+            GrammarAST value;
+            if (!options.TryGetValue(key, out value))
+                return null;
+
+            return value;
+        }
+
+        public virtual int GetNumberOfOptions()
+        {
+            return options == null ? 0 : options.Count;
+        }
+
+        public override abstract ITree DupNode();
+
+        [return: NotNull]
+        public virtual IDictionary<string, GrammarAST> GetOptions()
+        {
+            if (options == null)
+            {
+                return new Dictionary<string, GrammarAST>();
+            }
+
+            return options;
+        }
     }
-
-	public String getOptionString(String key) {
-		GrammarAST value = getOptionAST(key);
-		if ( value == null ) return null;
-		if ( value instanceof ActionAST ) {
-			return value.getText();
-		}
-		else {
-			String v = value.getText();
-			if ( v.startsWith("'") || v.startsWith("\"") ) {
-				v = CharSupport.getStringFromGrammarStringLiteral(v);
-			}
-			return v;
-		}
-	}
-
-	/** Gets AST node holding value for option key; ignores default options
-	 *  and command-line forced options.
-	 */
-    public GrammarAST getOptionAST(String key) {
-        if ( options==null ) return null;
-        return options.get(key);
-    }
-
-	public int getNumberOfOptions() {
-		return options==null ? 0 : options.size();
-	}
-
-	@Override
-	public abstract GrammarASTWithOptions dupNode();
-
-	@NotNull
-	public Map<String, GrammarAST> getOptions() {
-		if (options == null) {
-			return Collections.emptyMap();
-		}
-
-		return options;
-	}
 }

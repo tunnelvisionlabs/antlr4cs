@@ -28,237 +28,312 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Antlr4.Parse;
+    using Antlr4.Runtime.Atn;
+    using CommonToken = Antlr.Runtime.CommonToken;
+    using CommonTree = Antlr.Runtime.Tree.CommonTree;
+    using CommonTreeNodeStream = Antlr.Runtime.Tree.CommonTreeNodeStream;
+    using ICharStream = Antlr.Runtime.ICharStream;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
+    using TokenTypes = Antlr.Runtime.TokenTypes;
 
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.antlr.runtime.tree.Tree;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.parse.GrammarASTAdaptor;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.tool.Grammar;
+    public class GrammarAST : CommonTree
+    {
+        /** For error msgs, nice to know which grammar this AST lives in */
+        // TODO: try to remove
+        public Grammar g;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+        /** If we build an ATN, we make AST node point at left edge of ATN construct */
+        public ATNState atnState;
 
-public class GrammarAST extends CommonTree {
-	/** For error msgs, nice to know which grammar this AST lives in */
-	// TODO: try to remove
-	public Grammar g;
+        public string textOverride;
 
-	/** If we build an ATN, we make AST node point at left edge of ATN construct */
-	public ATNState atnState;
-
-	public String textOverride;
-
-    public GrammarAST() {}
-    public GrammarAST(Token t) { super(t); }
-    public GrammarAST(GrammarAST node) {
-		super(node);
-		this.g = node.g;
-		this.atnState = node.atnState;
-		this.textOverride = node.textOverride;
-	}
-    public GrammarAST(int type) { super(new CommonToken(type, ANTLRParser.tokenNames[type])); }
-    public GrammarAST(int type, Token t) {
-		this(new CommonToken(t));
-		token.setType(type);
-	}
-    public GrammarAST(int type, Token t, String text) {
-		this(new CommonToken(t));
-		token.setType(type);
-		token.setText(text);
-    }
-
-	public GrammarAST[] getChildrenAsArray() {
-		return children.toArray(new GrammarAST[children.size()]);
-	}
-
-	public List<GrammarAST> getNodesWithType(int ttype) {
-		return getNodesWithType(IntervalSet.of(ttype));
-	}
-
-	public List<GrammarAST> getAllChildrenWithType(int type) {
-		List<GrammarAST> nodes = new ArrayList<GrammarAST>();
-		for (int i = 0; children!=null && i < children.size(); i++) {
-			Tree t = (Tree) children.get(i);
-			if ( t.getType()==type ) {
-				nodes.add((GrammarAST)t);
-			}
-		}
-		return nodes;
-	}
-
-	public List<GrammarAST> getNodesWithType(IntervalSet types) {
-		List<GrammarAST> nodes = new ArrayList<GrammarAST>();
-		List<GrammarAST> work = new LinkedList<GrammarAST>();
-		work.add(this);
-		GrammarAST t;
-		while ( !work.isEmpty() ) {
-			t = work.remove(0);
-			if ( types==null || types.contains(t.getType()) ) nodes.add(t);
-			if ( t.children!=null ) {
-				work.addAll(Arrays.asList(t.getChildrenAsArray()));
-			}
-		}
-		return nodes;
-	}
-
-	public List<GrammarAST> getNodesWithTypePreorderDFS(IntervalSet types) {
-		ArrayList<GrammarAST> nodes = new ArrayList<GrammarAST>();
-		getNodesWithTypePreorderDFS_(nodes, types);
-		return nodes;
-	}
-
-	public void getNodesWithTypePreorderDFS_(List<GrammarAST> nodes, IntervalSet types) {
-		if ( types.contains(this.getType()) ) nodes.add(this);
-		// walk all children of root.
-		for (int i= 0; i < getChildCount(); i++) {
-			GrammarAST child = (GrammarAST)getChild(i);
-			child.getNodesWithTypePreorderDFS_(nodes, types);
-		}
-	}
-
-	public GrammarAST getNodeWithTokenIndex(int index) {
-		if ( this.getToken()!=null && this.getToken().getTokenIndex()==index ) {
-			return this;
-		}
-		// walk all children of root.
-		for (int i= 0; i < getChildCount(); i++) {
-			GrammarAST child = (GrammarAST)getChild(i);
-			GrammarAST result = child.getNodeWithTokenIndex(index);
-			if ( result!=null ) {
-				return result;
-			}
-		}
-		return null;
-	}
-
-	public AltAST getOutermostAltNode() {
-		if ( this instanceof AltAST && parent.parent instanceof RuleAST ) {
-			return (AltAST)this;
-		}
-		if ( parent!=null ) return ((GrammarAST)parent).getOutermostAltNode();
-		return null;
-	}
-
-	/** Walk ancestors of this node until we find ALT with
-	 *  alt!=null or leftRecursiveAltInfo!=null. Then grab label if any.
-	 *  If not a rule element, just returns null.
-	 */
-	public String getAltLabel() {
-		List<? extends Tree> ancestors = this.getAncestors();
-		if ( ancestors==null ) return null;
-		for (int i=ancestors.size()-1; i>=0; i--) {
-			GrammarAST p = (GrammarAST)ancestors.get(i);
-			if ( p.getType()== ANTLRParser.ALT ) {
-				AltAST a = (AltAST)p;
-				if ( a.altLabel!=null ) return a.altLabel.getText();
-				if ( a.leftRecursiveAltInfo!=null ) {
-					return a.leftRecursiveAltInfo.altLabel;
-				}
-			}
-		}
-		return null;
-	}
-
-	public boolean deleteChild(org.antlr.runtime.tree.Tree t) {
-		for (int i=0; i<children.size(); i++) {
-			Object c = children.get(i);
-			if ( c == t ) {
-				deleteChild(t.getChildIndex());
-				return true;
-			}
-		}
-		return false;
-	}
-
-    // TODO: move to basetree when i settle on how runtime works
-    // TODO: don't include this node!!
-	// TODO: reuse other method
-    public CommonTree getFirstDescendantWithType(int type) {
-        if ( getType()==type ) return this;
-        if ( children==null ) return null;
-        for (Object c : children) {
-            GrammarAST t = (GrammarAST)c;
-            if ( t.getType()==type ) return t;
-            CommonTree d = t.getFirstDescendantWithType(type);
-            if ( d!=null ) return d;
+        public GrammarAST()
+        {
         }
-        return null;
+
+        public GrammarAST(IToken t)
+            : base(t)
+        {
+        }
+
+        public GrammarAST(GrammarAST node)
+            : base(node)
+        {
+            this.g = node.g;
+            this.atnState = node.atnState;
+            this.textOverride = node.textOverride;
+        }
+
+        public GrammarAST(int type)
+            : base(new CommonToken(type, ANTLRParser.tokenNames[type]))
+        {
+        }
+
+        public GrammarAST(int type, IToken t)
+            : this(new CommonToken(t))
+        {
+            Token.Type = type;
+        }
+
+        public GrammarAST(int type, IToken t, string text)
+            : this(new CommonToken(t))
+        {
+            Token.Type = type;
+            Token.Text = text;
+        }
+
+        public virtual GrammarAST[] GetChildrenAsArray()
+        {
+            return Children.Cast<GrammarAST>().ToArray();
+        }
+
+        public virtual IList<GrammarAST> GetNodesWithType(int ttype)
+        {
+            return GetNodesWithType(IntervalSet.Of(ttype));
+        }
+
+        public override ITree GetFirstChildWithType(int type)
+        {
+            if (ChildCount == 0)
+                return null;
+
+            return base.GetFirstChildWithType(type);
+        }
+
+        public virtual IList<GrammarAST> GetAllChildrenWithType(int type)
+        {
+            IList<GrammarAST> nodes = new List<GrammarAST>();
+            for (int i = 0; Children != null && i < Children.Count; i++)
+            {
+                ITree t = (ITree)Children[i];
+                if (t.Type == type)
+                {
+                    nodes.Add((GrammarAST)t);
+                }
+            }
+            return nodes;
+        }
+
+        public virtual IList<GrammarAST> GetNodesWithType(IntervalSet types)
+        {
+            IList<GrammarAST> nodes = new List<GrammarAST>();
+            LinkedList<GrammarAST> work = new LinkedList<GrammarAST>();
+            work.AddLast(this);
+            GrammarAST t;
+            while (work.Count > 0)
+            {
+                t = work.First.Value;
+                work.RemoveFirst();
+                if (types == null || types.Contains(t.Type))
+                    nodes.Add(t);
+                if (t.Children != null)
+                {
+                    foreach (var child in t.GetChildrenAsArray())
+                        work.AddLast(child);
+                }
+            }
+            return nodes;
+        }
+
+        public virtual IList<GrammarAST> GetNodesWithTypePreorderDFS(IntervalSet types)
+        {
+            List<GrammarAST> nodes = new List<GrammarAST>();
+            GetNodesWithTypePreorderDFS_(nodes, types);
+            return nodes;
+        }
+
+        public virtual void GetNodesWithTypePreorderDFS_(IList<GrammarAST> nodes, IntervalSet types)
+        {
+            if (types.Contains(this.Type))
+                nodes.Add(this);
+            // walk all children of root.
+            for (int i = 0; i < ChildCount; i++)
+            {
+                GrammarAST child = (GrammarAST)GetChild(i);
+                child.GetNodesWithTypePreorderDFS_(nodes, types);
+            }
+        }
+
+        public virtual GrammarAST GetNodeWithTokenIndex(int index)
+        {
+            if (this.Token != null && this.Token.TokenIndex == index)
+            {
+                return this;
+            }
+            // walk all children of root.
+            for (int i = 0; i < ChildCount; i++)
+            {
+                GrammarAST child = (GrammarAST)GetChild(i);
+                GrammarAST result = child.GetNodeWithTokenIndex(index);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        public virtual AltAST GetOutermostAltNode()
+        {
+            if (this is AltAST && Parent.Parent is RuleAST)
+            {
+                return (AltAST)this;
+            }
+            if (Parent != null)
+                return ((GrammarAST)Parent).GetOutermostAltNode();
+            return null;
+        }
+
+        /** Walk ancestors of this node until we find ALT with
+         *  alt!=null or leftRecursiveAltInfo!=null. Then grab label if any.
+         *  If not a rule element, just returns null.
+         */
+        public virtual string GetAltLabel()
+        {
+            IList<ITree> ancestors = this.GetAncestors();
+            if (ancestors == null)
+                return null;
+            for (int i = ancestors.Count - 1; i >= 0; i--)
+            {
+                GrammarAST p = (GrammarAST)ancestors[i];
+                if (p.Type == ANTLRParser.ALT)
+                {
+                    AltAST a = (AltAST)p;
+                    if (a.altLabel != null)
+                        return a.altLabel.Text;
+                    if (a.leftRecursiveAltInfo != null)
+                    {
+                        return a.leftRecursiveAltInfo.altLabel;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public virtual bool DeleteChild(ITree t)
+        {
+            for (int i = 0; i < Children.Count; i++)
+            {
+                object c = Children[i];
+                if (c == t)
+                {
+                    DeleteChild(t.ChildIndex);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO: move to basetree when i settle on how runtime works
+        // TODO: don't include this node!!
+        // TODO: reuse other method
+        public virtual CommonTree GetFirstDescendantWithType(int type)
+        {
+            if (Type == type)
+                return this;
+            if (Children == null)
+                return null;
+            foreach (object c in Children)
+            {
+                GrammarAST t = (GrammarAST)c;
+                if (t.Type == type)
+                    return t;
+                CommonTree d = t.GetFirstDescendantWithType(type);
+                if (d != null)
+                    return d;
+            }
+            return null;
+        }
+
+        // TODO: don't include this node!!
+        public virtual CommonTree GetFirstDescendantWithType(Antlr.Runtime.BitSet types)
+        {
+            if (types.Member(Type))
+                return this;
+            if (Children == null)
+                return null;
+            foreach (object c in Children)
+            {
+                GrammarAST t = (GrammarAST)c;
+                if (types.Member(t.Type))
+                    return t;
+                CommonTree d = t.GetFirstDescendantWithType(types);
+                if (d != null)
+                    return d;
+            }
+            return null;
+        }
+
+        public virtual void SetType(int type)
+        {
+            Token.Type = type;
+        }
+        //
+        //	@Override
+        //	public String getText() {
+        //		if ( textOverride!=null ) return textOverride;
+        //        if ( token!=null ) {
+        //            return token.getText();
+        //        }
+        //        return "";
+        //	}
+
+        public virtual void SetText(string text)
+        {
+            //		textOverride = text; // don't alt tokens as others might see
+            Token.Text = text; // we delete surrounding tree, so ok to alter
+        }
+
+        //	@Override
+        //	public boolean equals(Object obj) {
+        //		return super.equals(obj);
+        //	}
+
+        public override ITree DupNode()
+        {
+            return new GrammarAST(this);
+        }
+
+        public virtual GrammarAST DupTree()
+        {
+            GrammarAST t = this;
+            ICharStream input = this.Token.InputStream;
+            GrammarASTAdaptor adaptor = new GrammarASTAdaptor(input);
+            return (GrammarAST)adaptor.DupTree(t);
+        }
+
+        public virtual string ToTokenString()
+        {
+            ICharStream input = this.Token.InputStream;
+            GrammarASTAdaptor adaptor = new GrammarASTAdaptor(input);
+            CommonTreeNodeStream nodes =
+                new CommonTreeNodeStream(adaptor, this);
+            StringBuilder buf = new StringBuilder();
+            GrammarAST o = (GrammarAST)nodes.LT(1);
+            int type = adaptor.GetType(o);
+            while (type != TokenTypes.EndOfFile)
+            {
+                buf.Append(" ");
+                buf.Append(o.Text);
+                nodes.Consume();
+                o = (GrammarAST)nodes.LT(1);
+                type = adaptor.GetType(o);
+            }
+
+            return buf.ToString();
+        }
+
+        public virtual object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
     }
-
-	// TODO: don't include this node!!
-	public CommonTree getFirstDescendantWithType(org.antlr.runtime.BitSet types) {
-		if ( types.member(getType()) ) return this;
-		if ( children==null ) return null;
-		for (Object c : children) {
-			GrammarAST t = (GrammarAST)c;
-			if ( types.member(t.getType()) ) return t;
-			CommonTree d = t.getFirstDescendantWithType(types);
-			if ( d!=null ) return d;
-		}
-		return null;
-	}
-
-	public void setType(int type) {
-		token.setType(type);
-	}
-//
-//	@Override
-//	public String getText() {
-//		if ( textOverride!=null ) return textOverride;
-//        if ( token!=null ) {
-//            return token.getText();
-//        }
-//        return "";
-//	}
-
-	public void setText(String text) {
-//		textOverride = text; // don't alt tokens as others might see
-		token.setText(text); // we delete surrounding tree, so ok to alter
-	}
-
-//	@Override
-//	public boolean equals(Object obj) {
-//		return super.equals(obj);
-//	}
-
-	@Override
-    public GrammarAST dupNode() {
-        return new GrammarAST(this);
-    }
-
-	public GrammarAST dupTree() {
-		GrammarAST t = this;
-		CharStream input = this.token.getInputStream();
-		GrammarASTAdaptor adaptor = new GrammarASTAdaptor(input);
-		return (GrammarAST)adaptor.dupTree(t);
-	}
-
-	public String toTokenString() {
-		CharStream input = this.token.getInputStream();
-		GrammarASTAdaptor adaptor = new GrammarASTAdaptor(input);
-		CommonTreeNodeStream nodes =
-			new CommonTreeNodeStream(adaptor, this);
-		StringBuilder buf = new StringBuilder();
-		GrammarAST o = (GrammarAST)nodes.LT(1);
-		int type = adaptor.getType(o);
-		while ( type!=Token.EOF ) {
-			buf.append(" ");
-			buf.append(o.getText());
-			nodes.consume();
-			o = (GrammarAST)nodes.LT(1);
-			type = adaptor.getType(o);
-		}
-		return buf.toString();
-	}
-
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
 }

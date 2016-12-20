@@ -28,14 +28,14 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
-
-/**
- *
- * @author Sam Harwell
- */
-public interface QuantifierAST {
-
-	boolean isGreedy();
-
+namespace Antlr4.Tool.Ast
+{
+    /**
+     *
+     * @author Sam Harwell
+     */
+    public interface QuantifierAST
+    {
+        bool GetGreedy();
+    }
 }

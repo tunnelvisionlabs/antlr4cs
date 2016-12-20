@@ -28,31 +28,48 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using System.Collections.Generic;
+    using Antlr.Runtime;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
-import org.antlr.v4.tool.AttributeResolver;
+    public class ActionAST : GrammarASTWithOptions, RuleElementAST
+    {
+        // Alt, rule, grammar space
+        public AttributeResolver resolver;
+        public IList<IToken> chunks; // useful for ANTLR IDE developers
 
-import java.util.List;
+        public ActionAST(ActionAST node)
+            : base(node)
+        {
+            this.resolver = node.resolver;
+            this.chunks = node.chunks;
+        }
 
-public class ActionAST extends GrammarASTWithOptions implements RuleElementAST {
-    // Alt, rule, grammar space
-    public AttributeResolver resolver;
-	public List<Token> chunks; // useful for ANTLR IDE developers
+        public ActionAST(IToken t)
+            : base(t)
+        {
+        }
 
-	public ActionAST(ActionAST node) {
-		super(node);
-		this.resolver = node.resolver;
-		this.chunks = node.chunks;
-	}
+        public ActionAST(int type)
+            : base(type)
+        {
+        }
 
-	public ActionAST(Token t) { super(t); }
-    public ActionAST(int type) { super(type); }
-    public ActionAST(int type, Token t) { super(type, t); }
+        public ActionAST(int type, IToken t)
+            : base(type, t)
+        {
+        }
 
-	@Override
-	public ActionAST dupNode() { return new ActionAST(this); }
+        public override ITree DupNode()
+        {
+            return new ActionAST(this);
+        }
 
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

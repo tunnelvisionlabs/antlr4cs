@@ -28,32 +28,40 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using IToken = Antlr.Runtime.IToken;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
+    public class OptionalBlockAST : GrammarAST, RuleElementAST, QuantifierAST
+    {
+        private readonly bool _greedy;
 
-public class OptionalBlockAST extends GrammarAST implements RuleElementAST, QuantifierAST {
-	private final boolean _greedy;
+        public OptionalBlockAST(OptionalBlockAST node)
+            : base(node)
+        {
+            _greedy = node._greedy;
+        }
 
-	public OptionalBlockAST(OptionalBlockAST node) {
-		super(node);
-		_greedy = node._greedy;
-	}
+        public OptionalBlockAST(int type, IToken t, IToken nongreedy)
+            : base(type, t)
+        {
+            _greedy = nongreedy == null;
+        }
 
-	public OptionalBlockAST(int type, Token t, Token nongreedy) {
-		super(type, t);
-		_greedy = nongreedy == null;
-	}
+        public virtual bool GetGreedy()
+        {
+            return _greedy;
+        }
 
-	@Override
-	public boolean isGreedy() {
-		return _greedy;
-	}
+        public override ITree DupNode()
+        {
+            return new OptionalBlockAST(this);
+        }
 
-	@Override
-	public OptionalBlockAST dupNode() { return new OptionalBlockAST(this); }
-
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
-
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }

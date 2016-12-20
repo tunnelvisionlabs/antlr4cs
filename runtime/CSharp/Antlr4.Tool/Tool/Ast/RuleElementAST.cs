@@ -28,8 +28,10 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
-
-/** Tag indicated AST node is a rule element like token or rule ref. */
-public interface RuleElementAST {
+namespace Antlr4.Tool.Ast
+{
+    /** Tag indicated AST node is a rule element like token or rule ref. */
+    public interface RuleElementAST
+    {
+    }
 }

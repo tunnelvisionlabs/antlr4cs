@@ -28,36 +28,55 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.tool.ast;
+namespace Antlr4.Tool.Ast
+{
+    using System.Collections.Generic;
+    using Antlr.Runtime;
+    using ITree = Antlr.Runtime.Tree.ITree;
 
-import org.antlr.runtime.Token;
+    public class BlockAST : GrammarASTWithOptions, RuleElementAST
+    {
+        // TODO: maybe I need a Subrule object like Rule so these options mov to that?
+        /** What are the default options for a subrule? */
+        public static readonly IDictionary<string, string> defaultBlockOptions =
+            new Dictionary<string, string>();
 
-import java.util.HashMap;
-import java.util.Map;
+        public static readonly IDictionary<string, string> defaultLexerBlockOptions =
+            new Dictionary<string, string>();
 
-public class BlockAST extends GrammarASTWithOptions implements RuleElementAST {
-    // TODO: maybe I need a Subrule object like Rule so these options mov to that?
-    /** What are the default options for a subrule? */
-    @SuppressWarnings("serial")
-    public static final Map<String, String> defaultBlockOptions =
-            new HashMap<String, String>();
+        public BlockAST(BlockAST node)
+            : base(node)
+        {
+        }
 
-    @SuppressWarnings("serial")
-    public static final Map<String, String> defaultLexerBlockOptions =
-            new HashMap<String, String>();
+        public BlockAST(IToken t)
+            : base(t)
+        {
+        }
 
-	public BlockAST(BlockAST node) {
-		super(node);
-	}
+        public BlockAST(int type)
+            : base(type)
+        {
+        }
 
-	public BlockAST(Token t) { super(t); }
-    public BlockAST(int type) { super(type); }
-    public BlockAST(int type, Token t) { super(type, t); }
-	public BlockAST(int type, Token t, String text) { super(type,t,text); }
+        public BlockAST(int type, IToken t)
+            : base(type, t)
+        {
+        }
 
-	@Override
-	public BlockAST dupNode() { return new BlockAST(this); }
+        public BlockAST(int type, IToken t, string text)
+            : base(type, t, text)
+        {
+        }
 
-	@Override
-	public Object visit(GrammarASTVisitor v) { return v.visit(this); }
+        public override ITree DupNode()
+        {
+            return new BlockAST(this);
+        }
+
+        public override object Visit(GrammarASTVisitor v)
+        {
+            return v.Visit(this);
+        }
+    }
 }
