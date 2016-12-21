@@ -261,7 +261,6 @@
     <None Include="Atn\ATNSerializer.cs" />
     <None Include="Misc\Array2DHashSet`1.cs" />
     <None Include="Misc\DoubleKeyMap`3.cs" />
-    <None Include="Misc\OrderedHashSet`1.cs" />
     <None Include="Misc\RuleDependencyProcessor.cs" />
     <None Include="Misc\TestRig.cs" />
     <None Include="packages.Antlr4.Runtime.net30.config" />

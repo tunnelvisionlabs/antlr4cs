@@ -183,6 +183,7 @@
     <Compile Include="Misc\FrequencySet`1.cs" />
     <Compile Include="Misc\Graph`1.cs" />
     <Compile Include="Misc\OrderedHashMap`2.cs" />
+    <Compile Include="Misc\OrderedHashSet`1.cs" />
     <Compile Include="Misc\Utils.cs" />
     <Compile Include="Parse\ActionSplitterListener.cs" />
     <Compile Include="Parse\GrammarASTAdaptor.cs" />
