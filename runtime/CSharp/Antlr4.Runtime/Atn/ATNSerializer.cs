@@ -1,4 +1,4 @@
-// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
+﻿// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using System;
@@ -21,21 +21,19 @@ namespace Antlr4.Runtime.Atn
 
         public ATNSerializer(ATN atn, IList<string> ruleNames)
         {
-            System.Diagnostics.Debug.Assert(atn.grammarType != null);
             this.atn = atn;
             this.ruleNames = ruleNames;
         }
 
         public ATNSerializer(ATN atn, IList<string> ruleNames, IList<string> tokenNames)
         {
-            System.Diagnostics.Debug.Assert(atn.grammarType != null);
             this.atn = atn;
             this.ruleNames = ruleNames;
             this.tokenNames = tokenNames;
         }
 
         /// <summary>
-        /// Serialize state descriptors, edge descriptors, and decision&rarr;state map
+        /// Serialize state descriptors, edge descriptors, and decision→state map
         /// into list of ints:
         /// grammar-type, (ANTLRParser.LEXER, ...)
         /// max token type,
@@ -43,7 +41,7 @@ namespace Antlr4.Runtime.Atn
         /// state-0-type ruleIndex, state-1-type ruleIndex, ...
         /// </summary>
         /// <remarks>
-        /// Serialize state descriptors, edge descriptors, and decision&rarr;state map
+        /// Serialize state descriptors, edge descriptors, and decision→state map
         /// into list of ints:
         /// grammar-type, (ANTLRParser.LEXER, ...)
         /// max token type,
@@ -131,7 +129,7 @@ namespace Antlr4.Runtime.Atn
                 for (int i = 0; i < s.NumberOfTransitions; i++)
                 {
                     Transition t = s.Transition(i);
-                    TransitionType edgeType = Transition.serializationTypes.Get(t.GetType());
+                    TransitionType edgeType = t.TransitionType;
                     if (edgeType == TransitionType.Set || edgeType == TransitionType.NotSet)
                     {
                         SetTransition st = (SetTransition)t;
@@ -144,22 +142,22 @@ namespace Antlr4.Runtime.Atn
                 }
             }
             // non-greedy states
-            data.Add(nonGreedyStates.Size());
-            for (int i_1 = 0; i_1 < nonGreedyStates.Size(); i_1++)
+            data.Add(nonGreedyStates.Count);
+            for (int i_1 = 0; i_1 < nonGreedyStates.Count; i_1++)
             {
-                data.Add(nonGreedyStates.Get(i_1));
+                data.Add(nonGreedyStates[i_1]);
             }
             // SLL decisions
-            data.Add(sllStates.Size());
-            for (int i_2 = 0; i_2 < sllStates.Size(); i_2++)
+            data.Add(sllStates.Count);
+            for (int i_2 = 0; i_2 < sllStates.Count; i_2++)
             {
-                data.Add(sllStates.Get(i_2));
+                data.Add(sllStates[i_2]);
             }
             // precedence states
-            data.Add(precedenceStates.Size());
-            for (int i_3 = 0; i_3 < precedenceStates.Size(); i_3++)
+            data.Add(precedenceStates.Count);
+            for (int i_3 = 0; i_3 < precedenceStates.Count; i_3++)
             {
-                data.Add(precedenceStates.Get(i_3));
+                data.Add(precedenceStates[i_3]);
             }
             int nrules = atn.ruleToStartState.Length;
             data.Add(nrules);
@@ -236,16 +234,16 @@ namespace Antlr4.Runtime.Atn
                 {
                     continue;
                 }
-                for (int i = 0; i_3 < s_1.NumberOfTransitions; i_3++)
+                for (int i = 0; i < s_1.NumberOfTransitions; i++)
                 {
-                    Transition t = s_1.Transition(i_3);
+                    Transition t = s_1.Transition(i);
                     if (atn.states[t.target.stateNumber] == null)
                     {
                         throw new InvalidOperationException("Cannot serialize a transition to a removed state.");
                     }
                     int src = s_1.stateNumber;
                     int trg = t.target.stateNumber;
-                    TransitionType edgeType = Transition.serializationTypes.Get(t.GetType());
+                    TransitionType edgeType = t.TransitionType;
                     int arg1 = 0;
                     int arg2 = 0;
                     int arg3 = 0;
@@ -314,13 +312,13 @@ namespace Antlr4.Runtime.Atn
 
                         case TransitionType.Set:
                         {
-                            arg1 = setIndices.Get(((SetTransition)t).set);
+                            arg1 = setIndices[((SetTransition)t).set];
                             break;
                         }
 
                         case TransitionType.NotSet:
                         {
-                            arg1 = setIndices.Get(((SetTransition)t).set);
+                            arg1 = setIndices[((SetTransition)t).set];
                             break;
                         }
 
@@ -395,7 +393,7 @@ namespace Antlr4.Runtime.Atn
 
                         case LexerActionType.PushMode:
                         {
-                            mode = ((LexerPushModeAction)action).Mode;
+                            int mode = ((LexerPushModeAction)action).Mode;
                             data.Add(mode != -1 ? mode : unchecked((int)(0xFFFF)));
                             data.Add(0);
                             break;
@@ -425,14 +423,14 @@ namespace Antlr4.Runtime.Atn
                 }
             }
             // don't adjust the first value since that's the version number
-            for (int i_4 = 1; i_4 < data.Size(); i_4++)
+            for (int i_4 = 1; i_4 < data.Count; i_4++)
             {
-                if (data.Get(i_4) < char.MinValue || data.Get(i_4) > char.MaxValue)
+                if (data[i_4] < char.MinValue || data[i_4] > char.MaxValue)
                 {
                     throw new NotSupportedException("Serialized ATN data element out of range.");
                 }
-                int value = (data.Get(i_4) + 2) & unchecked((int)(0xFFFF));
-                data.Set(i_4, value);
+                int value = (data[i_4] + 2) & unchecked((int)(0xFFFF));
+                data[i_4] = value;
             }
             return data;
         }
@@ -451,14 +449,14 @@ namespace Antlr4.Runtime.Atn
             if (version != ATNDeserializer.SerializedVersion)
             {
                 string reason = string.Format("Could not deserialize ATN with version {0} (expected {1}).", version, ATNDeserializer.SerializedVersion);
-                throw new NotSupportedException(new InvalidClassException(typeof(ATN).FullName, reason));
+                throw new InvalidOperationException(reason);
             }
             Guid uuid = ATNDeserializer.ToUUID(data, p);
             p += 8;
             if (!uuid.Equals(ATNDeserializer.SerializedUuid))
             {
                 string reason = string.Format(CultureInfo.CurrentCulture, "Could not deserialize ATN with UUID {0} (expected {1}).", uuid, ATNDeserializer.SerializedUuid);
-                throw new NotSupportedException(new InvalidClassException(typeof(ATN).FullName, reason));
+                throw new InvalidOperationException(reason);
             }
             p++;
             // skip grammarType
@@ -467,7 +465,7 @@ namespace Antlr4.Runtime.Atn
             int nstates = ATNDeserializer.ToInt(data[p++]);
             for (int i_1 = 0; i_1 < nstates; i_1++)
             {
-                StateType stype = StateType.Values()[ATNDeserializer.ToInt(data[p++])];
+                StateType stype = (StateType)ATNDeserializer.ToInt(data[p++]);
                 if (stype == StateType.InvalidType)
                 {
                     continue;
@@ -586,7 +584,7 @@ namespace Antlr4.Runtime.Atn
                 int lexerActionCount = ATNDeserializer.ToInt(data[p++]);
                 for (int i_10 = 0; i_10 < lexerActionCount; i_10++)
                 {
-                    LexerActionType actionType = LexerActionType.Values()[ATNDeserializer.ToInt(data[p++])];
+                    LexerActionType actionType = (LexerActionType)ATNDeserializer.ToInt(data[p++]);
                     int data1 = ATNDeserializer.ToInt(data[p++]);
                     int data2 = ATNDeserializer.ToInt(data[p++]);
                 }
@@ -641,13 +639,12 @@ namespace Antlr4.Runtime.Atn
 
                     default:
                     {
-                        if (Character.UnicodeBlock.Of((char)t) == Character.UnicodeBlock.BasicLatin && !char.IsISOControl((char)t))
+                        if (t >= 0x20 && t <= 0x7f)
                         {
                             return '\'' + char.ToString((char)t) + '\'';
                         }
-                        // turn on the bit above max "\uFFFF" value so that we pad with zeros
-                        // then only take last 4 digits
-                        string hex = Sharpen.Runtime.Substring(Antlr4.Runtime.Sharpen.Extensions.ToHexString(t | unchecked((int)(0x10000))).ToUpper(), 1, 5);
+                        // convert to a 4-digit hex string
+                        string hex = t.ToString("X4");
                         string unicodeStr = "'\\u" + hex + "'";
                         return unicodeStr;
                     }
@@ -685,14 +682,14 @@ namespace Antlr4.Runtime.Atn
 
         private void SerializeUUID(List<int> data, Guid uuid)
         {
-            SerializeLong(data, uuid.GetLeastSignificantBits());
-            SerializeLong(data, uuid.GetMostSignificantBits());
-        }
-
-        private void SerializeLong(List<int> data, long value)
-        {
-            SerializeInt(data, (int)value);
-            SerializeInt(data, (int)(value >> 32));
+            byte[] uuidData = uuid.ToByteArray();
+            data.Add((uuidData[14] << 8) + uuidData[15]);
+            data.Add((uuidData[12] << 8) + uuidData[13]);
+            data.Add((uuidData[10] << 8) + uuidData[11]);
+            data.Add((uuidData[8] << 8) + uuidData[9]);
+            data.Add(BitConverter.ToInt16(uuidData, 6));
+            data.Add(BitConverter.ToInt16(uuidData, 4));
+            SerializeInt(data, BitConverter.ToInt32(uuidData, 0));
         }
 
         private void SerializeInt(List<int> data, int value)
