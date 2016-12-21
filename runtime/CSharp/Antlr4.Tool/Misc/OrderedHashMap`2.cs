@@ -28,48 +28,68 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.misc;
+namespace Antlr4.Misc
+{
+    using System.Collections.Generic;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+    /** I need the get-element-i functionality so I'm subclassing
+     *  LinkedHashMap.
+     */
+    public class OrderedHashMap<K, V> : LinkedHashMap<K, V>
+    {
+        /** Track the elements as they are added to the set */
+        protected IList<K> elements = new List<K>();
 
-/** I need the get-element-i functionality so I'm subclassing
- *  LinkedHashMap.
- */
-public class OrderedHashMap<K,V> extends LinkedHashMap<K,V> {
-	private static final long serialVersionUID = -4127551298268351889L;
+        public override V this[K key]
+        {
+            get
+            {
+                return base[key];
+            }
 
-	/** Track the elements as they are added to the set */
-	protected List<K> elements = new ArrayList<K>();
+            set
+            {
+                elements.Add(key);
+                base[key] = value;
+            }
+        }
 
-	public K getKey(int i) { return elements.get(i); }
+        public virtual K GetKey(int i)
+        {
+            return elements[i];
+        }
 
-	public V getElement(int i) { return get(elements.get(i)); }
+        public virtual V GetElement(int i)
+        {
+            V result;
+            TryGetValue(GetKey(i), out result);
+            return result;
+        }
 
-	@Override
-	public V put(K key, V value) {
-		elements.add(key);
-		return super.put(key, value);
-	}
+        public override void Add(K key, V value)
+        {
+            base.Add(key, value);
+            elements.Add(key);
+        }
 
-	@Override
-	public void putAll(Map<? extends K, ? extends V> m) {
-		for (Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
-			put(entry.getKey(), entry.getValue());
-		}
-	}
+        //public override void PutAll(Map<K, V> m)
+        //{
+        //    foreach (Map.Entry<K, V> entry in m.entrySet())
+        //    {
+        //        put(entry.getKey(), entry.getValue());
+        //    }
+        //}
 
-	@Override
-	public V remove(Object key) {
-		elements.remove(key);
-		return super.remove(key);
-	}
+        public override bool Remove(K key)
+        {
+            elements.Remove(key);
+            return base.Remove(key);
+        }
 
-	@Override
-	public void clear() {
-		elements.clear();
-		super.clear();
-	}
+        public override void Clear()
+        {
+            elements.Clear();
+            base.Clear();
+        }
+    }
 }

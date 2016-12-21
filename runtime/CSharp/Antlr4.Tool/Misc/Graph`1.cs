@@ -27,91 +27,112 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.misc;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
+namespace Antlr4.Misc
+{
+    using System.Collections.Generic;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+    /** A generic graph with edges; Each node as a single Object payload.
+     *  This is only used to topologically sort a list of file dependencies
+     *  at the moment.
+     */
+    public class Graph<T>
+    {
 
-/** A generic graph with edges; Each node as a single Object payload.
- *  This is only used to topologically sort a list of file dependencies
- *  at the moment.
- */
-public class Graph<T> {
+        public class Node
+        {
+            internal T payload;
+            internal IList<Node> edges; // points at which nodes?
 
-	public static class Node<T> {
-		T payload;
-		List<Node<T>> edges; // points at which nodes?
+            public Node(T payload)
+            {
+                this.payload = payload;
+            }
 
-		public Node(T payload) { this.payload = payload; }
+            public virtual void AddEdge(Node n)
+            {
+                if (edges == null)
+                    edges = new List<Node>();
+                if (!edges.Contains(n))
+                    edges.Add(n);
+            }
 
-		public void addEdge(Node<T> n) {
-			if ( edges==null ) edges = new ArrayList<Node<T>>();
-			if ( !edges.contains(n) ) edges.add(n);
-		}
+            public override string ToString()
+            {
+                return payload.ToString();
+            }
+        }
 
-		@Override
-		public String toString() { return payload.toString(); }
-	}
+        /** Map from node payload to node containing it */
+        protected IDictionary<T, Node> nodes = new LinkedHashMap<T, Node>();
 
-	/** Map from node payload to node containing it */
-	protected Map<T,Node<T>> nodes = new LinkedHashMap<T,Node<T>>();
+        public virtual void AddEdge(T a, T b)
+        {
+            //System.out.println("add edge "+a+" to "+b);
+            Node a_node = GetNode(a);
+            Node b_node = GetNode(b);
+            a_node.AddEdge(b_node);
+        }
 
-	public void addEdge(T a, T b) {
-		//System.out.println("add edge "+a+" to "+b);
-		Node<T> a_node = getNode(a);
-		Node<T> b_node = getNode(b);
-		a_node.addEdge(b_node);
-	}
+        protected virtual Node GetNode(T a)
+        {
+            Node existing;
+            if (nodes.TryGetValue(a, out existing) && existing != null)
+                return existing;
 
-	protected Node<T> getNode(T a) {
-		Node<T> existing = nodes.get(a);
-		if ( existing!=null ) return existing;
-		Node<T> n = new Node<T>(a);
-		nodes.put(a, n);
-		return n;
-	}
+            Node n = new Node(a);
+            nodes[a] = n;
+            return n;
+        }
 
-	/** DFS-based topological sort.  A valid sort is the reverse of
-	 *  the post-order DFA traversal.  Amazingly simple but true.
-	 *  For sorting, I'm not following convention here since ANTLR
-	 *  needs the opposite.  Here's what I assume for sorting:
-	 *
-	 *    If there exists an edge u -&gt; v then u depends on v and v
-	 *    must happen before u.
-	 *
-	 *  So if this gives nonreversed postorder traversal, I get the order
-	 *  I want.
-	 */
-	public List<T> sort() {
-		Set<Node<T>> visited = new OrderedHashSet<Node<T>>();
-		ArrayList<T> sorted = new ArrayList<T>();
-		while ( visited.size() < nodes.size() ) {
-			// pick any unvisited node, n
-			Node<T> n = null;
-			for (Node<T> tNode : nodes.values()) {
-				n = tNode;
-				if ( !visited.contains(n) ) break;
-			}
-			if (n!=null) { // if at least one unvisited
-				DFS(n, visited, sorted);
-			}
-		}
-		return sorted;
-	}
+        /** DFS-based topological sort.  A valid sort is the reverse of
+         *  the post-order DFA traversal.  Amazingly simple but true.
+         *  For sorting, I'm not following convention here since ANTLR
+         *  needs the opposite.  Here's what I assume for sorting:
+         *
+         *    If there exists an edge u -&gt; v then u depends on v and v
+         *    must happen before u.
+         *
+         *  So if this gives nonreversed postorder traversal, I get the order
+         *  I want.
+         */
+        public virtual IList<T> Sort()
+        {
+            ISet<Node> visited = new OrderedHashSet<Node>();
+            List<T> sorted = new List<T>();
+            while (visited.Count < nodes.Count)
+            {
+                // pick any unvisited node, n
+                Node n = null;
+                foreach (Node tNode in nodes.Values)
+                {
+                    n = tNode;
+                    if (!visited.Contains(n))
+                        break;
+                }
+                if (n != null)
+                { // if at least one unvisited
+                    DFS(n, visited, sorted);
+                }
+            }
+            return sorted;
+        }
 
-	public void DFS(Node<T> n, Set<Node<T>> visited, ArrayList<T> sorted) {
-		if ( visited.contains(n) ) return;
-		visited.add(n);
-		if ( n.edges!=null ) {
-			for (Node<T> target : n.edges) {
-				DFS(target, visited, sorted);
-			}
-		}
-		sorted.add(n.payload);
-	}
+        public void DFS(Node n, ISet<Node> visited, List<T> sorted)
+        {
+            if (visited.Contains(n))
+                return;
+
+            visited.Add(n);
+            if (n.edges != null)
+            {
+                foreach (Node target in n.edges)
+                {
+                    DFS(target, visited, sorted);
+                }
+            }
+
+            sorted.Add(n.payload);
+        }
+    }
 }

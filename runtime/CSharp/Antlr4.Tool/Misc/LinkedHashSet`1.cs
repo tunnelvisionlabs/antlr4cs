@@ -151,7 +151,8 @@ namespace Antlr4.Misc
 
         public virtual void UnionWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
+            foreach (T item in other)
+                Add(item);
         }
 
         void ICollection<T>.Add(T item)

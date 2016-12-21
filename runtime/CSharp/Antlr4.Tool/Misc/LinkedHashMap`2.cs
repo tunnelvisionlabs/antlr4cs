@@ -35,7 +35,7 @@ namespace Antlr4.Misc
     using System.Collections.Generic;
     using System.Linq;
 
-    public class LinkedHashMap<TKey, TValue> : IDictionary<TKey, TValue>
+    public class LinkedHashMap<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary
     {
         private readonly Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> _dictionary;
         private readonly LinkedList<KeyValuePair<TKey, TValue>> _list;
@@ -104,6 +104,71 @@ namespace Antlr4.Misc
             get
             {
                 return new ValueCollection(this);
+            }
+        }
+
+        bool IDictionary.IsFixedSize
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        ICollection IDictionary.Keys
+        {
+            get
+            {
+                return new KeyCollection(this);
+            }
+        }
+
+        ICollection IDictionary.Values
+        {
+            get
+            {
+                return new ValueCollection(this);
+            }
+        }
+
+        bool ICollection.IsSynchronized
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        object ICollection.SyncRoot
+        {
+            get
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        public object this[object key]
+        {
+            get
+            {
+                if (!(key is TKey))
+                {
+                    if (!(key == (object)default(TKey)))
+                    {
+                        return null;
+                    }
+                }
+
+                TValue result;
+                if (!TryGetValue((TKey)key, out result))
+                    return null;
+
+                return result;
+            }
+
+            set
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -179,7 +244,41 @@ namespace Antlr4.Misc
             return GetEnumerator();
         }
 
-        private class KeyCollection : ICollection<TKey>
+        void IDictionary.Add(object key, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IDictionary.Contains(object key)
+        {
+            if (!(key is TKey))
+            {
+                if (!(key == (object)default(TKey)))
+                {
+                    return false;
+                }
+            }
+
+            TValue result;
+            return TryGetValue((TKey)key, out result);
+        }
+
+        IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
+            return new DictionaryEnumerator(GetEnumerator());
+        }
+
+        void IDictionary.Remove(object key)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICollection.CopyTo(Array array, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        private class KeyCollection : ICollection<TKey>, ICollection
         {
             private readonly LinkedHashMap<TKey, TValue> _map;
 
@@ -201,6 +300,22 @@ namespace Antlr4.Misc
                 get
                 {
                     return false;
+                }
+            }
+
+            bool ICollection.IsSynchronized
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            object ICollection.SyncRoot
+            {
+                get
+                {
+                    throw new NotSupportedException();
                 }
             }
 
@@ -239,9 +354,15 @@ namespace Antlr4.Misc
             {
                 return GetEnumerator();
             }
+
+            void ICollection.CopyTo(Array array, int index)
+            {
+                TKey[] keys = this.ToArray();
+                keys.CopyTo(array, index);
+            }
         }
 
-        public class ValueCollection : ICollection<TValue>
+        public class ValueCollection : ICollection<TValue>, ICollection
         {
             private readonly LinkedHashMap<TKey, TValue> _map;
 
@@ -266,9 +387,25 @@ namespace Antlr4.Misc
                 }
             }
 
+            bool ICollection.IsSynchronized
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            object ICollection.SyncRoot
+            {
+                get
+                {
+                    throw new NotSupportedException();
+                }
+            }
+
             void ICollection<TValue>.Add(TValue item)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
 
             public void Clear()
@@ -300,6 +437,64 @@ namespace Antlr4.Misc
             IEnumerator IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
+            }
+
+            void ICollection.CopyTo(Array array, int index)
+            {
+                TValue[] values = this.ToArray();
+                values.CopyTo(array, index);
+            }
+        }
+
+        private class DictionaryEnumerator : IDictionaryEnumerator
+        {
+            private readonly IEnumerator<KeyValuePair<TKey, TValue>> _enumerator;
+
+            public DictionaryEnumerator(IEnumerator<KeyValuePair<TKey, TValue>> enumerator)
+            {
+                _enumerator = enumerator;
+            }
+
+            public object Current
+            {
+                get
+                {
+                    return _enumerator.Current;
+                }
+            }
+
+            public DictionaryEntry Entry
+            {
+                get
+                {
+                    return new DictionaryEntry(_enumerator.Current.Key, _enumerator.Current.Value);
+                }
+            }
+
+            public object Key
+            {
+                get
+                {
+                    return _enumerator.Current.Key;
+                }
+            }
+
+            public object Value
+            {
+                get
+                {
+                    return _enumerator.Current.Value;
+                }
+            }
+
+            public bool MoveNext()
+            {
+                return _enumerator.MoveNext();
+            }
+
+            public void Reset()
+            {
+                _enumerator.Reset();
             }
         }
     }
