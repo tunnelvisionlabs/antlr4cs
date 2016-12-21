@@ -28,430 +28,481 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.analysis;
+namespace Antlr4.Analysis
+{
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Text;
+    using Antlr4.Codegen;
+    using Antlr4.Misc;
+    using Antlr4.Parse;
+    using Antlr4.StringTemplate;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using CommonToken = Antlr.Runtime.CommonToken;
+    using CommonTreeNodeStream = Antlr.Runtime.Tree.CommonTreeNodeStream;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
+    using InvalidOperationException = System.InvalidOperationException;
+    using IToken = Antlr.Runtime.IToken;
+    using ITokenStream = Antlr.Runtime.ITokenStream;
+    using ITree = Antlr.Runtime.Tree.ITree;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
+    using Path = System.IO.Path;
+    using Tuple = System.Tuple;
 
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.TokenStream;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.antlr.runtime.tree.Tree;
-import org.antlr.v4.Tool;
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.parse.GrammarASTAdaptor;
-import org.antlr.v4.parse.LeftRecursiveRuleWalker;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.misc.Nullable;
-import org.antlr.v4.runtime.misc.Tuple;
-import org.antlr.v4.runtime.misc.Tuple2;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.ast.AltAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.GrammarASTWithOptions;
-import org.antlr.v4.tool.ast.RuleRefAST;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
-import org.stringtemplate.v4.STGroupFile;
+    /** Using a tree walker on the rules, determine if a rule is directly left-recursive and if it follows
+     *  our pattern.
+     */
+    public class LeftRecursiveRuleAnalyzer : LeftRecursiveRuleWalker
+    {
+        public enum ASSOC
+        {
+            left, right
+        }
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+        public AntlrTool tool;
+        public string ruleName;
+        public LinkedHashMap<int, LeftRecursiveRuleAltInfo> binaryAlts = new LinkedHashMap<int, LeftRecursiveRuleAltInfo>();
+        public LinkedHashMap<int, LeftRecursiveRuleAltInfo> ternaryAlts = new LinkedHashMap<int, LeftRecursiveRuleAltInfo>();
+        public LinkedHashMap<int, LeftRecursiveRuleAltInfo> suffixAlts = new LinkedHashMap<int, LeftRecursiveRuleAltInfo>();
+        public IList<LeftRecursiveRuleAltInfo> prefixAndOtherAlts = new List<LeftRecursiveRuleAltInfo>();
 
-/** Using a tree walker on the rules, determine if a rule is directly left-recursive and if it follows
- *  our pattern.
- */
-public class LeftRecursiveRuleAnalyzer extends LeftRecursiveRuleWalker {
-	public static enum ASSOC { left, right }
+        /** Pointer to ID node of ^(= ID element) */
+        public IList<System.Tuple<GrammarAST, string>> leftRecursiveRuleRefLabels =
+            new List<System.Tuple<GrammarAST, string>>();
 
-	public Tool tool;
-	public String ruleName;
-	public LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> binaryAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
-	public LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> ternaryAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
-	public LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> suffixAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
-	public List<LeftRecursiveRuleAltInfo> prefixAndOtherAlts = new ArrayList<LeftRecursiveRuleAltInfo>();
+        /** Tokens from which rule AST comes from */
+        public readonly ITokenStream tokenStream;
 
-	/** Pointer to ID node of ^(= ID element) */
-	public List<Tuple2<GrammarAST,String>> leftRecursiveRuleRefLabels =
-		new ArrayList<Tuple2<GrammarAST,String>>();
+        public GrammarAST retvals;
 
-	/** Tokens from which rule AST comes from */
-	public final TokenStream tokenStream;
+        [NotNull]
+        public TemplateGroup recRuleTemplates;
+        [NotNull]
+        public TemplateGroup codegenTemplates;
+        public string language;
 
-	public GrammarAST retvals;
+        public IDictionary<int, ASSOC> altAssociativity = new Dictionary<int, ASSOC>();
 
-	@NotNull
-	public STGroup recRuleTemplates;
-	@NotNull
-	public STGroup codegenTemplates;
-	public String language;
+        public LeftRecursiveRuleAnalyzer(GrammarAST ruleAST,
+                                         AntlrTool tool, string ruleName, string language)
+            : base(new CommonTreeNodeStream(new GrammarASTAdaptor(ruleAST.Token.InputStream), ruleAST))
+        {
+            this.tool = tool;
+            this.ruleName = ruleName;
+            this.language = language;
+            this.tokenStream = ruleAST.g.tokenStream;
+            if (this.tokenStream == null)
+            {
+                throw new InvalidOperationException("grammar must have a token stream");
+            }
 
-	public Map<Integer, ASSOC> altAssociativity = new HashMap<Integer, ASSOC>();
+            LoadPrecRuleTemplates();
+        }
 
-	public LeftRecursiveRuleAnalyzer(GrammarAST ruleAST,
-									 Tool tool, String ruleName, String language)
-	{
-		super(new CommonTreeNodeStream(new GrammarASTAdaptor(ruleAST.token.getInputStream()), ruleAST));
-		this.tool = tool;
-		this.ruleName = ruleName;
-		this.language = language;
-		this.tokenStream = ruleAST.g.tokenStream;
-		if (this.tokenStream == null) {
-			throw new NullPointerException("grammar must have a token stream");
-		}
+        public virtual void LoadPrecRuleTemplates()
+        {
+            string templateGroupFile = Path.Combine("Tool", "Templates", "LeftRecursiveRules.stg");
+            recRuleTemplates = new TemplateGroupFile(Path.GetFullPath(templateGroupFile));
+            if (!recRuleTemplates.IsDefined("recRule"))
+            {
+                tool.errMgr.ToolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, "LeftRecursiveRules");
+            }
 
-		loadPrecRuleTemplates();
-	}
+            // use codegen to get correct language templates; that's it though
+            CodeGenerator gen = new CodeGenerator(tool, null, language);
+            TemplateGroup templates = gen.GetTemplates();
+            if (templates == null)
+            {
+                // this class will still operate using Java templates
+                templates = new CodeGenerator(tool, null, "Java").GetTemplates();
+                Debug.Assert(templates != null);
+            }
 
-	public void loadPrecRuleTemplates() {
-		String templateGroupFile = "org/antlr/v4/tool/templates/LeftRecursiveRules.stg";
-		recRuleTemplates = new STGroupFile(templateGroupFile);
-		if ( !recRuleTemplates.isDefined("recRule") ) {
-			tool.errMgr.toolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, "LeftRecursiveRules");
-		}
+            codegenTemplates = templates;
+        }
 
-		// use codegen to get correct language templates; that's it though
-		CodeGenerator gen = new CodeGenerator(tool, null, language);
-		STGroup templates = gen.getTemplates();
-		if (templates == null) {
-			// this class will still operate using Java templates
-			templates = new CodeGenerator(tool, null, "Java").getTemplates();
-			assert templates != null;
-		}
+        public override void SetReturnValues(GrammarAST t)
+        {
+            retvals = t;
+        }
 
-		codegenTemplates = templates;
-	}
+        public override void SetAltAssoc(AltAST t, int alt)
+        {
+            ASSOC assoc = ASSOC.left;
+            if (t.GetOptions() != null)
+            {
+                string a = t.GetOptionString("assoc");
+                if (a != null)
+                {
+                    if (a.Equals(ASSOC.right.ToString()))
+                    {
+                        assoc = ASSOC.right;
+                    }
+                    else if (a.Equals(ASSOC.left.ToString()))
+                    {
+                        assoc = ASSOC.left;
+                    }
+                    else
+                    {
+                        tool.errMgr.GrammarError(ErrorType.ILLEGAL_OPTION_VALUE, t.g.fileName, t.GetOptionAST("assoc").Token, "assoc", assoc);
+                    }
+                }
+            }
 
-	@Override
-	public void setReturnValues(GrammarAST t) {
-		retvals = t;
-	}
+            if (altAssociativity.ContainsKey(alt) && altAssociativity[alt] != assoc)
+            {
+                tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR, "all operators of alt " + alt + " of left-recursive rule must have same associativity");
+            }
+            altAssociativity[alt] = assoc;
 
-	@Override
-	public void setAltAssoc(AltAST t, int alt) {
-		ASSOC assoc = ASSOC.left;
-		if ( t.getOptions()!=null ) {
-			String a = t.getOptionString("assoc");
-			if ( a!=null ) {
-				if ( a.equals(ASSOC.right.toString()) ) {
-					assoc = ASSOC.right;
-				}
-				else if ( a.equals(ASSOC.left.toString()) ) {
-					assoc = ASSOC.left;
-				}
-				else {
-					tool.errMgr.grammarError(ErrorType.ILLEGAL_OPTION_VALUE, t.g.fileName, t.getOptionAST("assoc").getToken(), "assoc", assoc);
-				}
-			}
-		}
+            //		System.out.println("setAltAssoc: op " + alt + ": " + t.getText()+", assoc="+assoc);
+        }
 
-		if ( altAssociativity.get(alt)!=null && altAssociativity.get(alt)!=assoc ) {
-			tool.errMgr.toolError(ErrorType.INTERNAL_ERROR, "all operators of alt " + alt + " of left-recursive rule must have same associativity");
-		}
-		altAssociativity.put(alt, assoc);
+        public override void BinaryAlt(AltAST originalAltTree, int alt)
+        {
+            AltAST altTree = (AltAST)originalAltTree.DupTree();
+            string altLabel = altTree.altLabel != null ? altTree.altLabel.Text : null;
 
-//		System.out.println("setAltAssoc: op " + alt + ": " + t.getText()+", assoc="+assoc);
-	}
+            string label = null;
+            bool isListLabel = false;
+            GrammarAST lrlabel = StripLeftRecursion(altTree);
+            if (lrlabel != null)
+            {
+                label = lrlabel.Text;
+                isListLabel = lrlabel.Parent.Type == PLUS_ASSIGN;
+                leftRecursiveRuleRefLabels.Add(Tuple.Create(lrlabel, altLabel));
+            }
 
-	@Override
-	public void binaryAlt(AltAST originalAltTree, int alt) {
-		AltAST altTree = (AltAST)originalAltTree.dupTree();
-		String altLabel = altTree.altLabel!=null ? altTree.altLabel.getText() : null;
+            StripAltLabel(altTree);
 
-		String label = null;
-		boolean isListLabel = false;
-		GrammarAST lrlabel = stripLeftRecursion(altTree);
-		if ( lrlabel!=null ) {
-			label = lrlabel.getText();
-			isListLabel = lrlabel.getParent().getType() == PLUS_ASSIGN;
-			leftRecursiveRuleRefLabels.add(Tuple.create(lrlabel,altLabel));
-		}
+            // rewrite e to be e_[rec_arg]
+            int nextPrec = NextPrecedence(alt);
+            altTree = AddPrecedenceArgToRules(altTree, nextPrec);
 
-		stripAltLabel(altTree);
+            StripAltLabel(altTree);
+            string altText = Text(altTree);
+            altText = altText.Trim();
+            LeftRecursiveRuleAltInfo a =
+                new LeftRecursiveRuleAltInfo(alt, altText, label, altLabel, isListLabel, originalAltTree);
+            a.nextPrec = nextPrec;
+            binaryAlts[alt] = a;
+            //System.out.println("binaryAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
+        }
 
-		// rewrite e to be e_[rec_arg]
-		int nextPrec = nextPrecedence(alt);
-		altTree = addPrecedenceArgToRules(altTree, nextPrec);
+        public override void PrefixAlt(AltAST originalAltTree, int alt)
+        {
+            AltAST altTree = (AltAST)originalAltTree.DupTree();
+            StripAltLabel(altTree);
 
-		stripAltLabel(altTree);
-		String altText = text(altTree);
-		altText = altText.trim();
-		LeftRecursiveRuleAltInfo a =
-			new LeftRecursiveRuleAltInfo(alt, altText, label, altLabel, isListLabel, originalAltTree);
-		a.nextPrec = nextPrec;
-		binaryAlts.put(alt, a);
-		//System.out.println("binaryAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
-	}
+            int nextPrec = Precedence(alt);
+            // rewrite e to be e_[prec]
+            altTree = AddPrecedenceArgToRules(altTree, nextPrec);
+            string altText = Text(altTree);
+            altText = altText.Trim();
+            string altLabel = altTree.altLabel != null ? altTree.altLabel.Text : null;
+            LeftRecursiveRuleAltInfo a =
+                new LeftRecursiveRuleAltInfo(alt, altText, null, altLabel, false, originalAltTree);
+            a.nextPrec = nextPrec;
+            prefixAndOtherAlts.Add(a);
+            //System.out.println("prefixAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
+        }
 
-	@Override
-	public void prefixAlt(AltAST originalAltTree, int alt) {
-		AltAST altTree = (AltAST)originalAltTree.dupTree();
-		stripAltLabel(altTree);
+        public override void SuffixAlt(AltAST originalAltTree, int alt)
+        {
+            AltAST altTree = (AltAST)originalAltTree.DupTree();
+            string altLabel = altTree.altLabel != null ? altTree.altLabel.Text : null;
 
-		int nextPrec = precedence(alt);
-		// rewrite e to be e_[prec]
-		altTree = addPrecedenceArgToRules(altTree, nextPrec);
-		String altText = text(altTree);
-		altText = altText.trim();
-		String altLabel = altTree.altLabel!=null ? altTree.altLabel.getText() : null;
-		LeftRecursiveRuleAltInfo a =
-			new LeftRecursiveRuleAltInfo(alt, altText, null, altLabel, false, originalAltTree);
-		a.nextPrec = nextPrec;
-		prefixAndOtherAlts.add(a);
-		//System.out.println("prefixAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
-	}
+            string label = null;
+            bool isListLabel = false;
+            GrammarAST lrlabel = StripLeftRecursion(altTree);
+            if (lrlabel != null)
+            {
+                label = lrlabel.Text;
+                isListLabel = lrlabel.Parent.Type == PLUS_ASSIGN;
+                leftRecursiveRuleRefLabels.Add(Tuple.Create(lrlabel, altLabel));
+            }
 
-	@Override
-	public void suffixAlt(AltAST originalAltTree, int alt) {
-		AltAST altTree = (AltAST)originalAltTree.dupTree();
-		String altLabel = altTree.altLabel!=null ? altTree.altLabel.getText() : null;
+            StripAltLabel(altTree);
+            string altText = Text(altTree);
+            altText = altText.Trim();
+            LeftRecursiveRuleAltInfo a =
+                new LeftRecursiveRuleAltInfo(alt, altText, label, altLabel, isListLabel, originalAltTree);
+            suffixAlts[alt] = a;
+            //		System.out.println("suffixAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
+        }
 
-		String label = null;
-		boolean isListLabel = false;
-		GrammarAST lrlabel = stripLeftRecursion(altTree);
-		if ( lrlabel!=null ) {
-			label = lrlabel.getText();
-			isListLabel = lrlabel.getParent().getType() == PLUS_ASSIGN;
-			leftRecursiveRuleRefLabels.add(Tuple.create(lrlabel,altLabel));
-		}
-		stripAltLabel(altTree);
-		String altText = text(altTree);
-		altText = altText.trim();
-		LeftRecursiveRuleAltInfo a =
-			new LeftRecursiveRuleAltInfo(alt, altText, label, altLabel, isListLabel, originalAltTree);
-		suffixAlts.put(alt, a);
-//		System.out.println("suffixAlt " + alt + ": " + altText + ", rewrite=" + rewriteText);
-	}
+        public override void OtherAlt(AltAST originalAltTree, int alt)
+        {
+            AltAST altTree = (AltAST)originalAltTree.DupTree();
+            StripAltLabel(altTree);
+            string altText = Text(altTree);
+            string altLabel = altTree.altLabel != null ? altTree.altLabel.Text : null;
+            LeftRecursiveRuleAltInfo a =
+                new LeftRecursiveRuleAltInfo(alt, altText, null, altLabel, false, originalAltTree);
+            // We keep other alts with prefix alts since they are all added to the start of the generated rule, and
+            // we want to retain any prior ordering between them
+            prefixAndOtherAlts.Add(a);
+            //		System.out.println("otherAlt " + alt + ": " + altText);
+        }
 
-	@Override
-	public void otherAlt(AltAST originalAltTree, int alt) {
-		AltAST altTree = (AltAST)originalAltTree.dupTree();
-		stripAltLabel(altTree);
-		String altText = text(altTree);
-		String altLabel = altTree.altLabel!=null ? altTree.altLabel.getText() : null;
-		LeftRecursiveRuleAltInfo a =
-			new LeftRecursiveRuleAltInfo(alt, altText, null, altLabel, false, originalAltTree);
-		// We keep other alts with prefix alts since they are all added to the start of the generated rule, and
-		// we want to retain any prior ordering between them
-		prefixAndOtherAlts.add(a);
-//		System.out.println("otherAlt " + alt + ": " + altText);
-	}
+        // --------- get transformed rules ----------------
 
-	// --------- get transformed rules ----------------
+        public virtual string GetArtificialOpPrecRule()
+        {
+            Template ruleST = recRuleTemplates.GetInstanceOf("recRule");
+            ruleST.Add("ruleName", ruleName);
+            Template ruleArgST = codegenTemplates.GetInstanceOf("recRuleArg");
+            ruleST.Add("argName", ruleArgST);
+            Template setResultST = codegenTemplates.GetInstanceOf("recRuleSetResultAction");
+            ruleST.Add("setResultAction", setResultST);
+            ruleST.Add("userRetvals", retvals);
 
-	public String getArtificialOpPrecRule() {
-		ST ruleST = recRuleTemplates.getInstanceOf("recRule");
-		ruleST.add("ruleName", ruleName);
-		ST ruleArgST = codegenTemplates.getInstanceOf("recRuleArg");
-		ruleST.add("argName", ruleArgST);
-		ST setResultST = codegenTemplates.getInstanceOf("recRuleSetResultAction");
-		ruleST.add("setResultAction", setResultST);
-		ruleST.add("userRetvals", retvals);
+            LinkedHashMap<int, LeftRecursiveRuleAltInfo> opPrecRuleAlts = new LinkedHashMap<int, LeftRecursiveRuleAltInfo>();
+            foreach (var pair in binaryAlts)
+                opPrecRuleAlts[pair.Key] = pair.Value;
+            foreach (var pair in ternaryAlts)
+                opPrecRuleAlts[pair.Key] = pair.Value;
+            foreach (var pair in suffixAlts)
+                opPrecRuleAlts[pair.Key] = pair.Value;
+            foreach (int alt in opPrecRuleAlts.Keys)
+            {
+                LeftRecursiveRuleAltInfo altInfo = opPrecRuleAlts[alt];
+                Template altST = recRuleTemplates.GetInstanceOf("recRuleAlt");
+                Template predST = codegenTemplates.GetInstanceOf("recRuleAltPredicate");
+                predST.Add("opPrec", Precedence(alt));
+                predST.Add("ruleName", ruleName);
+                altST.Add("pred", predST);
+                altST.Add("alt", altInfo);
+                altST.Add("precOption", LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME);
+                altST.Add("opPrec", Precedence(alt));
+                ruleST.Add("opAlts", altST);
+            }
 
-		LinkedHashMap<Integer, LeftRecursiveRuleAltInfo> opPrecRuleAlts = new LinkedHashMap<Integer, LeftRecursiveRuleAltInfo>();
-		opPrecRuleAlts.putAll(binaryAlts);
-		opPrecRuleAlts.putAll(ternaryAlts);
-		opPrecRuleAlts.putAll(suffixAlts);
-		for (int alt : opPrecRuleAlts.keySet()) {
-			LeftRecursiveRuleAltInfo altInfo = opPrecRuleAlts.get(alt);
-			ST altST = recRuleTemplates.getInstanceOf("recRuleAlt");
-			ST predST = codegenTemplates.getInstanceOf("recRuleAltPredicate");
-			predST.add("opPrec", precedence(alt));
-			predST.add("ruleName", ruleName);
-			altST.add("pred", predST);
-			altST.add("alt", altInfo);
-			altST.add("precOption", LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME);
-			altST.add("opPrec", precedence(alt));
-			ruleST.add("opAlts", altST);
-		}
+            ruleST.Add("primaryAlts", prefixAndOtherAlts);
 
-		ruleST.add("primaryAlts", prefixAndOtherAlts);
+            tool.Log("left-recursion", ruleST.Render());
 
-		tool.log("left-recursion", ruleST.render());
+            return ruleST.Render();
+        }
 
-		return ruleST.render();
-	}
+        public virtual AltAST AddPrecedenceArgToRules(AltAST t, int prec)
+        {
+            if (t == null)
+                return null;
+            // get all top-level rule refs from ALT
+            IList<GrammarAST> outerAltRuleRefs = t.GetNodesWithTypePreorderDFS(IntervalSet.Of(RULE_REF));
+            foreach (GrammarAST x in outerAltRuleRefs)
+            {
+                RuleRefAST rref = (RuleRefAST)x;
+                bool recursive = rref.Text.Equals(ruleName);
+                bool rightmost = rref == outerAltRuleRefs[outerAltRuleRefs.Count - 1];
+                if (recursive && rightmost)
+                {
+                    GrammarAST dummyValueNode = new GrammarAST(new CommonToken(ANTLRParser.INT, "" + prec));
+                    rref.SetOption(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME, dummyValueNode);
+                }
+            }
+            return t;
+        }
 
-	public AltAST addPrecedenceArgToRules(AltAST t, int prec) {
-		if ( t==null ) return null;
-		// get all top-level rule refs from ALT
-		List<GrammarAST> outerAltRuleRefs = t.getNodesWithTypePreorderDFS(IntervalSet.of(RULE_REF));
-		for (GrammarAST x : outerAltRuleRefs) {
-			RuleRefAST rref = (RuleRefAST)x;
-			boolean recursive = rref.getText().equals(ruleName);
-			boolean rightmost = rref == outerAltRuleRefs.get(outerAltRuleRefs.size()-1);
-			if ( recursive && rightmost ) {
-				GrammarAST dummyValueNode = new GrammarAST(new CommonToken(ANTLRParser.INT, ""+prec));
-				rref.setOption(LeftRecursiveRuleTransformer.PRECEDENCE_OPTION_NAME, dummyValueNode);
-			}
-		}
-		return t;
-	}
+        /**
+         * Match (RULE RULE_REF (BLOCK (ALT .*) (ALT RULE_REF[self] .*) (ALT .*)))
+         * Match (RULE RULE_REF (BLOCK (ALT .*) (ALT (ASSIGN ID RULE_REF[self]) .*) (ALT .*)))
+         */
+        public static bool HasImmediateRecursiveRuleRefs(GrammarAST t, string ruleName)
+        {
+            if (t == null)
+                return false;
+            GrammarAST blk = (GrammarAST)t.GetFirstChildWithType(BLOCK);
+            if (blk == null)
+                return false;
+            int n = blk.Children.Count;
+            for (int i = 0; i < n; i++)
+            {
+                GrammarAST alt = (GrammarAST)blk.Children[i];
+                ITree first = alt.GetChild(0);
+                if (first == null)
+                    continue;
+                if (first.Type == ELEMENT_OPTIONS)
+                {
+                    first = alt.GetChild(1);
+                    if (first == null)
+                    {
+                        continue;
+                    }
+                }
+                if (first.Type == RULE_REF && first.Text.Equals(ruleName))
+                    return true;
+                ITree rref = first.GetChild(1);
+                if (rref != null && rref.Type == RULE_REF && rref.Text.Equals(ruleName))
+                    return true;
+            }
+            return false;
+        }
 
-	/**
-	 * Match (RULE RULE_REF (BLOCK (ALT .*) (ALT RULE_REF[self] .*) (ALT .*)))
-	 * Match (RULE RULE_REF (BLOCK (ALT .*) (ALT (ASSIGN ID RULE_REF[self]) .*) (ALT .*)))
-	 */
-	public static boolean hasImmediateRecursiveRuleRefs(GrammarAST t, String ruleName) {
-		if ( t==null ) return false;
-		GrammarAST blk = (GrammarAST)t.getFirstChildWithType(BLOCK);
-		if ( blk==null ) return false;
-		int n = blk.getChildren().size();
-		for (int i = 0; i < n; i++) {
-			GrammarAST alt = (GrammarAST)blk.getChildren().get(i);
-			Tree first = alt.getChild(0);
-			if ( first==null ) continue;
-			if (first.getType() == ELEMENT_OPTIONS) {
-				first = alt.getChild(1);
-				if (first == null) {
-					continue;
-				}
-			}
-			if ( first.getType()==RULE_REF && first.getText().equals(ruleName) ) return true;
-			Tree rref = first.getChild(1);
-			if ( rref!=null && rref.getType()==RULE_REF && rref.getText().equals(ruleName) ) return true;
-		}
-		return false;
-	}
+        // TODO: this strips the tree properly, but since text()
+        // uses the start of stop token index and gets text from that
+        // ineffectively ignores this routine.
+        public virtual GrammarAST StripLeftRecursion(GrammarAST altAST)
+        {
+            GrammarAST lrlabel = null;
+            GrammarAST first = (GrammarAST)altAST.GetChild(0);
+            int leftRecurRuleIndex = 0;
+            if (first.Type == ELEMENT_OPTIONS)
+            {
+                first = (GrammarAST)altAST.GetChild(1);
+                leftRecurRuleIndex = 1;
+            }
 
-	// TODO: this strips the tree properly, but since text()
-	// uses the start of stop token index and gets text from that
-	// ineffectively ignores this routine.
-	public GrammarAST stripLeftRecursion(GrammarAST altAST) {
-		GrammarAST lrlabel=null;
-		GrammarAST first = (GrammarAST)altAST.getChild(0);
-		int leftRecurRuleIndex = 0;
-		if ( first.getType() == ELEMENT_OPTIONS ) {
-			first = (GrammarAST)altAST.getChild(1);
-			leftRecurRuleIndex = 1;
-		}
-		Tree rref = first.getChild(1); // if label=rule
-		if ( (first.getType()==RULE_REF && first.getText().equals(ruleName)) ||
-			 (rref!=null && rref.getType()==RULE_REF && rref.getText().equals(ruleName)) )
-		{
-			if ( first.getType()==ASSIGN || first.getType()==PLUS_ASSIGN ) lrlabel = (GrammarAST)first.getChild(0);
-			// remove rule ref (first child unless options present)
-			altAST.deleteChild(leftRecurRuleIndex);
-			// reset index so it prints properly (sets token range of
-			// ALT to start to right of left recur rule we deleted)
-			GrammarAST newFirstChild = (GrammarAST)altAST.getChild(leftRecurRuleIndex);
-			altAST.setTokenStartIndex(newFirstChild.getTokenStartIndex());
-		}
-		return lrlabel;
-	}
+            ITree rref = first.GetChild(1); // if label=rule
+            if ((first.Type == RULE_REF && first.Text.Equals(ruleName)) ||
+                 (rref != null && rref.Type == RULE_REF && rref.Text.Equals(ruleName)))
+            {
+                if (first.Type == ASSIGN || first.Type == PLUS_ASSIGN)
+                    lrlabel = (GrammarAST)first.GetChild(0);
+                // remove rule ref (first child unless options present)
+                altAST.DeleteChild(leftRecurRuleIndex);
+                // reset index so it prints properly (sets token range of
+                // ALT to start to right of left recur rule we deleted)
+                GrammarAST newFirstChild = (GrammarAST)altAST.GetChild(leftRecurRuleIndex);
+                altAST.TokenStartIndex = newFirstChild.TokenStartIndex;
+            }
 
-	/** Strip last 2 tokens if → label; alter indexes in altAST */
-	public void stripAltLabel(GrammarAST altAST) {
-		int start = altAST.getTokenStartIndex();
-		int stop = altAST.getTokenStopIndex();
-		// find =>
-		for (int i=stop; i>=start; i--) {
-			if ( tokenStream.get(i).getType()==POUND ) {
-				altAST.setTokenStopIndex(i-1);
-				return;
-			}
-		}
-	}
+            return lrlabel;
+        }
 
-	public String text(GrammarAST t) {
-		if ( t==null ) return "";
+        /** Strip last 2 tokens if → label; alter indexes in altAST */
+        public virtual void StripAltLabel(GrammarAST altAST)
+        {
+            int start = altAST.TokenStartIndex;
+            int stop = altAST.TokenStopIndex;
+            // find =>
+            for (int i = stop; i >= start; i--)
+            {
+                if (tokenStream.Get(i).Type == POUND)
+                {
+                    altAST.TokenStopIndex = i - 1;
+                    return;
+                }
+            }
+        }
 
-		int tokenStartIndex = t.getTokenStartIndex();
-		int tokenStopIndex = t.getTokenStopIndex();
+        public virtual string Text(GrammarAST t)
+        {
+            if (t == null)
+                return "";
 
-		// ignore tokens from existing option subtrees like:
-		//    (ELEMENT_OPTIONS (= assoc right))
-		//
-		// element options are added back according to the values in the map
-		// returned by getOptions().
-		IntervalSet ignore = new IntervalSet();
-		List<GrammarAST> optionsSubTrees = t.getNodesWithType(ELEMENT_OPTIONS);
-		for (GrammarAST sub : optionsSubTrees) {
-			ignore.add(sub.getTokenStartIndex(), sub.getTokenStopIndex());
-		}
+            int tokenStartIndex = t.TokenStartIndex;
+            int tokenStopIndex = t.TokenStopIndex;
 
-		// Individual labels appear as RULE_REF or TOKEN_REF tokens in the tree,
-		// but do not support the ELEMENT_OPTIONS syntax. Make sure to not try
-		// and add the tokenIndex option when writing these tokens.
-		IntervalSet noOptions = new IntervalSet();
-		List<GrammarAST> labeledSubTrees = t.getNodesWithType(new IntervalSet(ASSIGN,PLUS_ASSIGN));
-		for (GrammarAST sub : labeledSubTrees) {
-			noOptions.add(sub.getChild(0).getTokenStartIndex());
-		}
+            // ignore tokens from existing option subtrees like:
+            //    (ELEMENT_OPTIONS (= assoc right))
+            //
+            // element options are added back according to the values in the map
+            // returned by getOptions().
+            IntervalSet ignore = new IntervalSet();
+            IList<GrammarAST> optionsSubTrees = t.GetNodesWithType(ELEMENT_OPTIONS);
+            foreach (GrammarAST sub in optionsSubTrees)
+            {
+                ignore.Add(sub.TokenStartIndex, sub.TokenStopIndex);
+            }
 
-		StringBuilder buf = new StringBuilder();
-		int i=tokenStartIndex;
-		while ( i<=tokenStopIndex ) {
-			if ( ignore.contains(i) ) {
-				i++;
-				continue;
-			}
+            // Individual labels appear as RULE_REF or TOKEN_REF tokens in the tree,
+            // but do not support the ELEMENT_OPTIONS syntax. Make sure to not try
+            // and add the tokenIndex option when writing these tokens.
+            IntervalSet noOptions = new IntervalSet();
+            IList<GrammarAST> labeledSubTrees = t.GetNodesWithType(new IntervalSet(ASSIGN, PLUS_ASSIGN));
+            foreach (GrammarAST sub in labeledSubTrees)
+            {
+                noOptions.Add(sub.GetChild(0).TokenStartIndex);
+            }
 
-			Token tok = tokenStream.get(i);
+            StringBuilder buf = new StringBuilder();
+            int i = tokenStartIndex;
+            while (i <= tokenStopIndex)
+            {
+                if (ignore.Contains(i))
+                {
+                    i++;
+                    continue;
+                }
 
-			// Compute/hold any element options
-			StringBuilder elementOptions = new StringBuilder();
-			if (!noOptions.contains(i)) {
-				GrammarAST node = t.getNodeWithTokenIndex(tok.getTokenIndex());
-				if ( node!=null &&
-					 (tok.getType()==TOKEN_REF ||
-					  tok.getType()==STRING_LITERAL ||
-					  tok.getType()==RULE_REF) )
-				{
-					elementOptions.append("tokenIndex=").append(tok.getTokenIndex());
-				}
+                IToken tok = tokenStream.Get(i);
 
-				if ( node instanceof GrammarASTWithOptions ) {
-					GrammarASTWithOptions o = (GrammarASTWithOptions)node;
-					for (Map.Entry<String, GrammarAST> entry : o.getOptions().entrySet()) {
-						if (elementOptions.length() > 0) {
-							elementOptions.append(',');
-						}
+                // Compute/hold any element options
+                StringBuilder elementOptions = new StringBuilder();
+                if (!noOptions.Contains(i))
+                {
+                    GrammarAST node = t.GetNodeWithTokenIndex(tok.TokenIndex);
+                    if (node != null &&
+                         (tok.Type == TOKEN_REF ||
+                          tok.Type == STRING_LITERAL ||
+                          tok.Type == RULE_REF))
+                    {
+                        elementOptions.Append("tokenIndex=").Append(tok.TokenIndex);
+                    }
 
-						elementOptions.append(entry.getKey());
-						elementOptions.append('=');
-						elementOptions.append(entry.getValue().getText());
-					}
-				}
-			}
+                    if (node is GrammarASTWithOptions)
+                    {
+                        GrammarASTWithOptions o = (GrammarASTWithOptions)node;
+                        foreach (KeyValuePair<string, GrammarAST> entry in o.GetOptions())
+                        {
+                            if (elementOptions.Length > 0)
+                            {
+                                elementOptions.Append(',');
+                            }
 
-			buf.append(tok.getText()); // add actual text of the current token to the rewritten alternative
-			i++;                       // move to the next token
+                            elementOptions.Append(entry.Key);
+                            elementOptions.Append('=');
+                            elementOptions.Append(entry.Value.Text);
+                        }
+                    }
+                }
 
-			// Are there args on a rule?
-			if ( tok.getType()==RULE_REF && i<=tokenStopIndex && tokenStream.get(i).getType()==ARG_ACTION ) {
-				buf.append('['+tokenStream.get(i).getText()+']');
-				i++;
-			}
+                buf.Append(tok.Text); // add actual text of the current token to the rewritten alternative
+                i++;                       // move to the next token
 
-			// now that we have the actual element, we can add the options.
-			if (elementOptions.length() > 0) {
-				buf.append('<').append(elementOptions).append('>');
-			}
-		}
-		return buf.toString();
-	}
+                // Are there args on a rule?
+                if (tok.Type == RULE_REF && i <= tokenStopIndex && tokenStream.Get(i).Type == ARG_ACTION)
+                {
+                    buf.Append('[' + tokenStream.Get(i).Text + ']');
+                    i++;
+                }
 
-	public int precedence(int alt) {
-		return numAlts-alt+1;
-	}
+                // now that we have the actual element, we can add the options.
+                if (elementOptions.Length > 0)
+                {
+                    buf.Append('<').Append(elementOptions).Append('>');
+                }
+            }
+            return buf.ToString();
+        }
 
-	// Assumes left assoc
-	public int nextPrecedence(int alt) {
-		int p = precedence(alt);
-		if ( altAssociativity.get(alt)==ASSOC.right ) return p;
-		return p+1;
-	}
+        public virtual int Precedence(int alt)
+        {
+            return numAlts - alt + 1;
+        }
 
-	@Override
-	public String toString() {
-		return "PrecRuleOperatorCollector{" +
-			   "binaryAlts=" + binaryAlts +
-			   ", ternaryAlts=" + ternaryAlts +
-			   ", suffixAlts=" + suffixAlts +
-			   ", prefixAndOtherAlts=" +prefixAndOtherAlts+
-			   '}';
-	}
+        // Assumes left assoc
+        public virtual int NextPrecedence(int alt)
+        {
+            int p = Precedence(alt);
+            ASSOC assoc;
+            if (altAssociativity.TryGetValue(alt, out assoc) && assoc == ASSOC.right)
+                return p;
+
+            return p + 1;
+        }
+
+        public override string ToString()
+        {
+            return "PrecRuleOperatorCollector{" +
+                   "binaryAlts=" + binaryAlts +
+                   ", ternaryAlts=" + ternaryAlts +
+                   ", suffixAlts=" + suffixAlts +
+                   ", prefixAndOtherAlts=" + prefixAndOtherAlts +
+                   '}';
+        }
+    }
 }

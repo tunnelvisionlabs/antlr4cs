@@ -28,35 +28,38 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.analysis;
+namespace Antlr4.Analysis
+{
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.tool.ast.AltAST;
+    public class LeftRecursiveRuleAltInfo
+    {
+        public int altNum; // original alt index (from 1)
+        public string leftRecursiveRuleRefLabel;
+        public string altLabel;
+        public readonly bool isListLabel;
+        public string altText;
+        public AltAST altAST; // transformed ALT
+        public AltAST originalAltAST;
+        public int nextPrec;
 
-public class LeftRecursiveRuleAltInfo {
-	public int altNum; // original alt index (from 1)
-	public String leftRecursiveRuleRefLabel;
-	public String altLabel;
-	public final boolean isListLabel;
-	public String altText;
-	public AltAST altAST; // transformed ALT
-	public AltAST originalAltAST;
-	public int nextPrec;
+        public LeftRecursiveRuleAltInfo(int altNum, string altText)
+            : this(altNum, altText, null, null, false, null)
+        {
+        }
 
-	public LeftRecursiveRuleAltInfo(int altNum, String altText) {
-		this(altNum, altText, null, null, false, null);
-	}
-
-	public LeftRecursiveRuleAltInfo(int altNum, String altText,
-									String leftRecursiveRuleRefLabel,
-									String altLabel,
-									boolean isListLabel,
-									AltAST originalAltAST)
-	{
-		this.altNum = altNum;
-		this.altText = altText;
-		this.leftRecursiveRuleRefLabel = leftRecursiveRuleRefLabel;
-		this.altLabel = altLabel;
-		this.isListLabel = isListLabel;
-		this.originalAltAST = originalAltAST;
-	}
+        public LeftRecursiveRuleAltInfo(int altNum, string altText,
+                                        string leftRecursiveRuleRefLabel,
+                                        string altLabel,
+                                        bool isListLabel,
+                                        AltAST originalAltAST)
+        {
+            this.altNum = altNum;
+            this.altText = altText;
+            this.leftRecursiveRuleRefLabel = leftRecursiveRuleRefLabel;
+            this.altLabel = altLabel;
+            this.isListLabel = isListLabel;
+            this.originalAltAST = originalAltAST;
+        }
+    }
 }

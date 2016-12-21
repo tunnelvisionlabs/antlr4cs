@@ -28,127 +28,137 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.analysis;
+namespace Antlr4.Analysis
+{
+    using System.Collections.Generic;
+    using Antlr4.Misc;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool;
 
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.RuleStartState;
-import org.antlr.v4.runtime.atn.RuleStopState;
-import org.antlr.v4.runtime.atn.RuleTransition;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.runtime.misc.OrderedHashSet;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.Rule;
+    public class LeftRecursionDetector
+    {
+        internal Grammar g;
+        public ATN atn;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+        /** Holds a list of cycles (sets of rule names). */
+        public IList<ISet<Rule>> listOfRecursiveCycles = new List<ISet<Rule>>();
 
-public class LeftRecursionDetector {
-	Grammar g;
-	public ATN atn;
+        /** Which rule start states have we visited while looking for a single
+         * 	left-recursion check?
+         */
+        ISet<RuleStartState> rulesVisitedPerRuleCheck = new HashSet<RuleStartState>();
 
-	/** Holds a list of cycles (sets of rule names). */
-	public List<Set<Rule>> listOfRecursiveCycles = new ArrayList<Set<Rule>>();
+        public LeftRecursionDetector(Grammar g, ATN atn)
+        {
+            this.g = g;
+            this.atn = atn;
+        }
 
-	/** Which rule start states have we visited while looking for a single
-	 * 	left-recursion check?
-	 */
-	Set<RuleStartState> rulesVisitedPerRuleCheck = new HashSet<RuleStartState>();
+        public virtual void Check()
+        {
+            foreach (RuleStartState start in atn.ruleToStartState)
+            {
+                //System.out.print("check "+start.rule.name);
+                rulesVisitedPerRuleCheck.Clear();
+                rulesVisitedPerRuleCheck.Add(start);
+                //FASerializer ser = new FASerializer(atn.g, start);
+                //System.out.print(":\n"+ser+"\n");
 
-	public LeftRecursionDetector(Grammar g, ATN atn) {
-		this.g = g;
-		this.atn = atn;
-	}
+                Check(g.GetRule(start.ruleIndex), start, new HashSet<ATNState>());
+            }
+            //System.out.println("cycles="+listOfRecursiveCycles);
+            if (listOfRecursiveCycles.Count > 0)
+            {
+                g.tool.errMgr.LeftRecursionCycles(g.fileName, listOfRecursiveCycles);
+            }
+        }
 
-	public void check() {
-		for (RuleStartState start : atn.ruleToStartState) {
-			//System.out.print("check "+start.rule.name);
-			rulesVisitedPerRuleCheck.clear();
-			rulesVisitedPerRuleCheck.add(start);
-			//FASerializer ser = new FASerializer(atn.g, start);
-			//System.out.print(":\n"+ser+"\n");
+        /** From state s, look for any transition to a rule that is currently
+         *  being traced.  When tracing r, visitedPerRuleCheck has r
+         *  initially.  If you reach a rule stop state, return but notify the
+         *  invoking rule that the called rule is nullable. This implies that
+         *  invoking rule must look at follow transition for that invoking state.
+         *
+         *  The visitedStates tracks visited states within a single rule so
+         *  we can avoid epsilon-loop-induced infinite recursion here.  Keep
+         *  filling the cycles in listOfRecursiveCycles and also, as a
+         *  side-effect, set leftRecursiveRules.
+         */
+        public virtual bool Check(Rule enclosingRule, ATNState s, ISet<ATNState> visitedStates)
+        {
+            if (s is RuleStopState)
+                return true;
+            if (visitedStates.Contains(s))
+                return false;
+            visitedStates.Add(s);
 
-			check(g.getRule(start.ruleIndex), start, new HashSet<ATNState>());
-		}
-		//System.out.println("cycles="+listOfRecursiveCycles);
-		if ( !listOfRecursiveCycles.isEmpty() ) {
-			g.tool.errMgr.leftRecursionCycles(g.fileName, listOfRecursiveCycles);
-		}
-	}
+            //System.out.println("visit "+s);
+            int n = s.NumberOfTransitions;
+            bool stateReachesStopState = false;
+            for (int i = 0; i < n; i++)
+            {
+                Transition t = s.Transition(i);
+                if (t is RuleTransition)
+                {
+                    RuleTransition rt = (RuleTransition)t;
+                    Rule r = g.GetRule(rt.ruleIndex);
+                    if (rulesVisitedPerRuleCheck.Contains((RuleStartState)t.target))
+                    {
+                        AddRulesToCycle(enclosingRule, r);
+                    }
+                    else
+                    {
+                        // must visit if not already visited; mark target, pop when done
+                        rulesVisitedPerRuleCheck.Add((RuleStartState)t.target);
+                        // send new visitedStates set per rule invocation
+                        bool nullable = Check(r, t.target, new HashSet<ATNState>());
+                        // we're back from visiting that rule
+                        rulesVisitedPerRuleCheck.Remove((RuleStartState)t.target);
+                        if (nullable)
+                        {
+                            stateReachesStopState |= Check(enclosingRule, rt.followState, visitedStates);
+                        }
+                    }
+                }
+                else if (t.IsEpsilon)
+                {
+                    stateReachesStopState |= Check(enclosingRule, t.target, visitedStates);
+                }
+                // else ignore non-epsilon transitions
+            }
+            return stateReachesStopState;
+        }
 
-	/** From state s, look for any transition to a rule that is currently
-	 *  being traced.  When tracing r, visitedPerRuleCheck has r
-	 *  initially.  If you reach a rule stop state, return but notify the
-	 *  invoking rule that the called rule is nullable. This implies that
-	 *  invoking rule must look at follow transition for that invoking state.
-	 *
-	 *  The visitedStates tracks visited states within a single rule so
-	 *  we can avoid epsilon-loop-induced infinite recursion here.  Keep
-	 *  filling the cycles in listOfRecursiveCycles and also, as a
-	 *  side-effect, set leftRecursiveRules.
-	 */
-	public boolean check(Rule enclosingRule, ATNState s, Set<ATNState> visitedStates) {
-		if ( s instanceof RuleStopState) return true;
-		if ( visitedStates.contains(s) ) return false;
-		visitedStates.add(s);
-
-		//System.out.println("visit "+s);
-		int n = s.getNumberOfTransitions();
-		boolean stateReachesStopState = false;
-		for (int i=0; i<n; i++) {
-			Transition t = s.transition(i);
-			if ( t instanceof RuleTransition ) {
-				RuleTransition rt = (RuleTransition) t;
-				Rule r = g.getRule(rt.ruleIndex);
-				if ( rulesVisitedPerRuleCheck.contains((RuleStartState)t.target) ) {
-					addRulesToCycle(enclosingRule, r);
-				}
-				else {
-					// must visit if not already visited; mark target, pop when done
-					rulesVisitedPerRuleCheck.add((RuleStartState)t.target);
-					// send new visitedStates set per rule invocation
-					boolean nullable = check(r, t.target, new HashSet<ATNState>());
-					// we're back from visiting that rule
-					rulesVisitedPerRuleCheck.remove((RuleStartState)t.target);
-					if ( nullable ) {
-						stateReachesStopState |= check(enclosingRule, rt.followState, visitedStates);
-					}
-				}
-			}
-			else if ( t.isEpsilon() ) {
-				stateReachesStopState |= check(enclosingRule, t.target, visitedStates);
-			}
-			// else ignore non-epsilon transitions
-		}
-		return stateReachesStopState;
-	}
-
-	/** enclosingRule calls targetRule. Find the cycle containing
-	 *  the target and add the caller.  Find the cycle containing the caller
-	 *  and add the target.  If no cycles contain either, then create a new
-	 *  cycle.
-	 */
-	protected void addRulesToCycle(Rule enclosingRule, Rule targetRule) {
-		//System.err.println("left-recursion to "+targetRule.name+" from "+enclosingRule.name);
-		boolean foundCycle = false;
-		for (Set<Rule> rulesInCycle : listOfRecursiveCycles) {
-			// ensure both rules are in same cycle
-			if (rulesInCycle.contains(targetRule)) {
-				rulesInCycle.add(enclosingRule);
-				foundCycle = true;
-			}
-			if (rulesInCycle.contains(enclosingRule)) {
-				rulesInCycle.add(targetRule);
-				foundCycle = true;
-			}
-		}
-		if ( !foundCycle ) {
-			Set<Rule> cycle = new OrderedHashSet<Rule>();
-			cycle.add(targetRule);
-			cycle.add(enclosingRule);
-			listOfRecursiveCycles.add(cycle);
-		}
-	}
+        /** enclosingRule calls targetRule. Find the cycle containing
+         *  the target and add the caller.  Find the cycle containing the caller
+         *  and add the target.  If no cycles contain either, then create a new
+         *  cycle.
+         */
+        protected virtual void AddRulesToCycle(Rule enclosingRule, Rule targetRule)
+        {
+            //System.err.println("left-recursion to "+targetRule.name+" from "+enclosingRule.name);
+            bool foundCycle = false;
+            foreach (ISet<Rule> rulesInCycle in listOfRecursiveCycles)
+            {
+                // ensure both rules are in same cycle
+                if (rulesInCycle.Contains(targetRule))
+                {
+                    rulesInCycle.Add(enclosingRule);
+                    foundCycle = true;
+                }
+                if (rulesInCycle.Contains(enclosingRule))
+                {
+                    rulesInCycle.Add(targetRule);
+                    foundCycle = true;
+                }
+            }
+            if (!foundCycle)
+            {
+                ISet<Rule> cycle = new OrderedHashSet<Rule>();
+                cycle.Add(targetRule);
+                cycle.Add(enclosingRule);
+                listOfRecursiveCycles.Add(cycle);
+            }
+        }
+    }
 }
