@@ -28,56 +28,59 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.automata;
+namespace Antlr4.Automata
+{
+    using Antlr4.Runtime.Atn;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
 
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.BlockEndState;
-import org.antlr.v4.runtime.atn.EpsilonTransition;
-import org.antlr.v4.runtime.atn.PlusLoopbackState;
-import org.antlr.v4.runtime.atn.RuleTransition;
-import org.antlr.v4.runtime.atn.StarLoopbackState;
-import org.antlr.v4.runtime.atn.StateType;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.runtime.misc.NotNull;
+    /**
+     *
+     * @author Terence Parr
+     */
+    public class TailEpsilonRemover : ATNVisitor
+    {
+        [NotNull]
+        private readonly ATN _atn;
 
-/**
- *
- * @author Terence Parr
- */
-public class TailEpsilonRemover extends ATNVisitor {
-	@NotNull
-	private final ATN _atn;
+        public TailEpsilonRemover([NotNull] ATN atn)
+        {
+            this._atn = atn;
+        }
 
-	public TailEpsilonRemover(@NotNull ATN atn) {
-		this._atn = atn;
-	}
-
-	@Override
-	public void visitState(@NotNull ATNState p) {
-		if (p.getStateType() == StateType.BASIC && p.getNumberOfTransitions() == 1) {
-			ATNState q = p.transition(0).target;
-			if (p.transition(0) instanceof RuleTransition) {
-				q = ((RuleTransition) p.transition(0)).followState;
-			}
-			if (q.getStateType() == StateType.BASIC) {
-				// we have p-x->q for x in {rule, action, pred, token, ...}
-				// if edge out of q is single epsilon to block end
-				// we can strip epsilon p-x->q-eps->r
-				Transition trans = q.transition(0);
-				if (q.getNumberOfTransitions() == 1 && trans instanceof EpsilonTransition) {
-					ATNState r = trans.target;
-					if (r instanceof BlockEndState || r instanceof PlusLoopbackState || r instanceof StarLoopbackState) {
-						// skip over q
-						if (p.transition(0) instanceof RuleTransition) {
-							((RuleTransition) p.transition(0)).followState = r;
-						} else {
-							p.transition(0).target = r;
-						}
-						_atn.removeState(q);
-					}
-				}
-			}
-		}
-	}
+        public override void VisitState([NotNull] ATNState p)
+        {
+            if (p.StateType == StateType.Basic && p.NumberOfTransitions == 1)
+            {
+                ATNState q = p.Transition(0).target;
+                if (p.Transition(0) is RuleTransition)
+                {
+                    q = ((RuleTransition)p.Transition(0)).followState;
+                }
+                if (q.StateType == StateType.Basic)
+                {
+                    // we have p-x->q for x in {rule, action, pred, token, ...}
+                    // if edge out of q is single epsilon to block end
+                    // we can strip epsilon p-x->q-eps->r
+                    Transition trans = q.Transition(0);
+                    if (q.NumberOfTransitions == 1 && trans is EpsilonTransition)
+                    {
+                        ATNState r = trans.target;
+                        if (r is BlockEndState || r is PlusLoopbackState || r is StarLoopbackState)
+                        {
+                            // skip over q
+                            if (p.Transition(0) is RuleTransition)
+                            {
+                                ((RuleTransition)p.Transition(0)).followState = r;
+                            }
+                            else
+                            {
+                                p.Transition(0).target = r;
+                            }
+                            _atn.RemoveState(q);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

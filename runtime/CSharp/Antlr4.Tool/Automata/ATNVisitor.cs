@@ -28,35 +28,40 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.automata;
+namespace Antlr4.Automata
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
 
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.runtime.misc.NotNull;
+    /** A simple visitor that walks everywhere it can go starting from s,
+     *  without going into an infinite cycle. Override and implement
+     *  visitState() to provide functionality.
+     */
+    public class ATNVisitor
+    {
+        public virtual void Visit([NotNull] ATNState s)
+        {
+            Visit_(s, new HashSet<int>());
+        }
 
-import java.util.HashSet;
-import java.util.Set;
+        public virtual void Visit_([NotNull] ATNState s, [NotNull] ISet<int> visited)
+        {
+            if (!visited.Add(s.stateNumber))
+                return;
+            visited.Add(s.stateNumber);
 
-/** A simple visitor that walks everywhere it can go starting from s,
- *  without going into an infinite cycle. Override and implement
- *  visitState() to provide functionality.
- */
-public class ATNVisitor {
-	public void visit(@NotNull ATNState s) {
-		visit_(s, new HashSet<Integer>());
-	}
+            VisitState(s);
+            int n = s.NumberOfTransitions;
+            for (int i = 0; i < n; i++)
+            {
+                Transition t = s.Transition(i);
+                Visit_(t.target, visited);
+            }
+        }
 
-	public void visit_(@NotNull ATNState s, @NotNull Set<Integer> visited) {
-		if ( !visited.add(s.stateNumber) ) return;
-		visited.add(s.stateNumber);
-
-		visitState(s);
-		int n = s.getNumberOfTransitions();
-		for (int i=0; i<n; i++) {
-			Transition t = s.transition(i);
-			visit_(t.target, visited);
-		}
-	}
-
-	public void visitState(@NotNull ATNState s) { }
+        public virtual void VisitState([NotNull] ATNState s)
+        {
+        }
+    }
 }

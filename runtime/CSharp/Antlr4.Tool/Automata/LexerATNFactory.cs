@@ -28,494 +28,536 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.automata;
+namespace Antlr4.Automata
+{
+    using System.Collections.Generic;
+    using System.Linq;
+    using Antlr4.Codegen;
+    using Antlr4.Misc;
+    using Antlr4.Parse;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.StringTemplate;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using CommonToken = Antlr.Runtime.CommonToken;
+    using Interval = Antlr4.Runtime.Misc.Interval;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
+    using IntStreamConstants = Antlr4.Runtime.IntStreamConstants;
+    using IToken = Antlr.Runtime.IToken;
+    using Lexer = Antlr4.Runtime.Lexer;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
+    using NullableAttribute = Antlr4.Runtime.Misc.NullableAttribute;
+    using TokenTypes = Antlr4.Runtime.TokenTypes;
 
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.Token;
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.codegen.Target;
-import org.antlr.v4.misc.CharSupport;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.runtime.IntStream;
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.ActionTransition;
-import org.antlr.v4.runtime.atn.AtomTransition;
-import org.antlr.v4.runtime.atn.LexerAction;
-import org.antlr.v4.runtime.atn.LexerChannelAction;
-import org.antlr.v4.runtime.atn.LexerCustomAction;
-import org.antlr.v4.runtime.atn.LexerModeAction;
-import org.antlr.v4.runtime.atn.LexerMoreAction;
-import org.antlr.v4.runtime.atn.LexerPopModeAction;
-import org.antlr.v4.runtime.atn.LexerPushModeAction;
-import org.antlr.v4.runtime.atn.LexerSkipAction;
-import org.antlr.v4.runtime.atn.LexerTypeAction;
-import org.antlr.v4.runtime.atn.NotSetTransition;
-import org.antlr.v4.runtime.atn.RangeTransition;
-import org.antlr.v4.runtime.atn.RuleStartState;
-import org.antlr.v4.runtime.atn.SetTransition;
-import org.antlr.v4.runtime.atn.TokensStartState;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.misc.Nullable;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.LexerGrammar;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.TerminalAST;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
+    public class LexerATNFactory : ParserATNFactory
+    {
+        [Nullable]
+        public TemplateGroup codegenTemplates;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+        /**
+         * Provides a map of names of predefined constants which are likely to
+         * appear as the argument for lexer commands. These names would be resolved
+         * by the Java compiler for lexer commands that are translated to embedded
+         * actions, but are required during code generation for creating
+         * {@link LexerAction} instances that are usable by a lexer interpreter.
+         */
+        public static readonly IDictionary<string, int> COMMON_CONSTANTS = new Dictionary<string, int>
+        {
+            { "HIDDEN", Lexer.Hidden },
+            { "DEFAULT_TOKEN_CHANNEL", Lexer.DefaultTokenChannel },
+            { "DEFAULT_MODE", Lexer.DefaultMode },
+            { "SKIP", TokenTypes.Skip },
+            { "MORE", TokenTypes.More },
+            { "EOF", Lexer.Eof },
+            { "MAX_CHAR_VALUE", Lexer.MaxCharValue },
+            { "MIN_CHAR_VALUE", Lexer.MinCharValue },
+        };
 
-public class LexerATNFactory extends ParserATNFactory {
-	@Nullable
-	public STGroup codegenTemplates;
+        /**
+         * Maps from an action index to a {@link LexerAction} object.
+         */
+        protected IDictionary<int, ILexerAction> indexToActionMap = new Dictionary<int, ILexerAction>();
+        /**
+         * Maps from a {@link LexerAction} object to the action index.
+         */
+        protected IDictionary<ILexerAction, int> actionToIndexMap = new Dictionary<ILexerAction, int>();
 
-	/**
-	 * Provides a map of names of predefined constants which are likely to
-	 * appear as the argument for lexer commands. These names would be resolved
-	 * by the Java compiler for lexer commands that are translated to embedded
-	 * actions, but are required during code generation for creating
-	 * {@link LexerAction} instances that are usable by a lexer interpreter.
-	 */
-	public static final Map<String, Integer> COMMON_CONSTANTS = new HashMap<String, Integer>();
-	static {
-		COMMON_CONSTANTS.put("HIDDEN", Lexer.HIDDEN);
-		COMMON_CONSTANTS.put("DEFAULT_TOKEN_CHANNEL", Lexer.DEFAULT_TOKEN_CHANNEL);
-		COMMON_CONSTANTS.put("DEFAULT_MODE", Lexer.DEFAULT_MODE);
-		COMMON_CONSTANTS.put("SKIP", Lexer.SKIP);
-		COMMON_CONSTANTS.put("MORE", Lexer.MORE);
-		COMMON_CONSTANTS.put("EOF", Lexer.EOF);
-		COMMON_CONSTANTS.put("MAX_CHAR_VALUE", Lexer.MAX_CHAR_VALUE);
-		COMMON_CONSTANTS.put("MIN_CHAR_VALUE", Lexer.MIN_CHAR_VALUE);
-	}
+        public LexerATNFactory(LexerGrammar g)
+            : base(g)
+        {
+            // use codegen to get correct language templates for lexer commands
+            string language = g.GetOptionString("language");
+            CodeGenerator gen = new CodeGenerator(g.tool, null, language);
+            AbstractTarget target = gen.GetTarget();
+            codegenTemplates = target != null ? target.GetTemplates() : null;
+        }
 
-	/**
-	 * Maps from an action index to a {@link LexerAction} object.
-	 */
-	protected Map<Integer, LexerAction> indexToActionMap = new HashMap<Integer, LexerAction>();
-	/**
-	 * Maps from a {@link LexerAction} object to the action index.
-	 */
-	protected Map<LexerAction, Integer> actionToIndexMap = new HashMap<LexerAction, Integer>();
+        public static ICollection<string> GetCommonConstants()
+        {
+            return COMMON_CONSTANTS.Keys;
+        }
 
-	public LexerATNFactory(LexerGrammar g) {
-		super(g);
-		// use codegen to get correct language templates for lexer commands
-		String language = g.getOptionString("language");
-		CodeGenerator gen = new CodeGenerator(g.tool, null, language);
-		Target target = gen.getTarget();
-		codegenTemplates = target != null ? target.getTemplates() : null;
-	}
+        public override ATN CreateATN()
+        {
+            // BUILD ALL START STATES (ONE PER MODE)
+            ICollection<string> modes = ((LexerGrammar)g).modes.Keys;
+            foreach (string modeName in modes)
+            {
+                // create s0, start state; implied Tokens rule node
+                TokensStartState startState = NewState<TokensStartState>(null);
+                atn.DefineMode(modeName, startState);
+            }
 
-	public static Set<String> getCommonConstants() {
-		return COMMON_CONSTANTS.keySet();
-	}
+            // INIT ACTION, RULE->TOKEN_TYPE MAP
+            atn.ruleToTokenType = new int[g.rules.Count];
+            foreach (Rule r in g.rules.Values)
+            {
+                atn.ruleToTokenType[r.index] = g.GetTokenType(r.name);
+            }
 
-	@Override
-	public ATN createATN() {
-		// BUILD ALL START STATES (ONE PER MODE)
-		Set<String> modes = ((LexerGrammar) g).modes.keySet();
-		for (String modeName : modes) {
-			// create s0, start state; implied Tokens rule node
-			TokensStartState startState = newState(TokensStartState.class, null);
-			atn.defineMode(modeName, startState);
-		}
+            // CREATE ATN FOR EACH RULE
+            _CreateATN(g.rules.Values);
 
-		// INIT ACTION, RULE->TOKEN_TYPE MAP
-		atn.ruleToTokenType = new int[g.rules.size()];
-		for (Rule r : g.rules.values()) {
-			atn.ruleToTokenType[r.index] = g.getTokenType(r.name);
-		}
+            atn.lexerActions = new ILexerAction[indexToActionMap.Count];
+            foreach (KeyValuePair<int, ILexerAction> entry in indexToActionMap)
+            {
+                atn.lexerActions[entry.Key] = entry.Value;
+            }
 
-		// CREATE ATN FOR EACH RULE
-		_createATN(g.rules.values());
+            // LINK MODE START STATE TO EACH TOKEN RULE
+            foreach (string modeName in modes)
+            {
+                IList<Rule> rules = ((LexerGrammar)g).modes[modeName];
+                TokensStartState startState = atn.modeNameToStartState[modeName];
+                foreach (Rule r in rules)
+                {
+                    if (!r.IsFragment())
+                    {
+                        RuleStartState s = atn.ruleToStartState[r.index];
+                        Epsilon(startState, s);
+                    }
+                }
+            }
 
-		atn.lexerActions = new LexerAction[indexToActionMap.size()];
-		for (Map.Entry<Integer, LexerAction> entry : indexToActionMap.entrySet()) {
-			atn.lexerActions[entry.getKey()] = entry.getValue();
-		}
+            ATNOptimizer.Optimize(g, atn);
+            return atn;
+        }
 
-		// LINK MODE START STATE TO EACH TOKEN RULE
-		for (String modeName : modes) {
-			List<Rule> rules = ((LexerGrammar)g).modes.get(modeName);
-			TokensStartState startState = atn.modeNameToStartState.get(modeName);
-			for (Rule r : rules) {
-				if ( !r.isFragment() ) {
-					RuleStartState s = atn.ruleToStartState[r.index];
-					epsilon(startState, s);
-				}
-			}
-		}
+        public override Handle Action(ActionAST action)
+        {
+            int ruleIndex = currentRule.index;
+            int actionIndex = g.lexerActions[action];
+            LexerCustomAction lexerAction = new LexerCustomAction(ruleIndex, actionIndex);
+            return Action(action, lexerAction);
+        }
 
-		ATNOptimizer.optimize(g, atn);
-		return atn;
-	}
+        protected virtual int GetLexerActionIndex(ILexerAction lexerAction)
+        {
+            int lexerActionIndex;
+            if (!actionToIndexMap.TryGetValue(lexerAction, out lexerActionIndex))
+            {
+                lexerActionIndex = actionToIndexMap.Count;
+                actionToIndexMap[lexerAction] = lexerActionIndex;
+                indexToActionMap[lexerActionIndex] = lexerAction;
+            }
 
-	@Override
-	public Handle action(ActionAST action) {
-		int ruleIndex = currentRule.index;
-		int actionIndex = g.lexerActions.get(action);
-		LexerCustomAction lexerAction = new LexerCustomAction(ruleIndex, actionIndex);
-		return action(action, lexerAction);
-	}
+            return lexerActionIndex;
+        }
 
-	protected int getLexerActionIndex(LexerAction lexerAction) {
-		Integer lexerActionIndex = actionToIndexMap.get(lexerAction);
-		if (lexerActionIndex == null) {
-			lexerActionIndex = actionToIndexMap.size();
-			actionToIndexMap.put(lexerAction, lexerActionIndex);
-			indexToActionMap.put(lexerActionIndex, lexerAction);
-		}
+        public override Handle Action(string action)
+        {
+            if (string.IsNullOrWhiteSpace(action))
+            {
+                ATNState left = NewState(null);
+                ATNState right = NewState(null);
+                Epsilon(left, right);
+                return new Handle(left, right);
+            }
 
-		return lexerActionIndex;
-	}
+            // define action AST for this rule as if we had found in grammar
+            ActionAST ast = new ActionAST(new CommonToken(ANTLRParser.ACTION, action));
+            currentRule.DefineActionInAlt(currentOuterAlt, ast);
+            return Action(ast);
+        }
 
-	@Override
-	public Handle action(String action) {
-		if (action.trim().isEmpty()) {
-			ATNState left = newState(null);
-			ATNState right = newState(null);
-			epsilon(left, right);
-			return new Handle(left, right);
-		}
+        protected virtual Handle Action(GrammarAST node, ILexerAction lexerAction)
+        {
+            ATNState left = NewState(node);
+            ATNState right = NewState(node);
+            bool isCtxDependent = false;
+            int lexerActionIndex = GetLexerActionIndex(lexerAction);
+            ActionTransition a =
+                new ActionTransition(right, currentRule.index, lexerActionIndex, isCtxDependent);
+            left.AddTransition(a);
+            node.atnState = left;
+            Handle h = new Handle(left, right);
+            return h;
+        }
 
-		// define action AST for this rule as if we had found in grammar
-        ActionAST ast =	new ActionAST(new CommonToken(ANTLRParser.ACTION, action));
-		currentRule.defineActionInAlt(currentOuterAlt, ast);
-		return action(ast);
-	}
+        public override Handle LexerAltCommands(Handle alt, Handle cmds)
+        {
+            Handle h = new Handle(alt.left, cmds.right);
+            Epsilon(alt.right, cmds.left);
+            return h;
+        }
 
-	protected Handle action(GrammarAST node, LexerAction lexerAction) {
-		ATNState left = newState(node);
-		ATNState right = newState(node);
-		boolean isCtxDependent = false;
-		int lexerActionIndex = getLexerActionIndex(lexerAction);
-		ActionTransition a =
-			new ActionTransition(right, currentRule.index, lexerActionIndex, isCtxDependent);
-		left.addTransition(a);
-		node.atnState = left;
-		Handle h = new Handle(left, right);
-		return h;
-	}
+        public override Handle LexerCallCommand(GrammarAST ID, GrammarAST arg)
+        {
+            ILexerAction lexerAction = CreateLexerAction(ID, arg);
+            if (lexerAction != null)
+            {
+                return Action(ID, lexerAction);
+            }
 
-	@Override
-	public Handle lexerAltCommands(Handle alt, Handle cmds) {
-		Handle h = new Handle(alt.left, cmds.right);
-		epsilon(alt.right, cmds.left);
-		return h;
-	}
+            if (codegenTemplates == null)
+            {
+                // suppress reporting a single missing template when the target couldn't be loaded
+                return Epsilon(ID);
+            }
 
-	@Override
-	public Handle lexerCallCommand(GrammarAST ID, GrammarAST arg) {
-		LexerAction lexerAction = createLexerAction(ID, arg);
-		if (lexerAction != null) {
-			return action(ID, lexerAction);
-		}
+            // fall back to standard action generation for the command
+            Template cmdST = codegenTemplates.GetInstanceOf("Lexer" +
+                                                      CharSupport.Capitalize(ID.Text) +
+                                                      "Command");
+            if (cmdST == null)
+            {
+                g.tool.errMgr.GrammarError(ErrorType.INVALID_LEXER_COMMAND, g.fileName, ID.Token, ID.Text);
+                return Epsilon(ID);
+            }
 
-		if (codegenTemplates == null) {
-			// suppress reporting a single missing template when the target couldn't be loaded
-			return epsilon(ID);
-		}
+            if (cmdST.impl.FormalArguments == null || !cmdST.impl.FormalArguments.Any(x => x.Name == "arg"))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.UNWANTED_LEXER_COMMAND_ARGUMENT, g.fileName, ID.Token, ID.Text);
+                return Epsilon(ID);
+            }
 
-		// fall back to standard action generation for the command
-		ST cmdST = codegenTemplates.getInstanceOf("Lexer" +
-												  CharSupport.capitalize(ID.getText())+
-												  "Command");
-		if (cmdST == null) {
-			g.tool.errMgr.grammarError(ErrorType.INVALID_LEXER_COMMAND, g.fileName, ID.token, ID.getText());
-			return epsilon(ID);
-		}
+            cmdST.Add("arg", arg.Text);
+            return Action(cmdST.Render());
+        }
 
-		if (cmdST.impl.formalArguments == null || !cmdST.impl.formalArguments.containsKey("arg")) {
-			g.tool.errMgr.grammarError(ErrorType.UNWANTED_LEXER_COMMAND_ARGUMENT, g.fileName, ID.token, ID.getText());
-			return epsilon(ID);
-		}
+        public override Handle LexerCommand(GrammarAST ID)
+        {
+            ILexerAction lexerAction = CreateLexerAction(ID, null);
+            if (lexerAction != null)
+            {
+                return Action(ID, lexerAction);
+            }
 
-		cmdST.add("arg", arg.getText());
-		return action(cmdST.render());
-	}
+            if (codegenTemplates == null)
+            {
+                // suppress reporting a single missing template when the target couldn't be loaded
+                return Epsilon(ID);
+            }
 
-	@Override
-	public Handle lexerCommand(GrammarAST ID) {
-		LexerAction lexerAction = createLexerAction(ID, null);
-		if (lexerAction != null) {
-			return action(ID, lexerAction);
-		}
+            // fall back to standard action generation for the command
+            Template cmdST = codegenTemplates.GetInstanceOf("Lexer" +
+                    CharSupport.Capitalize(ID.Text) +
+                    "Command");
+            if (cmdST == null)
+            {
+                g.tool.errMgr.GrammarError(ErrorType.INVALID_LEXER_COMMAND, g.fileName, ID.Token, ID.Text);
+                return Epsilon(ID);
+            }
 
-		if (codegenTemplates == null) {
-			// suppress reporting a single missing template when the target couldn't be loaded
-			return epsilon(ID);
-		}
+            if (cmdST.impl.FormalArguments != null && cmdST.impl.FormalArguments.Any(x => x.Name == "arg"))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.MISSING_LEXER_COMMAND_ARGUMENT, g.fileName, ID.Token, ID.Text);
+                return Epsilon(ID);
+            }
 
-		// fall back to standard action generation for the command
-		ST cmdST = codegenTemplates.getInstanceOf("Lexer" +
-				CharSupport.capitalize(ID.getText()) +
-				"Command");
-		if (cmdST == null) {
-			g.tool.errMgr.grammarError(ErrorType.INVALID_LEXER_COMMAND, g.fileName, ID.token, ID.getText());
-			return epsilon(ID);
-		}
+            return Action(cmdST.Render());
+        }
 
-		if (cmdST.impl.formalArguments != null && cmdST.impl.formalArguments.containsKey("arg")) {
-			g.tool.errMgr.grammarError(ErrorType.MISSING_LEXER_COMMAND_ARGUMENT, g.fileName, ID.token, ID.getText());
-			return epsilon(ID);
-		}
+        public override Handle Range(GrammarAST a, GrammarAST b)
+        {
+            ATNState left = NewState(a);
+            ATNState right = NewState(b);
+            int t1 = CharSupport.GetCharValueFromGrammarCharLiteral(a.Text);
+            int t2 = CharSupport.GetCharValueFromGrammarCharLiteral(b.Text);
+            left.AddTransition(new RangeTransition(right, t1, t2));
+            a.atnState = left;
+            b.atnState = left;
+            return new Handle(left, right);
+        }
 
-		return action(cmdST.render());
-	}
+        public override Handle Set(GrammarAST associatedAST, IList<GrammarAST> alts, bool invert)
+        {
+            ATNState left = NewState(associatedAST);
+            ATNState right = NewState(associatedAST);
+            IntervalSet set = new IntervalSet();
+            foreach (GrammarAST t in alts)
+            {
+                if (t.Type == ANTLRParser.RANGE)
+                {
+                    int a = CharSupport.GetCharValueFromGrammarCharLiteral(t.GetChild(0).Text);
+                    int b = CharSupport.GetCharValueFromGrammarCharLiteral(t.GetChild(1).Text);
+                    set.Add(a, b);
+                }
+                else if (t.Type == ANTLRParser.LEXER_CHAR_SET)
+                {
+                    set.AddAll(GetSetFromCharSetLiteral(t));
+                }
+                else if (t.Type == ANTLRParser.STRING_LITERAL)
+                {
+                    int c = CharSupport.GetCharValueFromGrammarCharLiteral(t.Text);
+                    if (c != -1)
+                    {
+                        set.Add(c);
+                    }
+                    else
+                    {
+                        g.tool.errMgr.GrammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
+                                                   g.fileName, t.Token, t.Text);
 
-	@Override
-	public Handle range(GrammarAST a, GrammarAST b) {
-		ATNState left = newState(a);
-		ATNState right = newState(b);
-		int t1 = CharSupport.getCharValueFromGrammarCharLiteral(a.getText());
-		int t2 = CharSupport.getCharValueFromGrammarCharLiteral(b.getText());
-		left.addTransition(new  RangeTransition(right, t1, t2));
-		a.atnState = left;
-		b.atnState = left;
-		return new Handle(left, right);
-	}
+                    }
+                }
+                else if (t.Type == ANTLRParser.TOKEN_REF)
+                {
+                    g.tool.errMgr.GrammarError(ErrorType.UNSUPPORTED_REFERENCE_IN_LEXER_SET,
+                                               g.fileName, t.Token, t.Text);
+                }
+            }
+            if (invert)
+            {
+                left.AddTransition(new NotSetTransition(right, set));
+            }
+            else
+            {
+                Transition transition;
+                if (set.GetIntervals().Count == 1)
+                {
+                    Interval interval = set.GetIntervals()[0];
+                    transition = new RangeTransition(right, interval.a, interval.b);
+                }
+                else
+                {
+                    transition = new SetTransition(right, set);
+                }
 
-	@Override
-	public Handle set(GrammarAST associatedAST, List<GrammarAST> alts, boolean invert) {
-		ATNState left = newState(associatedAST);
-		ATNState right = newState(associatedAST);
-		IntervalSet set = new IntervalSet();
-		for (GrammarAST t : alts) {
-			if ( t.getType()==ANTLRParser.RANGE ) {
-				int a = CharSupport.getCharValueFromGrammarCharLiteral(t.getChild(0).getText());
-				int b = CharSupport.getCharValueFromGrammarCharLiteral(t.getChild(1).getText());
-				set.add(a, b);
-			}
-			else if ( t.getType()==ANTLRParser.LEXER_CHAR_SET ) {
-				set.addAll(getSetFromCharSetLiteral(t));
-			}
-			else if ( t.getType()==ANTLRParser.STRING_LITERAL ) {
-				int c = CharSupport.getCharValueFromGrammarCharLiteral(t.getText());
-				if ( c != -1 ) {
-					set.add(c);
-				}
-				else {
-					g.tool.errMgr.grammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
-											   g.fileName, t.getToken(), t.getText());
+                left.AddTransition(transition);
+            }
+            associatedAST.atnState = left;
+            return new Handle(left, right);
+        }
 
-				}
-			}
-			else if ( t.getType()==ANTLRParser.TOKEN_REF ) {
-				g.tool.errMgr.grammarError(ErrorType.UNSUPPORTED_REFERENCE_IN_LEXER_SET,
-										   g.fileName, t.getToken(), t.getText());
-			}
-		}
-		if ( invert ) {
-			left.addTransition(new NotSetTransition(right, set));
-		}
-		else {
-			Transition transition;
-			if (set.getIntervals().size() == 1) {
-				Interval interval = set.getIntervals().get(0);
-				transition = new RangeTransition(right, interval.a, interval.b);
-			} else {
-				transition = new SetTransition(right, set);
-			}
+        /** For a lexer, a string is a sequence of char to match.  That is,
+         *  "fog" is treated as 'f' 'o' 'g' not as a single transition in
+         *  the DFA.  Machine== o-'f'-&gt;o-'o'-&gt;o-'g'-&gt;o and has n+1 states
+         *  for n characters.
+         */
+        public override Handle StringLiteral(TerminalAST stringLiteralAST)
+        {
+            string chars = stringLiteralAST.Text;
+            chars = CharSupport.GetStringFromGrammarStringLiteral(chars);
+            int n = chars.Length;
+            ATNState left = NewState(stringLiteralAST);
+            ATNState prev = left;
+            ATNState right = null;
+            for (int i = 0; i < n; i++)
+            {
+                right = NewState(stringLiteralAST);
+                prev.AddTransition(new AtomTransition(right, chars[i]));
+                prev = right;
+            }
+            stringLiteralAST.atnState = left;
+            return new Handle(left, right);
+        }
 
-			left.addTransition(transition);
-		}
-		associatedAST.atnState = left;
-		return new Handle(left, right);
-	}
+        /** [Aa\t \u1234a-z\]\-] char sets */
+        public override Handle CharSetLiteral(GrammarAST charSetAST)
+        {
+            ATNState left = NewState(charSetAST);
+            ATNState right = NewState(charSetAST);
+            IntervalSet set = GetSetFromCharSetLiteral(charSetAST);
+            left.AddTransition(new SetTransition(right, set));
+            charSetAST.atnState = left;
+            return new Handle(left, right);
+        }
 
-	/** For a lexer, a string is a sequence of char to match.  That is,
-	 *  "fog" is treated as 'f' 'o' 'g' not as a single transition in
-	 *  the DFA.  Machine== o-'f'-&gt;o-'o'-&gt;o-'g'-&gt;o and has n+1 states
-	 *  for n characters.
-	 */
-	@Override
-	public Handle stringLiteral(TerminalAST stringLiteralAST) {
-		String chars = stringLiteralAST.getText();
-		chars = CharSupport.getStringFromGrammarStringLiteral(chars);
-		int n = chars.length();
-		ATNState left = newState(stringLiteralAST);
-		ATNState prev = left;
-		ATNState right = null;
-		for (int i=0; i<n; i++) {
-			right = newState(stringLiteralAST);
-			prev.addTransition(new AtomTransition(right, chars.charAt(i)));
-			prev = right;
-		}
-		stringLiteralAST.atnState = left;
-		return new Handle(left, right);
-	}
+        public virtual IntervalSet GetSetFromCharSetLiteral(GrammarAST charSetAST)
+        {
+            string chars = charSetAST.Text;
+            chars = chars.Substring(1, chars.Length - 2);
+            string cset = '"' + chars + '"';
+            IntervalSet set = new IntervalSet();
 
-	/** [Aa\t \u1234a-z\]\-] char sets */
-	@Override
-	public Handle charSetLiteral(GrammarAST charSetAST) {
-		ATNState left = newState(charSetAST);
-		ATNState right = newState(charSetAST);
-		IntervalSet set = getSetFromCharSetLiteral(charSetAST);
-		left.addTransition(new SetTransition(right, set));
-		charSetAST.atnState = left;
-		return new Handle(left, right);
-	}
+            // unescape all valid escape char like \n, leaving escaped dashes as '\-'
+            // so we can avoid seeing them as '-' range ops.
+            chars = CharSupport.GetStringFromGrammarStringLiteral(cset);
+            // now make x-y become set of char
+            int n = chars.Length;
+            for (int i = 0; i < n; i++)
+            {
+                int c = chars[i];
+                if (c == '\\' && (i + 1) < n && chars[i + 1] == '-')
+                { // \-
+                    set.Add('-');
+                    i++;
+                }
+                else if ((i + 2) < n && chars[i + 1] == '-')
+                { // range x-y
+                    int x = c;
+                    int y = chars[i + 2];
+                    if (x <= y)
+                        set.Add(x, y);
+                    i += 2;
+                }
+                else
+                {
+                    set.Add(c);
+                }
+            }
+            return set;
+        }
 
-	public IntervalSet getSetFromCharSetLiteral(GrammarAST charSetAST) {
-		String chars = charSetAST.getText();
-		chars = chars.substring(1, chars.length()-1);
-		String cset = '"'+ chars +'"';
-		IntervalSet set = new IntervalSet();
+        public override Handle TokenRef(TerminalAST node)
+        {
+            // Ref to EOF in lexer yields char transition on -1
+            if (node.Text.Equals("EOF"))
+            {
+                ATNState left = NewState(node);
+                ATNState right = NewState(node);
+                left.AddTransition(new AtomTransition(right, IntStreamConstants.Eof));
+                return new Handle(left, right);
+            }
+            return _RuleRef(node);
+        }
 
-		// unescape all valid escape char like \n, leaving escaped dashes as '\-'
-		// so we can avoid seeing them as '-' range ops.
-		chars = CharSupport.getStringFromGrammarStringLiteral(cset);
-		// now make x-y become set of char
-		int n = chars.length();
-		for (int i=0; i< n; i++) {
-			int c = chars.charAt(i);
-			if ( c=='\\' && (i+1)<n && chars.charAt(i+1)=='-' ) { // \-
-				set.add('-');
-				i++;
-			}
-			else if ( (i+2)<n && chars.charAt(i+1)=='-' ) { // range x-y
-				int x = c;
-				int y = chars.charAt(i+2);
-				if ( x<=y ) set.add(x,y);
-				i+=2;
-			}
-			else {
-				set.add(c);
-			}
-		}
-		return set;
-	}
+        [return: Nullable]
+        protected virtual ILexerAction CreateLexerAction([NotNull] GrammarAST ID, [Nullable] GrammarAST arg)
+        {
+            string command = ID.Text;
+            if ("skip".Equals(command) && arg == null)
+            {
+                return LexerSkipAction.Instance;
+            }
+            else if ("more".Equals(command) && arg == null)
+            {
+                return LexerMoreAction.Instance;
+            }
+            else if ("popMode".Equals(command) && arg == null)
+            {
+                return LexerPopModeAction.Instance;
+            }
+            else if ("mode".Equals(command) && arg != null)
+            {
+                string modeName = arg.Text;
+                CheckMode(modeName, arg.Token);
+                int? mode = GetConstantValue(modeName, arg.Token);
+                if (mode == null)
+                {
+                    return null;
+                }
 
-	@Override
-	public Handle tokenRef(TerminalAST node) {
-		// Ref to EOF in lexer yields char transition on -1
-		if ( node.getText().equals("EOF") ) {
-			ATNState left = newState(node);
-			ATNState right = newState(node);
-			left.addTransition(new AtomTransition(right, IntStream.EOF));
-			return new Handle(left, right);
-		}
-		return _ruleRef(node);
-	}
+                return new LexerModeAction(mode.Value);
+            }
+            else if ("pushMode".Equals(command) && arg != null)
+            {
+                string modeName = arg.Text;
+                CheckMode(modeName, arg.Token);
+                int? mode = GetConstantValue(modeName, arg.Token);
+                if (mode == null)
+                {
+                    return null;
+                }
 
-	@Nullable
-	protected LexerAction createLexerAction(@NotNull GrammarAST ID, @Nullable GrammarAST arg) {
-		String command = ID.getText();
-		if ("skip".equals(command) && arg == null) {
-			return LexerSkipAction.INSTANCE;
-		}
-		else if ("more".equals(command) && arg == null) {
-			return LexerMoreAction.INSTANCE;
-		}
-		else if ("popMode".equals(command) && arg == null) {
-			return LexerPopModeAction.INSTANCE;
-		}
-		else if ("mode".equals(command) && arg != null) {
-			String modeName = arg.getText();
-			checkMode(modeName, arg.token);
-			Integer mode = getConstantValue(modeName, arg.getToken());
-			if (mode == null) {
-				return null;
-			}
+                return new LexerPushModeAction(mode.Value);
+            }
+            else if ("type".Equals(command) && arg != null)
+            {
+                string typeName = arg.Text;
+                CheckToken(typeName, arg.Token);
+                int? type = GetConstantValue(typeName, arg.Token);
+                if (type == null)
+                {
+                    return null;
+                }
 
-			return new LexerModeAction(mode);
-		}
-		else if ("pushMode".equals(command) && arg != null) {
-			String modeName = arg.getText();
-			checkMode(modeName, arg.token);
-			Integer mode = getConstantValue(modeName, arg.getToken());
-			if (mode == null) {
-				return null;
-			}
+                return new LexerTypeAction(type.Value);
+            }
+            else if ("channel".Equals(command) && arg != null)
+            {
+                string channelName = arg.Text;
+                CheckChannel(channelName, arg.Token);
+                int? channel = GetConstantValue(channelName, arg.Token);
+                if (channel == null)
+                {
+                    return null;
+                }
 
-			return new LexerPushModeAction(mode);
-		}
-		else if ("type".equals(command) && arg != null) {
-			String typeName = arg.getText();
-			checkToken(typeName, arg.token);
-			Integer type = getConstantValue(typeName, arg.getToken());
-			if (type == null) {
-				return null;
-			}
+                return new LexerChannelAction(channel.Value);
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-			return new LexerTypeAction(type);
-		}
-		else if ("channel".equals(command) && arg != null) {
-			String channelName = arg.getText();
-			checkChannel(channelName, arg.token);
-			Integer channel = getConstantValue(channelName, arg.getToken());
-			if (channel == null) {
-				return null;
-			}
+        protected virtual void CheckMode(string modeName, IToken token)
+        {
+            if (!modeName.Equals("DEFAULT_MODE") && COMMON_CONSTANTS.ContainsKey(modeName))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+            }
+        }
 
-			return new LexerChannelAction(channel);
-		}
-		else {
-			return null;
-		}
-	}
+        protected virtual void CheckToken(string tokenName, IToken token)
+        {
+            if (!tokenName.Equals("EOF") && COMMON_CONSTANTS.ContainsKey(tokenName))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+            }
+        }
 
-	protected void checkMode(String modeName, Token token) {
-		if (!modeName.equals("DEFAULT_MODE") && COMMON_CONSTANTS.containsKey(modeName)) {
-			g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.getText());
-		}
-	}
+        protected virtual void CheckChannel(string channelName, IToken token)
+        {
+            if (!channelName.Equals("HIDDEN") && !channelName.Equals("DEFAULT_TOKEN_CHANNEL") && COMMON_CONSTANTS.ContainsKey(channelName))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+            }
+        }
 
-	protected void checkToken(String tokenName, Token token) {
-		if (!tokenName.equals("EOF") && COMMON_CONSTANTS.containsKey(tokenName)) {
-			g.tool.errMgr.grammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.getText());
-		}
-	}
+        [return: Nullable]
+        protected virtual int? GetConstantValue([Nullable] string name, [Nullable] IToken token)
+        {
+            if (name == null)
+            {
+                return null;
+            }
 
-	protected void checkChannel(String channelName, Token token) {
-		if (!channelName.equals("HIDDEN") && !channelName.equals("DEFAULT_TOKEN_CHANNEL") && COMMON_CONSTANTS.containsKey(channelName)) {
-			g.tool.errMgr.grammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.getText());
-		}
-	}
+            int commonConstant;
+            if (COMMON_CONSTANTS.TryGetValue(name, out commonConstant))
+            {
+                return commonConstant;
+            }
 
-	@Nullable
-	protected Integer getConstantValue(@Nullable String name, @Nullable Token token) {
-		if (name == null) {
-			return null;
-		}
+            int tokenType = g.GetTokenType(name);
+            if (tokenType != Antlr4.Runtime.TokenConstants.InvalidType)
+            {
+                return tokenType;
+            }
 
-		Integer commonConstant = COMMON_CONSTANTS.get(name);
-		if (commonConstant != null) {
-			return commonConstant;
-		}
+            int channelValue = g.GetChannelValue(name);
+            if (channelValue >= Antlr4.Runtime.TokenConstants.MinUserChannelValue)
+            {
+                return channelValue;
+            }
 
-		int tokenType = g.getTokenType(name);
-		if (tokenType != org.antlr.v4.runtime.Token.INVALID_TYPE) {
-			return tokenType;
-		}
+            IList<string> modeNames = new List<string>(((LexerGrammar)g).modes.Keys);
+            int mode = modeNames.IndexOf(name);
+            if (mode >= 0)
+            {
+                return mode;
+            }
 
-		int channelValue = g.getChannelValue(name);
-		if (channelValue >= org.antlr.v4.runtime.Token.MIN_USER_CHANNEL_VALUE) {
-			return channelValue;
-		}
+            int result;
+            if (!int.TryParse(name, out result))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.UNKNOWN_LEXER_CONSTANT, g.fileName, token, currentRule.name, token != null ? token.Text : null);
+                return null;
+            }
 
-		List<String> modeNames = new ArrayList<String>(((LexerGrammar)g).modes.keySet());
-		int mode = modeNames.indexOf(name);
-		if (mode >= 0) {
-			return mode;
-		}
-
-		try {
-			return Integer.parseInt(name);
-		} catch (NumberFormatException ex) {
-			g.tool.errMgr.grammarError(ErrorType.UNKNOWN_LEXER_CONSTANT, g.fileName, token, currentRule.name, token != null ? token.getText() : null);
-			return null;
-		}
-	}
+            return result;
+        }
+    }
 }

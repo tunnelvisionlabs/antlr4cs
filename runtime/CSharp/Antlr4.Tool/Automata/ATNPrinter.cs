@@ -28,112 +28,123 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.automata;
+namespace Antlr4.Automata
+{
+    using System.Collections.Generic;
+    using System.Text;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool;
 
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.ActionTransition;
-import org.antlr.v4.runtime.atn.AtomTransition;
-import org.antlr.v4.runtime.atn.BlockEndState;
-import org.antlr.v4.runtime.atn.BlockStartState;
-import org.antlr.v4.runtime.atn.EpsilonTransition;
-import org.antlr.v4.runtime.atn.NotSetTransition;
-import org.antlr.v4.runtime.atn.PlusBlockStartState;
-import org.antlr.v4.runtime.atn.PlusLoopbackState;
-import org.antlr.v4.runtime.atn.RuleStartState;
-import org.antlr.v4.runtime.atn.RuleStopState;
-import org.antlr.v4.runtime.atn.RuleTransition;
-import org.antlr.v4.runtime.atn.SetTransition;
-import org.antlr.v4.runtime.atn.StarBlockStartState;
-import org.antlr.v4.runtime.atn.StarLoopEntryState;
-import org.antlr.v4.runtime.atn.StarLoopbackState;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.tool.Grammar;
+    /** An ATN walker that knows how to dump them to serialized strings. */
+    public class ATNPrinter
+    {
+        IList<ATNState> work;
+        ISet<ATNState> marked;
+        Grammar g;
+        ATNState start;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+        public ATNPrinter(Grammar g, ATNState start)
+        {
+            this.g = g;
+            this.start = start;
+        }
 
-/** An ATN walker that knows how to dump them to serialized strings. */
-public class ATNPrinter {
-	List<ATNState> work;
-	Set<ATNState> marked;
-	Grammar g;
-	ATNState start;
+        public virtual string AsString()
+        {
+            if (start == null)
+                return null;
+            marked = new HashSet<ATNState>();
 
-	public ATNPrinter(Grammar g, ATNState start) {
-		this.g = g;
-		this.start = start;
-	}
+            work = new List<ATNState>();
+            work.Add(start);
 
-	public String asString() {
-		if ( start==null ) return null;
-		marked = new HashSet<ATNState>();
+            StringBuilder buf = new StringBuilder();
+            ATNState s;
 
-		work = new ArrayList<ATNState>();
-		work.add(start);
+            while (work.Count > 0)
+            {
+                s = work[0];
+                work.RemoveAt(0);
+                if (marked.Contains(s))
+                    continue;
+                int n = s.NumberOfTransitions;
+                //System.Console.WriteLine("visit " + s + "; edges=" + n);
+                marked.Add(s);
+                for (int i = 0; i < n; i++)
+                {
+                    Transition t = s.Transition(i);
+                    if (!(s is RuleStopState))
+                    { // don't add follow states to work
+                        if (t is RuleTransition)
+                            work.Add(((RuleTransition)t).followState);
+                        else
+                            work.Add(t.target);
+                    }
+                    buf.Append(GetStateString(s));
+                    if (t is EpsilonTransition)
+                    {
+                        buf.Append("->").Append(GetStateString(t.target)).Append('\n');
+                    }
+                    else if (t is RuleTransition)
+                    {
+                        buf.Append("-").Append(g.GetRule(((RuleTransition)t).ruleIndex).name).Append("->").Append(GetStateString(t.target)).Append('\n');
+                    }
+                    else if (t is ActionTransition)
+                    {
+                        ActionTransition a = (ActionTransition)t;
+                        buf.Append("-").Append(a.ToString()).Append("->").Append(GetStateString(t.target)).Append('\n');
+                    }
+                    else if (t is SetTransition)
+                    {
+                        SetTransition st = (SetTransition)t;
+                        bool not = st is NotSetTransition;
+                        if (g.IsLexer())
+                        {
+                            buf.Append("-").Append(not ? "~" : "").Append(st.ToString()).Append("->").Append(GetStateString(t.target)).Append('\n');
+                        }
+                        else
+                        {
+                            buf.Append("-").Append(not ? "~" : "").Append(st.Label.ToString(g.GetVocabulary())).Append("->").Append(GetStateString(t.target)).Append('\n');
+                        }
+                    }
+                    else if (t is AtomTransition)
+                    {
+                        AtomTransition a = (AtomTransition)t;
+                        string label = g.GetTokenDisplayName(a.label);
+                        buf.Append("-").Append(label).Append("->").Append(GetStateString(t.target)).Append('\n');
+                    }
+                    else
+                    {
+                        buf.Append("-").Append(t.ToString()).Append("->").Append(GetStateString(t.target)).Append('\n');
+                    }
+                }
+            }
+            return buf.ToString();
+        }
 
-		StringBuilder buf = new StringBuilder();
-		ATNState s;
-
-		while ( !work.isEmpty() ) {
-			s = work.remove(0);
-			if ( marked.contains(s) ) continue;
-			int n = s.getNumberOfTransitions();
-//			System.out.println("visit "+s+"; edges="+n);
-			marked.add(s);
-			for (int i=0; i<n; i++) {
-				Transition t = s.transition(i);
-				if ( !(s instanceof RuleStopState) ) { // don't add follow states to work
-					if ( t instanceof RuleTransition ) work.add(((RuleTransition)t).followState);
-					else work.add( t.target );
-				}
-				buf.append(getStateString(s));
-				if ( t instanceof EpsilonTransition ) {
-					buf.append("->").append(getStateString(t.target)).append('\n');
-				}
-				else if ( t instanceof RuleTransition ) {
-					buf.append("-").append(g.getRule(((RuleTransition)t).ruleIndex).name).append("->").append(getStateString(t.target)).append('\n');
-				}
-				else if ( t instanceof ActionTransition ) {
-					ActionTransition a = (ActionTransition)t;
-					buf.append("-").append(a.toString()).append("->").append(getStateString(t.target)).append('\n');
-				}
-				else if ( t instanceof SetTransition ) {
-					SetTransition st = (SetTransition)t;
-					boolean not = st instanceof NotSetTransition;
-					if ( g.isLexer() ) {
-						buf.append("-").append(not?"~":"").append(st.toString()).append("->").append(getStateString(t.target)).append('\n');
-					}
-					else {
-						buf.append("-").append(not?"~":"").append(st.label().toString(g.getVocabulary())).append("->").append(getStateString(t.target)).append('\n');
-					}
-				}
-				else if ( t instanceof AtomTransition ) {
-					AtomTransition a = (AtomTransition)t;
-					String label = g.getTokenDisplayName(a.label);
-					buf.append("-").append(label).append("->").append(getStateString(t.target)).append('\n');
-				}
-				else {
-					buf.append("-").append(t.toString()).append("->").append(getStateString(t.target)).append('\n');
-				}
-			}
-		}
-		return buf.toString();
-	}
-
-	String getStateString(ATNState s) {
-		int n = s.stateNumber;
-		String stateStr = "s"+n;
-		if ( s instanceof StarBlockStartState ) stateStr = "StarBlockStart_"+n;
-		else if ( s instanceof PlusBlockStartState ) stateStr = "PlusBlockStart_"+n;
-		else if ( s instanceof BlockStartState) stateStr = "BlockStart_"+n;
-		else if ( s instanceof BlockEndState ) stateStr = "BlockEnd_"+n;
-		else if ( s instanceof RuleStartState) stateStr = "RuleStart_"+g.getRule(s.ruleIndex).name+"_"+n;
-		else if ( s instanceof RuleStopState ) stateStr = "RuleStop_"+g.getRule(s.ruleIndex).name+"_"+n;
-		else if ( s instanceof PlusLoopbackState) stateStr = "PlusLoopBack_"+n;
-		else if ( s instanceof StarLoopbackState) stateStr = "StarLoopBack_"+n;
-		else if ( s instanceof StarLoopEntryState) stateStr = "StarLoopEntry_"+n;
-		return stateStr;
-	}
+        internal virtual string GetStateString(ATNState s)
+        {
+            int n = s.stateNumber;
+            string stateStr = "s" + n;
+            if (s is StarBlockStartState)
+                stateStr = "StarBlockStart_" + n;
+            else if (s is PlusBlockStartState)
+                stateStr = "PlusBlockStart_" + n;
+            else if (s is BlockStartState)
+                stateStr = "BlockStart_" + n;
+            else if (s is BlockEndState)
+                stateStr = "BlockEnd_" + n;
+            else if (s is RuleStartState)
+                stateStr = "RuleStart_" + g.GetRule(s.ruleIndex).name + "_" + n;
+            else if (s is RuleStopState)
+                stateStr = "RuleStop_" + g.GetRule(s.ruleIndex).name + "_" + n;
+            else if (s is PlusLoopbackState)
+                stateStr = "PlusLoopBack_" + n;
+            else if (s is StarLoopbackState)
+                stateStr = "StarLoopBack_" + n;
+            else if (s is StarLoopEntryState)
+                stateStr = "StarLoopEntry_" + n;
+            return stateStr;
+        }
+    }
 }

@@ -28,149 +28,167 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.automata;
+namespace Antlr4.Automata
+{
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Atn;
+    using Antlr4.Tool;
+    using Interval = Antlr4.Runtime.Misc.Interval;
+    using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
+    using NotImplementedException = System.NotImplementedException;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
 
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNState;
-import org.antlr.v4.runtime.atn.AtomTransition;
-import org.antlr.v4.runtime.atn.BlockEndState;
-import org.antlr.v4.runtime.atn.DecisionState;
-import org.antlr.v4.runtime.atn.EpsilonTransition;
-import org.antlr.v4.runtime.atn.NotSetTransition;
-import org.antlr.v4.runtime.atn.RangeTransition;
-import org.antlr.v4.runtime.atn.SetTransition;
-import org.antlr.v4.runtime.atn.Transition;
-import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.misc.IntervalSet;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.Rule;
+    /**
+     *
+     * @author Sam Harwell
+     */
+    public static class ATNOptimizer
+    {
 
-import java.util.List;
+        public static void Optimize([NotNull] Grammar g, [NotNull] ATN atn)
+        {
+            OptimizeSets(g, atn);
+            OptimizeStates(atn);
+        }
 
-/**
- *
- * @author Sam Harwell
- */
-public class ATNOptimizer {
+        private static void OptimizeSets(Grammar g, ATN atn)
+        {
+            if (g.IsParser())
+            {
+                // parser codegen doesn't currently support SetTransition
+                return;
+            }
 
-	public static void optimize(@NotNull Grammar g, @NotNull ATN atn) {
-		optimizeSets(g, atn);
-		optimizeStates(atn);
-	}
+            int removedStates = 0;
+            IList<DecisionState> decisions = atn.decisionToState;
+            foreach (DecisionState decision in decisions)
+            {
+                if (decision.ruleIndex >= 0)
+                {
+                    Rule rule = g.GetRule(decision.ruleIndex);
+                    if (char.IsLower(rule.name[0]))
+                    {
+                        // parser codegen doesn't currently support SetTransition
+                        continue;
+                    }
+                }
 
-	private static void optimizeSets(Grammar g, ATN atn) {
-		if (g.isParser()) {
-			// parser codegen doesn't currently support SetTransition
-			return;
-		}
+                IntervalSet setTransitions = new IntervalSet();
+                for (int i = 0; i < decision.NumberOfTransitions; i++)
+                {
+                    Transition epsTransition = decision.Transition(i);
+                    if (!(epsTransition is EpsilonTransition))
+                    {
+                        continue;
+                    }
 
-		int removedStates = 0;
-		List<DecisionState> decisions = atn.decisionToState;
-		for (DecisionState decision : decisions) {
-			if (decision.ruleIndex >= 0) {
-				Rule rule = g.getRule(decision.ruleIndex);
-				if (Character.isLowerCase(rule.name.charAt(0))) {
-					// parser codegen doesn't currently support SetTransition
-					continue;
-				}
-			}
+                    if (epsTransition.target.NumberOfTransitions != 1)
+                    {
+                        continue;
+                    }
 
-			IntervalSet setTransitions = new IntervalSet();
-			for (int i = 0; i < decision.getNumberOfTransitions(); i++) {
-				Transition epsTransition = decision.transition(i);
-				if (!(epsTransition instanceof EpsilonTransition)) {
-					continue;
-				}
+                    Transition transition = epsTransition.target.Transition(0);
+                    if (!(transition.target is BlockEndState))
+                    {
+                        continue;
+                    }
 
-				if (epsTransition.target.getNumberOfTransitions() != 1) {
-					continue;
-				}
+                    if (transition is NotSetTransition)
+                    {
+                        // TODO: not yet implemented
+                        continue;
+                    }
 
-				Transition transition = epsTransition.target.transition(0);
-				if (!(transition.target instanceof BlockEndState)) {
-					continue;
-				}
+                    if (transition is AtomTransition
+                        || transition is RangeTransition
+                        || transition is SetTransition)
+                    {
+                        setTransitions.Add(i);
+                    }
+                }
 
-				if (transition instanceof NotSetTransition) {
-					// TODO: not yet implemented
-					continue;
-				}
+                // due to min alt resolution policies, can only collapse sequential alts
+                for (int i = setTransitions.GetIntervals().Count - 1; i >= 0; i--)
+                {
+                    Interval interval = setTransitions.GetIntervals()[i];
+                    if (interval.Length <= 1)
+                    {
+                        continue;
+                    }
 
-				if (transition instanceof AtomTransition
-					|| transition instanceof RangeTransition
-					|| transition instanceof SetTransition)
-				{
-					setTransitions.add(i);
-				}
-			}
+                    ATNState blockEndState = decision.Transition(interval.a).target.Transition(0).target;
+                    IntervalSet matchSet = new IntervalSet();
+                    for (int j = interval.a; j <= interval.b; j++)
+                    {
+                        Transition matchTransition = decision.Transition(j).target.Transition(0);
+                        if (matchTransition is NotSetTransition)
+                        {
+                            throw new NotImplementedException();
+                        }
+                        else
+                        {
+                            matchSet.AddAll(matchTransition.Label);
+                        }
+                    }
 
-			// due to min alt resolution policies, can only collapse sequential alts
-			for (int i = setTransitions.getIntervals().size() - 1; i >= 0; i--) {
-				Interval interval = setTransitions.getIntervals().get(i);
-				if (interval.length() <= 1) {
-					continue;
-				}
+                    Transition newTransition;
+                    if (matchSet.GetIntervals().Count == 1)
+                    {
+                        if (matchSet.Count == 1)
+                        {
+                            newTransition = new AtomTransition(blockEndState, matchSet.MinElement);
+                        }
+                        else
+                        {
+                            Interval matchInterval = matchSet.GetIntervals()[0];
+                            newTransition = new RangeTransition(blockEndState, matchInterval.a, matchInterval.b);
+                        }
+                    }
+                    else
+                    {
+                        newTransition = new SetTransition(blockEndState, matchSet);
+                    }
 
-				ATNState blockEndState = decision.transition(interval.a).target.transition(0).target;
-				IntervalSet matchSet = new IntervalSet();
-				for (int j = interval.a; j <= interval.b; j++) {
-					Transition matchTransition = decision.transition(j).target.transition(0);
-					if (matchTransition instanceof NotSetTransition) {
-						throw new UnsupportedOperationException("Not yet implemented.");
-					} else {
-						matchSet.addAll(matchTransition.label());
-					}
-				}
+                    decision.Transition(interval.a).target.SetTransition(0, newTransition);
+                    for (int j = interval.a + 1; j <= interval.b; j++)
+                    {
+                        Transition removed = decision.Transition(interval.a + 1);
+                        decision.RemoveTransition(interval.a + 1);
+                        atn.RemoveState(removed.target);
+                        removedStates++;
+                    }
+                }
+            }
 
-				Transition newTransition;
-				if (matchSet.getIntervals().size() == 1) {
-					if (matchSet.size() == 1) {
-						newTransition = new AtomTransition(blockEndState, matchSet.getMinElement());
-					} else {
-						Interval matchInterval = matchSet.getIntervals().get(0);
-						newTransition = new RangeTransition(blockEndState, matchInterval.a, matchInterval.b);
-					}
-				} else {
-					newTransition = new SetTransition(blockEndState, matchSet);
-				}
+            //System.Console.WriteLine("ATN optimizer removed " + removedStates + " states by collapsing sets.");
+        }
 
-				decision.transition(interval.a).target.setTransition(0, newTransition);
-				for (int j = interval.a + 1; j <= interval.b; j++) {
-					Transition removed = decision.removeTransition(interval.a + 1);
-					atn.removeState(removed.target);
-					removedStates++;
-				}
-			}
-		}
+        private static void OptimizeStates(ATN atn)
+        {
+            IList<ATNState> states = atn.states;
 
-//		System.out.println("ATN optimizer removed " + removedStates + " states by collapsing sets.");
-	}
+            int current = 0;
+            for (int i = 0; i < states.Count; i++)
+            {
+                ATNState state = states[i];
+                if (state == null)
+                {
+                    continue;
+                }
 
-	private static void optimizeStates(ATN atn) {
-		List<ATNState> states = atn.states;
+                if (i != current)
+                {
+                    state.stateNumber = current;
+                    states[current] = state;
+                    states[i] = null;
+                }
 
-		int current = 0;
-		for (int i = 0; i < states.size(); i++) {
-			ATNState state = states.get(i);
-			if (state == null) {
-				continue;
-			}
+                current++;
+            }
 
-			if (i != current) {
-				state.stateNumber = current;
-				states.set(current, state);
-				states.set(i, null);
-			}
-
-			current++;
-		}
-
-//		System.out.println("ATN optimizer removed " + (states.size() - current) + " null states.");
-		states.subList(current, states.size()).clear();
-	}
-
-	private ATNOptimizer() {
-	}
-
+            //System.Console.WriteLine("ATN optimizer removed " + (states.Count - current) + " null states.");
+            while (states.Count > current)
+                states.RemoveAt(states.Count - 1);
+        }
+    }
 }
