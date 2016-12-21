@@ -259,6 +259,40 @@
     </None>
     <None Include="project.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Antlr3 Include="Codegen\SourceGenTriggers.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Codegen</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ActionSplitter.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ANTLRLexer.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ANTLRParser.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ATNBuilder.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\BlockSetTransformer.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\GrammarTreeVisitor.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\LeftRecursiveRuleWalker.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

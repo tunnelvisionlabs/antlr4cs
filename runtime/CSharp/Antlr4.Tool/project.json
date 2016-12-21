@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "Antlr3": "3.5.1",
     "NETStandard.Library": "1.6.0"
   },
 
