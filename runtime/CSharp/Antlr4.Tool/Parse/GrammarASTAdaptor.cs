@@ -28,71 +28,79 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using Antlr4.Tool.Ast;
+    using CommonToken = Antlr.Runtime.CommonToken;
+    using CommonTreeAdaptor = Antlr.Runtime.Tree.CommonTreeAdaptor;
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.CommonToken;
-import org.antlr.runtime.Token;
-import org.antlr.runtime.tree.CommonTreeAdaptor;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.GrammarASTErrorNode;
-import org.antlr.v4.tool.ast.RuleAST;
-import org.antlr.v4.tool.ast.TerminalAST;
-
-public class GrammarASTAdaptor extends CommonTreeAdaptor {
-    org.antlr.runtime.CharStream input; // where we can find chars ref'd by tokens in tree
-    public GrammarASTAdaptor() { }
-    public GrammarASTAdaptor(org.antlr.runtime.CharStream input) { this.input = input; }
-
-	@Override
-	public GrammarAST nil() {
-		return (GrammarAST)super.nil();
-	}
-
-    @Override
-    public GrammarAST create(Token token) {
-        return new GrammarAST(token);
-    }
-
-    @Override
-    /** Make sure even imaginary nodes know the input stream */
-    public GrammarAST create(int tokenType, String text) {
-		GrammarAST t;
-		if ( tokenType==ANTLRParser.RULE ) {
-			// needed by TreeWizard to make RULE tree
-        	t = new RuleAST(new CommonToken(tokenType, text));
-		}
-		else if ( tokenType==ANTLRParser.STRING_LITERAL ) {
-			// implicit lexer construction done with wizard; needs this node type
-			// whereas grammar ANTLRParser.g can use token option to spec node type
-			t = new TerminalAST(new CommonToken(tokenType, text));
-		}
-		else {
-			t = (GrammarAST)super.create(tokenType, text);
-		}
-        t.token.setInputStream(input);
-        return t;
-    }
-
-	@Override
-	public GrammarAST create(int tokenType, Token fromToken, String text) {
-		return (GrammarAST)super.create(tokenType, fromToken, text);
-	}
-
-	@Override
-	public GrammarAST create(int tokenType, Token fromToken) {
-		return (GrammarAST)super.create(tokenType, fromToken);
-	}
-
-    @Override
-    public GrammarAST dupNode(Object t) {
-        if ( t==null ) return null;
-        return ((GrammarAST)t).dupNode(); //create(((GrammarAST)t).token);
-    }
-
-    @Override
-    public GrammarASTErrorNode errorNode(org.antlr.runtime.TokenStream input, org.antlr.runtime.Token start, org.antlr.runtime.Token stop,
-                            org.antlr.runtime.RecognitionException e)
+    public class GrammarASTAdaptor : CommonTreeAdaptor
     {
-        return new GrammarASTErrorNode(input, start, stop, e);
+        Antlr.Runtime.ICharStream input; // where we can find chars ref'd by tokens in tree
+        public GrammarASTAdaptor()
+        {
+        }
+
+        public GrammarASTAdaptor(Antlr.Runtime.ICharStream input)
+        {
+            this.input = input;
+        }
+
+        public override object Nil()
+        {
+            return (GrammarAST)base.Nil();
+        }
+
+        public override object Create(IToken token)
+        {
+            return new GrammarAST(token);
+        }
+
+        /** Make sure even imaginary nodes know the input stream */
+        public override object Create(int tokenType, string text)
+        {
+            GrammarAST t;
+            if (tokenType == ANTLRParser.RULE)
+            {
+                // needed by TreeWizard to make RULE tree
+                t = new RuleAST(new CommonToken(tokenType, text));
+            }
+            else if (tokenType == ANTLRParser.STRING_LITERAL)
+            {
+                // implicit lexer construction done with wizard; needs this node type
+                // whereas grammar ANTLRParser.g can use token option to spec node type
+                t = new TerminalAST(new CommonToken(tokenType, text));
+            }
+            else
+            {
+                t = (GrammarAST)base.Create(tokenType, text);
+            }
+            t.Token.InputStream = input;
+            return t;
+        }
+
+        public override object Create(int tokenType, IToken fromToken, string text)
+        {
+            return (GrammarAST)base.Create(tokenType, fromToken, text);
+        }
+
+        public override object Create(int tokenType, IToken fromToken)
+        {
+            return (GrammarAST)base.Create(tokenType, fromToken);
+        }
+
+        public override object DupNode(object t)
+        {
+            if (t == null)
+                return null;
+            return ((GrammarAST)t).DupNode(); //Create(((GrammarAST)t).Token);
+        }
+
+        public override object ErrorNode(Antlr.Runtime.ITokenStream input, IToken start, IToken stop,
+                                Antlr.Runtime.RecognitionException e)
+        {
+            return new GrammarASTErrorNode(input, start, stop, e);
+        }
     }
 }

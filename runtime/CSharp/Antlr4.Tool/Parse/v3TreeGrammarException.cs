@@ -28,17 +28,18 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using IToken = Antlr.Runtime.IToken;
+    using ParseCanceledException = Antlr4.Runtime.Misc.ParseCanceledException;
 
-import org.antlr.runtime.Token;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
+    public class v3TreeGrammarException : ParseCanceledException
+    {
+        public IToken location;
 
-public class v3TreeGrammarException extends ParseCancellationException {
-	private static final long serialVersionUID = -8383611621498312969L;
-
-	public Token location;
-
-	public v3TreeGrammarException(Token location) {
-		this.location = location;
-	}
+        public v3TreeGrammarException(IToken location)
+        {
+            this.location = location;
+        }
+    }
 }

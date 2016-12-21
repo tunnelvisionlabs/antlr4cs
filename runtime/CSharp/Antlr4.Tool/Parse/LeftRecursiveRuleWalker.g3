@@ -32,44 +32,45 @@
 tree grammar LeftRecursiveRuleWalker;
 
 options {
+	language=CSharp3;
 	tokenVocab=ANTLRParser;
     ASTLabelType=GrammarAST;
 }
 
-@header {
-package org.antlr.v4.parse;
+@namespace{Antlr4.Parse}
 
-import org.antlr.v4.misc.*;
-import org.antlr.v4.tool.*;
-import org.antlr.v4.tool.ast.*;
+@header {
+//import org.antlr.v4.misc.*;
+//import org.antlr.v4.tool.*;
+using Antlr4.Tool.Ast;
 }
 
 @members {
-private String ruleName;
+private string ruleName;
 private int currentOuterAltNumber; // which outer alt of rule?
 public int numAlts;  // how many alts for this rule total?
 
-public void setAltAssoc(AltAST altTree, int alt) {}
-public void binaryAlt(AltAST altTree, int alt) {}
-public void prefixAlt(AltAST altTree, int alt) {}
-public void suffixAlt(AltAST altTree, int alt) {}
-public void otherAlt(AltAST altTree, int alt) {}
-public void setReturnValues(GrammarAST t) {}
+public virtual void SetAltAssoc(AltAST altTree, int alt) {}
+public virtual void BinaryAlt(AltAST altTree, int alt) {}
+public virtual void PrefixAlt(AltAST altTree, int alt) {}
+public virtual void SuffixAlt(AltAST altTree, int alt) {}
+public virtual void OtherAlt(AltAST altTree, int alt) {}
+public virtual void SetReturnValues(GrammarAST t) {}
 }
 
 @rulecatch { }
 
 // TODO: can get parser errors for not matching pattern; make them go away
 public
-rec_rule returns [boolean isLeftRec]
+rec_rule returns [bool isLeftRec]
 @init
 {
 	currentOuterAltNumber = 1;
 }
-	:	^(	r=RULE id=RULE_REF {ruleName=$id.getText();}
+	:	^(	r=RULE id=RULE_REF {ruleName=$id.Text;}
 			ruleModifier?
 //			(ARG_ACTION)? shouldn't allow args, right?
-			(^(RETURNS a=ARG_ACTION {setReturnValues($a);}))?
+			(^(RETURNS a=ARG_ACTION {SetReturnValues($a);}))?
 //      		( ^(THROWS .+) )? don't allow
       		( ^(LOCALS ARG_ACTION) )? // TODO: copy these to gen'd code
       		(	^(OPTIONS .*)
@@ -98,8 +99,8 @@ ruleModifier
     | PROTECTED
     ;
 
-ruleBlock returns [boolean isLeftRec]
-@init{boolean lr=false; this.numAlts = $start.getChildCount();}
+ruleBlock returns [bool isLeftRec]
+@init{bool lr=false; this.numAlts = $start.ChildCount;}
 	:	^(	BLOCK
 			(
 				o=outerAlternative
@@ -110,32 +111,32 @@ ruleBlock returns [boolean isLeftRec]
 	;
 
 /** An alt is either prefix, suffix, binary, or ternary operation or "other" */
-outerAlternative returns [boolean isLeftRec]
+outerAlternative returns [bool isLeftRec]
     :   (binary)=>           binary
-                             {binaryAlt((AltAST)$start, currentOuterAltNumber); $isLeftRec=true;}
+                             {BinaryAlt((AltAST)$start, currentOuterAltNumber); $isLeftRec=true;}
     |   (prefix)=>           prefix
-                             {prefixAlt((AltAST)$start, currentOuterAltNumber);}
+                             {PrefixAlt((AltAST)$start, currentOuterAltNumber);}
     |   (suffix)=>           suffix
-                             {suffixAlt((AltAST)$start, currentOuterAltNumber); $isLeftRec=true;}
-    |   nonLeftRecur         {otherAlt((AltAST)$start,  currentOuterAltNumber);}
+                             {SuffixAlt((AltAST)$start, currentOuterAltNumber); $isLeftRec=true;}
+    |   nonLeftRecur         {OtherAlt((AltAST)$start,  currentOuterAltNumber);}
     ;
 
 binary
 	:	^( ALT elementOptions? recurse element* recurse epsilonElement* )
-        {setAltAssoc((AltAST)$ALT,currentOuterAltNumber);}
+        {SetAltAssoc((AltAST)$ALT,currentOuterAltNumber);}
 	;
 
 prefix
 	:	^(	ALT elementOptions?
-			({!((CommonTree)input.LT(1)).getText().equals(ruleName)}? element)+
+			({!((CommonTree)input.LT(1)).Text.Equals(ruleName)}? element)+
 			recurse epsilonElement*
 		 )
-         {setAltAssoc((AltAST)$ALT,currentOuterAltNumber);}
+         {SetAltAssoc((AltAST)$ALT,currentOuterAltNumber);}
 	;
 
 suffix
     :   ^( ALT elementOptions? recurse element+ )
-         {setAltAssoc((AltAST)$ALT,currentOuterAltNumber);}
+         {SetAltAssoc((AltAST)$ALT,currentOuterAltNumber);}
     ;
 
 nonLeftRecur
@@ -148,7 +149,7 @@ recurse
 	|	recurseNoLabel
 	;
 
-recurseNoLabel : {((CommonTree)input.LT(1)).getText().equals(ruleName)}? RULE_REF;
+recurseNoLabel : {((CommonTree)input.LT(1)).Text.Equals(ruleName)}? RULE_REF;
 
 token returns [GrammarAST t=null]
 	:	^(ASSIGN ID s=token {$t = $s.t;})

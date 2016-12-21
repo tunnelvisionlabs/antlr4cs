@@ -40,10 +40,12 @@
  */
 tree grammar GrammarTreeVisitor;
 options {
-	language      = Java;
+	language      = CSharp3;
 	tokenVocab    = ANTLRParser;
 	ASTLabelType  = GrammarAST;
 }
+
+@namespace{Antlr4.Parse}
 
 // Include the copyright in this source and also the generated source
 @header {
@@ -75,294 +77,296 @@ options {
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.parse;
-import org.antlr.v4.Tool;
-import org.antlr.v4.tool.*;
-import org.antlr.v4.tool.ast.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+
+using System.Reflection;
+using Antlr4.Misc;
+using Antlr4.Tool;
+using Antlr4.Tool.Ast;
+using Exception = System.Exception;
 }
 
 @members {
-public String grammarName;
+public string grammarName;
 public GrammarAST currentRuleAST;
-public String currentModeName = LexerGrammar.DEFAULT_MODE_NAME;
-public String currentRuleName;
+public string currentModeName = LexerGrammar.DEFAULT_MODE_NAME;
+public string currentRuleName;
 public GrammarAST currentOuterAltRoot;
 public int currentOuterAltNumber = 1; // 1..n
 public int rewriteEBNFLevel = 0;
 
-public GrammarTreeVisitor() { this(null); }
+public GrammarTreeVisitor()
+	: this(null)
+{
+}
 
 // Should be abstract but can't make gen'd parser abstract;
 // subclasses should implement else everything goes to stderr!
-public ErrorManager getErrorManager() { return null; }
+public virtual ErrorManager GetErrorManager() { return null; }
 
-public void visitGrammar(GrammarAST t) { visit(t, "grammarSpec"); }
-public void visit(GrammarAST t, String ruleName) {
+public virtual void VisitGrammar(GrammarAST t) { Visit(t, "grammarSpec"); }
+public virtual void Visit(GrammarAST t, string ruleName) {
 	CommonTreeNodeStream nodes = new CommonTreeNodeStream(new GrammarASTAdaptor(), t);
-	setTreeNodeStream(nodes);
+	SetTreeNodeStream(nodes);
 	try {
-		Method m = getClass().getMethod(ruleName);
-		m.invoke(this);
+		MethodInfo m = typeof(GrammarTreeVisitor).GetTypeInfo().GetDeclaredMethod(ruleName);
+		m.Invoke(this, (object[])null);
 	}
-	catch (Throwable e) {
-		ErrorManager errMgr = getErrorManager();
-		if ( e instanceof InvocationTargetException ) {
-			e = e.getCause();
+	catch (Exception e) {
+		ErrorManager errMgr = GetErrorManager();
+		if ( e is TargetInvocationException ) {
+			e = e.InnerException;
 		}
 
 		if ( errMgr==null ) {
-			System.err.println("can't find rule "+ruleName+
-							   " or tree structure error: "+t.toStringTree()
+			System.Console.Error.WriteLine("can't find rule "+ruleName+
+							   " or tree structure error: "+t.ToStringTree()
 							   );
-			e.printStackTrace(System.err);
+			System.Console.Error.WriteLine(e.Message);
+			System.Console.Error.WriteLine(e.StackTrace);
 		}
-		else errMgr.toolError(ErrorType.INTERNAL_ERROR, e);
+		else errMgr.ToolError(ErrorType.INTERNAL_ERROR, e);
 	}
 }
 
-public void discoverGrammar(GrammarRootAST root, GrammarAST ID) { }
-public void finishPrequels(GrammarAST firstPrequel) { }
-public void finishGrammar(GrammarRootAST root, GrammarAST ID) { }
+public virtual void DiscoverGrammar(GrammarRootAST root, GrammarAST ID) { }
+public virtual void FinishPrequels(GrammarAST firstPrequel) { }
+public virtual void FinishGrammar(GrammarRootAST root, GrammarAST ID) { }
 
-public void grammarOption(GrammarAST ID, GrammarAST valueAST) { }
-public void ruleOption(GrammarAST ID, GrammarAST valueAST) { }
-public void blockOption(GrammarAST ID, GrammarAST valueAST) { }
-public void defineToken(GrammarAST ID) { }
-public void defineChannel(GrammarAST ID) { }
-public void globalNamedAction(GrammarAST scope, GrammarAST ID, ActionAST action) { }
-public void importGrammar(GrammarAST label, GrammarAST ID) { }
+public virtual void GrammarOption(GrammarAST ID, GrammarAST valueAST) { }
+public virtual void RuleOption(GrammarAST ID, GrammarAST valueAST) { }
+public virtual void BlockOption(GrammarAST ID, GrammarAST valueAST) { }
+public virtual void DefineToken(GrammarAST ID) { }
+public virtual void DefineChannel(GrammarAST ID) { }
+public virtual void GlobalNamedAction(GrammarAST scope, GrammarAST ID, ActionAST action) { }
+public virtual void ImportGrammar(GrammarAST label, GrammarAST ID) { }
 
-public void modeDef(GrammarAST m, GrammarAST ID) { }
+public virtual void ModeDef(GrammarAST m, GrammarAST ID) { }
 
-public void discoverRules(GrammarAST rules) { }
-public void finishRules(GrammarAST rule) { }
-public void discoverRule(RuleAST rule, GrammarAST ID, List<GrammarAST> modifiers,
+public virtual void DiscoverRules(GrammarAST rules) { }
+public virtual void FinishRules(GrammarAST rule) { }
+public virtual void DiscoverRule(RuleAST rule, GrammarAST ID, IList<GrammarAST> modifiers,
 						 ActionAST arg, ActionAST returns, GrammarAST thrws,
 						 GrammarAST options, ActionAST locals,
-						 List<GrammarAST> actions,
+						 IList<GrammarAST> actions,
 						 GrammarAST block) { }
-public void finishRule(RuleAST rule, GrammarAST ID, GrammarAST block) { }
-public void discoverLexerRule(RuleAST rule, GrammarAST ID, List<GrammarAST> modifiers,
+public virtual void FinishRule(RuleAST rule, GrammarAST ID, GrammarAST block) { }
+public virtual void DiscoverLexerRule(RuleAST rule, GrammarAST ID, IList<GrammarAST> modifiers,
                               GrammarAST block) { }
-public void finishLexerRule(RuleAST rule, GrammarAST ID, GrammarAST block) { }
-public void ruleCatch(GrammarAST arg, ActionAST action) { }
-public void finallyAction(ActionAST action) { }
-public void discoverOuterAlt(AltAST alt) { }
-public void finishOuterAlt(AltAST alt) { }
-public void discoverAlt(AltAST alt) { }
-public void finishAlt(AltAST alt) { }
+public virtual void FinishLexerRule(RuleAST rule, GrammarAST ID, GrammarAST block) { }
+public virtual void RuleCatch(GrammarAST arg, ActionAST action) { }
+public virtual void FinallyAction(ActionAST action) { }
+public virtual void DiscoverOuterAlt(AltAST alt) { }
+public virtual void FinishOuterAlt(AltAST alt) { }
+public virtual void DiscoverAlt(AltAST alt) { }
+public virtual void FinishAlt(AltAST alt) { }
 
-public void ruleRef(GrammarAST ref, ActionAST arg) { }
-public void tokenRef(TerminalAST ref) { }
-public void elementOption(GrammarASTWithOptions t, GrammarAST ID, GrammarAST valueAST) { }
-public void stringRef(TerminalAST ref) { }
-public void wildcardRef(GrammarAST ref) { }
-public void actionInAlt(ActionAST action) { }
-public void sempredInAlt(PredAST pred) { }
-public void label(GrammarAST op, GrammarAST ID, GrammarAST element) { }
-public void lexerCallCommand(int outerAltNumber, GrammarAST ID, GrammarAST arg) { }
-public void lexerCommand(int outerAltNumber, GrammarAST ID) { }
+public virtual void RuleRef(GrammarAST @ref, ActionAST arg) { }
+public virtual void TokenRef(TerminalAST @ref) { }
+public virtual void ElementOption(GrammarASTWithOptions t, GrammarAST ID, GrammarAST valueAST) { }
+public virtual void StringRef(TerminalAST @ref) { }
+public virtual void WildcardRef(GrammarAST @ref) { }
+public virtual void ActionInAlt(ActionAST action) { }
+public virtual void SempredInAlt(PredAST pred) { }
+public virtual void Label(GrammarAST op, GrammarAST ID, GrammarAST element) { }
+public virtual void LexerCallCommand(int outerAltNumber, GrammarAST ID, GrammarAST arg) { }
+public virtual void LexerCommand(int outerAltNumber, GrammarAST ID) { }
 
-protected void enterGrammarSpec(GrammarAST tree) { }
-protected void exitGrammarSpec(GrammarAST tree) { }
+protected virtual void EnterGrammarSpec(GrammarAST tree) { }
+protected virtual void ExitGrammarSpec(GrammarAST tree) { }
 
-protected void enterPrequelConstructs(GrammarAST tree) { }
-protected void exitPrequelConstructs(GrammarAST tree) { }
+protected virtual void EnterPrequelConstructs(GrammarAST tree) { }
+protected virtual void ExitPrequelConstructs(GrammarAST tree) { }
 
-protected void enterPrequelConstruct(GrammarAST tree) { }
-protected void exitPrequelConstruct(GrammarAST tree) { }
+protected virtual void EnterPrequelConstruct(GrammarAST tree) { }
+protected virtual void ExitPrequelConstruct(GrammarAST tree) { }
 
-protected void enterOptionsSpec(GrammarAST tree) { }
-protected void exitOptionsSpec(GrammarAST tree) { }
+protected virtual void EnterOptionsSpec(GrammarAST tree) { }
+protected virtual void ExitOptionsSpec(GrammarAST tree) { }
 
-protected void enterOption(GrammarAST tree) { }
-protected void exitOption(GrammarAST tree) { }
+protected virtual void EnterOption(GrammarAST tree) { }
+protected virtual void ExitOption(GrammarAST tree) { }
 
-protected void enterOptionValue(GrammarAST tree) { }
-protected void exitOptionValue(GrammarAST tree) { }
+protected virtual void EnterOptionValue(GrammarAST tree) { }
+protected virtual void ExitOptionValue(GrammarAST tree) { }
 
-protected void enterDelegateGrammars(GrammarAST tree) { }
-protected void exitDelegateGrammars(GrammarAST tree) { }
+protected virtual void EnterDelegateGrammars(GrammarAST tree) { }
+protected virtual void ExitDelegateGrammars(GrammarAST tree) { }
 
-protected void enterDelegateGrammar(GrammarAST tree) { }
-protected void exitDelegateGrammar(GrammarAST tree) { }
+protected virtual void EnterDelegateGrammar(GrammarAST tree) { }
+protected virtual void ExitDelegateGrammar(GrammarAST tree) { }
 
-protected void enterTokensSpec(GrammarAST tree) { }
-protected void exitTokensSpec(GrammarAST tree) { }
+protected virtual void EnterTokensSpec(GrammarAST tree) { }
+protected virtual void ExitTokensSpec(GrammarAST tree) { }
 
-protected void enterTokenSpec(GrammarAST tree) { }
-protected void exitTokenSpec(GrammarAST tree) { }
+protected virtual void EnterTokenSpec(GrammarAST tree) { }
+protected virtual void ExitTokenSpec(GrammarAST tree) { }
 
-protected void enterChannelsSpec(GrammarAST tree) { }
-protected void exitChannelsSpec(GrammarAST tree) { }
+protected virtual void EnterChannelsSpec(GrammarAST tree) { }
+protected virtual void ExitChannelsSpec(GrammarAST tree) { }
 
-protected void enterChannelSpec(GrammarAST tree) { }
-protected void exitChannelSpec(GrammarAST tree) { }
+protected virtual void EnterChannelSpec(GrammarAST tree) { }
+protected virtual void ExitChannelSpec(GrammarAST tree) { }
 
-protected void enterAction(GrammarAST tree) { }
-protected void exitAction(GrammarAST tree) { }
+protected virtual void EnterAction(GrammarAST tree) { }
+protected virtual void ExitAction(GrammarAST tree) { }
 
-protected void enterRules(GrammarAST tree) { }
-protected void exitRules(GrammarAST tree) { }
+protected virtual void EnterRules(GrammarAST tree) { }
+protected virtual void ExitRules(GrammarAST tree) { }
 
-protected void enterMode(GrammarAST tree) { }
-protected void exitMode(GrammarAST tree) { }
+protected virtual void EnterMode(GrammarAST tree) { }
+protected virtual void ExitMode(GrammarAST tree) { }
 
-protected void enterLexerRule(GrammarAST tree) { }
-protected void exitLexerRule(GrammarAST tree) { }
+protected virtual void EnterLexerRule(GrammarAST tree) { }
+protected virtual void ExitLexerRule(GrammarAST tree) { }
 
-protected void enterRule(GrammarAST tree) { }
-protected void exitRule(GrammarAST tree) { }
+protected virtual void EnterRule(GrammarAST tree) { }
+protected virtual void ExitRule(GrammarAST tree) { }
 
-protected void enterExceptionGroup(GrammarAST tree) { }
-protected void exitExceptionGroup(GrammarAST tree) { }
+protected virtual void EnterExceptionGroup(GrammarAST tree) { }
+protected virtual void ExitExceptionGroup(GrammarAST tree) { }
 
-protected void enterExceptionHandler(GrammarAST tree) { }
-protected void exitExceptionHandler(GrammarAST tree) { }
+protected virtual void EnterExceptionHandler(GrammarAST tree) { }
+protected virtual void ExitExceptionHandler(GrammarAST tree) { }
 
-protected void enterFinallyClause(GrammarAST tree) { }
-protected void exitFinallyClause(GrammarAST tree) { }
+protected virtual void EnterFinallyClause(GrammarAST tree) { }
+protected virtual void ExitFinallyClause(GrammarAST tree) { }
 
-protected void enterLocals(GrammarAST tree) { }
-protected void exitLocals(GrammarAST tree) { }
+protected virtual void EnterLocals(GrammarAST tree) { }
+protected virtual void ExitLocals(GrammarAST tree) { }
 
-protected void enterRuleReturns(GrammarAST tree) { }
-protected void exitRuleReturns(GrammarAST tree) { }
+protected virtual void EnterRuleReturns(GrammarAST tree) { }
+protected virtual void ExitRuleReturns(GrammarAST tree) { }
 
-protected void enterThrowsSpec(GrammarAST tree) { }
-protected void exitThrowsSpec(GrammarAST tree) { }
+protected virtual void EnterThrowsSpec(GrammarAST tree) { }
+protected virtual void ExitThrowsSpec(GrammarAST tree) { }
 
-protected void enterRuleAction(GrammarAST tree) { }
-protected void exitRuleAction(GrammarAST tree) { }
+protected virtual void EnterRuleAction(GrammarAST tree) { }
+protected virtual void ExitRuleAction(GrammarAST tree) { }
 
-protected void enterRuleModifier(GrammarAST tree) { }
-protected void exitRuleModifier(GrammarAST tree) { }
+protected virtual void EnterRuleModifier(GrammarAST tree) { }
+protected virtual void ExitRuleModifier(GrammarAST tree) { }
 
-protected void enterLexerRuleBlock(GrammarAST tree) { }
-protected void exitLexerRuleBlock(GrammarAST tree) { }
+protected virtual void EnterLexerRuleBlock(GrammarAST tree) { }
+protected virtual void ExitLexerRuleBlock(GrammarAST tree) { }
 
-protected void enterRuleBlock(GrammarAST tree) { }
-protected void exitRuleBlock(GrammarAST tree) { }
+protected virtual void EnterRuleBlock(GrammarAST tree) { }
+protected virtual void ExitRuleBlock(GrammarAST tree) { }
 
-protected void enterLexerOuterAlternative(AltAST tree) { }
-protected void exitLexerOuterAlternative(AltAST tree) { }
+protected virtual void EnterLexerOuterAlternative(AltAST tree) { }
+protected virtual void ExitLexerOuterAlternative(AltAST tree) { }
 
-protected void enterOuterAlternative(AltAST tree) { }
-protected void exitOuterAlternative(AltAST tree) { }
+protected virtual void EnterOuterAlternative(AltAST tree) { }
+protected virtual void ExitOuterAlternative(AltAST tree) { }
 
-protected void enterLexerAlternative(GrammarAST tree) { }
-protected void exitLexerAlternative(GrammarAST tree) { }
+protected virtual void EnterLexerAlternative(GrammarAST tree) { }
+protected virtual void ExitLexerAlternative(GrammarAST tree) { }
 
-protected void enterLexerElements(GrammarAST tree) { }
-protected void exitLexerElements(GrammarAST tree) { }
+protected virtual void EnterLexerElements(GrammarAST tree) { }
+protected virtual void ExitLexerElements(GrammarAST tree) { }
 
-protected void enterLexerElement(GrammarAST tree) { }
-protected void exitLexerElement(GrammarAST tree) { }
+protected virtual void EnterLexerElement(GrammarAST tree) { }
+protected virtual void ExitLexerElement(GrammarAST tree) { }
 
-protected void enterLabeledLexerElement(GrammarAST tree) { }
-protected void exitLabeledLexerElement(GrammarAST tree) { }
+protected virtual void EnterLabeledLexerElement(GrammarAST tree) { }
+protected virtual void ExitLabeledLexerElement(GrammarAST tree) { }
 
-protected void enterLexerBlock(GrammarAST tree) { }
-protected void exitLexerBlock(GrammarAST tree) { }
+protected virtual void EnterLexerBlock(GrammarAST tree) { }
+protected virtual void ExitLexerBlock(GrammarAST tree) { }
 
-protected void enterLexerAtom(GrammarAST tree) { }
-protected void exitLexerAtom(GrammarAST tree) { }
+protected virtual void EnterLexerAtom(GrammarAST tree) { }
+protected virtual void ExitLexerAtom(GrammarAST tree) { }
 
-protected void enterActionElement(GrammarAST tree) { }
-protected void exitActionElement(GrammarAST tree) { }
+protected virtual void EnterActionElement(GrammarAST tree) { }
+protected virtual void ExitActionElement(GrammarAST tree) { }
 
-protected void enterAlternative(AltAST tree) { }
-protected void exitAlternative(AltAST tree) { }
+protected virtual void EnterAlternative(AltAST tree) { }
+protected virtual void ExitAlternative(AltAST tree) { }
 
-protected void enterLexerCommand(GrammarAST tree) { }
-protected void exitLexerCommand(GrammarAST tree) { }
+protected virtual void EnterLexerCommand(GrammarAST tree) { }
+protected virtual void ExitLexerCommand(GrammarAST tree) { }
 
-protected void enterLexerCommandExpr(GrammarAST tree) { }
-protected void exitLexerCommandExpr(GrammarAST tree) { }
+protected virtual void EnterLexerCommandExpr(GrammarAST tree) { }
+protected virtual void ExitLexerCommandExpr(GrammarAST tree) { }
 
-protected void enterElement(GrammarAST tree) { }
-protected void exitElement(GrammarAST tree) { }
+protected virtual void EnterElement(GrammarAST tree) { }
+protected virtual void ExitElement(GrammarAST tree) { }
 
-protected void enterAstOperand(GrammarAST tree) { }
-protected void exitAstOperand(GrammarAST tree) { }
+protected virtual void EnterAstOperand(GrammarAST tree) { }
+protected virtual void ExitAstOperand(GrammarAST tree) { }
 
-protected void enterLabeledElement(GrammarAST tree) { }
-protected void exitLabeledElement(GrammarAST tree) { }
+protected virtual void EnterLabeledElement(GrammarAST tree) { }
+protected virtual void ExitLabeledElement(GrammarAST tree) { }
 
-protected void enterSubrule(GrammarAST tree) { }
-protected void exitSubrule(GrammarAST tree) { }
+protected virtual void EnterSubrule(GrammarAST tree) { }
+protected virtual void ExitSubrule(GrammarAST tree) { }
 
-protected void enterLexerSubrule(GrammarAST tree) { }
-protected void exitLexerSubrule(GrammarAST tree) { }
+protected virtual void EnterLexerSubrule(GrammarAST tree) { }
+protected virtual void ExitLexerSubrule(GrammarAST tree) { }
 
-protected void enterBlockSuffix(GrammarAST tree) { }
-protected void exitBlockSuffix(GrammarAST tree) { }
+protected virtual void EnterBlockSuffix(GrammarAST tree) { }
+protected virtual void ExitBlockSuffix(GrammarAST tree) { }
 
-protected void enterEbnfSuffix(GrammarAST tree) { }
-protected void exitEbnfSuffix(GrammarAST tree) { }
+protected virtual void EnterEbnfSuffix(GrammarAST tree) { }
+protected virtual void ExitEbnfSuffix(GrammarAST tree) { }
 
-protected void enterAtom(GrammarAST tree) { }
-protected void exitAtom(GrammarAST tree) { }
+protected virtual void EnterAtom(GrammarAST tree) { }
+protected virtual void ExitAtom(GrammarAST tree) { }
 
-protected void enterBlockSet(GrammarAST tree) { }
-protected void exitBlockSet(GrammarAST tree) { }
+protected virtual void EnterBlockSet(GrammarAST tree) { }
+protected virtual void ExitBlockSet(GrammarAST tree) { }
 
-protected void enterSetElement(GrammarAST tree) { }
-protected void exitSetElement(GrammarAST tree) { }
+protected virtual void EnterSetElement(GrammarAST tree) { }
+protected virtual void ExitSetElement(GrammarAST tree) { }
 
-protected void enterBlock(GrammarAST tree) { }
-protected void exitBlock(GrammarAST tree) { }
+protected virtual void EnterBlock(GrammarAST tree) { }
+protected virtual void ExitBlock(GrammarAST tree) { }
 
-protected void enterRuleref(GrammarAST tree) { }
-protected void exitRuleref(GrammarAST tree) { }
+protected virtual void EnterRuleref(GrammarAST tree) { }
+protected virtual void ExitRuleref(GrammarAST tree) { }
 
-protected void enterRange(GrammarAST tree) { }
-protected void exitRange(GrammarAST tree) { }
+protected virtual void EnterRange(GrammarAST tree) { }
+protected virtual void ExitRange(GrammarAST tree) { }
 
-protected void enterTerminal(GrammarAST tree) { }
-protected void exitTerminal(GrammarAST tree) { }
+protected virtual void EnterTerminal(GrammarAST tree) { }
+protected virtual void ExitTerminal(GrammarAST tree) { }
 
-protected void enterElementOptions(GrammarAST tree) { }
-protected void exitElementOptions(GrammarAST tree) { }
+protected virtual void EnterElementOptions(GrammarAST tree) { }
+protected virtual void ExitElementOptions(GrammarAST tree) { }
 
-protected void enterElementOption(GrammarAST tree) { }
-protected void exitElementOption(GrammarAST tree) { }
+protected virtual void EnterElementOption(GrammarAST tree) { }
+protected virtual void ExitElementOption(GrammarAST tree) { }
 
-	@Override
-	public void traceIn(String ruleName, int ruleIndex)  {
-		System.err.println("enter "+ruleName+": "+input.LT(1));
+	public override void TraceIn(string ruleName, int ruleIndex)  {
+		System.Console.Error.WriteLine("enter "+ruleName+": "+input.LT(1));
 	}
 
-	@Override
-	public void traceOut(String ruleName, int ruleIndex)  {
-		System.err.println("exit "+ruleName+": "+input.LT(1));
+	public override void TraceOut(string ruleName, int ruleIndex)  {
+		System.Console.Error.WriteLine("exit "+ruleName+": "+input.LT(1));
 	}
 }
 
 grammarSpec
 @init {
-	enterGrammarSpec($start);
+	EnterGrammarSpec($start);
 }
 @after {
-	exitGrammarSpec($start);
+	ExitGrammarSpec($start);
 }
     :   ^(	GRAMMAR ID {grammarName=$ID.text;}
-    		{discoverGrammar((GrammarRootAST)$GRAMMAR, $ID);}
+    		{DiscoverGrammar((GrammarRootAST)$GRAMMAR, $ID);}
  		   	prequelConstructs
-    		{finishPrequels($prequelConstructs.firstOne);}
+    		{FinishPrequels($prequelConstructs.firstOne);}
  		   	rules mode*
-    		{finishGrammar((GrammarRootAST)$GRAMMAR, $ID);}
+    		{FinishGrammar((GrammarRootAST)$GRAMMAR, $ID);}
  		 )
 	;
 
 prequelConstructs returns [GrammarAST firstOne=null]
 @init {
-	enterPrequelConstructs($start);
+	EnterPrequelConstructs($start);
 }
 @after {
-	exitPrequelConstructs($start);
+	ExitPrequelConstructs($start);
 }
 	:	{$firstOne=$start;} prequelConstruct+
 	|
@@ -370,10 +374,10 @@ prequelConstructs returns [GrammarAST firstOne=null]
 
 prequelConstruct
 @init {
-	enterPrequelConstructs($start);
+	EnterPrequelConstructs($start);
 }
 @after {
-	exitPrequelConstructs($start);
+	ExitPrequelConstructs($start);
 }
 	:   optionsSpec
     |   delegateGrammars
@@ -384,38 +388,38 @@ prequelConstruct
 
 optionsSpec
 @init {
-	enterOptionsSpec($start);
+	EnterOptionsSpec($start);
 }
 @after {
-	exitOptionsSpec($start);
+	ExitOptionsSpec($start);
 }
 	:	^(OPTIONS option*)
     ;
 
 option
 @init {
-	enterOption($start);
-	boolean rule = inContext("RULE ...");
-	boolean block = inContext("BLOCK ...");
+	EnterOption($start);
+	bool rule = this.InContext("RULE ...");
+	bool block = this.InContext("BLOCK ...");
 }
 @after {
-	exitOption($start);
+	ExitOption($start);
 }
     :   ^(a=ASSIGN ID v=optionValue)
     	{
-    	if ( block ) blockOption($ID, $v.start); // most specific first
-    	else if ( rule ) ruleOption($ID, $v.start);
-    	else grammarOption($ID, $v.start);
+    	if ( block ) BlockOption($ID, $v.start); // most specific first
+    	else if ( rule ) RuleOption($ID, $v.start);
+    	else GrammarOption($ID, $v.start);
     	}
     ;
 
-optionValue returns [String v]
+optionValue returns [string v]
 @init {
-	enterOptionValue($start);
-	$v = $start.token.getText();
+	EnterOptionValue($start);
+	$v = $start.Token.Text;
 }
 @after {
-	exitOptionValue($start);
+	ExitOptionValue($start);
 }
     :   ID
     |   STRING_LITERAL
@@ -424,221 +428,222 @@ optionValue returns [String v]
 
 delegateGrammars
 @init {
-	enterDelegateGrammars($start);
+	EnterDelegateGrammars($start);
 }
 @after {
-	exitDelegateGrammars($start);
+	ExitDelegateGrammars($start);
 }
 	:   ^(IMPORT delegateGrammar+)
 	;
 
 delegateGrammar
 @init {
-	enterDelegateGrammar($start);
+	EnterDelegateGrammar($start);
 }
 @after {
-	exitDelegateGrammar($start);
+	ExitDelegateGrammar($start);
 }
-    :   ^(ASSIGN label=ID id=ID)	{importGrammar($label, $id);}
-    |   id=ID						{importGrammar(null, $id);}
+    :   ^(ASSIGN label=ID id=ID)	{ImportGrammar($label, $id);}
+    |   id=ID						{ImportGrammar(null, $id);}
     ;
 
 tokensSpec
 @init {
-	enterTokensSpec($start);
+	EnterTokensSpec($start);
 }
 @after {
-	exitTokensSpec($start);
+	ExitTokensSpec($start);
 }
 	:   ^(TOKENS_SPEC tokenSpec+)
 	;
 
 tokenSpec
 @init {
-	enterTokenSpec($start);
+	EnterTokenSpec($start);
 }
 @after {
-	exitTokenSpec($start);
+	ExitTokenSpec($start);
 }
-	:	ID					{defineToken($ID);}
+	:	ID					{DefineToken($ID);}
 	;
 
 channelsSpec
 @init {
-	enterChannelsSpec($start);
+	EnterChannelsSpec($start);
 }
 @after {
-	exitChannelsSpec($start);
+	ExitChannelsSpec($start);
 }
 	:   ^(CHANNELS channelSpec*)
 	;
 
 channelSpec
 @init {
-	enterChannelSpec($start);
+	EnterChannelSpec($start);
 }
 @after {
-	exitChannelSpec($start);
+	ExitChannelSpec($start);
 }
-	:	ID					{defineChannel($ID);}
+	:	ID					{DefineChannel($ID);}
 	;
 
 action
 @init {
-	enterAction($start);
+	EnterAction($start);
 }
 @after {
-	exitAction($start);
+	ExitAction($start);
 }
-	:	^(AT sc=ID? name=ID ACTION) {globalNamedAction($sc, $name, (ActionAST)$ACTION);}
+	:	^(AT sc=ID? name=ID ACTION) {GlobalNamedAction($sc, $name, (ActionAST)$ACTION);}
 	;
 
 rules
 @init {
-	enterRules($start);
+	EnterRules($start);
 }
 @after {
-	exitRules($start);
+	ExitRules($start);
 }
-    : ^(RULES {discoverRules($RULES);} (rule|lexerRule)* {finishRules($RULES);})
+    : ^(RULES {DiscoverRules($RULES);} (rule|lexerRule)* {FinishRules($RULES);})
     ;
 
 mode
 @init {
-	enterMode($start);
+	EnterMode($start);
 }
 @after {
-	exitMode($start);
+	ExitMode($start);
 }
-	:	^( MODE ID {currentModeName=$ID.text; modeDef($MODE, $ID);} lexerRule* )
+	:	^( MODE ID {currentModeName=$ID.text; ModeDef($MODE, $ID);} lexerRule* )
 	;
 
 lexerRule
 @init {
-	enterLexerRule($start);
-	List<GrammarAST> mods = new ArrayList<GrammarAST>();
+	EnterLexerRule($start);
+	IList<GrammarAST> mods = new List<GrammarAST>();
 	currentOuterAltNumber=0;
 }
 @after {
-	exitLexerRule($start);
+	ExitLexerRule($start);
 }
 	:	^(	RULE TOKEN_REF
 			{currentRuleName=$TOKEN_REF.text; currentRuleAST=$RULE;}
-			(^(RULEMODIFIERS m=FRAGMENT {mods.add($m);}))?
-      		{discoverLexerRule((RuleAST)$RULE, $TOKEN_REF, mods, (GrammarAST)input.LT(1));}
+			(^(RULEMODIFIERS m=FRAGMENT {mods.Add($m);}))?
+      		{DiscoverLexerRule((RuleAST)$RULE, $TOKEN_REF, mods, (GrammarAST)input.LT(1));}
       		lexerRuleBlock
       		{
-      		finishLexerRule((RuleAST)$RULE, $TOKEN_REF, $lexerRuleBlock.start);
+      		FinishLexerRule((RuleAST)$RULE, $TOKEN_REF, $lexerRuleBlock.start);
       		currentRuleName=null; currentRuleAST=null;
       		}
       	 )
 	;
 
+public
 rule
 @init {
-	enterRule($start);
-	List<GrammarAST> mods = new ArrayList<GrammarAST>();
-	List<GrammarAST> actions = new ArrayList<GrammarAST>(); // track roots
+	EnterRule($start);
+	IList<GrammarAST> mods = new List<GrammarAST>();
+	IList<GrammarAST> actions = new List<GrammarAST>(); // track roots
 	currentOuterAltNumber=0;
 }
 @after {
-	exitRule($start);
+	ExitRule($start);
 }
 	:   ^(	RULE RULE_REF {currentRuleName=$RULE_REF.text; currentRuleAST=$RULE;}
-			(^(RULEMODIFIERS (m=ruleModifier{mods.add($m.start);})+))?
+			(^(RULEMODIFIERS (m=ruleModifier{mods.Add($m.start);})+))?
 			ARG_ACTION?
       		ret=ruleReturns?
       		thr=throwsSpec?
       		loc=locals?
       		(	opts=optionsSpec
-		    |   a=ruleAction {actions.add($a.start);}
+		    |   a=ruleAction {actions.Add($a.start);}
 		    )*
-      		{discoverRule((RuleAST)$RULE, $RULE_REF, mods, (ActionAST)$ARG_ACTION,
-      					  $ret.start!=null?(ActionAST)$ret.start.getChild(0):null,
+      		{DiscoverRule((RuleAST)$RULE, $RULE_REF, mods, (ActionAST)$ARG_ACTION,
+      					  $ret.start!=null?(ActionAST)$ret.start.GetChild(0):null,
       					  $thr.start, $opts.start,
-      					  $loc.start!=null?(ActionAST)$loc.start.getChild(0):null,
+      					  $loc.start!=null?(ActionAST)$loc.start.GetChild(0):null,
       					  actions, (GrammarAST)input.LT(1));}
       		ruleBlock exceptionGroup
-      		{finishRule((RuleAST)$RULE, $RULE_REF, $ruleBlock.start); currentRuleName=null; currentRuleAST=null;}
+      		{FinishRule((RuleAST)$RULE, $RULE_REF, $ruleBlock.start); currentRuleName=null; currentRuleAST=null;}
       	 )
     ;
 
 exceptionGroup
 @init {
-	enterExceptionGroup($start);
+	EnterExceptionGroup($start);
 }
 @after {
-	exitExceptionGroup($start);
+	ExitExceptionGroup($start);
 }
     :	exceptionHandler* finallyClause?
     ;
 
 exceptionHandler
 @init {
-	enterExceptionHandler($start);
+	EnterExceptionHandler($start);
 }
 @after {
-	exitExceptionHandler($start);
+	ExitExceptionHandler($start);
 }
-	: ^(CATCH ARG_ACTION ACTION)	{ruleCatch($ARG_ACTION, (ActionAST)$ACTION);}
+	: ^(CATCH ARG_ACTION ACTION)	{RuleCatch($ARG_ACTION, (ActionAST)$ACTION);}
 	;
 
 finallyClause
 @init {
-	enterFinallyClause($start);
+	EnterFinallyClause($start);
 }
 @after {
-	exitFinallyClause($start);
+	ExitFinallyClause($start);
 }
-	: ^(FINALLY ACTION)				{finallyAction((ActionAST)$ACTION);}
+	: ^(FINALLY ACTION)				{FinallyAction((ActionAST)$ACTION);}
 	;
 
 locals
 @init {
-	enterLocals($start);
+	EnterLocals($start);
 }
 @after {
-	exitLocals($start);
+	ExitLocals($start);
 }
 	:	^(LOCALS ARG_ACTION)
 	;
 
 ruleReturns
 @init {
-	enterRuleReturns($start);
+	EnterRuleReturns($start);
 }
 @after {
-	exitRuleReturns($start);
+	ExitRuleReturns($start);
 }
 	: ^(RETURNS ARG_ACTION)
 	;
 
 throwsSpec
 @init {
-	enterThrowsSpec($start);
+	EnterThrowsSpec($start);
 }
 @after {
-	exitThrowsSpec($start);
+	ExitThrowsSpec($start);
 }
     : ^(THROWS ID+)
     ;
 
 ruleAction
 @init {
-	enterRuleAction($start);
+	EnterRuleAction($start);
 }
 @after {
-	exitRuleAction($start);
+	ExitRuleAction($start);
 }
 	:	^(AT ID ACTION)
 	;
 
 ruleModifier
 @init {
-	enterRuleModifier($start);
+	EnterRuleModifier($start);
 }
 @after {
-	exitRuleModifier($start);
+	ExitRuleModifier($start);
 }
     : PUBLIC
     | PRIVATE
@@ -648,10 +653,10 @@ ruleModifier
 
 lexerRuleBlock
 @init {
-	enterLexerRuleBlock($start);
+	EnterLexerRuleBlock($start);
 }
 @after {
-	exitLexerRuleBlock($start);
+	ExitLexerRuleBlock($start);
 }
     :	^(	BLOCK
     		(	{
@@ -665,10 +670,10 @@ lexerRuleBlock
 
 ruleBlock
 @init {
-	enterRuleBlock($start);
+	EnterRuleBlock($start);
 }
 @after {
-	exitRuleBlock($start);
+	ExitRuleBlock($start);
 }
     :	^(	BLOCK
     		(	{
@@ -682,35 +687,35 @@ ruleBlock
 
 lexerOuterAlternative
 @init {
-	enterLexerOuterAlternative((AltAST)$start);
-	discoverOuterAlt((AltAST)$start);
+	EnterLexerOuterAlternative((AltAST)$start);
+	DiscoverOuterAlt((AltAST)$start);
 }
 @after {
-	finishOuterAlt((AltAST)$start);
-	exitLexerOuterAlternative((AltAST)$start);
+	FinishOuterAlt((AltAST)$start);
+	ExitLexerOuterAlternative((AltAST)$start);
 }
 	:	lexerAlternative
 	;
 
-
+public
 outerAlternative
 @init {
-	enterOuterAlternative((AltAST)$start);
-	discoverOuterAlt((AltAST)$start);
+	EnterOuterAlternative((AltAST)$start);
+	DiscoverOuterAlt((AltAST)$start);
 }
 @after {
-	finishOuterAlt((AltAST)$start);
-	exitOuterAlternative((AltAST)$start);
+	FinishOuterAlt((AltAST)$start);
+	ExitOuterAlternative((AltAST)$start);
 }
 	:	alternative
 	;
 
 lexerAlternative
 @init {
-	enterLexerAlternative($start);
+	EnterLexerAlternative($start);
 }
 @after {
-	exitLexerAlternative($start);
+	ExitLexerAlternative($start);
 }
 	:	^(LEXER_ALT_ACTION lexerElements lexerCommand+)
     |   lexerElements
@@ -718,57 +723,57 @@ lexerAlternative
 
 lexerElements
 @init {
-	enterLexerElements($start);
+	EnterLexerElements($start);
 }
 @after {
-	exitLexerElements($start);
+	ExitLexerElements($start);
 }
     :	^(ALT lexerElement+)
     ;
 
 lexerElement
 @init {
-	enterLexerElement($start);
+	EnterLexerElement($start);
 }
 @after {
-	exitLexerElement($start);
+	ExitLexerElement($start);
 }
 	:	labeledLexerElement
 	|	lexerAtom
 	|	lexerSubrule
-	|   ACTION						{actionInAlt((ActionAST)$ACTION);}
-	|   SEMPRED						{sempredInAlt((PredAST)$SEMPRED);}
-	|   ^(ACTION elementOptions)	{actionInAlt((ActionAST)$ACTION);}
-	|   ^(SEMPRED elementOptions)	{sempredInAlt((PredAST)$SEMPRED);}
+	|   ACTION						{ActionInAlt((ActionAST)$ACTION);}
+	|   SEMPRED						{SempredInAlt((PredAST)$SEMPRED);}
+	|   ^(ACTION elementOptions)	{ActionInAlt((ActionAST)$ACTION);}
+	|   ^(SEMPRED elementOptions)	{SempredInAlt((PredAST)$SEMPRED);}
 	|	EPSILON
 	;
 
 labeledLexerElement
 @init {
-	enterLabeledLexerElement($start);
+	EnterLabeledLexerElement($start);
 }
 @after {
-	exitLabeledLexerElement($start);
+	ExitLabeledLexerElement($start);
 }
     :   ^((ASSIGN|PLUS_ASSIGN) ID (lexerAtom|block))
 	;
 
 lexerBlock
 @init {
-	enterLexerBlock($start);
+	EnterLexerBlock($start);
 }
 @after {
-	exitLexerBlock($start);
+	ExitLexerBlock($start);
 }
  	:	^(BLOCK optionsSpec? lexerAlternative+)
     ;
 
 lexerAtom
 @init {
-	enterLexerAtom($start);
+	EnterLexerAtom($start);
 }
 @after {
-	exitLexerAtom($start);
+	ExitLexerAtom($start);
 }
     :   terminal
     |   ^(NOT blockSet)
@@ -782,10 +787,10 @@ lexerAtom
 
 actionElement
 @init {
-	enterActionElement($start);
+	EnterActionElement($start);
 }
 @after {
-	exitActionElement($start);
+	ExitActionElement($start);
 }
 	:	ACTION
 	|   ^(ACTION elementOptions)
@@ -795,12 +800,12 @@ actionElement
 
 alternative
 @init {
-	enterAlternative((AltAST)$start);
-	discoverAlt((AltAST)$start);
+	EnterAlternative((AltAST)$start);
+	DiscoverAlt((AltAST)$start);
 }
 @after {
-	finishAlt((AltAST)$start);
-	exitAlternative((AltAST)$start);
+	FinishAlt((AltAST)$start);
+	ExitAlternative((AltAST)$start);
 }
 	:	^(ALT elementOptions? element+)
 	|	^(ALT elementOptions? EPSILON)
@@ -808,23 +813,23 @@ alternative
 
 lexerCommand
 @init {
-	enterLexerCommand($start);
+	EnterLexerCommand($start);
 }
 @after {
-	exitLexerCommand($start);
+	ExitLexerCommand($start);
 }
 	:	^(LEXER_ACTION_CALL ID lexerCommandExpr)
-        {lexerCallCommand(currentOuterAltNumber, $ID, $lexerCommandExpr.start);}
+        {LexerCallCommand(currentOuterAltNumber, $ID, $lexerCommandExpr.start);}
 	|	ID
-        {lexerCommand(currentOuterAltNumber, $ID);}
+        {LexerCommand(currentOuterAltNumber, $ID);}
 	;
 
 lexerCommandExpr
 @init {
-	enterLexerCommandExpr($start);
+	EnterLexerCommandExpr($start);
 }
 @after {
-	exitLexerCommandExpr($start);
+	ExitLexerCommandExpr($start);
 }
 	:	ID
 	|	INT
@@ -832,18 +837,18 @@ lexerCommandExpr
 
 element
 @init {
-	enterElement($start);
+	EnterElement($start);
 }
 @after {
-	exitElement($start);
+	ExitElement($start);
 }
 	:	labeledElement
 	|	atom
 	|	subrule
-	|   ACTION						{actionInAlt((ActionAST)$ACTION);}
-	|   SEMPRED						{sempredInAlt((PredAST)$SEMPRED);}
-	|   ^(ACTION elementOptions)	{actionInAlt((ActionAST)$ACTION);}
-	|   ^(SEMPRED elementOptions)	{sempredInAlt((PredAST)$SEMPRED);}
+	|   ACTION						{ActionInAlt((ActionAST)$ACTION);}
+	|   SEMPRED						{SempredInAlt((PredAST)$SEMPRED);}
+	|   ^(ACTION elementOptions)	{ActionInAlt((ActionAST)$ACTION);}
+	|   ^(SEMPRED elementOptions)	{SempredInAlt((PredAST)$SEMPRED);}
 
 	|	^(NOT blockSet)
 	|	^(NOT block)
@@ -851,10 +856,10 @@ element
 
 astOperand
 @init {
-	enterAstOperand($start);
+	EnterAstOperand($start);
 }
 @after {
-	exitAstOperand($start);
+	ExitAstOperand($start);
 }
 	:	atom
 	|	^(NOT blockSet)
@@ -863,20 +868,20 @@ astOperand
 
 labeledElement
 @init {
-	enterLabeledElement($start);
+	EnterLabeledElement($start);
 }
 @after {
-	exitLabeledElement($start);
+	ExitLabeledElement($start);
 }
-	:	^((ASSIGN|PLUS_ASSIGN) ID element) {label($start, $ID, $element.start);}
+	:	^((ASSIGN|PLUS_ASSIGN) ID element) {Label($start, $ID, $element.start);}
 	;
 
 subrule
 @init {
-	enterSubrule($start);
+	EnterSubrule($start);
 }
 @after {
-	exitSubrule($start);
+	ExitSubrule($start);
 }
 	:	^(blockSuffix block)
 	| 	block
@@ -884,10 +889,10 @@ subrule
 
 lexerSubrule
 @init {
-	enterLexerSubrule($start);
+	EnterLexerSubrule($start);
 }
 @after {
-	exitLexerSubrule($start);
+	ExitLexerSubrule($start);
 }
 	:	^(blockSuffix lexerBlock)
 	| 	lexerBlock
@@ -895,20 +900,20 @@ lexerSubrule
 
 blockSuffix
 @init {
-	enterBlockSuffix($start);
+	EnterBlockSuffix($start);
 }
 @after {
-	exitBlockSuffix($start);
+	ExitBlockSuffix($start);
 }
     : ebnfSuffix
     ;
 
 ebnfSuffix
 @init {
-	enterEbnfSuffix($start);
+	EnterEbnfSuffix($start);
 }
 @after {
-	exitEbnfSuffix($start);
+	ExitEbnfSuffix($start);
 }
 	:	OPTIONAL
   	|	CLOSURE
@@ -917,15 +922,15 @@ ebnfSuffix
 
 atom
 @init {
-	enterAtom($start);
+	EnterAtom($start);
 }
 @after {
-	exitAtom($start);
+	ExitAtom($start);
 }
 	:	^(DOT ID terminal)
 	|	^(DOT ID ruleref)
-    |	^(WILDCARD elementOptions)	{wildcardRef($WILDCARD);}
-    |	WILDCARD					{wildcardRef($WILDCARD);}
+    |	^(WILDCARD elementOptions)	{WildcardRef($WILDCARD);}
+    |	WILDCARD					{WildcardRef($WILDCARD);}
     |   terminal
     |	blockSet
     |   ruleref
@@ -933,101 +938,101 @@ atom
 
 blockSet
 @init {
-	enterBlockSet($start);
+	EnterBlockSet($start);
 }
 @after {
-	exitBlockSet($start);
+	ExitBlockSet($start);
 }
 	:	^(SET setElement+)
 	;
 
 setElement
 @init {
-	enterSetElement($start);
+	EnterSetElement($start);
 }
 @after {
-	exitSetElement($start);
+	ExitSetElement($start);
 }
-	:	^(STRING_LITERAL elementOptions)    {stringRef((TerminalAST)$STRING_LITERAL);}
-	|	^(TOKEN_REF elementOptions) 		{tokenRef((TerminalAST)$TOKEN_REF);}
-	|	STRING_LITERAL                  	{stringRef((TerminalAST)$STRING_LITERAL);}
-	|	TOKEN_REF		                    {tokenRef((TerminalAST)$TOKEN_REF);}
+	:	^(STRING_LITERAL elementOptions)    {StringRef((TerminalAST)$STRING_LITERAL);}
+	|	^(TOKEN_REF elementOptions) 		{TokenRef((TerminalAST)$TOKEN_REF);}
+	|	STRING_LITERAL                  	{StringRef((TerminalAST)$STRING_LITERAL);}
+	|	TOKEN_REF		                    {TokenRef((TerminalAST)$TOKEN_REF);}
 	|	^(RANGE a=STRING_LITERAL b=STRING_LITERAL)
 		{
-		stringRef((TerminalAST)$a);
-		stringRef((TerminalAST)$b);
+		StringRef((TerminalAST)$a);
+		StringRef((TerminalAST)$b);
 		}
         |       LEXER_CHAR_SET
 	;
 
 block
 @init {
-	enterBlock($start);
+	EnterBlock($start);
 }
 @after {
-	exitBlock($start);
+	ExitBlock($start);
 }
     :	^(BLOCK optionsSpec? ruleAction* ACTION? alternative+)
     ;
 
 ruleref
 @init {
-	enterRuleref($start);
+	EnterRuleref($start);
 }
 @after {
-	exitRuleref($start);
+	ExitRuleref($start);
 }
     :	^(RULE_REF arg=ARG_ACTION? elementOptions?)
     	{
-    	ruleRef($RULE_REF, (ActionAST)$ARG_ACTION);
-    	if ( $arg!=null ) actionInAlt((ActionAST)$arg);
+    	RuleRef($RULE_REF, (ActionAST)$ARG_ACTION);
+    	if ( $arg!=null ) ActionInAlt((ActionAST)$arg);
     	}
     ;
 
 range
 @init {
-	enterRange($start);
+	EnterRange($start);
 }
 @after {
-	exitRange($start);
+	ExitRange($start);
 }
     : ^(RANGE STRING_LITERAL STRING_LITERAL)
     ;
 
 terminal
 @init {
-	enterTerminal($start);
+	EnterTerminal($start);
 }
 @after {
-	exitTerminal($start);
+	ExitTerminal($start);
 }
     :  ^(STRING_LITERAL elementOptions)
-    								{stringRef((TerminalAST)$STRING_LITERAL);}
-    |	STRING_LITERAL				{stringRef((TerminalAST)$STRING_LITERAL);}
-    |	^(TOKEN_REF elementOptions)	{tokenRef((TerminalAST)$TOKEN_REF);}
-    |	TOKEN_REF	    			{tokenRef((TerminalAST)$TOKEN_REF);}
+    								{StringRef((TerminalAST)$STRING_LITERAL);}
+    |	STRING_LITERAL				{StringRef((TerminalAST)$STRING_LITERAL);}
+    |	^(TOKEN_REF elementOptions)	{TokenRef((TerminalAST)$TOKEN_REF);}
+    |	TOKEN_REF	    			{TokenRef((TerminalAST)$TOKEN_REF);}
     ;
 
 elementOptions
 @init {
-	enterElementOptions($start);
+	EnterElementOptions($start);
 }
 @after {
-	exitElementOptions($start);
+	ExitElementOptions($start);
 }
-    :	^(ELEMENT_OPTIONS elementOption[(GrammarASTWithOptions)$start.getParent()]*)
+    :	^(ELEMENT_OPTIONS elementOption[(GrammarASTWithOptions)$start.Parent]*)
     ;
 
 elementOption[GrammarASTWithOptions t]
 @init {
-	enterElementOption($start);
+	EnterElementOption($start);
 }
 @after {
-	exitElementOption($start);
+	ExitElementOption($start);
 }
-    :	ID								{elementOption(t, $ID, null);}
-    |   ^(ASSIGN id=ID v=ID)			{elementOption(t, $id, $v);}
-    |   ^(ASSIGN ID v=STRING_LITERAL)	{elementOption(t, $ID, $v);}
-    |   ^(ASSIGN ID v=ACTION)			{elementOption(t, $ID, $v);}
-    |   ^(ASSIGN ID v=INT)				{elementOption(t, $ID, $v);}
+    :	ID								{ElementOption(t, $ID, null);}
+    |   ^(ASSIGN id=ID v=ID)			{ElementOption(t, $id, $v);}
+    |   ^(ASSIGN ID v=STRING_LITERAL)	{ElementOption(t, $ID, $v);}
+    |   ^(ASSIGN ID v=ACTION)			{ElementOption(t, $ID, $v);}
+    |   ^(ASSIGN ID v=INT)				{ElementOption(t, $ID, $v);}
     ;

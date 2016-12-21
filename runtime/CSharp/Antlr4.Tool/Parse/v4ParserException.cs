@@ -28,22 +28,20 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using IIntStream = Antlr.Runtime.IIntStream;
+    using RecognitionException = Antlr.Runtime.RecognitionException;
 
-import org.antlr.runtime.IntStream;
-import org.antlr.runtime.RecognitionException;
+    /** */
+    public class v4ParserException : RecognitionException
+    {
+        public string msg;
 
-/** */
-public class v4ParserException extends RecognitionException {
-	private static final long serialVersionUID = -7954962343881278338L;
-
-	public String msg;
-	/** Used for remote debugger deserialization */
-	public v4ParserException() {}
-
-	public v4ParserException(String msg, IntStream input) {
-		super(input);
-		this.msg = msg;
-	}
-
+        public v4ParserException(string msg, IIntStream input)
+            : base(input)
+        {
+            this.msg = msg;
+        }
+    }
 }

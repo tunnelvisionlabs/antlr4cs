@@ -101,7 +101,7 @@ options {
 	// here as this grammar is also meant as a good example grammar for
 	// for users.
 	//
-	language      = Java;
+	language      = CSharp3;
 
 	// The super class that this lexer should expect to inherit from, and
 	// which contains any and all support routines for the lexer. This is
@@ -113,6 +113,8 @@ options {
 }
 
 tokens { SEMPRED; TOKEN_REF; RULE_REF; LEXER_CHAR_SET; ARG_ACTION; }
+
+@namespace{Antlr4.Parse}
 
 // Include the copyright in this source and also the generated source
 //
@@ -144,32 +146,30 @@ tokens { SEMPRED; TOKEN_REF; RULE_REF; LEXER_CHAR_SET; ARG_ACTION; }
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.antlr.v4.parse;
-import org.antlr.v4.tool.*;
+using Antlr4.Tool;
 }
 
-
 @members {
-	public static final int COMMENTS_CHANNEL = 2;
+	public static readonly int COMMENTS_CHANNEL = 2;
 
-    public CommonTokenStream tokens; // track stream we push to; need for context info
-    public boolean isLexerRule = false;
+	public CommonTokenStream tokens; // track stream we push to; need for context info
+	public bool isLexerRule = false;
 
-	public void grammarError(ErrorType etype, org.antlr.runtime.Token token, Object... args) { }
+	public virtual void GrammarError(ErrorType etype, Antlr.Runtime.IToken token, params object[] args) { }
 
 	/** scan backwards from current point in this.tokens list
 	 *  looking for the start of the rule or subrule.
 	 *  Return token or null if for some reason we can't find the start.
 	 */
-	public Token getRuleOrSubruleStartToken() {
-	    if ( tokens==null ) return null;
-		int i = tokens.index();
-        int n = tokens.size();
+	public virtual IToken GetRuleOrSubruleStartToken() {
+		if ( tokens==null ) return null;
+		int i = tokens.Index;
+        int n = tokens.Count;
         if ( i>=n ) i = n-1; // seems index == n as we lex
 		while ( i>=0 && i<n) {
-			int ttype = tokens.get(i).getType();
+			int ttype = tokens.Get(i).Type;
 			if ( ttype == LPAREN || ttype == TOKEN_REF || ttype == RULE_REF ) {
-				return tokens.get(i);
+				return tokens.Get(i);
 			}
 			i--;
 		}
@@ -198,7 +198,7 @@ COMMENT
 	// it out themselves.
 	//
 	int startLine = $line;
-	int offset    = getCharPositionInLine();
+	int offset    = CharPositionInLine;
 }
     : // Eat the first character only, then see if we have a comment
       // or something silly.
@@ -278,9 +278,9 @@ options {k=1;}
         {
         $type=ARG_ACTION;
         // Set the token text to our gathered string minus outer [ ]
-        String t = $text;
-        t = t.substring(1,t.length()-1);
-        setText(t);
+        string t = $text;
+        t = t.Substring(1,t.Length-2);
+        $text = t;
         }
     ;
 
@@ -333,11 +333,11 @@ ACTION
 		(	'?' {$type = SEMPRED;}
 			(	(WSNLCHARS* '=>') => WSNLCHARS* '=>' // v3 gated sempred
 				{
-				Token t = new CommonToken(input, state.type, state.channel, state.tokenStartCharIndex, getCharIndex()-1);
-				t.setLine(state.tokenStartLine);
-				t.setText(state.text);
-				t.setCharPositionInLine(state.tokenStartCharPositionInLine);
-				grammarError(ErrorType.V3_GATED_SEMPRED, t);
+				IToken t = new CommonToken(input, state.type, state.channel, state.tokenStartCharIndex, CharIndex - 1);
+				t.Line = state.tokenStartLine;
+				t.Text = state.text;
+				t.CharPositionInLine = state.tokenStartCharPositionInLine;
+				GrammarError(ErrorType.V3_GATED_SEMPRED, t);
 				}
 			)?
 		)?
@@ -363,8 +363,8 @@ NESTED_ACTION
 	// we think is broken, not the end, where people will have to try and work
 	// it out themselves.
 	//
-	int startLine = getLine();
-	int offset    = getCharPositionInLine();
+	int startLine = Line;
+	int offset    = CharPositionInLine;
 }
 
     : // Action and other blocks start with opening {
@@ -421,7 +421,7 @@ NESTED_ACTION
 	    //
 	    {
 	        // TODO: Report imbalanced {}
-	        System.out.println("Block starting  at line " + startLine + " offset " + (offset+1) + " contains imbalanced {} or is missing a }");
+	        System.Console.WriteLine("Block starting  at line " + startLine + " offset " + (offset+1) + " contains imbalanced {} or is missing a }");
 	    }
 	)
    ;
@@ -469,10 +469,10 @@ COLON        : ':'
                // this.tokens is the token string we are pushing into, so
                // just loop backwards looking for a rule definition. Then
                // we set isLexerRule.
-               Token t = getRuleOrSubruleStartToken();
+               IToken t = GetRuleOrSubruleStartToken();
                if ( t!=null ) {
-                    if ( t.getType()==RULE_REF ) isLexerRule = false;
-                    else if ( t.getType()==TOKEN_REF ) isLexerRule = true;
+                    if ( t.Type==RULE_REF ) isLexerRule = false;
+                    else if ( t.Type==TOKEN_REF ) isLexerRule = true;
                     // else must be subrule; don't alter context
                }
                }
@@ -489,13 +489,13 @@ ASSIGN       : '='                    ;
 QUESTION     : '?'                    ;
 SYNPRED      : '=>'
 			   {
-			    Token t = new CommonToken(input, state.type, state.channel,
-			                              state.tokenStartCharIndex, getCharIndex()-1);
-				t.setLine(state.tokenStartLine);
-				t.setText(state.text);
-				t.setCharPositionInLine(state.tokenStartCharPositionInLine);
-				grammarError(ErrorType.V3_SYNPRED, t);
-                $channel=HIDDEN;
+			    IToken t = new CommonToken(input, state.type, state.channel,
+			                              state.tokenStartCharIndex, CharIndex-1);
+				t.Line = state.tokenStartLine;
+				t.Text = state.text;
+				t.CharPositionInLine = state.tokenStartCharPositionInLine;
+				GrammarError(ErrorType.V3_SYNPRED, t);
+                $channel=Hidden;
 				}
              ;
 STAR         : '*'                    ;
@@ -513,7 +513,7 @@ RBRACE       : '}'                    ;
 /** Allow unicode rule/token names */
 ID			:	a=NameStartChar NameChar*
 				{
-				if ( Grammar.isTokenName($a.text) ) $type = TOKEN_REF;
+				if ( Grammar.IsTokenName($a.text) ) $type = TOKEN_REF;
 				else $type = RULE_REF;
 				}
 			;
@@ -622,11 +622,11 @@ STRING_LITERAL
        (    '\''
        |    // Unterminated string literal
             {
-            Token t = new CommonToken(input, state.type, state.channel, state.tokenStartCharIndex, getCharIndex()-1);
-            t.setLine(state.tokenStartLine);
-            t.setText(state.text);
-            t.setCharPositionInLine(state.tokenStartCharPositionInLine);
-            grammarError(ErrorType.UNTERMINATED_STRING_LITERAL, t);
+            IToken t = new CommonToken(input, state.type, state.channel, state.tokenStartCharIndex, CharIndex-1);
+            t.Line = state.tokenStartLine;
+            t.Text = state.text;
+            t.CharPositionInLine = state.tokenStartCharPositionInLine;
+            GrammarError(ErrorType.UNTERMINATED_STRING_LITERAL, t);
             }
        )
     ;
@@ -655,11 +655,11 @@ ESC_SEQ
     	    | // An illegal escape seqeunce
     	      //
     	      {
-                Token t = new CommonToken(input, state.type, state.channel, getCharIndex()-1, getCharIndex());
-                t.setText(t.getText());
-                t.setLine(input.getLine());
-                t.setCharPositionInLine(input.getCharPositionInLine()-1);
-                grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, t);
+                IToken t = new CommonToken(input, state.type, state.channel, CharIndex-1, CharIndex);
+                t.Text = t.Text;
+                t.Line = input.Line;
+                t.CharPositionInLine = input.CharPositionInLine - 1;
+                GrammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, t);
     	      }
         )
     ;
@@ -711,11 +711,11 @@ UNICODE_ESC
     	//
     	{
     		if (hCount != 4) {
-                Token t = new CommonToken(input, state.type, state.channel, getCharIndex()-3-hCount, getCharIndex()-1);
-                t.setText(t.getText());
-                t.setLine(input.getLine());
-                t.setCharPositionInLine(input.getCharPositionInLine()-hCount-2);
-                grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, t);
+                IToken t = new CommonToken(input, state.type, state.channel, CharIndex - 3 - hCount, CharIndex - 1);
+                t.Text = t.Text;
+                t.Line = input.Line;
+                t.CharPositionInLine = input.CharPositionInLine-hCount-2;
+                GrammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, t);
     		}
     	}
     ;
@@ -735,7 +735,7 @@ WS
         | '\n'
         | '\f'
       )+
-      {$channel=HIDDEN;}
+      {$channel=Hidden;}
     ;
 
 // A fragment rule for use in recognizing end of line in
@@ -769,7 +769,7 @@ WSNLCHARS
 // problem. This rule will not break usage of \uFEFF inside a LEXER_CHAR_SET or
 // STRING_LITERAL.
 UnicodeBOM
-    :   '\uFEFF' {skip();}
+    :   '\uFEFF' {Skip();}
     ;
 
 // -----------------
@@ -786,13 +786,13 @@ UnicodeBOM
 ERRCHAR
     : .
       {
-         Token t = new CommonToken(input, state.type, state.channel, state.tokenStartCharIndex, getCharIndex()-1);
-         t.setLine(state.tokenStartLine);
-         t.setText(state.text);
-         t.setCharPositionInLine(state.tokenStartCharPositionInLine);
-         String msg = getTokenErrorDisplay(t) + " came as a complete surprise to me";
-         grammarError(ErrorType.SYNTAX_ERROR, t, msg);
+         IToken t = new CommonToken(input, state.type, state.channel, state.tokenStartCharIndex, CharIndex - 1);
+         t.Line = state.tokenStartLine;
+         t.Text = state.text;
+         t.CharPositionInLine = state.tokenStartCharPositionInLine;
+         string msg = GetTokenErrorDisplay(t) + " came as a complete surprise to me";
+         GrammarError(ErrorType.SYNTAX_ERROR, t, msg);
          state.syntaxErrors++;
-         skip();
+         Skip();
       }
     ;

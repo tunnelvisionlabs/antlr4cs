@@ -28,148 +28,129 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
+    using Antlr4.Codegen;
+    using Antlr4.Misc;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using Exception = System.Exception;
+    using File = System.IO.File;
+    using FileNotFoundException = System.IO.FileNotFoundException;
+    using Math = System.Math;
+    using Path = System.IO.Path;
+    using TokenTypes = Antlr.Runtime.TokenTypes;
+    using Encoding = System.Text.Encoding;
 
-import org.antlr.runtime.Token;
-import org.antlr.v4.Tool;
-import org.antlr.v4.codegen.CodeGenerator;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.ast.GrammarAST;
+    /** */
+    public class TokenVocabParser {
+        protected readonly Grammar g;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+        public TokenVocabParser(Grammar g) {
+            this.g = g;
+        }
 
-/** */
-public class TokenVocabParser {
-	protected final Grammar g;
+        /** Load a vocab file {@code &lt;vocabName&gt;.tokens} and return mapping. */
+        public virtual IDictionary<string, int> Load() {
+            IDictionary<string, int> tokens = new LinkedHashMap<string, int>();
+            int maxTokenType = -1;
+            string fullFile = GetImportedVocabFile();
+            AntlrTool tool = g.tool;
+            string vocabName = g.GetOptionString("tokenVocab");
+            try {
+                Regex tokenDefPattern = new Regex("([^\n]+?)[ \\t]*?=[ \\t]*?([0-9]+)");
+                string[] lines;
+                if (tool.grammarEncoding != null) {
+                    lines = File.ReadAllLines(fullFile, Encoding.GetEncoding(tool.grammarEncoding));
+                }
+                else {
+                    lines = File.ReadAllLines(fullFile);
+                }
 
-	public TokenVocabParser(Grammar g) {
-		this.g = g;
-	}
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string tokenDef = lines[i];
+                    int lineNum = i + 1;
+                    Match matcher = tokenDefPattern.Match(tokenDef);
+                    if (matcher.Success) {
+                        string tokenID = matcher.Groups[1].Value;
+                        string tokenTypeS = matcher.Groups[2].Value;
+                        int tokenType;
+                        if (!int.TryParse(tokenTypeS, out tokenType))
+                        {
+                            tool.errMgr.ToolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
+                                                  vocabName + CodeGenerator.VOCAB_FILE_EXTENSION,
+                                                  " bad token type: " + tokenTypeS,
+                                                  lineNum);
+                            tokenType = TokenTypes.Invalid;
+                        }
 
-	/** Load a vocab file {@code <vocabName>.tokens} and return mapping. */
-	public Map<String,Integer> load() {
-		Map<String,Integer> tokens = new LinkedHashMap<String,Integer>();
-		int maxTokenType = -1;
-		File fullFile = getImportedVocabFile();
-		FileInputStream fis = null;
-		BufferedReader br = null;
-		Tool tool = g.tool;
-		String vocabName = g.getOptionString("tokenVocab");
-		try {
-			Pattern tokenDefPattern = Pattern.compile("([^\n]+?)[ \\t]*?=[ \\t]*?([0-9]+)");
-			fis = new FileInputStream(fullFile);
-			InputStreamReader isr;
-			if (tool.grammarEncoding != null) {
-				isr = new InputStreamReader(fis, tool.grammarEncoding);
-			}
-			else {
-				isr = new InputStreamReader(fis);
-			}
+                        tool.Log("grammar", "import " + tokenID + "=" + tokenType);
+                        tokens[tokenID] = tokenType;
+                        maxTokenType = Math.Max(maxTokenType, tokenType);
+                        lineNum++;
+                    }
+                    else {
+                        if (tokenDef.Length > 0) { // ignore blank lines
+                            tool.errMgr.ToolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
+                                                  vocabName + CodeGenerator.VOCAB_FILE_EXTENSION,
+                                                  " bad token def: " + tokenDef,
+                                                  lineNum);
+                        }
+                    }
+                }
+            }
+            catch (FileNotFoundException) {
+                GrammarAST inTree = g.ast.GetOptionAST("tokenVocab");
+                string inTreeValue = inTree.Token.Text;
+                if (vocabName.Equals(inTreeValue)) {
+                    tool.errMgr.GrammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR,
+                                             g.fileName,
+                                             inTree.Token,
+                                             fullFile);
+                }
+                else { // must be from -D option on cmd-line not token in tree
+                    tool.errMgr.ToolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE,
+                                          fullFile,
+                                          g.name);
+                }
+            }
+            catch (Exception e) {
+                tool.errMgr.ToolError(ErrorType.ERROR_READING_TOKENS_FILE,
+                                      e,
+                                      fullFile,
+                                      e.Message);
+            }
 
-			br = new BufferedReader(isr);
-			String tokenDef = br.readLine();
-			int lineNum = 1;
-			while ( tokenDef!=null ) {
-				Matcher matcher = tokenDefPattern.matcher(tokenDef);
-				if ( matcher.find() ) {
-					String tokenID = matcher.group(1);
-					String tokenTypeS = matcher.group(2);
-					int tokenType;
-					try {
-						tokenType = Integer.valueOf(tokenTypeS);
-					}
-					catch (NumberFormatException nfe) {
-						tool.errMgr.toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
-											  vocabName + CodeGenerator.VOCAB_FILE_EXTENSION,
-											  " bad token type: "+tokenTypeS,
-											  lineNum);
-						tokenType = Token.INVALID_TOKEN_TYPE;
-					}
-					tool.log("grammar", "import "+tokenID+"="+tokenType);
-					tokens.put(tokenID, tokenType);
-					maxTokenType = Math.max(maxTokenType,tokenType);
-					lineNum++;
-				}
-				else {
-					if ( tokenDef.length()>0 ) { // ignore blank lines
-						tool.errMgr.toolError(ErrorType.TOKENS_FILE_SYNTAX_ERROR,
-											  vocabName + CodeGenerator.VOCAB_FILE_EXTENSION,
-											  " bad token def: " + tokenDef,
-											  lineNum);
-					}
-				}
-				tokenDef = br.readLine();
-			}
-		}
-		catch (FileNotFoundException fnfe) {
-			GrammarAST inTree = g.ast.getOptionAST("tokenVocab");
-			String inTreeValue = inTree.getToken().getText();
-			if ( vocabName.equals(inTreeValue) ) {
-				tool.errMgr.grammarError(ErrorType.CANNOT_FIND_TOKENS_FILE_REFD_IN_GRAMMAR,
-										 g.fileName,
-										 inTree.getToken(),
-										 fullFile);
-			}
-			else { // must be from -D option on cmd-line not token in tree
-				tool.errMgr.toolError(ErrorType.CANNOT_FIND_TOKENS_FILE_GIVEN_ON_CMDLINE,
-									  fullFile,
-									  g.name);
-			}
-		}
-		catch (Exception e) {
-			tool.errMgr.toolError(ErrorType.ERROR_READING_TOKENS_FILE,
-								  e,
-								  fullFile,
-								  e.getMessage());
-		}
-		finally {
-			try {
-				if ( br!=null ) br.close();
-			}
-			catch (IOException ioe) {
-				tool.errMgr.toolError(ErrorType.ERROR_READING_TOKENS_FILE,
-									  ioe,
-									  fullFile,
-									  ioe.getMessage());
-			}
-		}
-		return tokens;
-	}
+            return tokens;
+        }
 
-	/** Return a File descriptor for vocab file.  Look in library or
-	 *  in -o output path.  antlr -o foo T.g4 U.g4 where U needs T.tokens
-	 *  won't work unless we look in foo too. If we do not find the
-	 *  file in the lib directory then must assume that the .tokens file
-	 *  is going to be generated as part of this build and we have defined
-	 *  .tokens files so that they ALWAYS are generated in the base output
-	 *  directory, which means the current directory for the command line tool if there
-	 *  was no output directory specified.
-	 */
-	public File getImportedVocabFile() {
-		String vocabName = g.getOptionString("tokenVocab");
-		File f = new File(g.tool.libDirectory,
-						  File.separator +
-						  vocabName +
-						  CodeGenerator.VOCAB_FILE_EXTENSION);
-		if (f.exists()) {
-			return f;
-		}
+        /** Return a File descriptor for vocab file.  Look in library or
+         *  in -o output path.  antlr -o foo T.g4 U.g4 where U needs T.tokens
+         *  won't work unless we look in foo too. If we do not find the
+         *  file in the lib directory then must assume that the .tokens file
+         *  is going to be generated as part of this build and we have defined
+         *  .tokens files so that they ALWAYS are generated in the base output
+         *  directory, which means the current directory for the command line tool if there
+         *  was no output directory specified.
+         */
+        public virtual string GetImportedVocabFile() {
+            string vocabName = g.GetOptionString("tokenVocab");
+            string f = Path.Combine(g.tool.libDirectory,
+                              vocabName +
+                              CodeGenerator.VOCAB_FILE_EXTENSION);
+            if (File.Exists(f)) {
+                return f;
+            }
 
-		// We did not find the vocab file in the lib directory, so we need
-		// to look for it in the output directory which is where .tokens
-		// files are generated (in the base, not relative to the input
-		// location.)
-		f = new File(g.tool.outputDirectory, vocabName + CodeGenerator.VOCAB_FILE_EXTENSION);
-		return f;
-	}
+            // We did not find the vocab file in the lib directory, so we need
+            // to look for it in the output directory which is where .tokens
+            // files are generated (in the base, not relative to the input
+            // location.)
+            f = Path.Combine(g.tool.outputDirectory, vocabName + CodeGenerator.VOCAB_FILE_EXTENSION);
+            return f;
+        }
+    }
 }

@@ -37,7 +37,7 @@ options {
 	// Target language is Java, which is the default but being specific
 	// here as this grammar is also meant as a good example grammar for
 	// for users.
-	language      = Java;
+	language      = CSharp3;
 
 	// The output of this grammar is going to be an AST upon which
 	// we run a semantic checking phase, then the rest of the analysis
@@ -96,6 +96,8 @@ tokens {
     LEXER_ACTION_CALL; // ID(foo)
 }
 
+@namespace{Antlr4.Parse}
+
 // Include the copyright in this source and also the generated source
 //
 @header {
@@ -126,28 +128,25 @@ tokens {
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.antlr.v4.parse;
 
-import org.antlr.v4.tool.*;
-import org.antlr.v4.tool.ast.*;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
+using Antlr4.Tool;
+using Antlr4.Tool.Ast;
 }
 
 @members {
-Deque<String> paraphrases = new ArrayDeque<String>();
-public void grammarError(ErrorType etype, org.antlr.runtime.Token token, Object... args) { }
+internal Stack<string> paraphrases = new Stack<string>();
+public virtual void GrammarError(ErrorType etype, IToken token, params object[] args) { }
 }
 
 // The main entry point for parsing a V3 grammar from top to toe. This is
 // the method call from whence to obtain the AST for the parse.
 //
+public
 grammarSpec
 @after {
-GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.OPTIONS);
+GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.OPTIONS);
 if ( options!=null ) {
-	Grammar.setNodeOptions($tree, options);
+	Grammar.SetNodeOptions($tree, options);
 }
 }
     : // First we should see the type and name of the grammar file that
@@ -201,12 +200,12 @@ grammarType
 	if ( $t!=null ) ((GrammarRootAST)$tree).grammarType = $t.type;
 	else ((GrammarRootAST)$tree).grammarType=COMBINED;
 }
-    :	(	t=LEXER g=GRAMMAR  -> GRAMMAR<GrammarRootAST>[$g, "LEXER_GRAMMAR", getTokenStream()]
+    :	(	t=LEXER g=GRAMMAR  -> GRAMMAR<node=GrammarRootAST>[$g, "LEXER_GRAMMAR", TokenStream]
 		| // A standalone parser specification
-		  	t=PARSER g=GRAMMAR -> GRAMMAR<GrammarRootAST>[$g, "PARSER_GRAMMAR", getTokenStream()]
+		  	t=PARSER g=GRAMMAR -> GRAMMAR<node=GrammarRootAST>[$g, "PARSER_GRAMMAR", TokenStream]
 
 		// A combined lexer and parser specification
-		| 	g=GRAMMAR          -> GRAMMAR<GrammarRootAST>[$g, "COMBINED_GRAMMAR", getTokenStream()]
+		| 	g=GRAMMAR          -> GRAMMAR<node=GrammarRootAST>[$g, "COMBINED_GRAMMAR", TokenStream]
 		|   tg=TREE_GRAMMAR
 
 		)
@@ -260,7 +259,7 @@ optionValue
       // and so on. Many option values meet this description
       qid
     | STRING_LITERAL
-	| ACTION<ActionAST>
+	| ACTION<node=ActionAST>
     | INT
     ;
 
@@ -281,15 +280,15 @@ tokensSpec
 	: TOKENS_SPEC id (COMMA id)* COMMA? RBRACE -> ^(TOKENS_SPEC id+)
     | TOKENS_SPEC RBRACE ->
     | TOKENS_SPEC^ v3tokenSpec+ RBRACE!
-      {grammarError(ErrorType.V3_TOKENS_SYNTAX, $TOKENS_SPEC);}
+      {GrammarError(ErrorType.V3_TOKENS_SYNTAX, $TOKENS_SPEC);}
 	;
 
 v3tokenSpec
 	:	id
 		(	ASSIGN lit=STRING_LITERAL
             {
-            grammarError(ErrorType.V3_ASSIGN_IN_TOKENS, $id.start,
-                         $id.text, $lit.getText());
+            GrammarError(ErrorType.V3_ASSIGN_IN_TOKENS, $id.start,
+                         $id.text, $lit.Text);
             }
 						            	-> id // ignore assignment
 		|								-> id
@@ -306,7 +305,7 @@ channelsSpec
 // sections, they are just passed on to the language target.
 /** Match stuff like @parser::members {int i;} */
 action
-	:	AT (actionScopeName COLONCOLON)? id ACTION -> ^(AT actionScopeName? id ACTION<ActionAST>)
+	:	AT (actionScopeName COLONCOLON)? id ACTION -> ^(AT actionScopeName? id ACTION<node=ActionAST>)
 	;
 
 /** Sometimes the scope names will collide with keywords; allow them as
@@ -332,16 +331,17 @@ rules
 
 sync
 @init {
-	BitSet followSet = computeErrorRecoverySet();
-	if ( input.LA(1)!=Token.EOF && !followSet.member(input.LA(1)) ) {
-		reportError(new NoViableAltException("",0,0,input));
-       	beginResync();
-       	consumeUntil(input, followSet);
-       	endResync();
+	BitSet followSet = ComputeErrorRecoverySet();
+	if ( input.LA(1)!=TokenTypes.EndOfFile && !followSet.Member(input.LA(1)) ) {
+		ReportError(new NoViableAltException("",0,0,input));
+       	BeginResync();
+       	ConsumeUntil(input, followSet);
+       	EndResync();
 	}
 }	:
 	;
 
+public
 rule:	parserRule
 	|	lexerRule
 	;
@@ -356,12 +356,12 @@ rule:	parserRule
 // particular functional element is not valid in the context of the
 // grammar type, such as using returns in lexer rules and so on.
 parserRule
-@init { paraphrases.push("matching a rule"); }
+@init { paraphrases.Push("matching a rule"); }
 @after {
-	paraphrases.pop();
-	GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.OPTIONS);
+	paraphrases.Pop();
+	GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.OPTIONS);
 	if ( options!=null ) {
-		Grammar.setNodeOptions($tree, options);
+		Grammar.SetNodeOptions($tree, options);
 	}
 }
     : // Start with the rule name. Here we do not distinguish between
@@ -409,7 +409,7 @@ parserRule
 
       exceptionGroup
 
-      -> ^( RULE<RuleAST> RULE_REF ARG_ACTION<ActionAST>?
+      -> ^( RULE<node=RuleAST> RULE_REF ARG_ACTION<node=ActionAST>?
       		ruleReturns? throwsSpec? localsSpec? rulePrequels? ruleBlock exceptionGroup*
       	  )
     ;
@@ -427,16 +427,16 @@ exceptionGroup
 // Specifies a handler for a particular type of exception
 // thrown by a rule
 exceptionHandler
-	: CATCH ARG_ACTION ACTION -> ^(CATCH ARG_ACTION<ActionAST> ACTION<ActionAST>)
+	: CATCH ARG_ACTION ACTION -> ^(CATCH ARG_ACTION<node=ActionAST> ACTION<node=ActionAST>)
 	;
 
 finallyClause
-	: FINALLY ACTION -> ^(FINALLY ACTION<ActionAST>)
+	: FINALLY ACTION -> ^(FINALLY ACTION<node=ActionAST>)
 	;
 
 rulePrequels
-@init { paraphrases.push("matching rule preamble"); }
-@after { paraphrases.pop(); }
+@init { paraphrases.Push("matching rule preamble"); }
+@after { paraphrases.Pop(); }
 	:	sync (rulePrequel sync)* -> rulePrequel*
 	;
 
@@ -455,7 +455,7 @@ rulePrequel
 // as a single lexical action element, to be processed later.
 //
 ruleReturns
-	: RETURNS^ ARG_ACTION<ActionAST>
+	: RETURNS^ ARG_ACTION<node=ActionAST>
 	;
 
 // --------------
@@ -474,7 +474,7 @@ throwsSpec
     ;
 
 // locals [Cat x, float g]
-localsSpec : LOCALS^ ARG_ACTION<ActionAST> ;
+localsSpec : LOCALS^ ARG_ACTION<node=ActionAST> ;
 
 // @ Sections are generally target language specific things
 // such as local variable declarations, code to run before the
@@ -486,7 +486,7 @@ localsSpec : LOCALS^ ARG_ACTION<ActionAST> ;
 //
 /** Match stuff like @init {int i;} */
 ruleAction
-	:	AT id ACTION -> ^(AT id ACTION<ActionAST>)
+	:	AT id ACTION -> ^(AT id ACTION<node=ActionAST>)
 	;
 
 // A set of alts, rewritten as a BLOCK for generic processing
@@ -496,12 +496,12 @@ ruleAction
 // use a separate rule so that the BLOCK node has start and stop
 // boundaries set correctly by rule post processing of rewrites.
 ruleBlock
-@init {Token colon = input.LT(-1);}
-    :	ruleAltList -> ^(BLOCK<BlockAST>[colon,"BLOCK"] ruleAltList)
+@init {IToken colon = input.LT(-1);}
+    :	ruleAltList -> ^(BLOCK<node=BlockAST>[colon,"BLOCK"] ruleAltList)
     ;
     catch [ResyncToEndOfRuleBlock e] {
     	// just resyncing; ignore error
-		retval.tree = (GrammarAST)adaptor.errorNode(input, retval.start, input.LT(-1), null);
+		retval.Tree = (GrammarAST)adaptor.ErrorNode(input, retval.Start, input.LT(-1), null);
     }
 
 ruleAltList
@@ -515,24 +515,24 @@ labeledAlt
 	;
 
 lexerRule
-@init { paraphrases.push("matching a lexer rule"); }
+@init { paraphrases.Push("matching a lexer rule"); }
 @after {
-	paraphrases.pop();
+	paraphrases.Pop();
 }
     : FRAGMENT?
 	  TOKEN_REF COLON lexerRuleBlock SEMI
-      -> ^( RULE<RuleAST> TOKEN_REF
+      -> ^( RULE<node=RuleAST> TOKEN_REF
       		^(RULEMODIFIERS FRAGMENT)? lexerRuleBlock
       	  )
 	;
 
 lexerRuleBlock
-@init {Token colon = input.LT(-1);}
-    :	lexerAltList -> ^(BLOCK<BlockAST>[colon,"BLOCK"] lexerAltList)
+@init {IToken colon = input.LT(-1);}
+    :	lexerAltList -> ^(BLOCK<node=BlockAST>[colon,"BLOCK"] lexerAltList)
     ;
     catch [ResyncToEndOfRuleBlock e] {
     	// just resyncing; ignore error
-		retval.tree = (GrammarAST)adaptor.errorNode(input, retval.start, input.LT(-1), null);
+		retval.Tree = (GrammarAST)adaptor.ErrorNode(input, retval.Start, input.LT(-1), null);
     }
 
 lexerAltList
@@ -541,28 +541,28 @@ lexerAltList
 
 lexerAlt
 	:	lexerElements
-		(	lexerCommands	-> ^(LEXER_ALT_ACTION<AltAST> lexerElements lexerCommands)
+		(	lexerCommands	-> ^(LEXER_ALT_ACTION<node=AltAST> lexerElements lexerCommands)
 		|					-> lexerElements
 		)
 	;
 
 lexerElements
-    :	lexerElement+	-> ^(ALT<AltAST> lexerElement+)
-	|					-> ^(ALT<AltAST> EPSILON) // empty alt
+    :	lexerElement+	-> ^(ALT<node=AltAST> lexerElement+)
+	|					-> ^(ALT<node=AltAST> EPSILON) // empty alt
     ;
 
 lexerElement
 @init {
-	paraphrases.push("looking for lexer rule element");
-	int m = input.mark();
+	paraphrases.Push("looking for lexer rule element");
+	int m = input.Mark();
 }
-@after { paraphrases.pop(); }
+@after { paraphrases.Pop(); }
 	:	labeledLexerElement
-		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<BlockAST>[$labeledLexerElement.start,"BLOCK"] ^(ALT<AltAST> labeledLexerElement) ) )
+		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<node=BlockAST>[$labeledLexerElement.start,"BLOCK"] ^(ALT<node=AltAST> labeledLexerElement) ) )
 		|				-> labeledLexerElement
 		)
 	|	lexerAtom
-		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<BlockAST>[$lexerAtom.start,"BLOCK"] ^(ALT<AltAST> lexerAtom) ) )
+		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<node=BlockAST>[$lexerAtom.start,"BLOCK"] ^(ALT<node=AltAST> lexerAtom) ) )
 		|				-> lexerAtom
 		)
 	|	lexerBlock
@@ -573,33 +573,33 @@ lexerElement
 					  // but preds can be anywhere
 	;
     catch [RecognitionException re] {
-    	retval.tree = (GrammarAST)adaptor.errorNode(input, retval.start, input.LT(-1), re);
-    	int ttype = input.get(input.range()).getType(); // seems to be next token
+    	retval.Tree = (GrammarAST)adaptor.ErrorNode(input, retval.Start, input.LT(-1), re);
+    	int ttype = input.Get(input.Range).Type; // seems to be next token
 	    // look for anything that really belongs at the start of the rule minus the initial ID
     	if ( ttype==COLON || ttype==RETURNS || ttype==CATCH || ttype==FINALLY || ttype==AT || ttype==EOF ) {
 			RecognitionException missingSemi =
 				new v4ParserException("unterminated rule (missing ';') detected at '"+
-									  input.LT(1).getText()+" "+input.LT(2).getText()+"'", input);
-			reportError(missingSemi);
+									  input.LT(1).Text+" "+input.LT(2).Text+"'", input);
+			ReportError(missingSemi);
 			if ( ttype==EOF ) {
-				input.seek(input.index()+1);
+				input.Seek(input.Index+1);
 			}
 			else if ( ttype==CATCH || ttype==FINALLY ) {
-				input.seek(input.range()); // ignore what's before rule trailer stuff
+				input.Seek(input.Range); // ignore what's before rule trailer stuff
 			}
 			else if ( ttype==RETURNS || ttype==AT ) { // scan back looking for ID of rule header
-				int p = input.index();
-				Token t = input.get(p);
-				while ( t.getType()!=RULE_REF && t.getType()!=TOKEN_REF ) {
+				int p = input.Index;
+				IToken t = input.Get(p);
+				while ( t.Type!=RULE_REF && t.Type!=TOKEN_REF ) {
 					p--;
-					t = input.get(p);
+					t = input.Get(p);
 				}
-				input.seek(p);
+				input.Seek(p);
 			}
 			throw new ResyncToEndOfRuleBlock(); // make sure it goes back to rule block level to recover
 		}
-        reportError(re);
-        recover(input,re);
+        ReportError(re);
+        Recover(input,re);
 	}
 
 labeledLexerElement
@@ -612,16 +612,16 @@ labeledLexerElement
 
 lexerBlock
 @after {
-GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.OPTIONS);
+GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.OPTIONS);
 if ( options!=null ) {
-	Grammar.setNodeOptions($tree, options);
+	Grammar.SetNodeOptions($tree, options);
 }
 }
  	:	LPAREN
         ( optionsSpec COLON )?
         lexerAltList
         RPAREN
-      -> ^(BLOCK<BlockAST>[$LPAREN,"BLOCK"] optionsSpec? lexerAltList )
+      -> ^(BLOCK<node=BlockAST>[$LPAREN,"BLOCK"] optionsSpec? lexerAltList )
     ;
 
 // channel=HIDDEN, skip, more, mode(INSIDE), push(INSIDE), pop
@@ -650,72 +650,72 @@ altList
 
 // An individual alt with an optional alt option like <assoc=right>
 alternative
-@init { paraphrases.push("matching alternative"); }
+@init { paraphrases.Push("matching alternative"); }
 @after {
-    paraphrases.pop();
-    Grammar.setNodeOptions($tree, $o.tree);
+    paraphrases.Pop();
+    Grammar.SetNodeOptions($tree, $o.tree);
 }
 	:	o=elementOptions?
-		(	e+=element+                     -> ^(ALT<AltAST> elementOptions? $e+)
-		|                                   -> ^(ALT<AltAST> elementOptions? EPSILON) // empty alt
+		(	e+=element+                     -> ^(ALT<node=AltAST> elementOptions? $e+)
+		|                                   -> ^(ALT<node=AltAST> elementOptions? EPSILON) // empty alt
 		)
 	;
 
 element
 @init {
-	paraphrases.push("looking for rule element");
-	int m = input.mark();
+	paraphrases.Push("looking for rule element");
+	int m = input.Mark();
 }
-@after { paraphrases.pop(); }
+@after { paraphrases.Pop(); }
 	:	labeledElement
-		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<BlockAST>[$labeledElement.start,"BLOCK"] ^(ALT<AltAST> labeledElement ) ))
+		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<node=BlockAST>[$labeledElement.start,"BLOCK"] ^(ALT<node=AltAST> labeledElement ) ))
 		|				-> labeledElement
 		)
 	|	atom
-		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<BlockAST>[$atom.start,"BLOCK"] ^(ALT<AltAST> atom) ) )
+		(	ebnfSuffix	-> ^( ebnfSuffix ^(BLOCK<node=BlockAST>[$atom.start,"BLOCK"] ^(ALT<node=AltAST> atom) ) )
 		|				-> atom
 		)
 	|	ebnf
 	|	actionElement
 	;
     catch [RecognitionException re] {
-    	retval.tree = (GrammarAST)adaptor.errorNode(input, retval.start, input.LT(-1), re);
-    	int ttype = input.get(input.range()).getType();
+    	retval.Tree = (GrammarAST)adaptor.ErrorNode(input, retval.Start, input.LT(-1), re);
+    	int ttype = input.Get(input.Range).Type;
 	    // look for anything that really belongs at the start of the rule minus the initial ID
     	if ( ttype==COLON || ttype==RETURNS || ttype==CATCH || ttype==FINALLY || ttype==AT ) {
 			RecognitionException missingSemi =
 				new v4ParserException("unterminated rule (missing ';') detected at '"+
-									  input.LT(1).getText()+" "+input.LT(2).getText()+"'", input);
-			reportError(missingSemi);
+									  input.LT(1).Text+" "+input.LT(2).Text+"'", input);
+			ReportError(missingSemi);
 			if ( ttype==CATCH || ttype==FINALLY ) {
-				input.seek(input.range()); // ignore what's before rule trailer stuff
+				input.Seek(input.Range); // ignore what's before rule trailer stuff
 			}
 			if ( ttype==RETURNS || ttype==AT ) { // scan back looking for ID of rule header
-				int p = input.index();
-				Token t = input.get(p);
-				while ( t.getType()!=RULE_REF && t.getType()!=TOKEN_REF ) {
+				int p = input.Index;
+				IToken t = input.Get(p);
+				while ( t.Type!=RULE_REF && t.Type!=TOKEN_REF ) {
 					p--;
-					t = input.get(p);
+					t = input.Get(p);
 				}
-				input.seek(p);
+				input.Seek(p);
 			}
 			throw new ResyncToEndOfRuleBlock(); // make sure it goes back to rule block level to recover
 		}
-        reportError(re);
-        recover(input,re);
+        ReportError(re);
+        Recover(input,re);
 	}
 
 actionElement
 @after {
-	GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
+	GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
 	if ( options!=null ) {
-		Grammar.setNodeOptions($tree, options);
+		Grammar.SetNodeOptions($tree, options);
 	}
 }
-	:	ACTION<ActionAST>
-	|   ACTION elementOptions	-> ^(ACTION<ActionAST> elementOptions)
-	|   SEMPRED<PredAST>
-	|   SEMPRED elementOptions	-> ^(SEMPRED<PredAST> elementOptions)
+	:	ACTION<node=ActionAST>
+	|   ACTION elementOptions	-> ^(ACTION<node=ActionAST> elementOptions)
+	|   SEMPRED<node=PredAST>
+	|   SEMPRED elementOptions	-> ^(SEMPRED<node=PredAST> elementOptions)
 	;
 
 labeledElement
@@ -743,15 +743,15 @@ blockSuffix
     ;
 
 ebnfSuffix
-	:	QUESTION nongreedy=QUESTION?	-> OPTIONAL<OptionalBlockAST>[$start, $nongreedy]
-  	|	STAR nongreedy=QUESTION?		-> CLOSURE<StarBlockAST>[$start, $nongreedy]
-   	|	PLUS nongreedy=QUESTION?		-> POSITIVE_CLOSURE<PlusBlockAST>[$start, $nongreedy]
+	:	QUESTION nongreedy=QUESTION?	-> OPTIONAL<node=OptionalBlockAST>[$start, $nongreedy]
+  	|	STAR nongreedy=QUESTION?		-> CLOSURE<node=StarBlockAST>[$start, $nongreedy]
+   	|	PLUS nongreedy=QUESTION?		-> POSITIVE_CLOSURE<node=PlusBlockAST>[$start, $nongreedy]
 	;
 
 lexerAtom
 	:	range
 	|	terminal
-    |   RULE_REF<RuleRefAST>
+    |   RULE_REF<node=RuleRefAST>
     |	notSet
     |	wildcard
     |	LEXER_CHAR_SET
@@ -782,9 +782,9 @@ atom
 
 wildcard
 @after {
-	GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
+	GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
 	if ( options!=null ) {
-		Grammar.setNodeOptions($tree, options);
+		Grammar.SetNodeOptions($tree, options);
 	}
 }
 	:	// Wildcard '.' means any character in a lexer, any
@@ -802,22 +802,22 @@ wildcard
 // A set of characters (in a lexer) or terminal tokens, if a parser,
 // that are then used to create the inverse set of them.
 notSet
-    : NOT setElement	-> ^(NOT<NotAST>[$NOT] ^(SET<SetAST>[$setElement.start,"SET"] setElement))
-    | NOT blockSet		-> ^(NOT<NotAST>[$NOT] blockSet)
+    : NOT setElement	-> ^(NOT<node=NotAST>[$NOT] ^(SET<node=SetAST>[$setElement.start,"SET"] setElement))
+    | NOT blockSet		-> ^(NOT<node=NotAST>[$NOT] blockSet)
     ;
 
 blockSet
 @init {
-	Token t;
-	boolean ebnf = false;
+	IToken t;
+	bool ebnf = false;
 }
     :	LPAREN setElement (OR setElement)* RPAREN
-		-> ^(SET<SetAST>[$LPAREN,"SET"] setElement+ )
+		-> ^(SET<node=SetAST>[$LPAREN,"SET"] setElement+ )
     ;
 
 setElement
-	:	TOKEN_REF<TerminalAST>^ elementOptions?
-	|	STRING_LITERAL<TerminalAST>^ elementOptions?
+	:	TOKEN_REF<node=TerminalAST>^ elementOptions?
+	|	STRING_LITERAL<node=TerminalAST>^ elementOptions?
 	|	range
     |   LEXER_CHAR_SET
 	;
@@ -831,16 +831,16 @@ setElement
 //
 block
 @after {
-GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.OPTIONS);
+GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.OPTIONS);
 if ( options!=null ) {
-	Grammar.setNodeOptions($tree, options);
+	Grammar.SetNodeOptions($tree, options);
 }
 }
  	:	LPAREN
         ( optionsSpec? ra+=ruleAction* COLON )?
         altList
 		RPAREN
-      -> ^(BLOCK<BlockAST>[$LPAREN,"BLOCK"] optionsSpec? $ra* altList )
+      -> ^(BLOCK<node=BlockAST>[$LPAREN,"BLOCK"] optionsSpec? $ra* altList )
     ;
 
 // ----------------
@@ -851,12 +851,12 @@ if ( options!=null ) {
 //
 ruleref
 @after {
-GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
+GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
 if ( options!=null ) {
-	Grammar.setNodeOptions($tree, options);
+	Grammar.SetNodeOptions($tree, options);
 }
 }
-    :	RULE_REF ARG_ACTION? elementOptions? -> ^(RULE_REF<RuleRefAST> ARG_ACTION<ActionAST>? elementOptions?)
+    :	RULE_REF ARG_ACTION? elementOptions? -> ^(RULE_REF<node=RuleRefAST> ARG_ACTION<node=ActionAST>? elementOptions?)
     ;
     catch [RecognitionException re] { throw re; } // pass upwards to element
 
@@ -870,18 +870,18 @@ if ( options!=null ) {
 // error about any abuse of the .. operator.
 //
 range
-    : STRING_LITERAL<TerminalAST> RANGE<RangeAST>^ STRING_LITERAL<TerminalAST>
+    : STRING_LITERAL<node=TerminalAST> RANGE<node=RangeAST>^ STRING_LITERAL<node=TerminalAST>
     ;
 
 terminal
 @after {
-GrammarAST options = (GrammarAST)$tree.getFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
+GrammarAST options = (GrammarAST)$tree.GetFirstChildWithType(ANTLRParser.ELEMENT_OPTIONS);
 if ( options!=null ) {
-	Grammar.setNodeOptions($tree, options);
+	Grammar.SetNodeOptions($tree, options);
 }
 }
-	:   TOKEN_REF elementOptions?		-> ^(TOKEN_REF<TerminalAST> elementOptions?)
-	|   STRING_LITERAL elementOptions?	-> ^(STRING_LITERAL<TerminalAST> elementOptions?)
+	:   TOKEN_REF elementOptions?		-> ^(TOKEN_REF<node=TerminalAST> elementOptions?)
+	|   STRING_LITERAL elementOptions?	-> ^(STRING_LITERAL<node=TerminalAST> elementOptions?)
 	;
 
 // Terminals may be adorned with certain options when
@@ -904,15 +904,15 @@ elementOption
 // reference, hence this rule is used to pick up whichever it is and rewrite
 // it as a generic ID token.
 id
-@init { paraphrases.push("looking for an identifier"); }
-@after { paraphrases.pop(); }
+@init { paraphrases.Push("looking for an identifier"); }
+@after { paraphrases.Pop(); }
     : RULE_REF  ->ID[$RULE_REF]
     | TOKEN_REF ->ID[$TOKEN_REF]
     ;
 
 qid
-@init { paraphrases.push("looking for a qualified identifier"); }
-@after { paraphrases.pop(); }
+@init { paraphrases.Push("looking for a qualified identifier"); }
+@after { paraphrases.Pop(); }
 	:	id (DOT id)* -> ID[$qid.start, $text]
 	;
 

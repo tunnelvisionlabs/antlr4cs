@@ -28,11 +28,27 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using Exception = System.Exception;
 
-/** Used to throw us out of deeply nested element back to end of a rule's
- *  alt list. Note it's not under RecognitionException.
- */
-public class ResyncToEndOfRuleBlock extends RuntimeException {
-	private static final long serialVersionUID = 6104510295480069276L;
+    /** Used to throw us out of deeply nested element back to end of a rule's
+     *  alt list. Note it's not under RecognitionException.
+     */
+    public class ResyncToEndOfRuleBlock : Exception
+    {
+        public ResyncToEndOfRuleBlock()
+        {
+        }
+
+        public ResyncToEndOfRuleBlock(string message)
+            : base(message)
+        {
+        }
+
+        public ResyncToEndOfRuleBlock(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
 }

@@ -28,30 +28,32 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using Antlr4.Tool;
+    using ICharStream = Antlr.Runtime.ICharStream;
+    using IToken = Antlr.Runtime.IToken;
+    using RecognitionException = Antlr.Runtime.RecognitionException;
 
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.Token;
-import org.antlr.v4.Tool;
-import org.antlr.v4.tool.ErrorType;
+    public class ToolANTLRLexer : ANTLRLexer
+    {
+        public AntlrTool tool;
 
-public class ToolANTLRLexer extends ANTLRLexer {
-	public Tool tool;
+        public ToolANTLRLexer(ICharStream input, AntlrTool tool)
+            : base(input)
+        {
+            this.tool = tool;
+        }
 
-	public ToolANTLRLexer(CharStream input, Tool tool) {
-		super(input);
-		this.tool = tool;
-	}
+        public override void DisplayRecognitionError(string[] tokenNames, RecognitionException e)
+        {
+            string msg = GetErrorMessage(e, tokenNames);
+            tool.errMgr.SyntaxError(ErrorType.SYNTAX_ERROR, SourceName, e.Token, e, msg);
+        }
 
-	@Override
-	public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-		String msg = getErrorMessage(e, tokenNames);
-		tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, getSourceName(), e.token, e, msg);
-	}
-
-	@Override
-	public void grammarError(ErrorType etype, Token token, Object... args) {
-		tool.errMgr.grammarError(etype, getSourceName(), token, args);
-	}
+        public override void GrammarError(ErrorType etype, IToken token, params object[] args)
+        {
+            tool.errMgr.GrammarError(etype, SourceName, token, args);
+        }
+    }
 }

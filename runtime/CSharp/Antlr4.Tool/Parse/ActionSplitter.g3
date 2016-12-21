@@ -30,82 +30,88 @@
 
 lexer grammar ActionSplitter;
 
-options { filter=true; }
+options {
+	language=CSharp3;
+	filter=true;
+}
+
+@namespace{Antlr4.Parse}
 
 @header {
-package org.antlr.v4.parse;
-import org.antlr.v4.tool.*;
-import org.antlr.v4.tool.ast.*;
+using Antlr4.Tool;
+using Antlr4.Tool.Ast;
+using StringBuilder = System.Text.StringBuilder;
 }
 
 @members {
-ActionSplitterListener delegate;
+ActionSplitterListener @delegate;
 
-public ActionSplitter(CharStream input, ActionSplitterListener delegate) {
-    this(input, new RecognizerSharedState());
-    this.delegate = delegate;
+public ActionSplitter(ICharStream input, ActionSplitterListener @delegate)
+	: this(input, new RecognizerSharedState())
+{
+	this.@delegate = @delegate;
 }
 
 /** force filtering (and return tokens). triggers all above actions. */
-public List<Token> getActionTokens() {
-    List<Token> chunks = new ArrayList<Token>();
-    Token t = nextToken();
-    while ( t.getType()!=Token.EOF ) {
-        chunks.add(t);
-        t = nextToken();
+public virtual IList<IToken> GetActionTokens() {
+    IList<IToken> chunks = new List<IToken>();
+    IToken t = NextToken();
+    while ( t.Type != TokenTypes.EndOfFile ) {
+        chunks.Add(t);
+        t = NextToken();
     }
     return chunks;
 }
 
-private boolean isIDStartChar(int c) {
-	return c == '_' || Character.isLetter(c);
+private bool IsIDStartChar(int c) {
+	return c == '_' || char.IsLetter((char)c);
 }
 }
 
 // ignore comments right away
 
 COMMENT
-    :   '/*' ( options {greedy=false;} : . )* '*/' {delegate.text($text);}
+    :   '/*' ( options {greedy=false;} : . )* '*/' {@delegate.Text($text);}
     ;
 
 LINE_COMMENT
-    : '//' ~('\n'|'\r')* '\r'? '\n' {delegate.text($text);}
+    : '//' ~('\n'|'\r')* '\r'? '\n' {@delegate.Text($text);}
     ;
 
 SET_NONLOCAL_ATTR
 	:	'$' x=ID '::' y=ID WS? '=' expr=ATTR_VALUE_EXPR ';'
 		{
-		delegate.setNonLocalAttr($text, $x, $y, $expr);
+		@delegate.SetNonLocalAttr($text, $x, $y, $expr);
 		}
 	;
 
 NONLOCAL_ATTR
-	:	'$' x=ID '::' y=ID {delegate.nonLocalAttr($text, $x, $y);}
+	:	'$' x=ID '::' y=ID {@delegate.NonLocalAttr($text, $x, $y);}
 	;
 
 QUALIFIED_ATTR
-	:	'$' x=ID '.' y=ID {input.LA(1)!='('}? {delegate.qualifiedAttr($text, $x, $y);}
+	:	'$' x=ID '.' y=ID {input.LA(1)!='('}? {@delegate.QualifiedAttr($text, $x, $y);}
 	;
 
 SET_ATTR
 	:	'$' x=ID WS? '=' expr=ATTR_VALUE_EXPR ';'
 		{
-		delegate.setAttr($text, $x, $expr);
+		@delegate.SetAttr($text, $x, $expr);
 		}
 	;
 
 ATTR
-	:	'$' x=ID {delegate.attr($text, $x);}
+	:	'$' x=ID {@delegate.Attr($text, $x);}
 	;
 
 // Anything else is just random text
 TEXT
 @init {StringBuilder buf = new StringBuilder();}
-@after {delegate.text(buf.toString());}
-	:	(	c=~('\\'| '$') {buf.append((char)$c);}
-		|	'\\$' {buf.append('$');}
-		|	'\\' c=~('$') {buf.append('\\').append((char)$c);}
-		|	{!isIDStartChar(input.LA(2))}? => '$' {buf.append('$');}
+@after {@delegate.Text(buf.ToString());}
+	:	(	c=~('\\'| '$') {buf.Append((char)$c);}
+		|	'\\$' {buf.Append('$');}
+		|	'\\' c=~('$') {buf.Append('\\').Append((char)$c);}
+		|	{!IsIDStartChar(input.LA(2))}? => '$' {buf.Append('$');}
 		)+
 	;
 

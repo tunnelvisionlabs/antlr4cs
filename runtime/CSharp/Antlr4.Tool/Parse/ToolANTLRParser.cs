@@ -28,57 +28,63 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using Antlr4.Tool;
+    using ITokenStream = Antlr.Runtime.ITokenStream;
+    using NoViableAltException = Antlr.Runtime.NoViableAltException;
+    using Parser = Antlr.Runtime.Parser;
+    using RecognitionException = Antlr.Runtime.RecognitionException;
 
-import org.antlr.runtime.NoViableAltException;
-import org.antlr.runtime.Parser;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.TokenStream;
-import org.antlr.v4.Tool;
-import org.antlr.v4.tool.ErrorType;
+    /** Override error handling for use with ANTLR tool itself; leaves
+     *  nothing in grammar associated with Tool so others can use in IDEs, ...
+     */
+    public class ToolANTLRParser : ANTLRParser
+    {
+        public AntlrTool tool;
 
-/** Override error handling for use with ANTLR tool itself; leaves
- *  nothing in grammar associated with Tool so others can use in IDEs, ...
- */
-public class ToolANTLRParser extends ANTLRParser {
-	public Tool tool;
+        public ToolANTLRParser(ITokenStream input, AntlrTool tool)
+            : base(input)
+        {
+            this.tool = tool;
+        }
 
-	public ToolANTLRParser(TokenStream input, Tool tool) {
-		super(input);
-		this.tool = tool;
-	}
+        public override void DisplayRecognitionError(string[] tokenNames,
+                                            RecognitionException e)
+        {
+            string msg = GetParserErrorMessage(this, e);
+            if (paraphrases.Count > 0)
+            {
+                string paraphrase = paraphrases.Peek();
+                msg = msg + " while " + paraphrase;
+            }
+            //List stack = getRuleInvocationStack(e, this.getClass().getName());
+            //msg += ", rule stack = " + stack;
+            tool.errMgr.SyntaxError(ErrorType.SYNTAX_ERROR, SourceName, e.Token, e, msg);
+        }
 
-	@Override
-	public void displayRecognitionError(String[] tokenNames,
-										RecognitionException e)
-	{
-		String msg = getParserErrorMessage(this, e);
-		if ( !paraphrases.isEmpty() ) {
-			String paraphrase = paraphrases.peek();
-			msg = msg+" while "+paraphrase;
-		}
-	//	List stack = getRuleInvocationStack(e, this.getClass().getName());
-	//	msg += ", rule stack = "+stack;
-		tool.errMgr.syntaxError(ErrorType.SYNTAX_ERROR, getSourceName(), e.token, e, msg);
-	}
+        public virtual string GetParserErrorMessage(Parser parser, RecognitionException e)
+        {
+            string msg;
+            if (e is NoViableAltException)
+            {
+                string name = parser.GetTokenErrorDisplay(e.Token);
+                msg = name + " came as a complete surprise to me";
+            }
+            else if (e is v4ParserException)
+            {
+                msg = ((v4ParserException)e).msg;
+            }
+            else
+            {
+                msg = parser.GetErrorMessage(e, parser.TokenNames);
+            }
+            return msg;
+        }
 
-	public String getParserErrorMessage(Parser parser, RecognitionException e) {
-		String msg;
-		if ( e instanceof NoViableAltException) {
-			String name = parser.getTokenErrorDisplay(e.token);
-			msg = name+" came as a complete surprise to me";
-		}
-		else if ( e instanceof v4ParserException) {
-			msg = ((v4ParserException)e).msg;
-		}
-		else {
-			msg = parser.getErrorMessage(e, parser.getTokenNames());
-		}
-		return msg;
-	}
-
-	@Override
-	public void grammarError(ErrorType etype, org.antlr.runtime.Token token, Object... args) {
-		tool.errMgr.grammarError(etype, getSourceName(), token, args);
-	}
+        public override void GrammarError(ErrorType etype, Antlr.Runtime.IToken token, params object[] args)
+        {
+            tool.errMgr.GrammarError(etype, SourceName, token, args);
+        }
+    }
 }

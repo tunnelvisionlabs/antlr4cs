@@ -28,18 +28,20 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.parse;
+namespace Antlr4.Parse
+{
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.Token;
+    /** */
+    public interface ActionSplitterListener
+    {
+        void QualifiedAttr(string expr, IToken x, IToken y);
+        void SetAttr(string expr, IToken x, IToken rhs);
+        void Attr(string expr, IToken x);
 
-/** */
-public interface ActionSplitterListener {
-    void qualifiedAttr(String expr, Token x, Token y);
-	void setAttr(String expr, Token x, Token rhs);
-	void attr(String expr, Token x);
+        void SetNonLocalAttr(string expr, IToken x, IToken y, IToken rhs);
+        void NonLocalAttr(string expr, IToken x, IToken y);
 
-	void setNonLocalAttr(String expr, Token x, Token y, Token rhs);
-	void nonLocalAttr(String expr, Token x, Token y);
-
-    void text(String text);
+        void Text(string text);
+    }
 }
