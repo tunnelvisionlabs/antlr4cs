@@ -28,48 +28,55 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.semantics;
+namespace Antlr4.Semantics
+{
+    using Antlr4.Parse;
+    using IToken = Antlr.Runtime.IToken;
 
-import org.antlr.runtime.Token;
-import org.antlr.v4.parse.ActionSplitterListener;
+    public class BlankActionSplitterListener : ActionSplitterListener
+    {
+        public virtual void QualifiedAttr(string expr, IToken x, IToken y)
+        {
+        }
 
-public class BlankActionSplitterListener implements ActionSplitterListener {
-	@Override
-	public void qualifiedAttr(String expr, Token x, Token y) {
-	}
+        public virtual void SetAttr(string expr, IToken x, IToken rhs)
+        {
+        }
 
-	@Override
-	public void setAttr(String expr, Token x, Token rhs) {
-	}
+        public virtual void Attr(string expr, IToken x)
+        {
+        }
 
-	@Override
-	public void attr(String expr, Token x) {
-	}
+        public virtual void TemplateInstance(string expr)
+        {
+        }
 
-	public void templateInstance(String expr) {
-	}
+        public virtual void NonLocalAttr(string expr, IToken x, IToken y)
+        {
+        }
 
-	@Override
-	public void nonLocalAttr(String expr, Token x, Token y) {
-	}
+        public virtual void SetNonLocalAttr(string expr, IToken x, IToken y, IToken rhs)
+        {
+        }
 
-	@Override
-	public void setNonLocalAttr(String expr, Token x, Token y, Token rhs) {
-	}
+        public virtual void IndirectTemplateInstance(string expr)
+        {
+        }
 
-	public void indirectTemplateInstance(String expr) {
-	}
+        public virtual void SetExprAttribute(string expr)
+        {
+        }
 
-	public void setExprAttribute(String expr) {
-	}
+        public virtual void SetSTAttribute(string expr)
+        {
+        }
 
-	public void setSTAttribute(String expr) {
-	}
+        public virtual void TemplateExpr(string expr)
+        {
+        }
 
-	public void templateExpr(String expr) {
-	}
-
-	@Override
-	public void text(String text) {
-	}
+        public virtual void Text(string text)
+        {
+        }
+    }
 }

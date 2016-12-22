@@ -28,111 +28,112 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.semantics;
+namespace Antlr4.Semantics
+{
+    using System.Collections.Generic;
+    using Antlr4.Analysis;
+    using Antlr4.Misc;
+    using Antlr4.Parse;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
-import org.antlr.v4.analysis.LeftRecursiveRuleAnalyzer;
-import org.antlr.v4.misc.OrderedHashMap;
-import org.antlr.v4.misc.Utils;
-import org.antlr.v4.parse.GrammarTreeVisitor;
-import org.antlr.v4.parse.ScopeParser;
-import org.antlr.v4.tool.AttributeDict;
-import org.antlr.v4.tool.ErrorManager;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.LeftRecursiveRule;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.ActionAST;
-import org.antlr.v4.tool.ast.AltAST;
-import org.antlr.v4.tool.ast.GrammarAST;
-import org.antlr.v4.tool.ast.RuleAST;
-import org.stringtemplate.v4.misc.MultiMap;
+    public class RuleCollector : GrammarTreeVisitor
+    {
+        /** which grammar are we checking */
+        public Grammar g;
+        public ErrorManager errMgr;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+        // stuff to collect. this is the output
+        public OrderedHashMap<string, Rule> rules = new OrderedHashMap<string, Rule>();
+        public Runtime.Misc.MultiMap<string, GrammarAST> ruleToAltLabels = new Runtime.Misc.MultiMap<string, GrammarAST>();
+        public IDictionary<string, string> altLabelToRuleName = new Dictionary<string, string>();
 
-public class RuleCollector extends GrammarTreeVisitor {
-	/** which grammar are we checking */
-	public Grammar g;
-	public ErrorManager errMgr;
+        public RuleCollector(Grammar g)
+        {
+            this.g = g;
+            this.errMgr = g.tool.errMgr;
+        }
 
-	// stuff to collect. this is the output
-	public OrderedHashMap<String, Rule> rules = new OrderedHashMap<String, Rule>();
-	public MultiMap<String,GrammarAST> ruleToAltLabels = new MultiMap<String, GrammarAST>();
-	public Map<String,String> altLabelToRuleName = new HashMap<String, String>();
+        public override ErrorManager GetErrorManager()
+        {
+            return errMgr;
+        }
 
-	public RuleCollector(Grammar g) {
-		this.g = g;
-		this.errMgr = g.tool.errMgr;
-	}
+        public virtual void Process(GrammarAST ast)
+        {
+            VisitGrammar(ast);
+        }
 
-	@Override
-	public ErrorManager getErrorManager() { return errMgr; }
+        public override void DiscoverRule(RuleAST rule, GrammarAST ID,
+                                 IList<GrammarAST> modifiers, ActionAST arg,
+                                 ActionAST returns, GrammarAST thrws,
+                                 GrammarAST options, ActionAST locals,
+                                 IList<GrammarAST> actions,
+                                 GrammarAST block)
+        {
+            int numAlts = block.ChildCount;
+            Rule r;
+            if (LeftRecursiveRuleAnalyzer.HasImmediateRecursiveRuleRefs(rule, ID.Text))
+            {
+                r = new LeftRecursiveRule(g, ID.Text, rule);
+            }
+            else
+            {
+                r = new Rule(g, ID.Text, rule, numAlts);
+            }
+            rules[r.name] = r;
 
-	public void process(GrammarAST ast) { visitGrammar(ast); }
+            if (arg != null)
+            {
+                r.args = ScopeParser.ParseTypedArgList(arg, arg.Text, g);
+                r.args.type = AttributeDict.DictType.ARG;
+                r.args.ast = arg;
+                arg.resolver = r.alt[currentOuterAltNumber];
+            }
 
-	@Override
-	public void discoverRule(RuleAST rule, GrammarAST ID,
-							 List<GrammarAST> modifiers, ActionAST arg,
-							 ActionAST returns, GrammarAST thrws,
-							 GrammarAST options, ActionAST locals,
-							 List<GrammarAST> actions,
-							 GrammarAST block)
-	{
-		int numAlts = block.getChildCount();
-		Rule r;
-		if ( LeftRecursiveRuleAnalyzer.hasImmediateRecursiveRuleRefs(rule, ID.getText()) ) {
-			r = new LeftRecursiveRule(g, ID.getText(), rule);
-		}
-		else {
-			r = new Rule(g, ID.getText(), rule, numAlts);
-		}
-		rules.put(r.name, r);
+            if (returns != null)
+            {
+                r.retvals = ScopeParser.ParseTypedArgList(returns, returns.Text, g);
+                r.retvals.type = AttributeDict.DictType.RET;
+                r.retvals.ast = returns;
+            }
 
-		if ( arg!=null ) {
-			r.args = ScopeParser.parseTypedArgList(arg, arg.getText(), g);
-			r.args.type = AttributeDict.DictType.ARG;
-			r.args.ast = arg;
-			arg.resolver = r.alt[currentOuterAltNumber];
-		}
+            if (locals != null)
+            {
+                r.locals = ScopeParser.ParseTypedArgList(locals, locals.Text, g);
+                r.locals.type = AttributeDict.DictType.LOCAL;
+                r.locals.ast = locals;
+            }
 
-		if ( returns!=null ) {
-			r.retvals = ScopeParser.parseTypedArgList(returns, returns.getText(), g);
-			r.retvals.type = AttributeDict.DictType.RET;
-			r.retvals.ast = returns;
-		}
+            foreach (GrammarAST a in actions)
+            {
+                // a = ^(AT ID ACTION)
+                ActionAST action = (ActionAST)a.GetChild(1);
+                r.namedActions[a.GetChild(0).Text] = action;
+                action.resolver = r;
+            }
+        }
 
-		if ( locals!=null ) {
-			r.locals = ScopeParser.parseTypedArgList(locals, locals.getText(), g);
-			r.locals.type = AttributeDict.DictType.LOCAL;
-			r.locals.ast = locals;
-		}
+        public override void DiscoverOuterAlt(AltAST alt)
+        {
+            if (alt.altLabel != null)
+            {
+                ruleToAltLabels.Map(currentRuleName, alt.altLabel);
+                string altLabel = alt.altLabel.Text;
+                altLabelToRuleName[Utils.Capitalize(altLabel)] = currentRuleName;
+                altLabelToRuleName[Utils.Decapitalize(altLabel)] = currentRuleName;
+            }
+        }
 
-		for (GrammarAST a : actions) {
-			// a = ^(AT ID ACTION)
-			ActionAST action = (ActionAST) a.getChild(1);
-			r.namedActions.put(a.getChild(0).getText(), action);
-			action.resolver = r;
-		}
-	}
-
-	@Override
-	public void discoverOuterAlt(AltAST alt) {
-		if ( alt.altLabel!=null ) {
-			ruleToAltLabels.map(currentRuleName, alt.altLabel);
-			String altLabel = alt.altLabel.getText();
-			altLabelToRuleName.put(Utils.capitalize(altLabel), currentRuleName);
-			altLabelToRuleName.put(Utils.decapitalize(altLabel), currentRuleName);
-		}
-	}
-
-	@Override
-	public void discoverLexerRule(RuleAST rule, GrammarAST ID, List<GrammarAST> modifiers,
-								  GrammarAST block)
-	{
-		int numAlts = block.getChildCount();
-		Rule r = new Rule(g, ID.getText(), rule, numAlts);
-		r.mode = currentModeName;
-		if ( !modifiers.isEmpty() ) r.modifiers = modifiers;
-		rules.put(r.name, r);
-	}
+        public override void DiscoverLexerRule(RuleAST rule, GrammarAST ID, IList<GrammarAST> modifiers,
+                                      GrammarAST block)
+        {
+            int numAlts = block.ChildCount;
+            Rule r = new Rule(g, ID.Text, rule, numAlts);
+            r.mode = currentModeName;
+            if (modifiers.Count > 0)
+                r.modifiers = modifiers;
+            rules[r.name] = r;
+        }
+    }
 }

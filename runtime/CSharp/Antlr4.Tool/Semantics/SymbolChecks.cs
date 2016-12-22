@@ -28,307 +28,351 @@
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.antlr.v4.semantics;
+namespace Antlr4.Semantics
+{
+    using System.Collections.Generic;
+    using System.Linq;
+    using Antlr4.Automata;
+    using Antlr4.Parse;
+    using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
+    using CommonTree = Antlr.Runtime.Tree.CommonTree;
+    using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
+    using NullableAttribute = Antlr4.Runtime.Misc.NullableAttribute;
+    using TokenConstants = Antlr4.Runtime.TokenConstants;
 
-import org.antlr.v4.automata.LexerATNFactory;
-import org.antlr.v4.parse.ANTLRParser;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.misc.Nullable;
-import org.antlr.v4.tool.Alternative;
-import org.antlr.v4.tool.Attribute;
-import org.antlr.v4.tool.AttributeDict;
-import org.antlr.v4.tool.ErrorManager;
-import org.antlr.v4.tool.ErrorType;
-import org.antlr.v4.tool.Grammar;
-import org.antlr.v4.tool.LabelElementPair;
-import org.antlr.v4.tool.LexerGrammar;
-import org.antlr.v4.tool.Rule;
-import org.antlr.v4.tool.ast.GrammarAST;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/** Check for symbol problems; no side-effects.  Inefficient to walk rules
- *  and such multiple times, but I like isolating all error checking outside
- *  of code that actually defines symbols etc...
- *
- *  Side-effect: strip away redef'd rules.
- */
-public class SymbolChecks {
-    Grammar g;
-    SymbolCollector collector;
-    Map<String, Rule> nameToRuleMap = new HashMap<String, Rule>();
-	Set<String> tokenIDs = new HashSet<String>();
-    Map<String, Set<String>> actionScopeToActionNames = new HashMap<String, Set<String>>();
-//	DoubleKeyMap<String, String, GrammarAST> namedActions =
-//		new DoubleKeyMap<String, String, GrammarAST>();
-
-	public ErrorManager errMgr;
-
-	protected final Set<String> reservedNames = new HashSet<String>();
-	{
-		reservedNames.addAll(LexerATNFactory.getCommonConstants());
-	}
-
-    public SymbolChecks(Grammar g, SymbolCollector collector) {
-        this.g = g;
-        this.collector = collector;
-		this.errMgr = g.tool.errMgr;
-
-        for (GrammarAST tokenId : collector.tokenIDRefs) {
-            tokenIDs.add(tokenId.getText());
-        }
-        /*
-        System.out.println("rules="+collector.rules);
-        System.out.println("rulerefs="+collector.rulerefs);
-        System.out.println("tokenIDRefs="+collector.tokenIDRefs);
-        System.out.println("terminals="+collector.terminals);
-        System.out.println("strings="+collector.strings);
-        System.out.println("tokensDef="+collector.tokensDefs);
-        System.out.println("actions="+collector.actions);
-        System.out.println("scopes="+collector.scopes);
-         */
-    }
-
-    public void process() {
-        // methods affect fields, but no side-effects outside this object
-		// So, call order sensitive
-		// First collect all rules for later use in checkForLabelConflict()
-		if ( g.rules!=null ) {
-			for (Rule r : g.rules.values()) nameToRuleMap.put(r.name, r);
-		}
-		checkReservedNames(g.rules.values());
-		checkActionRedefinitions(collector.namedActions);
-		checkForTokenConflicts(collector.tokenIDRefs);  // sets tokenIDs
-		checkForLabelConflicts(g.rules.values());
-	}
-
-	public void checkActionRedefinitions(List<GrammarAST> actions) {
-		if ( actions==null ) return;
-		String scope = g.getDefaultActionScope();
-		String name;
-		GrammarAST nameNode;
-		for (GrammarAST ampersandAST : actions) {
-			nameNode = (GrammarAST)ampersandAST.getChild(0);
-			if ( ampersandAST.getChildCount()==2 ) {
-				name = nameNode.getText();
-			}
-			else {
-				scope = nameNode.getText();
-                name = ampersandAST.getChild(1).getText();
-            }
-            Set<String> scopeActions = actionScopeToActionNames.get(scope);
-            if ( scopeActions==null ) { // init scope
-                scopeActions = new HashSet<String>();
-                actionScopeToActionNames.put(scope, scopeActions);
-            }
-            if ( !scopeActions.contains(name) ) {
-                scopeActions.add(name);
-            }
-            else {
-                errMgr.grammarError(ErrorType.ACTION_REDEFINITION,
-                                          g.fileName, nameNode.token, name);
-            }
-        }
-    }
-
-    public void checkForTokenConflicts(List<GrammarAST> tokenIDRefs) {
-//        for (GrammarAST a : tokenIDRefs) {
-//            Token t = a.token;
-//            String ID = t.getText();
-//            tokenIDs.add(ID);
-//        }
-    }
-
-    /** Make sure a label doesn't conflict with another symbol.
-     *  Labels must not conflict with: rules, tokens, scope names,
-     *  return values, parameters, and rule-scope dynamic attributes
-     *  defined in surrounding rule.  Also they must have same type
-     *  for repeated defs.
+    /** Check for symbol problems; no side-effects.  Inefficient to walk rules
+     *  and such multiple times, but I like isolating all error checking outside
+     *  of code that actually defines symbols etc...
+     *
+     *  Side-effect: strip away redef'd rules.
      */
-    public void checkForLabelConflicts(Collection<Rule> rules) {
-        for (Rule r : rules) {
-            checkForAttributeConflicts(r);
-            Map<String, LabelElementPair> labelNameSpace =
-                new HashMap<String, LabelElementPair>();
-            for (int i=1; i<=r.numberOfAlts; i++) {
-				if (r.hasAltSpecificContexts()) {
-					labelNameSpace.clear();
-				}
+    public class SymbolChecks
+    {
+        internal Grammar g;
+        internal SymbolCollector collector;
+        internal IDictionary<string, Rule> nameToRuleMap = new Dictionary<string, Rule>();
+        internal ISet<string> tokenIDs = new HashSet<string>();
+        internal IDictionary<string, ISet<string>> actionScopeToActionNames = new Dictionary<string, ISet<string>>();
+        //DoubleKeyMap<string, string, GrammarAST> namedActions =
+        //    new DoubleKeyMap<string, string, GrammarAST>();
 
-                Alternative a = r.alt[i];
-                for (List<LabelElementPair> pairs : a.labelDefs.values() ) {
-                    for (LabelElementPair p : pairs) {
-                        checkForLabelConflict(r, p.label);
-                        String name = p.label.getText();
-                        LabelElementPair prev = labelNameSpace.get(name);
-                        if ( prev==null ) labelNameSpace.put(name, p);
-                        else checkForTypeMismatch(prev, p);
+        public ErrorManager errMgr;
+
+        protected readonly ISet<string> reservedNames = new HashSet<string>(LexerATNFactory.GetCommonConstants());
+
+        public SymbolChecks(Grammar g, SymbolCollector collector)
+        {
+            this.g = g;
+            this.collector = collector;
+            this.errMgr = g.tool.errMgr;
+
+            foreach (GrammarAST tokenId in collector.tokenIDRefs)
+            {
+                tokenIDs.Add(tokenId.Text);
+            }
+
+            //System.Console.WriteLine("rules="+collector.rules);
+            //System.Console.WriteLine("rulerefs="+collector.rulerefs);
+            //System.Console.WriteLine("tokenIDRefs="+collector.tokenIDRefs);
+            //System.Console.WriteLine("terminals="+collector.terminals);
+            //System.Console.WriteLine("strings="+collector.strings);
+            //System.Console.WriteLine("tokensDef="+collector.tokensDefs);
+            //System.Console.WriteLine("actions="+collector.actions);
+            //System.Console.WriteLine("scopes="+collector.scopes);
+        }
+
+        public virtual void Process()
+        {
+            // methods affect fields, but no side-effects outside this object
+            // So, call order sensitive
+            // First collect all rules for later use in checkForLabelConflict()
+            if (g.rules != null)
+            {
+                foreach (Rule r in g.rules.Values)
+                    nameToRuleMap[r.name] = r;
+            }
+
+            CheckReservedNames(g.rules.Values);
+            CheckActionRedefinitions(collector.namedActions);
+            CheckForTokenConflicts(collector.tokenIDRefs);  // sets tokenIDs
+            CheckForLabelConflicts(g.rules.Values);
+        }
+
+        public virtual void CheckActionRedefinitions(IList<GrammarAST> actions)
+        {
+            if (actions == null)
+                return;
+            string scope = g.GetDefaultActionScope();
+            string name;
+            GrammarAST nameNode;
+            foreach (GrammarAST ampersandAST in actions)
+            {
+                nameNode = (GrammarAST)ampersandAST.GetChild(0);
+                if (ampersandAST.ChildCount == 2)
+                {
+                    name = nameNode.Text;
+                }
+                else
+                {
+                    scope = nameNode.Text;
+                    name = ampersandAST.GetChild(1).Text;
+                }
+                ISet<string> scopeActions;
+                if (!actionScopeToActionNames.TryGetValue(scope, out scopeActions) || scopeActions == null)
+                {
+                    // init scope
+                    scopeActions = new HashSet<string>();
+                    actionScopeToActionNames[scope] = scopeActions;
+                }
+                if (!scopeActions.Contains(name))
+                {
+                    scopeActions.Add(name);
+                }
+                else
+                {
+                    errMgr.GrammarError(ErrorType.ACTION_REDEFINITION,
+                                              g.fileName, nameNode.Token, name);
+                }
+            }
+        }
+
+        public virtual void CheckForTokenConflicts(IList<GrammarAST> tokenIDRefs)
+        {
+            //foreach (GrammarAST a in tokenIDRefs)
+            //{
+            //    var t = a.Token;
+            //    string ID = t.Text;
+            //    tokenIDs.Add(ID);
+            //}
+        }
+
+        /** Make sure a label doesn't conflict with another symbol.
+         *  Labels must not conflict with: rules, tokens, scope names,
+         *  return values, parameters, and rule-scope dynamic attributes
+         *  defined in surrounding rule.  Also they must have same type
+         *  for repeated defs.
+         */
+        public virtual void CheckForLabelConflicts(ICollection<Rule> rules)
+        {
+            foreach (Rule r in rules)
+            {
+                CheckForAttributeConflicts(r);
+                IDictionary<string, LabelElementPair> labelNameSpace =
+                    new Dictionary<string, LabelElementPair>();
+                for (int i = 1; i <= r.numberOfAlts; i++)
+                {
+                    if (r.HasAltSpecificContexts())
+                    {
+                        labelNameSpace.Clear();
+                    }
+
+                    Alternative a = r.alt[i];
+                    foreach (IList<LabelElementPair> pairs in a.labelDefs.Values)
+                    {
+                        foreach (LabelElementPair p in pairs)
+                        {
+                            CheckForLabelConflict(r, p.label);
+                            string name = p.label.Text;
+                            LabelElementPair prev;
+                            if (!labelNameSpace.TryGetValue(name, out prev) || prev == null)
+                                labelNameSpace[name] = p;
+                            else
+                                CheckForTypeMismatch(prev, p);
+                        }
+                    }
+                }
+            }
+        }
+
+        internal virtual void CheckForTypeMismatch(LabelElementPair prevLabelPair,
+                                            LabelElementPair labelPair)
+        {
+            // label already defined; if same type, no problem
+            if (prevLabelPair.type != labelPair.type)
+            {
+                string typeMismatchExpr = labelPair.type + "!=" + prevLabelPair.type;
+                errMgr.GrammarError(
+                    ErrorType.LABEL_TYPE_CONFLICT,
+                    g.fileName,
+                    labelPair.label.Token,
+                    labelPair.label.Text,
+                    typeMismatchExpr);
+            }
+        }
+
+        public virtual void CheckForLabelConflict(Rule r, GrammarAST labelID)
+        {
+            string name = labelID.Text;
+            if (nameToRuleMap.ContainsKey(name))
+            {
+                ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_RULE;
+                errMgr.GrammarError(etype, g.fileName, labelID.Token, name, r.name);
+            }
+
+            if (tokenIDs.Contains(name))
+            {
+                ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_TOKEN;
+                errMgr.GrammarError(etype, g.fileName, labelID.Token, name, r.name);
+            }
+
+            if (r.args != null && r.args.Get(name) != null)
+            {
+                ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_ARG;
+                errMgr.GrammarError(etype, g.fileName, labelID.Token, name, r.name);
+            }
+
+            if (r.retvals != null && r.retvals.Get(name) != null)
+            {
+                ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_RETVAL;
+                errMgr.GrammarError(etype, g.fileName, labelID.Token, name, r.name);
+            }
+
+            if (r.locals != null && r.locals.Get(name) != null)
+            {
+                ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_LOCAL;
+                errMgr.GrammarError(etype, g.fileName, labelID.Token, name, r.name);
+            }
+        }
+
+        public virtual void CheckForAttributeConflicts(Rule r)
+        {
+            CheckDeclarationRuleConflicts(r, r.args, nameToRuleMap.Keys, ErrorType.ARG_CONFLICTS_WITH_RULE);
+            CheckDeclarationRuleConflicts(r, r.args, tokenIDs, ErrorType.ARG_CONFLICTS_WITH_TOKEN);
+
+            CheckDeclarationRuleConflicts(r, r.retvals, nameToRuleMap.Keys, ErrorType.RETVAL_CONFLICTS_WITH_RULE);
+            CheckDeclarationRuleConflicts(r, r.retvals, tokenIDs, ErrorType.RETVAL_CONFLICTS_WITH_TOKEN);
+
+            CheckDeclarationRuleConflicts(r, r.locals, nameToRuleMap.Keys, ErrorType.LOCAL_CONFLICTS_WITH_RULE);
+            CheckDeclarationRuleConflicts(r, r.locals, tokenIDs, ErrorType.LOCAL_CONFLICTS_WITH_TOKEN);
+
+            CheckLocalConflictingDeclarations(r, r.retvals, r.args, ErrorType.RETVAL_CONFLICTS_WITH_ARG);
+            CheckLocalConflictingDeclarations(r, r.locals, r.args, ErrorType.LOCAL_CONFLICTS_WITH_ARG);
+            CheckLocalConflictingDeclarations(r, r.locals, r.retvals, ErrorType.LOCAL_CONFLICTS_WITH_RETVAL);
+        }
+
+        protected virtual void CheckDeclarationRuleConflicts([NotNull] Rule r, [Nullable] AttributeDict attributes, [NotNull] ICollection<string> ruleNames, [NotNull] ErrorType errorType)
+        {
+            if (attributes == null)
+            {
+                return;
+            }
+
+            foreach (Attribute attribute in attributes.attributes.Values)
+            {
+                if (ruleNames.Contains(attribute.name))
+                {
+                    errMgr.GrammarError(
+                        errorType,
+                        g.fileName,
+                        attribute.token != null ? attribute.token : ((GrammarAST)r.ast.GetChild(0)).Token,
+                        attribute.name,
+                        r.name);
+                }
+            }
+        }
+
+        protected virtual void CheckLocalConflictingDeclarations([NotNull] Rule r, [Nullable] AttributeDict attributes, [Nullable] AttributeDict referenceAttributes, [NotNull] ErrorType errorType)
+        {
+            if (attributes == null || referenceAttributes == null)
+            {
+                return;
+            }
+
+            ISet<string> conflictingKeys = attributes.Intersection(referenceAttributes);
+            foreach (string key in conflictingKeys)
+            {
+                errMgr.GrammarError(
+                    errorType,
+                    g.fileName,
+                    attributes.Get(key).token != null ? attributes.Get(key).token : ((GrammarAST)r.ast.GetChild(0)).Token,
+                    key,
+                    r.name);
+            }
+        }
+
+        protected virtual void CheckReservedNames([NotNull] ICollection<Rule> rules)
+        {
+            foreach (Rule rule in rules)
+            {
+                if (reservedNames.Contains(rule.name))
+                {
+                    errMgr.GrammarError(ErrorType.RESERVED_RULE_NAME, g.fileName, ((GrammarAST)rule.ast.GetChild(0)).Token, rule.name);
+                }
+            }
+        }
+
+        public virtual void CheckForModeConflicts(Grammar g)
+        {
+            if (g.IsLexer())
+            {
+                LexerGrammar lexerGrammar = (LexerGrammar)g;
+                foreach (string modeName in lexerGrammar.modes.Keys)
+                {
+                    if (!modeName.Equals("DEFAULT_MODE") && reservedNames.Contains(modeName))
+                    {
+                        Rule rule = lexerGrammar.modes[modeName].First();
+                        g.tool.errMgr.GrammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, ((CommonTree)rule.ast.Parent).Token, modeName);
+                    }
+
+                    if (g.GetTokenType(modeName) != TokenConstants.InvalidType)
+                    {
+                        Rule rule = lexerGrammar.modes[modeName].First();
+                        g.tool.errMgr.GrammarError(ErrorType.MODE_CONFLICTS_WITH_TOKEN, g.fileName, ((CommonTree)rule.ast.Parent).Token, modeName);
+                    }
+                }
+            }
+        }
+
+        // CAN ONLY CALL THE TWO NEXT METHODS AFTER GRAMMAR HAS RULE DEFS (see semanticpipeline)
+
+        public virtual void CheckRuleArgs(Grammar g, IList<GrammarAST> rulerefs)
+        {
+            if (rulerefs == null)
+                return;
+            foreach (GrammarAST @ref in rulerefs)
+            {
+                string ruleName = @ref.Text;
+                Rule r = g.GetRule(ruleName);
+                GrammarAST arg = (GrammarAST)@ref.GetFirstChildWithType(ANTLRParser.ARG_ACTION);
+                if (arg != null && (r == null || r.args == null))
+                {
+                    errMgr.GrammarError(ErrorType.RULE_HAS_NO_ARGS,
+                                              g.fileName, @ref.Token, ruleName);
+
+                }
+                else if (arg == null && (r != null && r.args != null))
+                {
+                    errMgr.GrammarError(ErrorType.MISSING_RULE_ARGS,
+                                              g.fileName, @ref.Token, ruleName);
+                }
+            }
+        }
+
+        public virtual void CheckForQualifiedRuleIssues(Grammar g, IList<GrammarAST> qualifiedRuleRefs)
+        {
+            foreach (GrammarAST dot in qualifiedRuleRefs)
+            {
+                GrammarAST grammar = (GrammarAST)dot.GetChild(0);
+                GrammarAST rule = (GrammarAST)dot.GetChild(1);
+                g.tool.Log("semantics", grammar.Text + "." + rule.Text);
+                Grammar @delegate = g.GetImportedGrammar(grammar.Text);
+                if (@delegate == null)
+                {
+                    errMgr.GrammarError(ErrorType.NO_SUCH_GRAMMAR_SCOPE,
+                                              g.fileName, grammar.Token, grammar.Text,
+                                              rule.Text);
+                }
+                else
+                {
+                    if (g.GetRule(grammar.Text, rule.Text) == null)
+                    {
+                        errMgr.GrammarError(ErrorType.NO_SUCH_RULE_IN_SCOPE,
+                                                  g.fileName, rule.Token, grammar.Text,
+                                                  rule.Text);
                     }
                 }
             }
         }
     }
-
-    void checkForTypeMismatch(LabelElementPair prevLabelPair,
-                                        LabelElementPair labelPair)
-    {
-        // label already defined; if same type, no problem
-        if ( prevLabelPair.type != labelPair.type ) {
-            String typeMismatchExpr = labelPair.type+"!="+prevLabelPair.type;
-            errMgr.grammarError(
-                ErrorType.LABEL_TYPE_CONFLICT,
-                g.fileName,
-                labelPair.label.token,
-                labelPair.label.getText(),
-                typeMismatchExpr);
-        }
-    }
-
-	public void checkForLabelConflict(Rule r, GrammarAST labelID) {
-		String name = labelID.getText();
-		if (nameToRuleMap.containsKey(name)) {
-			ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_RULE;
-			errMgr.grammarError(etype, g.fileName, labelID.token, name, r.name);
-		}
-
-		if (tokenIDs.contains(name)) {
-			ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_TOKEN;
-			errMgr.grammarError(etype, g.fileName, labelID.token, name, r.name);
-		}
-
-		if (r.args != null && r.args.get(name) != null) {
-			ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_ARG;
-			errMgr.grammarError(etype, g.fileName, labelID.token, name, r.name);
-		}
-
-		if (r.retvals != null && r.retvals.get(name) != null) {
-			ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_RETVAL;
-			errMgr.grammarError(etype, g.fileName, labelID.token, name, r.name);
-		}
-
-		if (r.locals != null && r.locals.get(name) != null) {
-			ErrorType etype = ErrorType.LABEL_CONFLICTS_WITH_LOCAL;
-			errMgr.grammarError(etype, g.fileName, labelID.token, name, r.name);
-		}
-	}
-
-	public void checkForAttributeConflicts(Rule r) {
-		checkDeclarationRuleConflicts(r, r.args, nameToRuleMap.keySet(), ErrorType.ARG_CONFLICTS_WITH_RULE);
-		checkDeclarationRuleConflicts(r, r.args, tokenIDs, ErrorType.ARG_CONFLICTS_WITH_TOKEN);
-
-		checkDeclarationRuleConflicts(r, r.retvals, nameToRuleMap.keySet(), ErrorType.RETVAL_CONFLICTS_WITH_RULE);
-		checkDeclarationRuleConflicts(r, r.retvals, tokenIDs, ErrorType.RETVAL_CONFLICTS_WITH_TOKEN);
-
-		checkDeclarationRuleConflicts(r, r.locals, nameToRuleMap.keySet(), ErrorType.LOCAL_CONFLICTS_WITH_RULE);
-		checkDeclarationRuleConflicts(r, r.locals, tokenIDs, ErrorType.LOCAL_CONFLICTS_WITH_TOKEN);
-
-		checkLocalConflictingDeclarations(r, r.retvals, r.args, ErrorType.RETVAL_CONFLICTS_WITH_ARG);
-		checkLocalConflictingDeclarations(r, r.locals, r.args, ErrorType.LOCAL_CONFLICTS_WITH_ARG);
-		checkLocalConflictingDeclarations(r, r.locals, r.retvals, ErrorType.LOCAL_CONFLICTS_WITH_RETVAL);
-	}
-
-	protected void checkDeclarationRuleConflicts(@NotNull Rule r, @Nullable AttributeDict attributes, @NotNull Set<String> ruleNames, @NotNull ErrorType errorType) {
-		if (attributes == null) {
-			return;
-		}
-
-		for (Attribute attribute : attributes.attributes.values()) {
-			if (ruleNames.contains(attribute.name)) {
-				errMgr.grammarError(
-					errorType,
-					g.fileName,
-					attribute.token != null ? attribute.token : ((GrammarAST)r.ast.getChild(0)).token,
-					attribute.name,
-					r.name);
-			}
-		}
-	}
-
-	protected void checkLocalConflictingDeclarations(@NotNull Rule r, @Nullable AttributeDict attributes, @Nullable AttributeDict referenceAttributes, @NotNull ErrorType errorType) {
-		if (attributes == null || referenceAttributes == null) {
-			return;
-		}
-
-		Set<String> conflictingKeys = attributes.intersection(referenceAttributes);
-		for (String key : conflictingKeys) {
-			errMgr.grammarError(
-				errorType,
-				g.fileName,
-				attributes.get(key).token != null ? attributes.get(key).token : ((GrammarAST) r.ast.getChild(0)).token,
-				key,
-				r.name);
-		}
-	}
-
-	protected void checkReservedNames(@NotNull Collection<Rule> rules) {
-		for (Rule rule : rules) {
-			if (reservedNames.contains(rule.name)) {
-				errMgr.grammarError(ErrorType.RESERVED_RULE_NAME, g.fileName, ((GrammarAST)rule.ast.getChild(0)).getToken(), rule.name);
-			}
-		}
-	}
-
-	public void checkForModeConflicts(Grammar g) {
-		if (g.isLexer()) {
-			LexerGrammar lexerGrammar = (LexerGrammar)g;
-			for (String modeName : lexerGrammar.modes.keySet()) {
-				if (!modeName.equals("DEFAULT_MODE") && reservedNames.contains(modeName)) {
-					Rule rule = lexerGrammar.modes.get(modeName).iterator().next();
-					g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, rule.ast.parent.getToken(), modeName);
-				}
-
-				if (g.getTokenType(modeName) != Token.INVALID_TYPE) {
-					Rule rule = lexerGrammar.modes.get(modeName).iterator().next();
-					g.tool.errMgr.grammarError(ErrorType.MODE_CONFLICTS_WITH_TOKEN, g.fileName, rule.ast.parent.getToken(), modeName);
-				}
-			}
-		}
-	}
-
-	// CAN ONLY CALL THE TWO NEXT METHODS AFTER GRAMMAR HAS RULE DEFS (see semanticpipeline)
-
-	public void checkRuleArgs(Grammar g, List<GrammarAST> rulerefs) {
-		if ( rulerefs==null ) return;
-		for (GrammarAST ref : rulerefs) {
-			String ruleName = ref.getText();
-			Rule r = g.getRule(ruleName);
-			GrammarAST arg = (GrammarAST)ref.getFirstChildWithType(ANTLRParser.ARG_ACTION);
-			if ( arg!=null && (r==null || r.args==null) ) {
-				errMgr.grammarError(ErrorType.RULE_HAS_NO_ARGS,
-										  g.fileName, ref.token, ruleName);
-
-			}
-			else if ( arg==null && (r!=null&&r.args!=null) ) {
-				errMgr.grammarError(ErrorType.MISSING_RULE_ARGS,
-										  g.fileName, ref.token, ruleName);
-			}
-		}
-	}
-
-	public void checkForQualifiedRuleIssues(Grammar g, List<GrammarAST> qualifiedRuleRefs) {
-		for (GrammarAST dot : qualifiedRuleRefs) {
-			GrammarAST grammar = (GrammarAST)dot.getChild(0);
-			GrammarAST rule = (GrammarAST)dot.getChild(1);
-            g.tool.log("semantics", grammar.getText()+"."+rule.getText());
-			Grammar delegate = g.getImportedGrammar(grammar.getText());
-			if ( delegate==null ) {
-				errMgr.grammarError(ErrorType.NO_SUCH_GRAMMAR_SCOPE,
-										  g.fileName, grammar.token, grammar.getText(),
-										  rule.getText());
-			}
-			else {
-				if ( g.getRule(grammar.getText(), rule.getText())==null ) {
-					errMgr.grammarError(ErrorType.NO_SUCH_RULE_IN_SCOPE,
-											  g.fileName, rule.token, grammar.getText(),
-											  rule.getText());
-				}
-			}
-		}
-	}
 }
