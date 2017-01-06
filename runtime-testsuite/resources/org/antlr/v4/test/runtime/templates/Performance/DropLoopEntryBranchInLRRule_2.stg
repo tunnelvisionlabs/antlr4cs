@@ -1,0 +1,12 @@
+import "DropLoopEntryBranchInLRRule.stg"
+
+Input() ::= <<
+X1 and X2 and X3 and X4 and X5 and X6 and X7 or
+X1 and X2 and X3 and X4 and X5 and X6 and X7 or
+X1 and X2 and X3 and X4 and X5 and X6 and X7 or
+X1 and X2 and X3 and X4 and X5 and X6 and X7 or
+X1 and X2 and X3 and X4 and X5 and X6 and X7 or
+X1 and X2 and X3 and X4 and X5 and X6 and X7 or
+X1 and X2 and X3 and X4 and X5 and X6 and X7
+. <! Different in final token !>
+>>

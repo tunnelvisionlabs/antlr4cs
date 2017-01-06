@@ -5,6 +5,7 @@ TestTemplates ::= [
 	"2AltLoop": [],
 	"RuleRef": [],
 	"ExtraToken": [],
+	"ExtraTokensAndAltLabels": [],
 	"NoViableAlt": [],
 	"Sync": [],
 	"AltNum": []

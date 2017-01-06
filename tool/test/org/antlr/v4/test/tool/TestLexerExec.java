@@ -1,31 +1,7 @@
 /*
- * [The "BSD license"]
- *  Copyright (c) 2012 Terence Parr
- *  Copyright (c) 2012 Sam Harwell
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *  1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 package org.antlr.v4.test.tool;
@@ -224,7 +200,7 @@ public class TestLexerExec extends BaseTest {
 		assertNull(stderrDuringParse);
 	}
 
-	@Test 
+	@Test
 	public void testRecursiveLexerRuleRefWithWildcardStar1() throws Exception {
 		String grammar =
 			"lexer grammar L;\n"+
@@ -247,8 +223,8 @@ public class TestLexerExec extends BaseTest {
 		assertEquals(expecting, found);
 		assertNull(stderrDuringParse);
 	}
-	
-	@Test 
+
+	@Test
 	public void testRecursiveLexerRuleRefWithWildcardStar2() throws Exception {
 		String grammar =
 			"lexer grammar L;\n"+
@@ -273,7 +249,7 @@ public class TestLexerExec extends BaseTest {
 			"line 3:16 token recognition error at: 'x'\n", stderrDuringParse);
 	}
 
-	@Test 
+	@Test
 	public void testRecursiveLexerRuleRefWithWildcardPlus1() throws Exception {
 		String grammar =
 			"lexer grammar L;\n"+
@@ -296,8 +272,8 @@ public class TestLexerExec extends BaseTest {
 		assertEquals(expecting, found);
 		assertNull(stderrDuringParse);
 	}
-	
-	@Test 
+
+	@Test
 	public void testRecursiveLexerRuleRefWithWildcardPlus2() throws Exception {
 		String grammar =
 			"lexer grammar L;\n"+
@@ -543,7 +519,7 @@ public class TestLexerExec extends BaseTest {
 		String grammar =
 			"lexer grammar L;\n"+
 			"I : [0-9]+ {System.out.println(\"I\");} ;\n"+
-			"WS : [ \\u]+ -> skip ;";
+			"WS : [ \\n]+ -> skip ;";
 		String found = execLexer("L.g4", grammar, "L", "34 ");
 		String expecting =
 			"I\n" +
@@ -556,7 +532,7 @@ public class TestLexerExec extends BaseTest {
 		String grammar =
 			"lexer grammar L;\n"+
 			"DASHBRACK : [\\-\\]]+ {System.out.println(\"DASHBRACK\");} ;\n"+
-			"WS : [ \\u]+ -> skip ;";
+			"WS : [ \\n]+ -> skip ;";
 		String found = execLexer("L.g4", grammar, "L", "- ] ");
 		String expecting =
 			"DASHBRACK\n" +
@@ -564,19 +540,6 @@ public class TestLexerExec extends BaseTest {
 			"[@0,0:0='-',<1>,1:0]\n" +
 			"[@1,2:2=']',<1>,1:2]\n" +
 			"[@2,4:3='<EOF>',<-1>,1:4]\n";
-		assertEquals(expecting, found);
-	}
-
-	@Test public void testCharSetWithReversedRange() throws Exception {
-		String grammar =
-			"lexer grammar L;\n"+
-			"A : [z-a9]+ {System.out.println(\"A\");} ;\n"+
-			"WS : [ \\u]+ -> skip ;";
-		String found = execLexer("L.g4", grammar, "L", "9");
-		String expecting =
-			"A\n" +
-			"[@0,0:0='9',<1>,1:0]\n" +
-			"[@1,1:0='<EOF>',<-1>,1:1]\n";
 		assertEquals(expecting, found);
 	}
 

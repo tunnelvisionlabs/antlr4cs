@@ -12,6 +12,9 @@ Rule() ::= "s"
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 s 
 @init {<LL_EXACT_AMBIG_DETECTION()>}
 @after {<DumpDFA()>}

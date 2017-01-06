@@ -1,31 +1,7 @@
 /*
- * [The "BSD license"]
- *  Copyright (c) 2012 Terence Parr
- *  Copyright (c) 2012 Sam Harwell
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *  1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 package org.antlr.v4.test.tool;
@@ -149,7 +125,7 @@ public class TestParseErrors extends BaseTest {
 	@Test public void testSingleTokenDeletionBeforeLoop() throws Exception {
 		String grammar =
 			"grammar T;\n" +
-			"a : 'a' 'b'*;";
+			"a : 'a' 'b'* EOF ;";
 		String found = execParser("T.g4", grammar, "TParser", "TLexer", "a", "aabc", false);
 		String expecting = "line 1:1 extraneous input 'a' expecting {<EOF>, 'b'}\n" +
 			"line 1:3 token recognition error at: 'c'\n";
@@ -196,7 +172,7 @@ public class TestParseErrors extends BaseTest {
 	@Test public void testSingleTokenDeletionBeforeLoop2() throws Exception {
 		String grammar =
 			"grammar T;\n" +
-			"a : 'a' ('b'|'z'{;})*;";
+			"a : 'a' ('b'|'z'{;})* EOF ;";
 		String found = execParser("T.g4", grammar, "TParser", "TLexer", "a", "aabc", false);
 		String expecting = "line 1:1 extraneous input 'a' expecting {<EOF>, 'b', 'z'}\n" +
 			"line 1:3 token recognition error at: 'c'\n";
@@ -273,7 +249,7 @@ public class TestParseErrors extends BaseTest {
 		String result = execParser("T.g4", grammar, "TParser", "TLexer", "start", "", true);
 		String expecting = "";
 		assertEquals(expecting, result);
-		assertEquals("line 1:0 missing ID at '<EOF>'\n", this.stderrDuringParse);
+		assertEquals("line 1:0 mismatched input '<EOF>' expecting ID\n", this.stderrDuringParse);
 	}
 
 	/**
@@ -317,13 +293,13 @@ public class TestParseErrors extends BaseTest {
 		assertEquals("", result);
 		assertNull(this.stderrDuringParse);
 	}
-	
+
 
 	@Test
 	public void testDuplicatedLeftRecursiveCall1() throws Exception {
 		testDuplicatedLeftRecursiveCall("x");
 	}
-	
+
 	@Test
 	public void testDuplicatedLeftRecursiveCall2() throws Exception {
 		testDuplicatedLeftRecursiveCall("xx");
@@ -338,7 +314,7 @@ public class TestParseErrors extends BaseTest {
 	public void testDuplicatedLeftRecursiveCall4() throws Exception {
 		testDuplicatedLeftRecursiveCall("xxxx");
 	}
-	
+
 	/**
 	 * Regression test for "Ambiguity at k=1 prevents full context parsing".
 	 * https://github.com/antlr/antlr4/issues/44
