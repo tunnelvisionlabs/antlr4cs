@@ -1,3 +1,5 @@
+:warning: The information on this page has not been updated for this optimized fork.
+
 # Left-recursive rules
 
 The most natural expression of some common language constructs is left recursive. For example C declarators and arithmetic expressions. Unfortunately, left recursive specifications of arithmetic expressions are typically ambiguous but much easier to write out than the multiple levels required in a typical top-down grammar. Here is a sample ANTLR 4 grammar with a left recursive expression rule:

@@ -1,3 +1,9 @@
+<!--
+  ~ Copyright (c) 2012 The ANTLR Project. All rights reserved.
+  ~ Use of this file is governed by the BSD-3-Clause license that
+  ~ can be found in the LICENSE.txt file in the project root.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -9,7 +15,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tunnelvisionlabs.sharpen</groupId>
     <artifactId>antlr4-master</artifactId>
-    <version>4.5.4-SNAPSHOT</version>
+    <version>4.6.0.2</version>
     <packaging>pom</packaging>
 
     <name>ANTLR 4</name>
@@ -37,7 +43,7 @@
 
         <developer>
             <name>Terence Parr</name>
-            <url>http://antlr.org/wiki/display/~admin/Home</url>
+            <url>http://parrt.cs.usfca.edu</url>
             <roles>
                 <role>Project lead - ANTLR</role>
             </roles>
@@ -99,7 +105,7 @@
         <url>https://github.com/antlr/antlr4/tree/master</url>
         <connection>scm:git:git://github.com/antlr/antlr4.git</connection>
         <developerConnection>scm:git:git@github.com:antlr/antlr4.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>4.6.0.2-opt</tag>
   </scm>
 
     <profiles>
@@ -179,7 +185,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.6.0</version>
                 <configuration>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -239,7 +245,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <!-- override the version inherited from the parent -->
-                <version>2.5.2</version>
+                <version>2.5.3</version>
                 <configuration>
                     <arguments>-Psonatype-oss-release ${release.arguments}</arguments>
                     <autoVersionSubmodules>true</autoVersionSubmodules>

@@ -27,7 +27,7 @@ line 1:0 reportContextSensitivity d=0 (e), input='34'<\n>
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
-s @init{getInterpreter().enable_global_context_dfa = true;} @after {<DumpDFA()>}
+s @init{<FULL_CONTEXT_DFA()>} @after {<DumpDFA()>}
   : a;
 a : e ID ;
 b : e INT ID ;

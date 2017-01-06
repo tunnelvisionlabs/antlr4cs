@@ -1,31 +1,7 @@
 /*
- * [The "BSD license"]
- *  Copyright (c) 2012 Terence Parr
- *  Copyright (c) 2012 Sam Harwell
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *  1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 package org.antlr.v4.test.tool;
@@ -102,8 +78,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.CRC32;
-import java.util.zip.Checksum;
+import org.antlr.v4.runtime.misc.MurmurHash;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -879,7 +854,7 @@ public class TestPerformance extends BaseTest {
 			results.add(futureChecksum);
         }
 
-		Checksum checksum = new CRC32();
+		MurmurHashChecksum checksum = new MurmurHashChecksum();
 		int currentIndex = -1;
 		for (Future<FileParseResult> future : results) {
 			currentIndex++;
@@ -1183,14 +1158,11 @@ public class TestPerformance extends BaseTest {
         assertTrue(success);
     }
 
-	private static void updateChecksum(Checksum checksum, int value) {
-		checksum.update((value) & 0xFF);
-		checksum.update((value >>> 8) & 0xFF);
-		checksum.update((value >>> 16) & 0xFF);
-		checksum.update((value >>> 24) & 0xFF);
+	private static void updateChecksum(MurmurHashChecksum checksum, int value) {
+		checksum.update(value);
 	}
 
-	private static void updateChecksum(Checksum checksum, Token token) {
+	private static void updateChecksum(MurmurHashChecksum checksum, Token token) {
 		if (token == null) {
 			checksum.update(0);
 			return;
@@ -1238,7 +1210,7 @@ public class TestPerformance extends BaseTest {
                 @SuppressWarnings("unused")
 				@Override
                 public FileParseResult parseFile(CharStream input, int currentPass, int thread) {
-					final Checksum checksum = new CRC32();
+					final MurmurHashChecksum checksum = new MurmurHashChecksum();
 
 					final long startTime = System.nanoTime();
 					assert thread >= 0 && thread < NUMBER_OF_THREADS;
@@ -1288,7 +1260,7 @@ public class TestPerformance extends BaseTest {
 						}
 
                         if (!RUN_PARSER) {
-                            return new FileParseResult(input.getSourceName(), (int)checksum.getValue(), null, tokens.size(), startTime, lexer, null);
+                            return new FileParseResult(input.getSourceName(), checksum.getValue(), null, tokens.size(), startTime, lexer, null);
                         }
 
 						final long parseStartTime = System.nanoTime();
@@ -1435,10 +1407,10 @@ public class TestPerformance extends BaseTest {
                             ParseTreeWalker.DEFAULT.walk(listener, (ParserRuleContext)parseResult);
                         }
 
-						return new FileParseResult(input.getSourceName(), (int)checksum.getValue(), (ParseTree)parseResult, tokens.size(), TIME_PARSE_ONLY ? parseStartTime : startTime, lexer, parser);
+						return new FileParseResult(input.getSourceName(), checksum.getValue(), (ParseTree)parseResult, tokens.size(), TIME_PARSE_ONLY ? parseStartTime : startTime, lexer, parser);
                     } catch (Exception e) {
 						if (!REPORT_SYNTAX_ERRORS && e instanceof ParseCancellationException) {
-							return new FileParseResult("unknown", (int)checksum.getValue(), null, 0, startTime, null, null);
+							return new FileParseResult("unknown", checksum.getValue(), null, 0, startTime, null, null);
 						}
 
                         e.printStackTrace(System.out);
@@ -1973,9 +1945,9 @@ public class TestPerformance extends BaseTest {
 		private static final int ENTER_RULE = 3;
 		private static final int EXIT_RULE = 4;
 
-		private final Checksum checksum;
+		private final MurmurHashChecksum checksum;
 
-		public ChecksumParseTreeListener(Checksum checksum) {
+		public ChecksumParseTreeListener(MurmurHashChecksum checksum) {
 			this.checksum = checksum;
 		}
 
@@ -2064,6 +2036,24 @@ public class TestPerformance extends BaseTest {
 		@Override
 		public T get() {
 			return referent;
+		}
+	}
+
+	private static class MurmurHashChecksum {
+		private int value;
+		private int count;
+
+		public MurmurHashChecksum() {
+			this.value = MurmurHash.initialize();
+		}
+
+		public void update(int value) {
+			this.value = MurmurHash.update(this.value, value);
+			this.count++;
+		}
+
+		public int getValue() {
+			return MurmurHash.finish(value, count);
 		}
 	}
 

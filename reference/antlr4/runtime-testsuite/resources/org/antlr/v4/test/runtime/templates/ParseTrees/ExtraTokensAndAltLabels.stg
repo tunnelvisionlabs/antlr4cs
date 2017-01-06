@@ -1,0 +1,43 @@
+TestType() ::= "Parser"
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+Input() ::= "${ ? a ?}"
+
+Rule() ::= "s"
+
+Output() ::= <<
+(s ${ (v ? a) ? })<\n>
+>>
+
+Errors() ::= <<
+line 1:3 extraneous input '?' expecting {'a', 'b'}
+line 1:7 extraneous input '?' expecting '}'<\n>
+>>
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+
+s
+@init {
+<BuildParseTrees()>
+}
+@after {
+<ToStringTree("$ctx"):writeln()>
+}
+  : '${' v '}'
+  ;
+
+v : A #altA
+  | B #altB
+  ;
+
+A : 'a' ;
+B : 'b' ;
+
+WHITESPACE : [ \n\t\r]+ -> channel(HIDDEN) ;
+
+ERROR : . ;
+>>

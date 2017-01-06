@@ -31,6 +31,9 @@ TestTemplates ::= [
 	"MultipleEOFHandling": [],
 	"EOFInClosure": [],
 	"ReferenceToATN_1": [],
-	"ReferenceToATN_2": []
+	"ReferenceToATN_2": [],
 	//"AlternateQuotes": []
+	"OpenDeviceStatement_1": [],
+	"OpenDeviceStatement_2": [],
+	"OpenDeviceStatement_3": []
 ]

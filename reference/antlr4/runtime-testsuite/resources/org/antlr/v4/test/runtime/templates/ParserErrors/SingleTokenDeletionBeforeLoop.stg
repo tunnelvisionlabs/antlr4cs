@@ -22,5 +22,5 @@ line 1:3 token recognition error at: 'c'<\n>
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
-a : 'a' 'b'* ;
+a : 'a' 'b'* EOF ;
 >>

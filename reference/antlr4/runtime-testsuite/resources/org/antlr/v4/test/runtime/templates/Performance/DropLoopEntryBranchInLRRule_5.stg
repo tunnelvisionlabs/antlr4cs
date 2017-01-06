@@ -1,0 +1,34 @@
+import "DropLoopEntryBranchInLRRule.stg"
+
+Input() ::= <<
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z or
+X ? Y : Z
+;
+>>

@@ -12,8 +12,11 @@ Rule() ::= "s"
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 s 
-@init {getInterpreter().enable_global_context_dfa = true; <LL_EXACT_AMBIG_DETECTION()>}
+@init {<FULL_CONTEXT_DFA()> <LL_EXACT_AMBIG_DETECTION()>}
 @after {<DumpDFA()>}
 	: '{' stat* '}' ;
 stat: 'if' ID 'then' stat ('else' ID)?

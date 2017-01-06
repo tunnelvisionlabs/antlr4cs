@@ -1,0 +1,11 @@
+/*
+ * This is a regression test for antlr/antlr4#1545, case 1.
+ */
+
+import "OpenDeviceStatement.stg"
+
+Grammar ::= [
+	"OpenDeviceStatement": {<grammar("OpenDeviceStatement", "OPT1")>}
+]
+
+Input() ::= "OPEN DEVICE DEVICE"

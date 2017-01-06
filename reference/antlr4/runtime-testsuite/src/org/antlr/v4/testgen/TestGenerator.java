@@ -1,31 +1,7 @@
 /*
- * [The "BSD license"]
- *  Copyright (c) 2015 Terence Parr
- *  Copyright (c) 2015 Sam Harwell
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *  1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 package org.antlr.v4.testgen;
 
@@ -41,7 +17,9 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
+import org.stringtemplate.v4.StringRenderer;
 import org.stringtemplate.v4.gui.STViz;
+import org.stringtemplate.v4.misc.ErrorBuffer;
 
 public class TestGenerator {
 	// This project uses UTF-8, but the plugin might be used in another project
@@ -65,6 +43,7 @@ public class TestGenerator {
 	public void execute() {
 		STGroup targetGroup = new STGroupFile(runtimeTemplates.getPath());
 		targetGroup.registerModelAdaptor(STGroup.class, new STGroupModelAdaptor());
+		targetGroup.registerRenderer(String.class, new StringRenderer(), true);
 		targetGroup.defineDictionary("escape", new JavaEscapeStringMap());
 		targetGroup.defineDictionary("lines", new LinesStringMap());
 		targetGroup.defineDictionary("strlen", new StrlenStringMap());
@@ -100,10 +79,13 @@ public class TestGenerator {
 									String testdir,
 									Collection<String> testTemplates)
 	{
+		ErrorBuffer errors = new ErrorBuffer();
+		targetGroup.setListener(errors);
+
 		File targetFolder = getOutputDir(testdir);
 		String testName = testdir.substring(testdir.lastIndexOf('/') + 1);
 		File targetFile = new File(targetFolder, "Test" + testName + ".java");
-		info("Generating file "+targetFile.getAbsolutePath());
+//		System.out.println("Generating file "+targetFile.getAbsolutePath());
 		List<ST> templates = new ArrayList<ST>();
 		for (String template : testTemplates) {
 			STGroup testGroup = new STGroupFile(testdir + "/" + template + STGroup.GROUP_FILE_EXTENSION);
@@ -125,7 +107,10 @@ public class TestGenerator {
 		}
 
 		ST testFileTemplate = targetGroup.getInstanceOf("TestFile");
-		testFileTemplate.addAggr("file.{Options,name,tests}", index.rawGetDictionary("Options"), testName, templates);
+		testFileTemplate.addAggr("file.{Options,name,tests}",
+		                         index.rawGetDictionary("Options"),
+		                         testName,
+		                         templates);
 
 		if (visualize) {
 			STViz viz = testFileTemplate.inspect();
@@ -136,7 +121,11 @@ public class TestGenerator {
 		}
 
 		try {
-			writeFile(targetFile, testFileTemplate.render());
+			String output = testFileTemplate.render();
+			if ( errors.errors.size()>0 ) {
+				System.err.println("errors in "+targetGroup.getName()+": "+errors);
+			}
+			writeFile(targetFile, output);
 		}
 		catch (IOException ex) {
 			error(String.format("Failed to write output file: %s", targetFile), ex);
@@ -184,6 +173,7 @@ public class TestGenerator {
 	}
 
 	protected void info(String message) {
+		System.out.println("INFO: " + message);
 	}
 
 	protected void warn(String message) {

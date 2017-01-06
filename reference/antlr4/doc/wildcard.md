@@ -1,3 +1,5 @@
+:warning: The information on this page has not been updated for this optimized fork.
+
 # Wildcard Operator and Nongreedy Subrules
 
 EBNF subrules like `(...)?`, `(...)*` and `(...)+` are greedy—They consume as much input as possible, but sometimes that’s not what’s needed. Constructs like `.*` consume until the end of the input in the lexer and sometimes in the parser. We want that loop to be nongreedy so we need to use different syntax: `.*?` borrowed from regular expression notation. We can make any subrule that has a `?`, `*`, or `+` suffix nongreedy by adding another `?` suffix. Such nongreedy subrules are allowed in both the parser and the lexer, but they are used much more frequently in the lexer.

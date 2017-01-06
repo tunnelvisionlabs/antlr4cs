@@ -28,6 +28,9 @@ line 1:3 reportAmbiguity d=0 (a): ambigAlts={1, 2}, input='y'<\n>
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 s : {<LL_EXACT_AMBIG_DETECTION()>} a ';' a; // do 2x: once in ATN, next in DFA
 a : ID {<writeln("\"alt 1\"")>}
   | ID {<writeln("\"alt 2\"")>}
