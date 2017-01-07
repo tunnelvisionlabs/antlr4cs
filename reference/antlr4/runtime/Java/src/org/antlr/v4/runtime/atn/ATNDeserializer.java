@@ -1,31 +1,7 @@
 /*
- * [The "BSD license"]
- *  Copyright (c) 2013 Terence Parr
- *  Copyright (c) 2013 Sam Harwell
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *  1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 package org.antlr.v4.runtime.atn;
@@ -38,14 +14,19 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.misc.Nullable;
 import org.antlr.v4.runtime.misc.Tuple;
 import org.antlr.v4.runtime.misc.Tuple2;
+import org.antlr.v4.runtime.misc.Tuple3;
 
 import java.io.InvalidClassException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -320,6 +301,8 @@ public class ATNDeserializer {
 		}
 
 		// edges for rule stop states can be derived, so they aren't serialized
+		// Map rule stop state -> return state -> outermost precedence return
+		Set<Tuple3<Integer, Integer, Integer>> returnTransitions = new LinkedHashSet<Tuple3<Integer, Integer, Integer>>();
 		for (ATNState state : atn.states) {
 			boolean returningToLeftFactored = state.ruleIndex >= 0 && atn.ruleToStartState[state.ruleIndex].leftFactored;
 			for (int i = 0; i < state.getNumberOfTransitions(); i++) {
@@ -341,9 +324,14 @@ public class ATNDeserializer {
 					}
 				}
 
-				EpsilonTransition returnTransition = new EpsilonTransition(ruleTransition.followState, outermostPrecedenceReturn);
-				atn.ruleToStopState[ruleTransition.target.ruleIndex].addTransition(returnTransition);
+				returnTransitions.add(Tuple.create(ruleTransition.target.ruleIndex, ruleTransition.followState.stateNumber, outermostPrecedenceReturn));
 			}
+		}
+
+		// Add all elements from returnTransitions to the ATN
+		for (Tuple3<Integer, Integer, Integer> returnTransition : returnTransitions) {
+			EpsilonTransition transition = new EpsilonTransition(atn.states.get(returnTransition.getItem2()), returnTransition.getItem3());
+			atn.ruleToStopState[returnTransition.getItem1()].addTransition(transition);
 		}
 
 		for (ATNState state : atn.states) {
@@ -571,6 +559,9 @@ public class ATNDeserializer {
 	 * @param atn The ATN.
 	 */
 	protected void markPrecedenceDecisions(@NotNull ATN atn) {
+		// Map rule index -> precedence decision for that rule
+		Map<Integer, StarLoopEntryState> rulePrecedenceDecisions = new HashMap<Integer, StarLoopEntryState>();
+
 		for (ATNState state : atn.states) {
 			if (!(state instanceof StarLoopEntryState)) {
 				continue;
@@ -584,9 +575,28 @@ public class ATNDeserializer {
 				ATNState maybeLoopEndState = state.transition(state.getNumberOfTransitions() - 1).target;
 				if (maybeLoopEndState instanceof LoopEndState) {
 					if (maybeLoopEndState.epsilonOnlyTransitions && maybeLoopEndState.transition(0).target instanceof RuleStopState) {
+						rulePrecedenceDecisions.put(state.ruleIndex, (StarLoopEntryState)state);
 						((StarLoopEntryState)state).precedenceRuleDecision = true;
+						((StarLoopEntryState)state).precedenceLoopbackStates = new BitSet(atn.states.size());
 					}
 				}
+			}
+		}
+
+		// After marking precedence decisions, we go back through and fill in
+		// StarLoopEntryState.precedenceLoopbackStates.
+		for (Map.Entry<Integer, StarLoopEntryState> precedenceDecision : rulePrecedenceDecisions.entrySet()) {
+			for (Transition transition : atn.ruleToStopState[precedenceDecision.getKey()].transitions) {
+				if (transition.getSerializationType() != TransitionType.EPSILON) {
+					continue;
+				}
+
+				EpsilonTransition epsilonTransition = (EpsilonTransition)transition;
+				if (epsilonTransition.outermostPrecedenceReturn() != -1) {
+					continue;
+				}
+
+				precedenceDecision.getValue().precedenceLoopbackStates.set(transition.target.stateNumber);
 			}
 		}
 	}

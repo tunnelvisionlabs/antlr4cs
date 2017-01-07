@@ -1,4 +1,9 @@
 TestTemplates ::= [
 	"ExpressionGrammar_1": [],
-	"ExpressionGrammar_2": []
+	"ExpressionGrammar_2": [],
+	"DropLoopEntryBranchInLRRule_1": [],
+	"DropLoopEntryBranchInLRRule_2": [],
+	"DropLoopEntryBranchInLRRule_3": [],
+	"DropLoopEntryBranchInLRRule_4": [],
+	"DropLoopEntryBranchInLRRule_5": []
 ]

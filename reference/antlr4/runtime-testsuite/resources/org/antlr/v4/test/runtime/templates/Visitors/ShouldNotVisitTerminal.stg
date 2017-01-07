@@ -1,0 +1,40 @@
+/*
+ * This test verifies that AbstractParseTreeVisitor.shouldVisitNextChild is called before visiting the first
+ * child. It also verifies that AbstractParseTreeVisitor.defaultResult provides the default return value for
+ * visiting a tree.
+ */
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": false
+]
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+Input() ::= "A"
+
+Rule() ::= "s"
+
+Output() ::= <<
+(s A \<EOF>)
+default result<\n>
+>>
+
+Errors() ::= ""
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+
+<ImportVisitor("T")>
+<ShouldNotVisitTerminalVisitor("T")>
+
+s
+@after {
+<ToStringTree("$ctx"):writeln()>
+<WalkVisitor("$ctx")>
+}
+	:	'A' EOF
+	;
+>>

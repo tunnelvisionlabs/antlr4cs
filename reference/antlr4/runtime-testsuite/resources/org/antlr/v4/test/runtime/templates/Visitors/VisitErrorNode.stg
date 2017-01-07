@@ -1,0 +1,39 @@
+/*
+ * This test verifies the basic behavior of visitors, with an emphasis on
+ * AbstractParseTreeVisitor.visitErrorNode.
+ */
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": false
+]
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+Input() ::= ""
+
+Rule() ::= "s"
+
+Output() ::= <<
+(s \<missing 'A'> \<EOF>)
+Error encountered: [@-1,-1:-1='\<missing 'A'>',\<1>,1:0]<\n>
+>>
+
+Errors() ::= "line 1:0 missing 'A' at '\<EOF>'<\n>"
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+
+<ImportVisitor("T")>
+<ErrorVisitor("T")>
+
+s
+@after {
+<ToStringTree("$ctx"):writeln()>
+<WalkVisitor("$ctx")>
+}
+	:	'A' EOF
+	;
+>>

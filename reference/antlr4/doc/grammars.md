@@ -1,3 +1,5 @@
+:warning: The information on this page has not been updated for this optimized fork.
+
 # Grammar Structure
 
 A grammar is essentially a grammar declaration followed by a list of rules, but has the general form:

@@ -1,0 +1,51 @@
+/*
+ * This test verifies that the visitor correctly dispatches calls for labeled outer alternatives.
+ */
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": false
+]
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+Input() ::= "2 + 8 / 2"
+
+Rule() ::= "s"
+
+Output() ::= <<
+(s (expr (expr 2) + (expr (expr 8) / (expr 2))) \<EOF>)
+6<\n>
+>>
+
+Errors() ::= ""
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+
+<ImportVisitor("T")>
+<CalculatorVisitor("T")>
+
+s
+@after {
+<ToStringTree("$ctx"):writeln()>
+<WalkVisitor("$ctx")>
+}
+	:	expr EOF
+	;
+
+expr
+	:	INT						# number
+	|	expr (MUL | DIV) expr	# multiply
+	|	expr (ADD | SUB) expr	# add
+	;
+
+INT : [0-9]+;
+MUL : '*';
+DIV : '/';
+ADD : '+';
+SUB : '-';
+WS : [ \t]+ -> channel(HIDDEN);
+>>

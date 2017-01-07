@@ -1,3 +1,5 @@
+:warning: The information on this page has not been updated for this optimized fork.
+
 # ANTLR Tool Command Line Options
 
 If you invoke the ANTLR tool without command line arguments, you’ll get a help message:

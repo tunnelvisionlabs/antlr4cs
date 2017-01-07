@@ -35,9 +35,7 @@ Errors() ::= ""
 grammar(grammarName) ::= <<
 lexer grammar PositionAdjustingLexer;
 
-@members {
 <PositionAdjustingLexer()>
-}
 
 ASSIGN : '=' ;
 PLUS_ASSIGN : '+=' ;

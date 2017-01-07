@@ -1,31 +1,7 @@
 /*
- * [The "BSD license"]
- *  Copyright (c) 2012 Terence Parr
- *  Copyright (c) 2012 Sam Harwell
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *  1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *  3. The name of the author may not be used to endorse or promote products
- *     derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- *  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
  */
 
 package org.antlr.v4.automata;
@@ -142,7 +118,10 @@ public class ParserATNFactory implements ATNFactory {
 
 		for (Tuple3<? extends Rule, ? extends ATNState, ? extends ATNState> pair : preventEpsilonClosureBlocks) {
 			LL1Analyzer analyzer = new LL1Analyzer(atn);
-			if (analyzer.LOOK(pair.getItem2(), pair.getItem3(), PredictionContext.EMPTY_LOCAL).contains(org.antlr.v4.runtime.Token.EPSILON)) {
+			ATNState blkStart = pair.getItem2();
+			ATNState blkStop = pair.getItem3();
+			IntervalSet lookahead = analyzer.LOOK(blkStart, blkStop, PredictionContext.EMPTY_LOCAL);
+			if (lookahead.contains(org.antlr.v4.runtime.Token.EPSILON)) {
 				ErrorType errorType = pair.getItem1() instanceof LeftRecursiveRule ? ErrorType.EPSILON_LR_FOLLOW : ErrorType.EPSILON_CLOSURE;
 				g.tool.errMgr.grammarError(errorType, g.fileName, ((GrammarAST)pair.getItem1().ast.getChild(0)).getToken(), pair.getItem1().name);
 			}
@@ -259,7 +238,12 @@ public class ParserATNFactory implements ATNFactory {
 	@NotNull
 	@Override
 	public Handle range(@NotNull GrammarAST a, @NotNull GrammarAST b) {
-		throw new UnsupportedOperationException("This construct is not valid in parsers.");
+		g.tool.errMgr.grammarError(ErrorType.TOKEN_RANGE_IN_PARSER, g.fileName,
+		                           a.getToken(),
+		                           a.getToken().getText(),
+		                           b.getToken().getText());
+		// From a..b, yield ATN for just a.
+		return tokenRef((TerminalAST)a);
 	}
 
 	protected int getTokenType(@NotNull GrammarAST atom) {
@@ -653,6 +637,17 @@ public class ParserATNFactory implements ATNFactory {
 	}
 
 	protected void epsilon(ATNState a, @NotNull ATNState b, boolean prepend) {
+		for (Transition t : a.getTransitions()) {
+			if (t.getSerializationType() != Transition.EPSILON) {
+				continue;
+			}
+
+			if (t.target == b && ((EpsilonTransition)t).outermostPrecedenceReturn() == -1) {
+				// This transition was already added
+				return;
+			}
+		}
+
 		if ( a!=null ) {
 			int index = prepend ? 0 : a.getNumberOfTransitions();
 			a.addTransition(index, new EpsilonTransition(b));

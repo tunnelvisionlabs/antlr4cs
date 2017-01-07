@@ -1,0 +1,41 @@
+/*
+ * This test verifies that AbstractParseTreeVisitor.visitChildren does not call
+ * ParseTreeVisitor.visit after AbstractParseTreeVisitor.shouldVisitNextChild returns
+ * false.
+ */
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": false
+]
+
+Grammar ::= [
+	"T": {<grammar("T")>}
+]
+
+Input() ::= "A"
+
+Rule() ::= "s"
+
+Output() ::= <<
+(s A \<EOF>)
+[@0,0:0='A',\<1>,1:0]
+<\n>
+>>
+
+Errors() ::= ""
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+
+<ImportVisitor("T")>
+<ShouldNotVisitEOFVisitor("T")>
+
+s
+@after {
+<ToStringTree("$ctx"):writeln()>
+<WalkVisitor("$ctx")>
+}
+	:	'A' EOF
+	;
+>>

@@ -1,0 +1,13 @@
+/*
+ * Test for https://github.com/antlr/antlr4/issues/1295 in addition to #433.
+ */
+
+import "MultipleAlternativesWithCommonLabel.stg"
+
+Input() ::= "(99)+3"
+
+Output() ::= <<
+102<\n>
+>>
+
+Errors() ::= ""

@@ -20,7 +20,7 @@ Rule() ::= "start"
 Output() ::= ""
 
 Errors() ::= <<
-line 1:0 missing ID at '\<EOF>'<\n>
+line 1:0 mismatched input '\<EOF>' expecting ID<\n>
 >>
 
 grammar(grammarName) ::= <<

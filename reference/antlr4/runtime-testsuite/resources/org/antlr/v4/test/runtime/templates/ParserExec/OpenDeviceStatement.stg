@@ -1,0 +1,28 @@
+/*
+ * This is a regression test for antlr/antlr4#1545.
+ */
+
+TestType() ::= "Parser"
+
+Options ::= [
+	"Debug": false
+]
+
+Rule() ::= "statement"
+
+Output() ::= "OPEN DEVICE DEVICE<\n>"
+
+Errors() ::= ""
+
+grammar(grammarName, opt1) ::= <<
+grammar <grammarName>;
+program : statement+ '.' ;
+
+statement : 'OPEN' ( 'DEVICE' (  <opt1>  |  OPT2  |  OPT3  )? )+ {<writeln("$text")>} ;
+
+OPT1 : 'OPT-1';
+OPT2 : 'OPT-2';
+OPT3 : 'OPT-3';
+
+WS : (' '|'\n')+ -> channel(HIDDEN);
+>>

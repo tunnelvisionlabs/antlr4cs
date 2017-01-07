@@ -22,18 +22,14 @@ Errors() ::= ""
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
-@parser::header {
-<ImportListener(grammarName)>
-}
 
-@parser::members {
+<ImportListener(grammarName)>
 <BasicListener(grammarName)>
-}
 
 s
 @after {
-<ToStringTree("$ctx.r"):writeln()>
-<WalkListener("$ctx.r")>
+<ContextLabel("$ctx", "r"):ToStringTree():writeln()>
+<ContextLabel("$ctx", "r"):WalkListener()>
 }
   : r=a ;
 a : INT INT

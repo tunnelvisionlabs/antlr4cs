@@ -1,0 +1,40 @@
+/**
+ * Test for https://github.com/antlr/antlr4/issues/1398.
+ */
+
+TestType() ::= "Parser"
+
+Options ::= [
+	"Timeout": "60000"
+]
+
+Grammar ::= [
+	"Expr": {<grammar("Expr")>}
+]
+
+Rule() ::= "stat"
+
+Output() ::= ""
+
+Errors() ::= ""
+
+grammar(grammarName) ::= <<
+grammar <grammarName>;
+
+stat : expr ';'
+	| expr '.'
+	;
+
+expr
+	: ID
+	| 'not' expr
+	| expr 'and' expr
+	| expr 'or' expr
+	| '(' ID ')' expr
+	| expr '?' expr ':' expr
+	| 'between' expr 'and' expr
+	;
+
+ID: [a-zA-Z_][a-zA-Z_0-9]*;
+WS: [ \t\n\r\f]+ -> skip;
+>>

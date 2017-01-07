@@ -1,5 +1,7 @@
 # Maven build folders
 target/
+# ... but not code generation targets
+!tool/src/org/antlr/v4/codegen/target/
 
 # MacOSX files
 .DS_Store
@@ -19,12 +21,15 @@ nbactions*.xml
 .classpath
 .project
 .settings/
+.metadata/
 
 # Profiler results
 *.hprof
 
 # Playground
 #/tool/playground/
+
+.vscode/
 
 # Generated during the Sharpen conversion
 /bin/

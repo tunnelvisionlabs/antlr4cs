@@ -1,3 +1,7 @@
+IgnoredTests ::= [
+	default: false
+]
+
 TestFile(file) ::= <<
 package org.antlr.v4.test.runtime;
 
@@ -152,8 +156,8 @@ string(text) ::= <<
 writeBoolean(o) ::= "<if(o && !isEmpty.(o))>true<else>false<endif>"
 
 writeln(s) ::= <<System.out.println(<s>);>>
-
 write(s) ::= <<System.out.print(<s>);>>
+writeList(s) ::= <<System.out.println(<s; separator="+">);>>
 
 False() ::= "false"
 
@@ -176,6 +180,7 @@ AssertIsList(v) ::= "List\<?> __ttt__ = <v>;" // just use static type system
 AssignLocal(s,v) ::= "<s> = <v>;"
 
 InitIntMember(n,v) ::= <%int <n> = <v>;%>
+InitLocalIntMember ::= InitIntMember
 
 InitBooleanMember(n,v) ::= <%boolean <n> = <v>;%>
 
@@ -225,11 +230,23 @@ TokenStartColumnEquals(i) ::= <%this._tokenStartCharPositionInLine==<i>%>
 
 ImportListener(X) ::= ""
 
+ImportVisitor(grammarName) ::= ""
+
+ImportPredictionMode() ::= ""
+ImportBailErrorStrategy() ::= ""
+
 GetExpectedTokenNames() ::= "this.getExpectedTokens().toString(this.tokenNames)"
 
 RuleInvocationStack() ::= "getRuleInvocationStack()"
 
+FULL_CONTEXT_DFA() ::= "getInterpreter().enable_global_context_dfa = true;"
 LL_EXACT_AMBIG_DETECTION() ::= <<_interp.setPredictionMode(PredictionMode.LL_EXACT_AMBIG_DETECTION);>>
+
+ParserToken(parser, token) ::= <%<parser>.<token>%>
+
+Production(p) ::= <%<p>%>
+
+Result(r) ::= <%<r>%>
 
 ParserPropertyMember() ::= <<
 @members {
@@ -239,8 +256,10 @@ boolean Property() {
 }
 >>
 
-PositionAdjustingLexer() ::= <<
+ParserPropertyCall(p, call) ::= "<p>.<call>"
 
+PositionAdjustingLexer() ::= <<
+@members {
 @Override
 public Token nextToken() {
 	if (!(_interp instanceof PositionAdjustingLexerATNSimulator)) {
@@ -317,14 +336,16 @@ protected static class PositionAdjustingLexerATNSimulator extends LexerATNSimula
 	}
 
 }
-
+}
 >>
 
 BasicListener(X) ::= <<
+@parser::members {
 public static class LeafListener extends TBaseListener {
 	public void visitTerminal(TerminalNode node) {
 		System.out.println(node.getSymbol().getText());
 	}
+}
 }
 >>
 
@@ -347,6 +368,7 @@ public static class MyRuleNode extends ParserRuleContext {
 >>
 
 TokenGetterListener(X) ::= <<
+@parser::members {
 public static class LeafListener extends TBaseListener {
 	public void exitA(TParser.AContext ctx) {
 		if (ctx.getChildCount()==2)
@@ -356,9 +378,11 @@ public static class LeafListener extends TBaseListener {
 			System.out.println(ctx.ID().getSymbol());
 	}
 }
+}
 >>
 
 RuleGetterListener(X) ::= <<
+@parser::members {
 public static class LeafListener extends TBaseListener {
 	public void exitA(TParser.AContext ctx) {
 		if (ctx.getChildCount()==2) {
@@ -368,10 +392,11 @@ public static class LeafListener extends TBaseListener {
 			System.out.println(ctx.b(0).start.getText());
 	}
 }
+}
 >>
 
-
 LRListener(X) ::= <<
+@parser::members {
 public static class LeafListener extends TBaseListener {
 	public void exitE(TParser.EContext ctx) {
 		if (ctx.getChildCount()==3) {
@@ -381,15 +406,151 @@ public static class LeafListener extends TBaseListener {
 			System.out.println(ctx.INT().getSymbol().getText());
 	}
 }
+}
 >>
 
 LRWithLabelsListener(X) ::= <<
+@parser::members {
 public static class LeafListener extends TBaseListener {
 	public void exitCall(TParser.CallContext ctx) {
 		System.out.printf("%s %s",ctx.e().start.getText(),ctx.eList());
 	}
 	public void exitInt(TParser.IntContext ctx) {
 		System.out.println(ctx.INT().getSymbol().getText());
+	}
+}
+}
+>>
+
+WalkVisitor(s) ::= <<
+System.out.println(new LeafVisitor().visit(<s>));
+>>
+
+TerminalVisitor(grammarName) ::= <<
+@parser::members {
+	public static class LeafVisitor extends <grammarName>BaseVisitor\<String> {
+		@Override
+		public String visitTerminal(TerminalNode node) {
+			return node.getSymbol().toString() + "\n";
+		}
+
+		@Override
+		protected String defaultResult() {
+			return "";
+		}
+
+		@Override
+		protected String aggregateResult(String aggregate, String nextResult) {
+			return aggregate + nextResult;
+		}
+	}
+}
+>>
+
+ErrorVisitor(grammarName) ::= <<
+@parser::members {
+	public static class LeafVisitor extends <grammarName>BaseVisitor\<String> {
+		@Override
+		public String visitErrorNode(ErrorNode node) {
+			return "Error encountered: " + node.getSymbol();
+		}
+
+		@Override
+		protected String defaultResult() {
+			return "";
+		}
+
+		@Override
+		protected String aggregateResult(String aggregate, String nextResult) {
+			return aggregate + nextResult;
+		}
+	}
+}
+>>
+
+ShouldNotVisitEOFVisitor(grammarName) ::= <<
+@parser::members {
+	public static class LeafVisitor extends <grammarName>BaseVisitor\<String> {
+		@Override
+		public String visitTerminal(TerminalNode node) {
+			return node.getSymbol().toString() + "\n";
+		}
+
+		@Override
+		protected boolean shouldVisitNextChild(RuleNode node, String currentResult) {
+			return currentResult == null || currentResult.isEmpty();
+		}
+	}
+}
+>>
+
+ShouldNotVisitTerminalVisitor(grammarName) ::= <<
+@parser::members {
+	public static class LeafVisitor extends <grammarName>BaseVisitor\<String> {
+		@Override
+		public String visitTerminal(TerminalNode node) {
+			throw new RuntimeException("Should not be reachable");
+		}
+
+		@Override
+		protected String defaultResult() {
+			return "default result";
+		}
+
+		@Override
+		protected boolean shouldVisitNextChild(RuleNode node, String currentResult) {
+			return false;
+		}
+	}
+}
+>>
+
+CalculatorVisitor(grammarName) ::= <<
+@parser::members {
+	public static class LeafVisitor extends <grammarName>BaseVisitor\<Integer> {
+		@Override
+		public Integer visitS(SContext ctx) {
+			return visit(ctx.expr());
+		}
+
+		@Override
+		public Integer visitNumber(NumberContext ctx) {
+			return Integer.valueOf(ctx.INT().getText());
+		}
+
+		@Override
+		public Integer visitMultiply(MultiplyContext ctx) {
+			Integer left = visit(ctx.expr(0));
+			Integer right = visit(ctx.expr(1));
+			if (ctx.MUL() != null) {
+				return left * right;
+			}
+			else {
+				return left / right;
+			}
+		}
+
+		@Override
+		public Integer visitAdd(AddContext ctx) {
+			Integer left = visit(ctx.expr(0));
+			Integer right = visit(ctx.expr(1));
+			if (ctx.ADD() != null) {
+				return left + right;
+			}
+			else {
+				return left - right;
+			}
+		}
+
+		@Override
+		protected Integer defaultResult() {
+			throw new RuntimeException("Should not be reachable");
+		}
+
+		@Override
+		protected Integer aggregateResult(Integer aggregate, Integer nextResult) {
+			throw new RuntimeException("Should not be reachable");
+		}
 	}
 }
 >>
@@ -416,10 +577,12 @@ Declare_pred() ::= <<boolean pred(boolean v) {
 
 Invoke_pred(v) ::= <<this.pred(<v>)>>
 
-IgnoredTests ::= [
-	default: false
-]
-
+ParserTokenType(t) ::= "Parser.<t>"
+ContextRuleFunction(ctx, rule) ::= "<ctx>.<rule>"
+ContextLabel(ctx, label) ::= "<ctx>.<label>"
+StringType() ::= "String"
+IntType() ::= "int"
+ContextMember(ctx, subctx, member) ::= "<ctx>.<subctx>.<member>"
 isEmpty ::= [
 	"": true,
 	default: false
