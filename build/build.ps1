@@ -56,45 +56,6 @@ If (-not $Java6Home -and (Test-Path $Java6RegKey)) {
 	}
 }
 
-# this is configured here for path checking, but also in the .props and .targets files
-[xml]$pom = Get-Content "..\tool\pom.xml"
-$CSharpToolVersionNodeInfo = Select-Xml "/mvn:project/mvn:version" -Namespace @{mvn='http://maven.apache.org/POM/4.0.0'} $pom
-$CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
-
-$nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
-
-# build the main project
-if ($VisualStudioVersion -eq '4.0') {
-	$msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
-} Else {
-	$msbuild = "${env:ProgramFiles(x86)}\MSBuild\$VisualStudioVersion\Bin\MSBuild.exe"
-}
-
-If ($Logger) {
-	$LoggerArgument = "/logger:$Logger"
-}
-
-&$nuget 'restore' $SolutionPath
-&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
-if (-not $?) {
-	$host.ui.WriteErrorLine('Build failed, aborting!')
-	Exit $LASTEXITCODE
-}
-
-# build the compact framework project
-$msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-
-&$nuget 'restore' $CF35SolutionPath
-&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
-if (-not $?) {
-	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
-	Exit $LASTEXITCODE
-}
-
-if (-not (Test-Path 'nuget')) {
-	mkdir "nuget"
-}
-
 # Build the Java library using Maven
 If (-not $SkipMaven) {
 	$OriginalPath = $PWD
@@ -132,6 +93,45 @@ If (-not $SkipMaven) {
 	}
 
 	cd $OriginalPath
+}
+
+# this is configured here for path checking, but also in the .props and .targets files
+[xml]$pom = Get-Content "..\tool\pom.xml"
+$CSharpToolVersionNodeInfo = Select-Xml "/mvn:project/mvn:version" -Namespace @{mvn='http://maven.apache.org/POM/4.0.0'} $pom
+$CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
+
+$nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
+
+# build the main project
+if ($VisualStudioVersion -eq '4.0') {
+	$msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
+} Else {
+	$msbuild = "${env:ProgramFiles(x86)}\MSBuild\$VisualStudioVersion\Bin\MSBuild.exe"
+}
+
+If ($Logger) {
+	$LoggerArgument = "/logger:$Logger"
+}
+
+&$nuget 'restore' $SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
+if (-not $?) {
+	$host.ui.WriteErrorLine('Build failed, aborting!')
+	Exit $LASTEXITCODE
+}
+
+# build the compact framework project
+$msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
+
+&$nuget 'restore' $CF35SolutionPath
+&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
+if (-not $?) {
+	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
+	Exit $LASTEXITCODE
+}
+
+if (-not (Test-Path 'nuget')) {
+	mkdir "nuget"
 }
 
 $JarPath = "..\tool\target\antlr4-csharp-$CSharpToolVersion-complete.jar"
