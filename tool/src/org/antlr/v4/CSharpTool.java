@@ -32,6 +32,7 @@ package org.antlr.v4;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import org.antlr.v4.tool.ErrorType;
 import org.antlr.v4.tool.Grammar;
 
@@ -40,16 +41,30 @@ import org.antlr.v4.tool.Grammar;
  * @author Sam Harwell
  */
 public class CSharpTool extends Tool {
+	private boolean verbose = false;
 
 	public CSharpTool() {
+		this(null);
 	}
 
 	public CSharpTool(String[] args) {
 		super(args);
+		if (grammarEncoding == null) {
+			grammarEncoding = "UTF-8";
+		}
+
+		if (grammarOptions == null) {
+			grammarOptions = new HashMap<String, String>();
+		}
+
+		if (!grammarOptions.containsKey("language")) {
+			grammarOptions.put("language", "CSharp_v4_5");
+		}
 	}
 
 	public static void main(String[] args) {
-		Tool antlr = new CSharpTool(args);
+		CSharpTool antlr = new CSharpTool(args);
+		antlr.verbose = true;
 		if (args.length == 0) {
 			antlr.help();
 			antlr.exit(0);
@@ -87,7 +102,9 @@ public class CSharpTool extends Tool {
 			// for subdir/T.g4, you get subdir here.  Well, depends on -o etc...
 			File outputDir = getOutputDirectory(g.fileName);
 			File outputFile = new File(outputDir, fileName);
-			System.out.format("Generating file '%s' for grammar '%s'%n", outputFile.getAbsolutePath(), g.fileName);
+			if (this.verbose) {
+				System.out.format("Generating file '%s' for grammar '%s'%n", outputFile.getAbsolutePath(), g.fileName);
+			}
 		}
 
 		return super.getOutputFileWriter(g, fileName);

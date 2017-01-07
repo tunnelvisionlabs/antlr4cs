@@ -62,7 +62,10 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BaseTest.cs" />
+    <Compile Include="Generated\**\*.cs" Exclude="Generated\TestLexerExec\testLargeLexer\*.cs" />
     <Compile Include="JavaUnicodeInputStream.cs" />
+    <Compile Include="LexerTestOptions.cs" />
+    <Compile Include="ParserTestOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sharpen\Checksum.cs" />
     <Compile Include="Sharpen\CRC32.cs" />

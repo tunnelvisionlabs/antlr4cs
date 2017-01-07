@@ -31,3 +31,6 @@ tool/target/
 
 # ignore NuGet output folders
 /build/nuget/
+
+# Ignore generated test suite
+Generated/

@@ -8,7 +8,8 @@ param (
 	[string]$MavenHome,
 	[string]$MavenRepo = "$($env:USERPROFILE)\.m2",
 	[switch]$SkipMaven,
-	[switch]$SkipKeyCheck
+	[switch]$SkipKeyCheck,
+	[switch]$GenerateTests
 )
 
 # build the solutions
@@ -55,6 +56,45 @@ If (-not $Java6Home -and (Test-Path $Java6RegKey)) {
 	}
 }
 
+# Build the Java library using Maven
+If (-not $SkipMaven) {
+	$OriginalPath = $PWD
+
+	cd '..\tool'
+	$MavenPath = "$MavenHome\bin\mvn.cmd"
+	If (-not (Test-Path $MavenPath)) {
+		$MavenPath = "$MavenHome\bin\mvn.bat"
+	}
+
+	If (-not (Test-Path $MavenPath)) {
+		$host.ui.WriteErrorLine("Couldn't locate Maven binary: $MavenPath")
+		cd $OriginalPath
+		exit 1
+	}
+
+	If (-not $Java6Home -or -not (Test-Path $Java6Home)) {
+		$host.ui.WriteErrorLine("Couldn't locate Java 6 installation: $Java6Home")
+		cd $OriginalPath
+		exit 1
+	}
+
+	If ($GenerateTests) {
+		$SkipTestsArg = 'false'
+	} Else {
+		$SkipTestsArg = 'true'
+	}
+
+	$MavenGoal = 'package'
+	&$MavenPath '-B' "-DskipTests=$SkipTestsArg" '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Maven build of the C# Target custom Tool failed, aborting!')
+		cd $OriginalPath
+		Exit $LASTEXITCODE
+	}
+
+	cd $OriginalPath
+}
+
 # this is configured here for path checking, but also in the .props and .targets files
 [xml]$pom = Get-Content "..\tool\pom.xml"
 $CSharpToolVersionNodeInfo = Select-Xml "/mvn:project/mvn:version" -Namespace @{mvn='http://maven.apache.org/POM/4.0.0'} $pom
@@ -92,39 +132,6 @@ if (-not $?) {
 
 if (-not (Test-Path 'nuget')) {
 	mkdir "nuget"
-}
-
-# Build the Java library using Maven
-If (-not $SkipMaven) {
-	$OriginalPath = $PWD
-
-	cd '..\tool'
-	$MavenPath = "$MavenHome\bin\mvn.cmd"
-	If (-not (Test-Path $MavenPath)) {
-		$MavenPath = "$MavenHome\bin\mvn.bat"
-	}
-
-	If (-not (Test-Path $MavenPath)) {
-		$host.ui.WriteErrorLine("Couldn't locate Maven binary: $MavenPath")
-		cd $OriginalPath
-		exit 1
-	}
-
-	If (-not $Java6Home -or -not (Test-Path $Java6Home)) {
-		$host.ui.WriteErrorLine("Couldn't locate Java 6 installation: $Java6Home")
-		cd $OriginalPath
-		exit 1
-	}
-
-	$MavenGoal = 'package'
-	&$MavenPath '-B' '-DskipTests=true' '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
-	if (-not $?) {
-		$host.ui.WriteErrorLine('Maven build of the C# Target custom Tool failed, aborting!')
-		cd $OriginalPath
-		Exit $LASTEXITCODE
-	}
-
-	cd $OriginalPath
 }
 
 $JarPath = "..\tool\target\antlr4-csharp-$CSharpToolVersion-complete.jar"
