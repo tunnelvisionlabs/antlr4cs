@@ -152,8 +152,8 @@ string(text) ::= <<
 writeBoolean(o) ::= "<if(o && !isEmpty.(o))>true<else>false<endif>"
 
 writeln(s) ::= <<System.Console.WriteLine(<s>);>>
-
 write(s) ::= <<System.Console.Write(<s>);>>
+writeList(s) ::= <<System.Console.WriteLine(<s; separator="+">);>>
 
 False() ::= "false"
 
@@ -176,6 +176,7 @@ AssertIsList(v) ::= "System.Collections.IList __ttt__ = <v>;" // just use static
 AssignLocal(s,v) ::= "<s> = <v>;"
 
 InitIntMember(n,v) ::= <%int <n> = <v>;%>
+InitLocalIntMember ::= InitIntMember
 
 InitBooleanMember(n,v) ::= <%bool <n> = <v>;%>
 
@@ -225,11 +226,25 @@ TokenStartColumnEquals(i) ::= <%this._tokenStartCharPositionInLine==<i>%>
 
 ImportListener(X) ::= ""
 
+ImportVisitor(grammarName) ::= ""
+
+ImportPredictionMode() ::= ""
+ImportBailErrorStrategy() ::= ""
+
 GetExpectedTokenNames() ::= "this.GetExpectedTokens().ToString(Vocabulary)"
 
-RuleInvocationStack() ::= "GetRuleInvocationStack()"
+RuleInvocationStack() ::= <%
+"[" + string.Join(", ", GetRuleInvocationStack()) + "]"
+%>
 
+FULL_CONTEXT_DFA() ::= "Interpreter.enable_global_context_dfa = true;"
 LL_EXACT_AMBIG_DETECTION() ::= <<Interpreter.PredictionMode = PredictionMode.LlExactAmbigDetection;>>
+
+ParserToken(parser, token) ::= <%<parser>.<token>%>
+
+Production(p) ::= <%<p>%>
+
+Result(r) ::= <%<r>%>
 
 ParserPropertyMember() ::= <<
 @members {
@@ -239,8 +254,10 @@ bool Property() {
 }
 >>
 
-PositionAdjustingLexer() ::= <<
+ParserPropertyCall(p, call) ::= "<p>.<call>"
 
+PositionAdjustingLexer() ::= <<
+@members {
 public override IToken NextToken() {
 	if (!(_interp is PositionAdjustingLexerATNSimulator)) {
 		_interp = new PositionAdjustingLexerATNSimulator(this, _ATN);
@@ -315,14 +332,16 @@ public class PositionAdjustingLexerATNSimulator : LexerATNSimulator {
 	}
 
 }
-
+}
 >>
 
 BasicListener(X) ::= <<
+@parser::members {
 public class LeafListener : TBaseListener {
 	public override void VisitTerminal(ITerminalNode node) {
 		System.Console.WriteLine(node.Symbol.Text);
 	}
+}
 }
 >>
 
@@ -344,6 +363,7 @@ public class MyRuleNode : ParserRuleContext {
 >>
 
 TokenGetterListener(X) ::= <<
+@parser::members {
 public class LeafListener : TBaseListener {
 	public override void ExitA(TParser.AContext ctx) {
 		if (ctx.ChildCount==2 && ctx.INT().Length == 2)
@@ -353,9 +373,11 @@ public class LeafListener : TBaseListener {
 			System.Console.WriteLine(ctx.ID().Symbol);
 	}
 }
+}
 >>
 
 RuleGetterListener(X) ::= <<
+@parser::members {
 public class LeafListener : TBaseListener {
 	public override void ExitA(TParser.AContext ctx) {
 		if (ctx.ChildCount==2) {
@@ -365,10 +387,11 @@ public class LeafListener : TBaseListener {
 			System.Console.WriteLine(ctx.b(0).Start.Text);
 	}
 }
+}
 >>
 
-
 LRListener(X) ::= <<
+@parser::members {
 public class LeafListener : TBaseListener {
 	public override void ExitE(TParser.EContext ctx) {
 		if (ctx.ChildCount==3) {
@@ -378,15 +401,142 @@ public class LeafListener : TBaseListener {
 			System.Console.WriteLine(ctx.INT().Symbol.Text);
 	}
 }
+}
 >>
 
 LRWithLabelsListener(X) ::= <<
+@parser::members {
 public class LeafListener : TBaseListener {
 	public override void ExitCall(TParser.CallContext ctx) {
 		System.Console.Write("{0} {1}",ctx.e().Start.Text,ctx.eList());
 	}
 	public override void ExitInt(TParser.IntContext ctx) {
 		System.Console.WriteLine(ctx.INT().Symbol.Text);
+	}
+}
+}
+>>
+
+WalkVisitor(s) ::= <<
+System.Console.WriteLine(new LeafVisitor().Visit(<s>));
+>>
+
+TerminalVisitor(grammarName) ::= <<
+@parser::members {
+	public class LeafVisitor : <grammarName>BaseVisitor\<string> {
+		public override string VisitTerminal(ITerminalNode node) {
+			return node.Symbol.ToString() + "\n";
+		}
+
+		protected override string DefaultResult {
+			get {
+				return string.Empty;
+			}
+		}
+
+		protected override string AggregateResult(string aggregate, string nextResult) {
+			return aggregate + nextResult;
+		}
+	}
+}
+>>
+
+ErrorVisitor(grammarName) ::= <<
+@parser::members {
+	public class LeafVisitor : <grammarName>BaseVisitor\<string> {
+		public override string VisitErrorNode(IErrorNode node) {
+			return "Error encountered: " + node.Symbol;
+		}
+
+		protected override string DefaultResult {
+			get {
+				return string.Empty;
+			}
+		}
+
+		protected override string AggregateResult(string aggregate, string nextResult) {
+			return aggregate + nextResult;
+		}
+	}
+}
+>>
+
+ShouldNotVisitEOFVisitor(grammarName) ::= <<
+@parser::members {
+	public class LeafVisitor : <grammarName>BaseVisitor\<string> {
+		public override string VisitTerminal(ITerminalNode node) {
+			return node.Symbol.ToString() + "\n";
+		}
+
+		protected override bool ShouldVisitNextChild(IRuleNode node, string currentResult) {
+			return string.IsNullOrEmpty(currentResult);
+		}
+	}
+}
+>>
+
+ShouldNotVisitTerminalVisitor(grammarName) ::= <<
+@parser::members {
+	public class LeafVisitor : <grammarName>BaseVisitor\<string> {
+		public override string VisitTerminal(ITerminalNode node) {
+			throw new System.Exception("Should not be reachable");
+		}
+
+		protected override string DefaultResult {
+			get {
+				return "default result";
+			}
+		}
+
+		protected override bool ShouldVisitNextChild(IRuleNode node, string currentResult) {
+			return false;
+		}
+	}
+}
+>>
+
+CalculatorVisitor(grammarName) ::= <<
+@parser::members {
+	public class LeafVisitor : <grammarName>BaseVisitor\<int> {
+		public override int VisitS(SContext context) {
+			return Visit(context.expr());
+		}
+
+		public override int VisitNumber(NumberContext context) {
+			return int.Parse(context.INT().GetText());
+		}
+
+		public override int VisitMultiply(MultiplyContext context) {
+			int left = Visit(context.expr(0));
+			int right = Visit(context.expr(1));
+			if (context.MUL() != null) {
+				return left * right;
+			}
+			else {
+				return left / right;
+			}
+		}
+
+		public override int VisitAdd(AddContext context) {
+			int left = Visit(context.expr(0));
+			int right = Visit(context.expr(1));
+			if (context.ADD() != null) {
+				return left + right;
+			}
+			else {
+				return left - right;
+			}
+		}
+
+		protected override int DefaultResult {
+			get {
+				throw new System.Exception("Should not be reachable");
+			}
+		}
+
+		protected override int AggregateResult(int aggregate, int nextResult) {
+			throw new System.Exception("Should not be reachable");
+		}
 	}
 }
 >>
@@ -412,6 +562,13 @@ Declare_pred() ::= <<bool Pred(bool v) {
 >>
 
 Invoke_pred(v) ::= <<this.Pred(<v>)>>
+
+ParserTokenType(t) ::= "Parser.<t>"
+ContextRuleFunction(ctx, rule) ::= "<ctx>.<rule>"
+ContextLabel(ctx, label) ::= "<ctx>.<label>"
+StringType() ::= "string"
+IntType() ::= "int"
+ContextMember(ctx, subctx, member) ::= "<ctx>.<subctx>.<member>"
 
 IgnoredTests ::= [
 	default: false
