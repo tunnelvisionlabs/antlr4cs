@@ -28,7 +28,7 @@ namespace Antlr4.Runtime.Misc
         /// <summary>How many elements in set</summary>
         protected internal int n = 0;
 
-        protected internal int threshold = (int)(InitalCapacity * LoadFactor);
+        protected internal int threshold = (int)Math.Floor(InitalCapacity * LoadFactor);
 
         protected internal int currentPrime = 1;
 
@@ -477,6 +477,7 @@ namespace Antlr4.Runtime.Misc
         {
             buckets = CreateBuckets(InitalCapacity);
             n = 0;
+            threshold = (int)Math.Floor(InitalCapacity * LoadFactor);
         }
 
         public override string ToString()

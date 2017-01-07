@@ -26,6 +26,26 @@ namespace Antlr4.Runtime.Atn
         /// <seealso cref="Antlr4.Runtime.Dfa.DFA.IsPrecedenceDfa()"/>
         public bool precedenceRuleDecision;
 
+        /// <summary>
+        /// For precedence decisions, this set marks states <em>S</em> which have all
+        /// of the following characteristics:
+        /// <ul>
+        /// <li>One or more invocation sites of the current rule returns to
+        /// <em>S</em>.</li>
+        /// <li>The closure from <em>S</em> includes the current decision without
+        /// passing through any rule invocations or stepping out of the current
+        /// rule.</li>
+        /// </ul>
+        /// <p>This field is
+        /// <see langword="null"/>
+        /// when
+        /// <see cref="#isPrecedenceDecision"/>
+        /// is
+        /// <see langword="false"/>
+        /// .</p>
+        /// </summary>
+        public BitSet precedenceLoopbackStates;
+
         public override Antlr4.Runtime.Atn.StateType StateType
         {
             get

@@ -333,6 +333,11 @@ namespace Antlr4.Runtime
 
         public override string ToString()
         {
+            return ToString(null);
+        }
+
+        public virtual string ToString<_T0>(Recognizer<_T0> r)
+        {
             string channelStr = string.Empty;
             if (channel > 0)
             {
@@ -349,7 +354,12 @@ namespace Antlr4.Runtime
             {
                 txt = "<no text>";
             }
-            return "[@" + TokenIndex + "," + start + ":" + stop + "='" + txt + "',<" + type + ">" + channelStr + "," + line + ":" + Column + "]";
+            string typeString = type.ToString();
+            if (r != null)
+            {
+                typeString = r.Vocabulary.GetDisplayName(type);
+            }
+            return "[@" + TokenIndex + "," + start + ":" + stop + "='" + txt + "',<" + typeString + ">" + channelStr + "," + line + ":" + Column + "]";
         }
     }
 }

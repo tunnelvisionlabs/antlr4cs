@@ -108,7 +108,7 @@ namespace Antlr4.Runtime
             int i = p;
             int n = 1;
             // find k good tokens looking backwards
-            while (n <= k)
+            while (n <= k && i > 0)
             {
                 // skip off-channel tokens
                 i = PreviousTokenOnChannel(i - 1, channel);

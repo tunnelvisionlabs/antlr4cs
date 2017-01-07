@@ -472,7 +472,7 @@ namespace Antlr4.Runtime.Atn
         {
             StringBuilder buf = new StringBuilder();
             List<ATNConfig> sortedConfigs = new List<ATNConfig>(configs);
-            sortedConfigs.Sort(new _IComparer_475());
+            sortedConfigs.Sort(new _IComparer_451());
             buf.Append("[");
             for (int i = 0; i < sortedConfigs.Count; i++)
             {
@@ -506,9 +506,9 @@ namespace Antlr4.Runtime.Atn
             return buf.ToString();
         }
 
-        private sealed class _IComparer_475 : IComparer<ATNConfig>
+        private sealed class _IComparer_451 : IComparer<ATNConfig>
         {
-            public _IComparer_475()
+            public _IComparer_451()
             {
             }
 

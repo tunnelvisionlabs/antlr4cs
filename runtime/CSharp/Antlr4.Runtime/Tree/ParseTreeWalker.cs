@@ -1,6 +1,7 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Sharpen;
 
@@ -12,27 +13,65 @@ namespace Antlr4.Runtime.Tree
 
         public virtual void Walk(IParseTreeListener listener, IParseTree t)
         {
-            if (t is IErrorNode)
+            Stack<IParseTree> nodeStack = new Stack<IParseTree>();
+            List<int> indexStack = new List<int>();
+            IParseTree currentNode = t;
+            int currentIndex = 0;
+            while (currentNode != null)
             {
-                listener.VisitErrorNode((IErrorNode)t);
-                return;
-            }
-            else
-            {
-                if (t is ITerminalNode)
+                // pre-order visit
+                if (currentNode is IErrorNode)
                 {
-                    listener.VisitTerminal((ITerminalNode)t);
-                    return;
+                    listener.VisitErrorNode((IErrorNode)currentNode);
                 }
+                else
+                {
+                    if (currentNode is ITerminalNode)
+                    {
+                        listener.VisitTerminal((ITerminalNode)currentNode);
+                    }
+                    else
+                    {
+                        IRuleNode r = (IRuleNode)currentNode;
+                        EnterRule(listener, r);
+                    }
+                }
+                // Move down to first child, if exists
+                if (currentNode.ChildCount > 0)
+                {
+                    nodeStack.Push(currentNode);
+                    indexStack.Add(currentIndex);
+                    currentIndex = 0;
+                    currentNode = currentNode.GetChild(0);
+                    continue;
+                }
+                do
+                {
+                    // No child nodes, so walk tree
+                    // post-order visit
+                    if (currentNode is IRuleNode)
+                    {
+                        ExitRule(listener, (IRuleNode)currentNode);
+                    }
+                    // No parent, so no siblings
+                    if (nodeStack.IsEmpty())
+                    {
+                        currentNode = null;
+                        currentIndex = 0;
+                        break;
+                    }
+                    // Move to next sibling if possible
+                    currentNode = nodeStack.Peek().GetChild(++currentIndex);
+                    if (currentNode != null)
+                    {
+                        break;
+                    }
+                    // No next sibling, so move up
+                    currentNode = nodeStack.Pop();
+                    currentIndex = indexStack.Pop();
+                }
+                while (currentNode != null);
             }
-            IRuleNode r = (IRuleNode)t;
-            EnterRule(listener, r);
-            int n = r.ChildCount;
-            for (int i = 0; i < n; i++)
-            {
-                Walk(listener, r.GetChild(i));
-            }
-            ExitRule(listener, r);
         }
 
         /// <summary>

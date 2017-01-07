@@ -629,7 +629,6 @@ namespace Antlr4.Runtime
         [return: NotNull]
         public virtual string GetText()
         {
-            Fill();
             return GetText(Interval.Of(0, Size - 1));
         }
 
@@ -642,7 +641,7 @@ namespace Antlr4.Runtime
             {
                 return string.Empty;
             }
-            LazyInit();
+            Fill();
             if (stop >= tokens.Count)
             {
                 stop = tokens.Count - 1;

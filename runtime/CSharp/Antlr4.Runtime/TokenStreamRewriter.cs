@@ -168,6 +168,24 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>
+        /// Distinguish between insert after/before to do the "insert afters"
+        /// first and then the "insert befores" at same index.
+        /// </summary>
+        /// <remarks>
+        /// Distinguish between insert after/before to do the "insert afters"
+        /// first and then the "insert befores" at same index. Implementation
+        /// of "insert after" is "insert before index+1".
+        /// </remarks>
+        internal class InsertAfterOp : TokenStreamRewriter.InsertBeforeOp
+        {
+            public InsertAfterOp(ITokenStream tokens, int index, object text)
+                : base(tokens, index + 1, text)
+            {
+            }
+            // insert after is insert before index+1
+        }
+
+        /// <summary>
         /// I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
         /// instructions.
         /// </summary>
@@ -283,7 +301,10 @@ namespace Antlr4.Runtime
         public virtual void InsertAfter(string programName, int index, object text)
         {
             // to insert after, just insert before next index (even if past end)
-            InsertBefore(programName, index + 1, text);
+            TokenStreamRewriter.RewriteOperation op = new TokenStreamRewriter.InsertAfterOp(tokens, index, text);
+            IList<TokenStreamRewriter.RewriteOperation> rewrites = GetProgram(programName);
+            op.instructionIndex = rewrites.Count;
+            rewrites.Add(op);
         }
 
         public virtual void InsertBefore(IToken t, object text)
@@ -613,7 +634,6 @@ namespace Antlr4.Runtime
                     }
                     // throw exception unless disjoint or identical
                     bool disjoint = prevRop.lastIndex < rop.index || prevRop.index > rop.lastIndex;
-                    bool same = prevRop.index == rop.index && prevRop.lastIndex == rop.lastIndex;
                     // Delete special case of replace (text==null):
                     // D.i-j.u D.x-y.v	| boundaries overlap	combine to max(min)..max(right)
                     if (prevRop.text == null && rop.text == null && !disjoint)
@@ -629,7 +649,7 @@ namespace Antlr4.Runtime
                     }
                     else
                     {
-                        if (!disjoint && !same)
+                        if (!disjoint)
                         {
                             throw new ArgumentException("replace op boundaries of " + rop + " overlap with previous " + prevRop);
                         }
@@ -655,12 +675,23 @@ namespace Antlr4.Runtime
                 {
                     if (prevIop.index == iop.index)
                     {
-                        // combine objects
-                        // convert to strings...we're in process of toString'ing
-                        // whole token buffer so no lazy eval issue with any templates
-                        iop.text = CatOpText(iop.text, prevIop.text);
-                        // delete redundant prior insert
-                        rewrites[prevIop.instructionIndex] = null;
+                        if (typeof(TokenStreamRewriter.InsertAfterOp).IsInstanceOfType(prevIop))
+                        {
+                            iop.text = CatOpText(prevIop.text, iop.text);
+                            rewrites.Set(prevIop.instructionIndex, null);
+                        }
+                        else
+                        {
+                            if (typeof(TokenStreamRewriter.InsertBeforeOp).IsInstanceOfType(prevIop))
+                            {
+                                // combine objects
+                                // convert to strings...we're in process of toString'ing
+                                // whole token buffer so no lazy eval issue with any templates
+                                iop.text = CatOpText(iop.text, prevIop.text);
+                                // delete redundant prior insert
+                                rewrites[prevIop.instructionIndex] = null;
+                            }
+                        }
                     }
                 }
                 // look for replaces where iop.index is in range; error
