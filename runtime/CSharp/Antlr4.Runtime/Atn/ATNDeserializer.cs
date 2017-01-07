@@ -2,33 +2,9 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* [The "BSD license"]
-*  Copyright (c) 2013 Terence Parr
-*  Copyright (c) 2013 Sam Harwell
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*  1. Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*  2. Redistributions in binary form must reproduce the above copyright
-*     notice, this list of conditions and the following disclaimer in the
-*     documentation and/or other materials provided with the distribution.
-*  3. The name of the author may not be used to endorse or promote products
-*     derived from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-*  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-*  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-*  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-*  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-*  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-*  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-*  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-*  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Copyright (c) 2012 The ANTLR Project. All rights reserved.
+* Use of this file is governed by the BSD-3-Clause license that
+* can be found in the LICENSE.txt file in the project root.
 */
 using System;
 using System.Collections.Generic;
@@ -340,6 +316,8 @@ namespace Antlr4.Runtime.Atn
                 p += 6;
             }
             // edges for rule stop states can be derived, so they aren't serialized
+            // Map rule stop state -> return state -> outermost precedence return
+            HashSet<Tuple<int, int, int>> returnTransitions = new LinkedHashSet<Tuple<int, int, int>>();
             foreach (ATNState state_1 in atn.states)
             {
                 bool returningToLeftFactored = state_1.ruleIndex >= 0 && atn.ruleToStartState[state_1.ruleIndex].leftFactored;
@@ -364,9 +342,14 @@ namespace Antlr4.Runtime.Atn
                             outermostPrecedenceReturn = ruleTransition.target.ruleIndex;
                         }
                     }
-                    EpsilonTransition returnTransition = new EpsilonTransition(ruleTransition.followState, outermostPrecedenceReturn);
-                    atn.ruleToStopState[ruleTransition.target.ruleIndex].AddTransition(returnTransition);
+                    returnTransitions.Add(Tuple.Create(ruleTransition.target.ruleIndex, ruleTransition.followState.stateNumber, outermostPrecedenceReturn));
                 }
+            }
+            // Add all elements from returnTransitions to the ATN
+            foreach (Tuple<int, int, int> returnTransition in returnTransitions)
+            {
+                EpsilonTransition transition = new EpsilonTransition(atn.states[returnTransition.Item2], returnTransition.Item3);
+                atn.ruleToStopState[returnTransition.Item1].AddTransition(transition);
             }
             foreach (ATNState state_2 in atn.states)
             {
@@ -609,6 +592,8 @@ namespace Antlr4.Runtime.Atn
         /// <param name="atn">The ATN.</param>
         protected internal virtual void MarkPrecedenceDecisions(ATN atn)
         {
+            // Map rule index -> precedence decision for that rule
+            IDictionary<int, StarLoopEntryState> rulePrecedenceDecisions = new Dictionary<int, StarLoopEntryState>();
             foreach (ATNState state in atn.states)
             {
                 if (!(state is StarLoopEntryState))
@@ -626,9 +611,29 @@ namespace Antlr4.Runtime.Atn
                     {
                         if (maybeLoopEndState.epsilonOnlyTransitions && maybeLoopEndState.Transition(0).target is RuleStopState)
                         {
+                            rulePrecedenceDecisions[state.ruleIndex] = (StarLoopEntryState)state;
                             ((StarLoopEntryState)state).precedenceRuleDecision = true;
+                            ((StarLoopEntryState)state).precedenceLoopbackStates = new BitSet(atn.states.Count);
                         }
                     }
+                }
+            }
+            // After marking precedence decisions, we go back through and fill in
+            // StarLoopEntryState.precedenceLoopbackStates.
+            foreach (KeyValuePair<int, StarLoopEntryState> precedenceDecision in rulePrecedenceDecisions)
+            {
+                foreach (Transition transition in atn.ruleToStopState[precedenceDecision.Key].transitions)
+                {
+                    if (transition.TransitionType != TransitionType.Epsilon)
+                    {
+                        continue;
+                    }
+                    EpsilonTransition epsilonTransition = (EpsilonTransition)transition;
+                    if (epsilonTransition.OutermostPrecedenceReturn != -1)
+                    {
+                        continue;
+                    }
+                    precedenceDecision.Value.precedenceLoopbackStates.Set(transition.target.stateNumber);
                 }
             }
         }

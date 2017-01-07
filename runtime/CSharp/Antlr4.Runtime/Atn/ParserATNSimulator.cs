@@ -2,33 +2,9 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* [The "BSD license"]
-*  Copyright (c) 2012 Terence Parr
-*  Copyright (c) 2012 Sam Harwell
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*  1. Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*  2. Redistributions in binary form must reproduce the above copyright
-*     notice, this list of conditions and the following disclaimer in the
-*     documentation and/or other materials provided with the distribution.
-*  3. The name of the author may not be used to endorse or promote products
-*     derived from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-*  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-*  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-*  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-*  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-*  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-*  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-*  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-*  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Copyright (c) 2012 The ANTLR Project. All rights reserved.
+* Use of this file is governed by the BSD-3-Clause license that
+* can be found in the LICENSE.txt file in the project root.
 */
 using System;
 using System.Collections.Generic;
@@ -1965,6 +1941,30 @@ namespace Antlr4.Runtime.Atn
             // both epsilon transitions and non-epsilon transitions.
             for (int i_1 = 0; i_1 < p.NumberOfOptimizedTransitions; i_1++)
             {
+                // This block implements first-edge elimination of ambiguous LR
+                // alternatives as part of dynamic disambiguation during prediction.
+                // See antlr/antlr4#1398.
+                if (i_1 == 0 && p.StateType == StateType.StarLoopEntry && ((StarLoopEntryState)p).precedenceRuleDecision && !config.Context.HasEmpty)
+                {
+                    StarLoopEntryState precedenceDecision = (StarLoopEntryState)p;
+                    // When suppress is true, it means the outgoing edge i==0 is
+                    // ambiguous with the outgoing edge i==1, and thus the closure
+                    // operation can dynamically disambiguate by suppressing this
+                    // edge during the closure operation.
+                    bool suppress = true;
+                    for (int j = 0; j < config.Context.Size; j++)
+                    {
+                        if (!precedenceDecision.precedenceLoopbackStates.Get(config.Context.GetReturnState(j)))
+                        {
+                            suppress = false;
+                            break;
+                        }
+                    }
+                    if (suppress)
+                    {
+                        continue;
+                    }
+                }
                 Transition t = p.GetOptimizedTransition(i_1);
                 bool continueCollecting = !(t is Antlr4.Runtime.Atn.ActionTransition) && collectPredicates;
                 ATNConfig c = GetEpsilonTarget(config, t, continueCollecting, depth == 0, contextCache, treatEofAsEpsilon);
@@ -2166,9 +2166,9 @@ namespace Antlr4.Runtime.Atn
             return config.Transform(t.target, newContext, false);
         }
 
-        private sealed class _IComparer_1988 : IComparer<ATNConfig>
+        private sealed class _IComparer_1991 : IComparer<ATNConfig>
         {
-            public _IComparer_1988()
+            public _IComparer_1991()
             {
             }
 
@@ -2188,7 +2188,7 @@ namespace Antlr4.Runtime.Atn
             }
         }
 
-        private static readonly IComparer<ATNConfig> StateAltSortComparator = new _IComparer_1988();
+        private static readonly IComparer<ATNConfig> StateAltSortComparator = new _IComparer_1991();
 
         private ConflictInfo IsConflicted(ATNConfigSet configset, PredictionContextCache contextCache)
         {

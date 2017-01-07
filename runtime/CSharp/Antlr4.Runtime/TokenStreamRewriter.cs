@@ -2,33 +2,9 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* [The "BSD license"]
-*  Copyright (c) 2012 Terence Parr
-*  Copyright (c) 2012 Sam Harwell
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*  1. Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*  2. Redistributions in binary form must reproduce the above copyright
-*     notice, this list of conditions and the following disclaimer in the
-*     documentation and/or other materials provided with the distribution.
-*  3. The name of the author may not be used to endorse or promote products
-*     derived from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-*  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-*  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-*  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-*  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-*  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-*  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-*  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-*  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* Copyright (c) 2012 The ANTLR Project. All rights reserved.
+* Use of this file is governed by the BSD-3-Clause license that
+* can be found in the LICENSE.txt file in the project root.
 */
 using System;
 using System.Collections.Generic;
@@ -196,6 +172,24 @@ namespace Antlr4.Runtime
         }
 
         /// <summary>
+        /// Distinguish between insert after/before to do the "insert afters"
+        /// first and then the "insert befores" at same index.
+        /// </summary>
+        /// <remarks>
+        /// Distinguish between insert after/before to do the "insert afters"
+        /// first and then the "insert befores" at same index. Implementation
+        /// of "insert after" is "insert before index+1".
+        /// </remarks>
+        internal class InsertAfterOp : TokenStreamRewriter.InsertBeforeOp
+        {
+            public InsertAfterOp(ITokenStream tokens, int index, object text)
+                : base(tokens, index + 1, text)
+            {
+            }
+            // insert after is insert before index+1
+        }
+
+        /// <summary>
         /// I'm going to try replacing range from x..y with (y-x)+1 ReplaceOp
         /// instructions.
         /// </summary>
@@ -311,7 +305,10 @@ namespace Antlr4.Runtime
         public virtual void InsertAfter(string programName, int index, object text)
         {
             // to insert after, just insert before next index (even if past end)
-            InsertBefore(programName, index + 1, text);
+            TokenStreamRewriter.RewriteOperation op = new TokenStreamRewriter.InsertAfterOp(tokens, index, text);
+            IList<TokenStreamRewriter.RewriteOperation> rewrites = GetProgram(programName);
+            op.instructionIndex = rewrites.Count;
+            rewrites.Add(op);
         }
 
         public virtual void InsertBefore(IToken t, object text)
@@ -636,7 +633,6 @@ namespace Antlr4.Runtime
                     }
                     // throw exception unless disjoint or identical
                     bool disjoint = prevRop.lastIndex < rop.index || prevRop.index > rop.lastIndex;
-                    bool same = prevRop.index == rop.index && prevRop.lastIndex == rop.lastIndex;
                     // Delete special case of replace (text==null):
                     // D.i-j.u D.x-y.v	| boundaries overlap	combine to max(min)..max(right)
                     if (prevRop.text == null && rop.text == null && !disjoint)
@@ -650,7 +646,7 @@ namespace Antlr4.Runtime
                     }
                     else
                     {
-                        if (!disjoint && !same)
+                        if (!disjoint)
                         {
                             throw new ArgumentException("replace op boundaries of " + rop + " overlap with previous " + prevRop);
                         }
@@ -676,12 +672,23 @@ namespace Antlr4.Runtime
                 {
                     if (prevIop.index == iop.index)
                     {
-                        // combine objects
-                        // convert to strings...we're in process of toString'ing
-                        // whole token buffer so no lazy eval issue with any templates
-                        iop.text = CatOpText(iop.text, prevIop.text);
-                        // delete redundant prior insert
-                        rewrites.Set(prevIop.instructionIndex, null);
+                        if (typeof(TokenStreamRewriter.InsertAfterOp).IsInstanceOfType(prevIop))
+                        {
+                            iop.text = CatOpText(prevIop.text, iop.text);
+                            rewrites.Set(prevIop.instructionIndex, null);
+                        }
+                        else
+                        {
+                            if (typeof(TokenStreamRewriter.InsertBeforeOp).IsInstanceOfType(prevIop))
+                            {
+                                // combine objects
+                                // convert to strings...we're in process of toString'ing
+                                // whole token buffer so no lazy eval issue with any templates
+                                iop.text = CatOpText(iop.text, prevIop.text);
+                                // delete redundant prior insert
+                                rewrites.Set(prevIop.instructionIndex, null);
+                            }
+                        }
                     }
                 }
                 // look for replaces where iop.index is in range; error

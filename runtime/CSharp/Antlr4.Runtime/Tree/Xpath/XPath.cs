@@ -1,6 +1,11 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+/*
+* Copyright (c) 2012 The ANTLR Project. All rights reserved.
+* Use of this file is governed by the BSD-3-Clause license that
+* can be found in the LICENSE.txt file in the project root.
+*/
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -96,7 +101,7 @@ namespace Antlr4.Runtime.Tree.Xpath
             {
                 throw new ArgumentException("Could not read path: " + path, ioe);
             }
-            XPathLexer lexer = new _XPathLexer_87(@in);
+            XPathLexer lexer = new _XPathLexer_93(@in);
             lexer.RemoveErrorListeners();
             lexer.AddErrorListener(new XPathLexerErrorListener());
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -165,9 +170,9 @@ loop_break: ;
             return Sharpen.Collections.ToArray(elements, new XPathElement[0]);
         }
 
-        private sealed class _XPathLexer_87 : XPathLexer
+        private sealed class _XPathLexer_93 : XPathLexer
         {
-            public _XPathLexer_87(ICharStream baseArg1)
+            public _XPathLexer_93(ICharStream baseArg1)
                 : base(baseArg1)
             {
             }
