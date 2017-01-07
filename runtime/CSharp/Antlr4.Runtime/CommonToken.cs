@@ -336,7 +336,7 @@ namespace Antlr4.Runtime
             return ToString(null);
         }
 
-        public virtual string ToString<_T0>(Recognizer<_T0> r)
+        public virtual string ToString(IRecognizer r)
         {
             string channelStr = string.Empty;
             if (channel > 0)

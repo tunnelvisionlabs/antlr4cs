@@ -39,7 +39,7 @@ namespace Antlr4.Runtime.Atn
         /// <p>This field is
         /// <see langword="null"/>
         /// when
-        /// <see cref="#isPrecedenceDecision"/>
+        /// <see cref="precedenceRuleDecision"/>
         /// is
         /// <see langword="false"/>
         /// .</p>

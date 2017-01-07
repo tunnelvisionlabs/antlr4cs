@@ -106,7 +106,9 @@ namespace Antlr4.Runtime
             this.grammarFileName = old.grammarFileName;
             this.atn = old.atn;
             this.pushRecursionContextStates = old.pushRecursionContextStates;
+#pragma warning disable 612 // Type or member is obsolete
             this.tokenNames = old.tokenNames;
+#pragma warning restore 612 // Type or member is obsolete
             this.ruleNames = old.ruleNames;
             this.vocabulary = old.vocabulary;
             Interpreter = new ParserATNSimulator(this, atn);
@@ -123,13 +125,13 @@ namespace Antlr4.Runtime
         {
             this.grammarFileName = grammarFileName;
             this.atn = atn;
-#pragma warning disable 612 // 'fieldName' is obsolete
+#pragma warning disable 612 // Type or member is obsolete
             this.tokenNames = new string[atn.maxTokenType];
             for (int i = 0; i < tokenNames.Length; i++)
             {
                 tokenNames[i] = vocabulary.GetDisplayName(i);
             }
-#pragma warning restore 612
+#pragma warning restore 612 // Type or member is obsolete
             this.ruleNames = ruleNames.ToArray();
             this.vocabulary = vocabulary;
             // identify the ATN states where pushNewRecursionContext() must be called

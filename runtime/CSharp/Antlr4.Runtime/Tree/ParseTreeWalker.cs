@@ -14,7 +14,7 @@ namespace Antlr4.Runtime.Tree
         public virtual void Walk(IParseTreeListener listener, IParseTree t)
         {
             Stack<IParseTree> nodeStack = new Stack<IParseTree>();
-            List<int> indexStack = new List<int>();
+            Stack<int> indexStack = new Stack<int>();
             IParseTree currentNode = t;
             int currentIndex = 0;
             while (currentNode != null)
@@ -40,7 +40,7 @@ namespace Antlr4.Runtime.Tree
                 if (currentNode.ChildCount > 0)
                 {
                     nodeStack.Push(currentNode);
-                    indexStack.Add(currentIndex);
+                    indexStack.Push(currentIndex);
                     currentIndex = 0;
                     currentNode = currentNode.GetChild(0);
                     continue;
@@ -54,7 +54,7 @@ namespace Antlr4.Runtime.Tree
                         ExitRule(listener, (IRuleNode)currentNode);
                     }
                     // No parent, so no siblings
-                    if (nodeStack.IsEmpty())
+                    if (nodeStack.Count == 0)
                     {
                         currentNode = null;
                         currentIndex = 0;

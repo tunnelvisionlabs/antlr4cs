@@ -304,7 +304,8 @@ namespace Antlr4.Runtime.Atn
             }
             // edges for rule stop states can be derived, so they aren't serialized
             // Map rule stop state -> return state -> outermost precedence return
-            HashSet<Tuple<int, int, int>> returnTransitions = new LinkedHashSet<Tuple<int, int, int>>();
+            HashSet<Tuple<int, int, int>> returnTransitionsSet = new HashSet<Tuple<int, int, int>>();
+            List<Tuple<int, int, int>> returnTransitions = new List<Tuple<int, int, int>>();
             foreach (ATNState state_1 in atn.states)
             {
                 bool returningToLeftFactored = state_1.ruleIndex >= 0 && atn.ruleToStartState[state_1.ruleIndex].leftFactored;
@@ -329,7 +330,10 @@ namespace Antlr4.Runtime.Atn
                             outermostPrecedenceReturn = ruleTransition.target.ruleIndex;
                         }
                     }
-                    returnTransitions.Add(Tuple.Create(ruleTransition.target.ruleIndex, ruleTransition.followState.stateNumber, outermostPrecedenceReturn));
+
+                    var returnTransition = Tuple.Create(ruleTransition.target.ruleIndex, ruleTransition.followState.stateNumber, outermostPrecedenceReturn);
+                    if (returnTransitionsSet.Add(returnTransition))
+                        returnTransitions.Add(returnTransition);
                 }
             }
             // Add all elements from returnTransitions to the ATN

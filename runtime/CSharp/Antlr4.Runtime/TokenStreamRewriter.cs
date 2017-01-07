@@ -675,14 +675,14 @@ namespace Antlr4.Runtime
                 {
                     if (prevIop.index == iop.index)
                     {
-                        if (typeof(TokenStreamRewriter.InsertAfterOp).IsInstanceOfType(prevIop))
+                        if (prevIop is InsertAfterOp)
                         {
                             iop.text = CatOpText(prevIop.text, iop.text);
-                            rewrites.Set(prevIop.instructionIndex, null);
+                            rewrites[prevIop.instructionIndex] = null;
                         }
                         else
                         {
-                            if (typeof(TokenStreamRewriter.InsertBeforeOp).IsInstanceOfType(prevIop))
+                            if (prevIop is InsertBeforeOp)
                             {
                                 // combine objects
                                 // convert to strings...we're in process of toString'ing
