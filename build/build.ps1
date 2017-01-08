@@ -18,7 +18,7 @@ $CF35SolutionPath = "..\Runtime\CSharp\Antlr4.VS2008.sln"
 
 # make sure the script was run from the expected path
 if (!(Test-Path $SolutionPath)) {
-	echo "The script was run from an invalid working directory."
+	$host.UI.WriteErrorLine("The script was run from an invalid working directory.")
 	exit 1
 }
 
