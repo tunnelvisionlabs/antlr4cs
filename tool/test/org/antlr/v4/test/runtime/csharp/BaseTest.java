@@ -32,13 +32,10 @@ package org.antlr.v4.test.runtime.csharp;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.antlr.v4.CSharpTool;
 import org.antlr.v4.Tool;
 import org.antlr.v4.runtime.Token;
@@ -58,9 +55,6 @@ public abstract class BaseTest {
 	protected String input;
 	protected String expectedOutput;
 	protected String expectedErrors;
-	private String stderrDuringParse;
-	public static final String newline = System.getProperty("line.separator");
-	public static final String pathSep = System.getProperty("path.separator");
 
 	/**
 	 * Generates C# verbatim style Template String body (WITHOUT surrounding quotes)
@@ -184,7 +178,6 @@ public abstract class BaseTest {
 														lexerName,
 														"-visitor");
 		assertTrue(success);
-		this.stderrDuringParse = null;
 		if (parserName == null) {
 			writeLexerTestFile(lexerName, false);
 		}
@@ -212,28 +205,7 @@ public abstract class BaseTest {
 													String... extraOptions)
 	{
 		ErrorQueue equeue = antlr(grammarFileName, grammarStr, defaultListener, extraOptions);
-		if (!equeue.errors.isEmpty()) {
-			return false;
-		}
-
-		List<String> files = new ArrayList<String>();
-		if ( lexerName!=null ) {
-			files.add(lexerName+".cs");
-		}
-		if ( parserName!=null ) {
-			files.add(parserName+".cs");
-			Set<String> optionsSet = new HashSet<String>(Arrays.asList(extraOptions));
-			String grammarName = grammarFileName.substring(0, grammarFileName.lastIndexOf('.'));
-			if (!optionsSet.contains("-no-listener")) {
-				files.add(grammarName+"Listener.cs");
-				files.add(grammarName+"BaseListener.cs");
-			}
-			if (optionsSet.contains("-visitor")) {
-				files.add(grammarName+"Visitor.cs");
-				files.add(grammarName+"BaseVisitor.cs");
-			}
-		}
-		return true;
+		return equeue.errors.isEmpty();
 	}
 
 	protected void mkdir(String dir) {
