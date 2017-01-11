@@ -180,6 +180,12 @@
     <Compile Include="Codegen\OutputModelWalker.cs" />
     <Compile Include="Codegen\ParserFactory.cs" />
     <Compile Include="Codegen\Target.cs" />
+    <Compile Include="Codegen\Target\CSharpTarget.cs" />
+    <Compile Include="Codegen\Target\CSharp_v2_0Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v3_0Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v3_5Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v4_0Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v4_5Target.cs" />
     <Compile Include="Codegen\Target\JavaTarget.cs" />
     <Compile Include="Codegen\Wildcard.cs" />
     <Compile Include="Misc\CharSupport.cs" />
