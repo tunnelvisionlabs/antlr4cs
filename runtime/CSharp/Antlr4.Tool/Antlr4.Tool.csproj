@@ -263,6 +263,34 @@
     <None Include="..\..\..\build\keys\Antlr4.snk">
       <Link>Antlr4.snk</Link>
     </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\codegen\Java\Java.stg">
+      <Link>Tool\Templates\Codegen\Java\Java.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\depend.stg">
+      <Link>Tool\Templates\depend.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\dot\graphs.stg">
+      <Link>Tool\Templates\Dot\graphs.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\LeftRecursiveRules.stg">
+      <Link>Tool\Templates\LeftRecursiveRules.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\messages\formats\antlr.stg">
+      <Link>Tool\Templates\Messages\Formats\antlr.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\messages\formats\gnu.stg">
+      <Link>Tool\Templates\Messages\Formats\gnu.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\messages\formats\vs2005.stg">
+      <Link>Tool\Templates\Messages\Formats\vs2005.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
