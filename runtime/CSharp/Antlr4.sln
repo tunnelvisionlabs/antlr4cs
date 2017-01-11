@@ -68,6 +68,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Tool.netstandard", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4", "Antlr4\Antlr4.csproj", "{98627CB5-E76B-4E60-B02B-7836CC6954AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Tool.net45", "Antlr4.Tool\Antlr4.Tool.net45.csproj", "{CC2C302F-259E-4D33-9226-DC58A08033A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,10 @@ Global
 		{98627CB5-E76B-4E60-B02B-7836CC6954AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98627CB5-E76B-4E60-B02B-7836CC6954AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98627CB5-E76B-4E60-B02B-7836CC6954AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC2C302F-259E-4D33-9226-DC58A08033A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC2C302F-259E-4D33-9226-DC58A08033A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC2C302F-259E-4D33-9226-DC58A08033A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC2C302F-259E-4D33-9226-DC58A08033A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
