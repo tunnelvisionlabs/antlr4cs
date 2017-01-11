@@ -27,18 +27,18 @@
  *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  *  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.antlr.v4.codegen.target;
 
-import org.antlr.v4.codegen.CodeGenerator;
-
-/**
- *
- * @author Sam Harwell
- */
-public class CSharp_v2_0Target extends CSharpTarget {
-
-	public CSharp_v2_0Target(CodeGenerator gen) {
-		super(gen, "CSharp_v2_0");
-	}
-
+namespace Antlr4.Codegen.Target
+{
+    /**
+     *
+     * @author Sam Harwell
+     */
+    public class CSharp_v2_0Target : CSharpTarget
+    {
+        public CSharp_v2_0Target(CodeGenerator gen)
+            : base(gen, "CSharp_v2_0")
+        {
+        }
+    }
 }
