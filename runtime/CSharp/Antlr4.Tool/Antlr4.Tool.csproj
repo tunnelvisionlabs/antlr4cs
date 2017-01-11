@@ -187,8 +187,10 @@
     <Compile Include="Misc\Graph`1.cs" />
     <Compile Include="Misc\LinkedHashMap`2.cs" />
     <Compile Include="Misc\LinkedHashSet`1.cs" />
+    <Compile Include="Misc\LogManager.cs" />
     <Compile Include="Misc\OrderedHashMap`2.cs" />
     <Compile Include="Misc\OrderedHashSet`1.cs" />
+    <Compile Include="Misc\TreeParserExtensions.cs" />
     <Compile Include="Misc\Utils.cs" />
     <Compile Include="Parse\ActionSplitterListener.cs" />
     <Compile Include="Parse\GrammarASTAdaptor.cs" />
