@@ -64,7 +64,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.portabl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.netcore45", "Antlr4.Runtime\Antlr4.Runtime.netcore45.csproj", "{F3145DCA-EA26-4482-80D6-5232A79E2A3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Tool", "Antlr4.Tool\Antlr4.Tool.csproj", "{80DF5B27-A8B9-4B6D-8CF2-314E8BD772F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Tool.netstandard", "Antlr4.Tool\Antlr4.Tool.netstandard.csproj", "{80DF5B27-A8B9-4B6D-8CF2-314E8BD772F8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4", "Antlr4\Antlr4.csproj", "{98627CB5-E76B-4E60-B02B-7836CC6954AB}"
 EndProject

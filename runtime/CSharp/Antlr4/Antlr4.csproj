@@ -125,9 +125,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Antlr4.Tool\Antlr4.Tool.csproj">
+    <ProjectReference Include="..\Antlr4.Tool\Antlr4.Tool.netstandard.csproj">
       <Project>{80df5b27-a8b9-4b6d-8cf2-314e8bd772f8}</Project>
-      <Name>Antlr4.Tool</Name>
+      <Name>Antlr4.Tool.netstandard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
