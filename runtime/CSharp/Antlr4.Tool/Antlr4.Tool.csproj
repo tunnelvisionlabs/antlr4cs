@@ -293,6 +293,30 @@
       <Link>Tool\Templates\Messages\Formats\vs2005.stg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v2_0.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v2_0.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v3_0.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v3_0.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v3_5.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v3_5.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v4_0.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v4_0.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v4_5.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v4_5.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
