@@ -8,14 +8,21 @@ namespace Antlr4.Codegen.Model.Decl
     /** */
     public class AttributeDecl : Decl
     {
-        public string type;
-        public string initValue;
-
         public AttributeDecl(OutputModelFactory factory, Attribute a)
             : base(factory, a.name, a.decl)
         {
-            this.type = a.type;
-            this.initValue = a.initValue;
+            this.Type = a.type;
+            this.InitValue = a.initValue;
+        }
+
+        public string Type
+        {
+            get;
+        }
+
+        public string InitValue
+        {
+            get;
         }
     }
 }
