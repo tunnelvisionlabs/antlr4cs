@@ -29,8 +29,8 @@ namespace Antlr4.Tool
         /** The group of templates that represent the current message format. */
         TemplateGroup format;
 
-        /** Messages should be sensitive to the locale. */
-        CultureInfo locale;
+        /////** Messages should be sensitive to the locale. */
+        ////CultureInfo locale;
         string formatName;
 
         ErrorBuffer initSTListener = new ErrorBuffer();

@@ -236,7 +236,7 @@ namespace Antlr4
                             else
                                 f.SetValue(this, argValue);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             errMgr.ToolError(ErrorType.INTERNAL_ERROR, "can't access field " + o.fieldName);
                         }
@@ -785,7 +785,7 @@ namespace Antlr4
                 }
                 return null;
             }
-            catch (RecognitionException re)
+            catch (RecognitionException)
             {
                 // TODO: do we gen errors now?
                 ErrorManager.InternalError("can't generate this message at moment; antlr recovers");

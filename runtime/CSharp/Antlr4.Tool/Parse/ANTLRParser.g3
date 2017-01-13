@@ -447,7 +447,7 @@ ruleBlock
 @init {IToken colon = input.LT(-1);}
     :	ruleAltList -> ^(BLOCK<node=BlockAST>[colon,"BLOCK"] ruleAltList)
     ;
-    catch [ResyncToEndOfRuleBlock e] {
+    catch [ResyncToEndOfRuleBlock] {
     	// just resyncing; ignore error
 		retval.Tree = (GrammarAST)adaptor.ErrorNode(input, retval.Start, input.LT(-1), null);
     }
@@ -478,7 +478,7 @@ lexerRuleBlock
 @init {IToken colon = input.LT(-1);}
     :	lexerAltList -> ^(BLOCK<node=BlockAST>[colon,"BLOCK"] lexerAltList)
     ;
-    catch [ResyncToEndOfRuleBlock e] {
+    catch [ResyncToEndOfRuleBlock] {
     	// just resyncing; ignore error
 		retval.Tree = (GrammarAST)adaptor.ErrorNode(input, retval.Start, input.LT(-1), null);
     }
@@ -755,10 +755,6 @@ notSet
     ;
 
 blockSet
-@init {
-	IToken t;
-	bool ebnf = false;
-}
     :	LPAREN setElement (OR setElement)* RPAREN
 		-> ^(SET<node=SetAST>[$LPAREN,"SET"] setElement+ )
     ;
