@@ -30,6 +30,7 @@
 
 namespace Antlr4.Codegen.Target
 {
+    using System.Reflection;
     using System.Text;
     using Antlr4.StringTemplate;
     using Antlr4.Tool.Ast;
@@ -145,7 +146,11 @@ namespace Antlr4.Codegen.Target
         protected override TemplateGroup LoadTemplates()
         {
             // override the superclass behavior to put all C# templates in the same folder
-            TemplateGroup result = new TemplateGroupFile(Path.GetFullPath(Path.Combine(CodeGenerator.TEMPLATE_ROOT, "CSharp", GetLanguage() + TemplateGroup.GroupFileExtension)));
+            TemplateGroup result = new TemplateGroupFile(
+                Path.Combine(
+                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    Path.Combine(CodeGenerator.TEMPLATE_ROOT, "CSharp", GetLanguage() + TemplateGroup.GroupFileExtension)),
+                Encoding.UTF8);
             result.RegisterRenderer(typeof(int), new NumberRenderer());
             result.RegisterRenderer(typeof(string), new StringRenderer());
             result.Listener = new ErrorListener(this);

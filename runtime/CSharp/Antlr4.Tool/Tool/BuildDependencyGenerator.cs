@@ -4,6 +4,7 @@
 namespace Antlr4.Tool
 {
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Text;
     using Antlr4.Codegen;
     using Antlr4.Parse;
@@ -283,7 +284,11 @@ namespace Antlr4.Tool
                 return;
 
             string fileName = Path.Combine("Tool", "Templates", "depend.stg");
-            templates = new TemplateGroupFile(Path.GetFullPath(fileName), Encoding.UTF8);
+            templates = new TemplateGroupFile(
+                Path.Combine(
+                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    fileName),
+                Encoding.UTF8);
         }
 
         public virtual CodeGenerator GetGenerator()

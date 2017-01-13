@@ -4,6 +4,7 @@
 namespace Antlr4.Tool
 {
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Text;
     using Antlr4.Misc;
     using Antlr4.Runtime.Atn;
@@ -20,7 +21,11 @@ namespace Antlr4.Tool
         protected string rankdir = "LR";
 
         /** Library of output templates; use {@code &lt;attrname&gt;} format. */
-        public static TemplateGroup stlib = new TemplateGroupFile(Path.GetFullPath(Path.Combine("Tool", "Templates", "Dot", "graphs.stg")));
+        public static TemplateGroup stlib = new TemplateGroupFile(
+            Path.Combine(
+                Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                Path.Combine("Tool", "Templates", "Dot", "graphs.stg")),
+            Encoding.UTF8);
 
         protected Grammar grammar;
 

@@ -5,6 +5,7 @@ namespace Antlr4.Analysis
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Text;
     using Antlr4.Codegen;
     using Antlr4.Misc;
@@ -76,7 +77,11 @@ namespace Antlr4.Analysis
         public virtual void LoadPrecRuleTemplates()
         {
             string templateGroupFile = Path.Combine("Tool", "Templates", "LeftRecursiveRules.stg");
-            recRuleTemplates = new TemplateGroupFile(Path.GetFullPath(templateGroupFile));
+            recRuleTemplates = new TemplateGroupFile(
+                Path.Combine(
+                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    templateGroupFile),
+                Encoding.UTF8);
             if (!recRuleTemplates.IsDefined("recRule"))
             {
                 tool.errMgr.ToolError(ErrorType.MISSING_CODE_GEN_TEMPLATES, "LeftRecursiveRules");

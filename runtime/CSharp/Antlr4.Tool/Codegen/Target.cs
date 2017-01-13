@@ -4,6 +4,7 @@
 namespace Antlr4.Codegen
 {
     using System.Diagnostics;
+    using System.Reflection;
     using System.Text;
     using Antlr4.Codegen.Model;
     using Antlr4.Misc;
@@ -396,7 +397,11 @@ namespace Antlr4.Codegen
         [return: NotNull]
         protected virtual TemplateGroup LoadTemplates()
         {
-            TemplateGroup result = new TemplateGroupFile(Path.GetFullPath(Path.Combine(CodeGenerator.TEMPLATE_ROOT, GetLanguage(), GetLanguage() + TemplateGroup.GroupFileExtension)));
+            TemplateGroup result = new TemplateGroupFile(
+                Path.Combine(
+                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    Path.Combine(CodeGenerator.TEMPLATE_ROOT, GetLanguage(), GetLanguage() + TemplateGroup.GroupFileExtension)),
+                Encoding.UTF8);
             result.RegisterRenderer(typeof(int), new NumberRenderer());
             result.RegisterRenderer(typeof(string), new StringRenderer());
             result.Listener = new ErrorListener(this);

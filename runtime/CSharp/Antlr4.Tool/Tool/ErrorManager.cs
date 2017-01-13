@@ -6,6 +6,7 @@ namespace Antlr4.Tool
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Reflection;
     using System.Text;
     using Antlr4.StringTemplate;
     using Console = System.Console;
@@ -252,7 +253,11 @@ namespace Antlr4.Tool
             //    return;
             //}
 
-            format = new TemplateGroupFile(Path.GetFullPath(fileName), Encoding.UTF8);
+            format = new TemplateGroupFile(
+                Path.Combine(
+                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    fileName),
+                Encoding.UTF8);
             format.Load();
 
             if (initSTListener.Errors.Count > 0)
