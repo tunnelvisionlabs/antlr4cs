@@ -19,7 +19,7 @@ namespace Antlr4.Build.Tasks
 #endif
     using StringBuilder = System.Text.StringBuilder;
 
-    internal class AntlrClassGenerationTaskInternal : MarshalByRefObject
+    internal class AntlrClassGenerationTaskInternal
     {
         private List<string> _generatedCodeFiles = new List<string>();
         private IList<string> _sourceCodeFiles = new List<string>();

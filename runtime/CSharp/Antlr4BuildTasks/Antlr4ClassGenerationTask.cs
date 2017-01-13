@@ -22,8 +22,6 @@ namespace Antlr4.Build.Tasks
     public class Antlr4ClassGenerationTask
         : Task
     {
-        private static AppDomain _sharedAppDomain;
-
         private const string DefaultGeneratedSourceExtension = "g4";
         private List<ITaskItem> _generatedCodeFiles = new List<ITaskItem>();
 
@@ -163,27 +161,8 @@ namespace Antlr4.Build.Tasks
             }
         }
 
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
-        public AppDomain GetAntlrTaskAppDomain()
-        {
-            if (_sharedAppDomain != null)
-                return _sharedAppDomain;
-
-            AppDomainSetup info = new AppDomainSetup
-            {
-                ApplicationBase = BuildTaskPath,
-                LoaderOptimization = LoaderOptimization.MultiDomainHost,
-                ShadowCopyFiles = "true"
-            };
-
-            string friendlyName = "AntlrClassGenerationDomain_" + Guid.NewGuid();
-            _sharedAppDomain = AppDomain.CreateDomain(friendlyName, AppDomain.CurrentDomain.Evidence, info, new NamedPermissionSet("FullTrust"), new StrongName[0]);
-            return _sharedAppDomain;
-        }
-
         public override bool Execute()
         {
-            AppDomain domain = null;
             bool success;
 
             if (!Path.IsPathRooted(ToolPath))
@@ -194,8 +173,7 @@ namespace Antlr4.Build.Tasks
 
             try
             {
-                domain = GetAntlrTaskAppDomain();
-                AntlrClassGenerationTaskInternal wrapper = CreateBuildTaskWrapper(domain);
+                AntlrClassGenerationTaskInternal wrapper = CreateBuildTaskWrapper();
                 success = wrapper.Execute();
 
                 if (success)
@@ -215,11 +193,6 @@ namespace Antlr4.Build.Tasks
 
                 ProcessExceptionAsBuildMessage(exception);
                 success = false;
-            }
-            finally
-            {
-                if (domain != null && domain != _sharedAppDomain)
-                    AppDomain.Unload(domain);
             }
 
             return success;
@@ -261,9 +234,9 @@ namespace Antlr4.Build.Tasks
             }
         }
 
-        private AntlrClassGenerationTaskInternal CreateBuildTaskWrapper(AppDomain domain)
+        private AntlrClassGenerationTaskInternal CreateBuildTaskWrapper()
         {
-            AntlrClassGenerationTaskInternal wrapper = (AntlrClassGenerationTaskInternal)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(AntlrClassGenerationTaskInternal).FullName);
+            AntlrClassGenerationTaskInternal wrapper = new AntlrClassGenerationTaskInternal();
 
             IList<string> sourceCodeFiles = null;
             if (this.SourceCodeFiles != null)
