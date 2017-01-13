@@ -861,7 +861,7 @@ namespace Antlr4
 
         public virtual string GetImportedGrammarFile(Grammar g, string fileName)
         {
-            string importedFile = Path.Combine(inputDirectory, fileName);
+            string importedFile = Path.Combine(inputDirectory ?? string.Empty, fileName);
             if (!File.Exists(importedFile))
             {
                 string gfile = g.fileName;
@@ -870,7 +870,7 @@ namespace Antlr4
                 if (!File.Exists(importedFile))
                 {
                     // try in lib dir
-                    importedFile = Path.Combine(libDirectory, fileName);
+                    importedFile = Path.Combine(libDirectory ?? string.Empty, fileName);
                     if (!File.Exists(importedFile))
                     {
                         return null;
