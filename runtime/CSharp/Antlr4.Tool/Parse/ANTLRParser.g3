@@ -279,13 +279,13 @@ rules
 
 sync
 @init {
-	BitSet followSet = ComputeErrorRecoverySet();
-	if ( input.LA(1)!=TokenTypes.EndOfFile && !followSet.Member(input.LA(1)) ) {
-		ReportError(new NoViableAltException("",0,0,input));
-       	BeginResync();
-       	ConsumeUntil(input, followSet);
-       	EndResync();
-	}
+	//BitSet followSet = ComputeErrorRecoverySet();
+	//if ( input.LA(1)!=TokenTypes.EndOfFile && !followSet.Member(input.LA(1)) ) {
+	//	ReportError(new NoViableAltException("",0,0,input));
+	//	BeginResync();
+	//	ConsumeUntil(input, followSet);
+	//	EndResync();
+	//}
 }	:
 	;
 
