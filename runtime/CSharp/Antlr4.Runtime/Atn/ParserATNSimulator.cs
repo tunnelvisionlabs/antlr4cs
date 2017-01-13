@@ -1945,6 +1945,30 @@ namespace Antlr4.Runtime.Atn
             // both epsilon transitions and non-epsilon transitions.
             for (int i_1 = 0; i_1 < p.NumberOfOptimizedTransitions; i_1++)
             {
+                // This block implements first-edge elimination of ambiguous LR
+                // alternatives as part of dynamic disambiguation during prediction.
+                // See antlr/antlr4#1398.
+                if (i_1 == 0 && p.StateType == StateType.StarLoopEntry && ((StarLoopEntryState)p).precedenceRuleDecision && !config.Context.HasEmpty)
+                {
+                    StarLoopEntryState precedenceDecision = (StarLoopEntryState)p;
+                    // When suppress is true, it means the outgoing edge i==0 is
+                    // ambiguous with the outgoing edge i==1, and thus the closure
+                    // operation can dynamically disambiguate by suppressing this
+                    // edge during the closure operation.
+                    bool suppress = true;
+                    for (int j = 0; j < config.Context.Size; j++)
+                    {
+                        if (!precedenceDecision.precedenceLoopbackStates.Get(config.Context.GetReturnState(j)))
+                        {
+                            suppress = false;
+                            break;
+                        }
+                    }
+                    if (suppress)
+                    {
+                        continue;
+                    }
+                }
                 Transition t = p.GetOptimizedTransition(i_1);
                 bool continueCollecting = !(t is Antlr4.Runtime.Atn.ActionTransition) && collectPredicates;
                 ATNConfig c = GetEpsilonTarget(config, t, continueCollecting, depth == 0, contextCache, treatEofAsEpsilon);
@@ -2146,9 +2170,9 @@ namespace Antlr4.Runtime.Atn
             return config.Transform(t.target, newContext, false);
         }
 
-        private sealed class _IComparer_1988 : IComparer<ATNConfig>
+        private sealed class _IComparer_1991 : IComparer<ATNConfig>
         {
-            public _IComparer_1988()
+            public _IComparer_1991()
             {
             }
 
@@ -2168,7 +2192,7 @@ namespace Antlr4.Runtime.Atn
             }
         }
 
-        private static readonly IComparer<ATNConfig> StateAltSortComparator = new _IComparer_1988();
+        private static readonly IComparer<ATNConfig> StateAltSortComparator = new _IComparer_1991();
 
         private ConflictInfo IsConflicted(ATNConfigSet configset, PredictionContextCache contextCache)
         {

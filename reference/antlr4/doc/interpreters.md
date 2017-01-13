@@ -1,3 +1,5 @@
+:warning: The information on this page has not been updated for this optimized fork.
+
 # Parser and lexer interpreters
 
 *Since ANTLR 4.2*

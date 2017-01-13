@@ -27,6 +27,9 @@ line 1:7 reportAmbiguity d=0 (a): ambigAlts={2, 3}, input='y'<\n>
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 s : {<LL_EXACT_AMBIG_DETECTION()>} a ';' a ';' a;
 a : INT {<writeln("\"alt 1\"")>}
   | ID {<writeln("\"alt 2\"")>} // must pick this one for ID since pred is false

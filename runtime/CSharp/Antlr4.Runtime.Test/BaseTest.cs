@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using Antlr4.Runtime.Dfa;
     using Antlr4.Runtime.Misc;
+    using Antlr4.Runtime.Tree;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Microsoft.Win32;
     using Directory = System.IO.Directory;
@@ -11,8 +13,45 @@
     using File = System.IO.File;
     using IOException = System.IO.IOException;
     using Path = System.IO.Path;
+    using StringWriter = System.IO.StringWriter;
     using TextReader = System.IO.TextReader;
     using Thread = System.Threading.Thread;
+
+    internal static class Extensions
+    {
+        public static void DumpDFA(this Parser parser)
+        {
+            bool seenOne = false;
+            for (int d = 0; d < parser.Interpreter.atn.decisionToDFA.Length; d++)
+            {
+                DFA dfa = parser.Interpreter.atn.decisionToDFA[d];
+                if (!dfa.IsEmpty)
+                {
+                    if (seenOne)
+                    {
+                        System.Console.Out.WriteLine();
+                    }
+                    System.Console.Out.WriteLine("Decision " + dfa.decision + ":");
+                    System.Console.Out.Write(dfa.ToString(parser.Vocabulary, parser.RuleNames));
+                    seenOne = true;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// This is a duplicate of <c>ConsoleErrorListener&lt;Symbol&gt;</c> which is used for testing the portable
+    /// runtimes.
+    /// </summary>
+    public class TestConsoleErrorListener<Symbol> : IAntlrErrorListener<Symbol>
+    {
+        public static readonly TestConsoleErrorListener<Symbol> Instance = new TestConsoleErrorListener<Symbol>();
+
+        public virtual void SyntaxError(IRecognizer recognizer, Symbol offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+        {
+            Console.Error.WriteLine("line " + line + ":" + charPositionInLine + " " + msg);
+        }
+    }
 
     public abstract class BaseTest
     {
@@ -104,6 +143,120 @@
 
             return result;
 #endif
+        }
+
+        private void ExpectConsole(string expectedOutput, string expectedErrors, Action testFunction) {
+            var outWriter = Console.Out;
+            var errorWriter = Console.Error;
+
+            var captureOut = new StringWriter();
+            var captureError = new StringWriter();
+
+            try
+            {
+                Console.SetOut(captureOut);
+                Console.SetError(captureError);
+                testFunction();
+            }
+            finally
+            {
+                Console.SetOut(outWriter);
+                Console.SetError(errorWriter);
+            }
+
+            captureOut.Flush();
+            captureError.Flush();
+            var output = captureOut.ToString().Replace("\r", string.Empty);
+            var errors = captureError.ToString().Replace("\r", string.Empty);
+
+            // Fixup for small behavioral difference at EOF...
+            if (output.Length == expectedOutput.Length - 1 && output[output.Length - 1] != '\n')
+                output += "\n";
+
+            Assert.AreEqual(expectedOutput, output);
+            Assert.AreEqual(expectedErrors, errors);
+        }
+
+        private class TreeShapeListener : IParseTreeListener
+        {
+            public void EnterEveryRule(ParserRuleContext context)
+            {
+                for (int i = 0; i < context.ChildCount; i++)
+                {
+                    var parent = context.GetChild(i).Parent;
+                    if (!(parent is IRuleNode) || ((IRuleNode)parent).RuleContext != context)
+                    {
+                        throw new Exception("Invalid parse tree shape detected.");
+                    }
+                }
+            }
+
+            public void ExitEveryRule(ParserRuleContext ctx)
+            {
+            }
+
+            public void VisitErrorNode(IErrorNode node)
+            {
+            }
+
+            public void VisitTerminal(ITerminalNode node)
+            {
+            }
+        }
+
+        internal void LexerTest(LexerTestOptions options)
+        {
+            ICharStream inputStream = new AntlrInputStream(options.Input.Replace("\r", string.Empty));
+            var lex = options.Lexer(inputStream);
+#if PORTABLE
+            lex.AddErrorListener(TestConsoleErrorListener<int>.Instance);
+#endif
+            var tokens = new CommonTokenStream(lex);
+            ExpectConsole(
+                options.ExpectedOutput.Replace("\r", string.Empty),
+                options.ExpectedErrors.Replace("\r", string.Empty),
+                () =>
+                {
+                    tokens.Fill();
+                    foreach (var token in tokens.GetTokens())
+                    {
+                        Console.WriteLine(token.ToString());
+                    }
+
+                    if (options.ShowDFA)
+                    {
+                        Console.Write(lex.Interpreter.GetDFA(Lexer.DefaultMode).ToLexerString());
+                    }
+                });
+        }
+
+        internal void ParserTest<TParser>(ParserTestOptions<TParser> options)
+            where TParser : Parser
+        {
+            ICharStream inputStream = new AntlrInputStream(options.Input.Replace("\r", string.Empty));
+            var lex = options.Lexer(inputStream);
+            var tokens = new CommonTokenStream(lex);
+            var parser = options.Parser(tokens);
+#if PORTABLE
+            lex.AddErrorListener(TestConsoleErrorListener<int>.Instance);
+            parser.AddErrorListener(TestConsoleErrorListener<IToken>.Instance);
+#endif
+            if (options.Debug)
+            {
+                parser.Interpreter.reportAmbiguities = true;
+                parser.AddErrorListener(new DiagnosticErrorListener());
+            }
+
+            parser.BuildParseTree = true;
+
+            ExpectConsole(
+                options.ExpectedOutput.Replace("\r", string.Empty),
+                options.ExpectedErrors.Replace("\r", string.Empty),
+                () =>
+                {
+                    var tree = options.ParserStartRule(parser);
+                    ParseTreeWalker.Default.Walk(new TreeShapeListener(), tree);
+                });
         }
 
         /** Wow! much faster than compiling outside of VM. Finicky though.
@@ -1027,7 +1180,10 @@
                 throw new InvalidOperationException();
             }
 
-            Directory.Delete(tmpdir, true);
+            if (Directory.Exists(tmpdir))
+            {
+                Directory.Delete(tmpdir, true);
+            }
         }
 
 #if false

@@ -25,6 +25,9 @@ line 1:2 reportContextSensitivity d=1 (expr), input='a@'<\n>
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 prog
 @init {<LL_EXACT_AMBIG_DETECTION()>}
 	: expr expr {<writeln("\"alt 1\"")>}

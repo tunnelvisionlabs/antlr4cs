@@ -27,6 +27,9 @@ line 1:7 reportAmbiguity d=3 (expr_primary): ambigAlts={2, 3}, input='a(i)\<-x'<
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 prog
 @init {<LL_EXACT_AMBIG_DETECTION()>}
 	: expr_or_assign*;

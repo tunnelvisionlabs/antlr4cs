@@ -97,7 +97,7 @@ namespace Antlr4.Runtime.Tree.Xpath
             {
                 throw new ArgumentException("Could not read path: " + path, ioe);
             }
-            XPathLexer lexer = new _XPathLexer_87(@in);
+            XPathLexer lexer = new _XPathLexer_93(@in);
             lexer.RemoveErrorListeners();
             lexer.AddErrorListener(new XPathLexerErrorListener());
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -165,9 +165,9 @@ loop_break: ;
             return elements.ToArray();
         }
 
-        private sealed class _XPathLexer_87 : XPathLexer
+        private sealed class _XPathLexer_93 : XPathLexer
         {
-            public _XPathLexer_87(ICharStream baseArg1)
+            public _XPathLexer_93(ICharStream baseArg1)
                 : base(baseArg1)
             {
             }

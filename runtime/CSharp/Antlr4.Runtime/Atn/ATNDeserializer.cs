@@ -303,6 +303,9 @@ namespace Antlr4.Runtime.Atn
                 p += 6;
             }
             // edges for rule stop states can be derived, so they aren't serialized
+            // Map rule stop state -> return state -> outermost precedence return
+            HashSet<Tuple<int, int, int>> returnTransitionsSet = new HashSet<Tuple<int, int, int>>();
+            List<Tuple<int, int, int>> returnTransitions = new List<Tuple<int, int, int>>();
             foreach (ATNState state_1 in atn.states)
             {
                 bool returningToLeftFactored = state_1.ruleIndex >= 0 && atn.ruleToStartState[state_1.ruleIndex].leftFactored;
@@ -327,9 +330,17 @@ namespace Antlr4.Runtime.Atn
                             outermostPrecedenceReturn = ruleTransition.target.ruleIndex;
                         }
                     }
-                    EpsilonTransition returnTransition = new EpsilonTransition(ruleTransition.followState, outermostPrecedenceReturn);
-                    atn.ruleToStopState[ruleTransition.target.ruleIndex].AddTransition(returnTransition);
+
+                    var returnTransition = Tuple.Create(ruleTransition.target.ruleIndex, ruleTransition.followState.stateNumber, outermostPrecedenceReturn);
+                    if (returnTransitionsSet.Add(returnTransition))
+                        returnTransitions.Add(returnTransition);
                 }
+            }
+            // Add all elements from returnTransitions to the ATN
+            foreach (Tuple<int, int, int> returnTransition in returnTransitions)
+            {
+                EpsilonTransition transition = new EpsilonTransition(atn.states[returnTransition.Item2], returnTransition.Item3);
+                atn.ruleToStopState[returnTransition.Item1].AddTransition(transition);
             }
             foreach (ATNState state_2 in atn.states)
             {
@@ -573,6 +584,8 @@ namespace Antlr4.Runtime.Atn
         /// <param name="atn">The ATN.</param>
         protected internal virtual void MarkPrecedenceDecisions(ATN atn)
         {
+            // Map rule index -> precedence decision for that rule
+            IDictionary<int, StarLoopEntryState> rulePrecedenceDecisions = new Dictionary<int, StarLoopEntryState>();
             foreach (ATNState state in atn.states)
             {
                 if (!(state is StarLoopEntryState))
@@ -590,9 +603,29 @@ namespace Antlr4.Runtime.Atn
                     {
                         if (maybeLoopEndState.epsilonOnlyTransitions && maybeLoopEndState.Transition(0).target is RuleStopState)
                         {
+                            rulePrecedenceDecisions[state.ruleIndex] = (StarLoopEntryState)state;
                             ((StarLoopEntryState)state).precedenceRuleDecision = true;
+                            ((StarLoopEntryState)state).precedenceLoopbackStates = new BitSet(atn.states.Count);
                         }
                     }
+                }
+            }
+            // After marking precedence decisions, we go back through and fill in
+            // StarLoopEntryState.precedenceLoopbackStates.
+            foreach (KeyValuePair<int, StarLoopEntryState> precedenceDecision in rulePrecedenceDecisions)
+            {
+                foreach (Transition transition in atn.ruleToStopState[precedenceDecision.Key].transitions)
+                {
+                    if (transition.TransitionType != TransitionType.Epsilon)
+                    {
+                        continue;
+                    }
+                    EpsilonTransition epsilonTransition = (EpsilonTransition)transition;
+                    if (epsilonTransition.OutermostPrecedenceReturn != -1)
+                    {
+                        continue;
+                    }
+                    precedenceDecision.Value.precedenceLoopbackStates.Set(transition.target.stateNumber);
                 }
             }
         }

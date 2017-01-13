@@ -23,6 +23,9 @@ line 1:0 reportAmbiguity d=0 (s): ambigAlts={1, 2}, input='abc'<\n>
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
+
+<ImportPredictionMode()>
+
 s
 @init {<LL_EXACT_AMBIG_DETECTION()>}
 @after {<DumpDFA()>}

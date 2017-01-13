@@ -66,7 +66,7 @@ namespace Antlr4.Runtime.Dfa
             if (dfa.states != null)
             {
                 List<DFAState> states = new List<DFAState>(dfa.states.Values);
-                states.Sort(new _IComparer_103());
+                states.Sort(new _IComparer_79());
                 foreach (DFAState s in states)
                 {
                     IEnumerable<KeyValuePair<int, DFAState>> edges = s.EdgeMap;
@@ -115,9 +115,9 @@ namespace Antlr4.Runtime.Dfa
             return output;
         }
 
-        private sealed class _IComparer_103 : IComparer<DFAState>
+        private sealed class _IComparer_79 : IComparer<DFAState>
         {
-            public _IComparer_103()
+            public _IComparer_79()
             {
             }
 

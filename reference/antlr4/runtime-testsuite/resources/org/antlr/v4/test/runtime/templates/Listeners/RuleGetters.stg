@@ -12,18 +12,14 @@ Rule() ::= "s"
 
 grammar(grammarName) ::= <<
 grammar <grammarName>;
-@parser::header {
-<ImportListener(grammarName)>
-}
 
-@parser::members {
+<ImportListener(grammarName)>
 <RuleGetterListener(grammarName)>
-}
 
 s
 @after {
-<ToStringTree("$ctx.r"):writeln()>
-<WalkListener("$ctx.r")>
+<ContextLabel("$ctx", "r"):ToStringTree():writeln()>
+<ContextLabel("$ctx", "r"):WalkListener()>
 }
   : r=a ;
 a : b b		// forces list

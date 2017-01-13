@@ -1,4 +1,5 @@
 TestTemplates ::= [
+	"RuleSempredFunction": [],
 	"DisableRule": [],
 	"IDvsEnum": [],
 	"IDnotEnum": [],

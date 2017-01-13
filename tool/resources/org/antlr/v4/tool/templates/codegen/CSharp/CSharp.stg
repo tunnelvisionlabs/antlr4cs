@@ -22,7 +22,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 <endif>
 >>
 
-ListenerFile(file, header) ::= <<
+ListenerFile(file, header, namedActions) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
 namespace <file.genPackage> {
@@ -66,7 +66,7 @@ void Exit<lname; format="cap">([NotNull] <csIdentifier.(file.parserName)>.<lname
 <endif>
 >>
 
-BaseListenerFile(file, header) ::= <<
+BaseListenerFile(file, header, namedActions) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
 namespace <file.genPackage> {
@@ -129,7 +129,7 @@ public virtual void Exit<lname; format="cap">([NotNull] <csIdentifier.(file.pars
 <endif>
 >>
 
-VisitorFile(file, header) ::= <<
+VisitorFile(file, header, namedActions) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
 namespace <file.genPackage> {
@@ -165,7 +165,7 @@ Result Visit<lname; format="cap">([NotNull] <csIdentifier.(file.parserName)>.<ln
 <endif>
 >>
 
-BaseVisitorFile(file, header) ::= <<
+BaseVisitorFile(file, header, namedActions) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
 namespace <file.genPackage> {
@@ -535,6 +535,7 @@ CodeBlockForAlt(currentAltCodeBlock, locals, preamble, ops) ::= <<
 
 LL1AltBlock(choice, preamble, alts, error) ::= <<
 State = <choice.stateNumber>;
+_errHandler.Sync(this);
 <if(choice.label)><labelref(choice.label)> = _input.Lt(1);<endif>
 <preamble; separator="\n">
 switch (_input.La(1)) {
@@ -548,17 +549,19 @@ default:
 
 LL1OptionalBlock(choice, alts, error) ::= <<
 State = <choice.stateNumber>;
+_errHandler.Sync(this);
 switch (_input.La(1)) {
 <choice.altLook,alts:{look,alt| <cases(ttypes=look)>
 	<alt>
 	break;}; separator="\n">
 default:
-	<error>
+	break;
 }
 >>
 
 LL1OptionalBlockSingleAlt(choice, expr, alts, preamble, error, followExpr) ::= <<
 State = <choice.stateNumber>;
+_errHandler.Sync(this);
 <preamble; separator="\n">
 if (<expr>) {
 	<alts; separator="\n">
@@ -705,6 +708,11 @@ State = <m.stateNumber>;
 if ( <if(invert)><m.varName> \<= 0 || <else>!<endif>(<expr>) ) {
 	<if(m.labels)><m.labels:{l | <labelref(l)> = }><endif>_errHandler.RecoverInline(this);
 } else {
+	if (_input.La(1) == TokenConstants.Eof) {
+		matchedEOF = true;
+	}
+
+	_errHandler.ReportMatch(this);
 	Consume();
 }
 >>
@@ -737,10 +745,10 @@ LexerSkipCommand()  ::= "Skip();"
 LexerMoreCommand()  ::= "More();"
 LexerPopModeCommand() ::= "PopMode();"
 
-LexerTypeCommand(arg)      ::= "_type = <tokenType.(arg)>;"
-LexerChannelCommand(arg)   ::= "_channel = <channelName.(arg)>;"
-LexerModeCommand(arg)      ::= "_mode = <modeName.(arg)>;"
-LexerPushModeCommand(arg)  ::= "PushMode(<modeName.(arg)>);"
+LexerTypeCommand(arg, grammar)      ::= "_type = <tokenType.(arg)>;"
+LexerChannelCommand(arg, grammar)   ::= "_channel = <channelName.(arg)>;"
+LexerModeCommand(arg, grammar)      ::= "_mode = <modeName.(arg)>;"
+LexerPushModeCommand(arg, grammar)  ::= "PushMode(<modeName.(arg)>);"
 
 ActionText(t) ::= "<t.text>"
 ActionTemplate(t) ::= "<t.st>"

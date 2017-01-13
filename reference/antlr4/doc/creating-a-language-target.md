@@ -1,3 +1,5 @@
+:warning: The information on this page has not been updated for this optimized fork.
+
 # Creating an ANTLR Language Target
 
 This document describes how to make ANTLR generate parsers in a new language, *X*.
@@ -19,4 +21,4 @@ Creating a new target involves the following key elements:
 ```bash
 $ mvn compile
 ```
-That should proceed with success. See [Building ANTLR](building-antlr.md) for more details. (That link does not currently work as I have that documentation in a branch. see https://github.com/parrt/antlr4/blob/move-doc-to-repo/doc/building-antlr.md for now.)
+That should proceed with success. See [Building ANTLR](building-antlr.md) for more details.
