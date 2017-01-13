@@ -4,6 +4,7 @@
 namespace Antlr4.Codegen.Model
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using Antlr4.Analysis;
     using Antlr4.Misc;
@@ -15,8 +16,16 @@ namespace Antlr4.Codegen.Model
 
     public class ElementFrequenciesVisitor : GrammarTreeVisitor
     {
+        /**
+         * This special value means "no set", and is used by {@link #minFrequencies}
+         * to ensure that {@link #combineMin} doesn't merge an empty set (all zeros)
+         * with the results of the first alternative.
+         */
+        private static readonly FrequencySet<string> SENTINEL = new FrequencySet<string>();
+
         internal readonly Grammar grammar;
         internal readonly Stack<FrequencySet<string>> frequencies;
+        private readonly Stack<FrequencySet<string>> minFrequencies;
 
         public ElementFrequenciesVisitor(Grammar grammar, ITreeNodeStream input)
             : base(input)
@@ -24,6 +33,17 @@ namespace Antlr4.Codegen.Model
             this.grammar = grammar;
             frequencies = new Stack<FrequencySet<string>>();
             frequencies.Push(new FrequencySet<string>());
+            minFrequencies = new Stack<FrequencySet<string>>();
+            minFrequencies.Push(SENTINEL);
+        }
+
+        internal FrequencySet<string> GetMinFrequencies()
+        {
+            Debug.Assert(minFrequencies.Count == 1);
+            Debug.Assert(minFrequencies.Peek() != SENTINEL);
+            Debug.Assert(SENTINEL.Count == 0);
+
+            return minFrequencies.Peek();
         }
 
         /*
@@ -58,6 +78,34 @@ namespace Antlr4.Codegen.Model
         }
 
         /**
+         * Generate a frequency set as the union of two input sets. If an
+         * element is contained in both sets, the value for the output will be
+         * the minimum of the two input values.
+         *
+         * @param a The first set.
+         * @param b The second set. If this set is {@link #SENTINEL}, it is treated
+         * as though no second set were provided.
+         * @return The union of the two sets, with the minimum value chosen
+         * whenever both sets contain the same key.
+         */
+        protected static FrequencySet<string> combineMin(FrequencySet<string> a, FrequencySet<string> b)
+        {
+            if (b == SENTINEL)
+            {
+                return a;
+            }
+
+            Debug.Assert(a != SENTINEL);
+            FrequencySet<string> result = CombineAndClip(a, b, 1);
+            foreach (KeyValuePair<string, StrongBox<int>> entry in result)
+            {
+                entry.Value.Value = Math.Min(a.GetCount(entry.Key), b.GetCount(entry.Key));
+            }
+
+            return result;
+        }
+
+        /**
          * Generate a frequency set as the union of two input sets, with the
          * values clipped to a specified maximum value. If an element is
          * contained in both sets, the value for the output, prior to clipping,
@@ -67,7 +115,7 @@ namespace Antlr4.Codegen.Model
          * @param b The second set.
          * @param clip The maximum value to allow for any output.
          * @return The sum of the two sets, with the individual elements clipped
-         * to the maximum value gived by {@code clip}.
+         * to the maximum value given by {@code clip}.
          */
         protected static FrequencySet<string> CombineAndClip(FrequencySet<string> a, FrequencySet<string> b, int clip)
         {
@@ -99,6 +147,7 @@ namespace Antlr4.Codegen.Model
         public override void TokenRef(TerminalAST @ref)
         {
             frequencies.Peek().Add(@ref.Text);
+            minFrequencies.Peek().Add(@ref.Text);
         }
 
         public override void RuleRef(GrammarAST @ref, ActionAST arg)
@@ -113,6 +162,7 @@ namespace Antlr4.Codegen.Model
             }
 
             frequencies.Peek().Add(RuleFunction.GetLabelName(grammar, @ref));
+            minFrequencies.Peek().Add(RuleFunction.GetLabelName(grammar, @ref));
         }
 
         /*
@@ -122,21 +172,25 @@ namespace Antlr4.Codegen.Model
         protected override void EnterAlternative(AltAST tree)
         {
             frequencies.Push(new FrequencySet<string>());
+            minFrequencies.Push(new FrequencySet<string>());
         }
 
         protected override void ExitAlternative(AltAST tree)
         {
             frequencies.Push(CombineMax(frequencies.Pop(), frequencies.Pop()));
+            minFrequencies.Push(combineMin(minFrequencies.Pop(), minFrequencies.Pop()));
         }
 
         protected override void EnterElement(GrammarAST tree)
         {
             frequencies.Push(new FrequencySet<string>());
+            minFrequencies.Push(new FrequencySet<string>());
         }
 
         protected override void ExitElement(GrammarAST tree)
         {
             frequencies.Push(CombineAndClip(frequencies.Pop(), frequencies.Pop(), 2));
+            minFrequencies.Push(CombineAndClip(minFrequencies.Pop(), minFrequencies.Pop(), 2));
         }
 
         protected override void ExitSubrule(GrammarAST tree)
@@ -148,6 +202,13 @@ namespace Antlr4.Codegen.Model
                     entry.Value.Value = 2;
                 }
             }
+
+            if (tree.Type == CLOSURE)
+            {
+                // Everything inside a closure is optional, so the minimum
+                // number of occurrences for all elements is 0.
+                minFrequencies.Peek().Clear();
+            }
         }
 
         /*
@@ -157,21 +218,25 @@ namespace Antlr4.Codegen.Model
         protected override void EnterLexerAlternative(GrammarAST tree)
         {
             frequencies.Push(new FrequencySet<string>());
+            minFrequencies.Push(new FrequencySet<string>());
         }
 
         protected override void ExitLexerAlternative(GrammarAST tree)
         {
             frequencies.Push(CombineMax(frequencies.Pop(), frequencies.Pop()));
+            minFrequencies.Push(combineMin(minFrequencies.Pop(), minFrequencies.Pop()));
         }
 
         protected override void EnterLexerElement(GrammarAST tree)
         {
             frequencies.Push(new FrequencySet<string>());
+            minFrequencies.Push(new FrequencySet<string>());
         }
 
         protected override void ExitLexerElement(GrammarAST tree)
         {
             frequencies.Push(CombineAndClip(frequencies.Pop(), frequencies.Pop(), 2));
+            minFrequencies.Push(CombineAndClip(minFrequencies.Pop(), minFrequencies.Pop(), 2));
         }
 
         protected override void ExitLexerSubrule(GrammarAST tree)
@@ -182,6 +247,13 @@ namespace Antlr4.Codegen.Model
                 {
                     entry.Value.Value = 2;
                 }
+            }
+
+            if (tree.Type == CLOSURE)
+            {
+                // Everything inside a closure is optional, so the minimum
+                // number of occurrences for all elements is 0.
+                minFrequencies.Peek().Clear();
             }
         }
     }

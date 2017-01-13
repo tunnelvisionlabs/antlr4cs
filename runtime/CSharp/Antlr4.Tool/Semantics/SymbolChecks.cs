@@ -131,6 +131,12 @@ namespace Antlr4.Semantics
             foreach (Rule r in rules)
             {
                 CheckForAttributeConflicts(r);
+                if (r is LeftRecursiveRule) {
+                    // Label conflicts for left recursive rules need to be checked
+                    // prior to the left recursion elimination step.
+                    continue;
+                }
+
                 IDictionary<string, LabelElementPair> labelNameSpace =
                     new Dictionary<string, LabelElementPair>();
                 for (int i = 1; i <= r.numberOfAlts; i++)
@@ -158,8 +164,7 @@ namespace Antlr4.Semantics
             }
         }
 
-        internal virtual void CheckForTypeMismatch(LabelElementPair prevLabelPair,
-                                            LabelElementPair labelPair)
+        internal virtual void CheckForTypeMismatch(LabelElementPair prevLabelPair, LabelElementPair labelPair)
         {
             // label already defined; if same type, no problem
             if (prevLabelPair.type != labelPair.type)
@@ -171,6 +176,21 @@ namespace Antlr4.Semantics
                     labelPair.label.Token,
                     labelPair.label.Text,
                     typeMismatchExpr);
+            }
+
+            if (!prevLabelPair.element.Text.Equals(labelPair.element.Text) &&
+                (prevLabelPair.type.Equals(LabelType.RULE_LABEL) || prevLabelPair.type.Equals(LabelType.RULE_LIST_LABEL)) &&
+                (labelPair.type.Equals(LabelType.RULE_LABEL) || labelPair.type.Equals(LabelType.RULE_LIST_LABEL)))
+            {
+
+                string prevLabelOp = prevLabelPair.type.Equals(LabelType.RULE_LIST_LABEL) ? "+=" : "=";
+                string labelOp = labelPair.type.Equals(LabelType.RULE_LIST_LABEL) ? "+=" : "=";
+                errMgr.GrammarError(
+                        ErrorType.LABEL_TYPE_CONFLICT,
+                        g.fileName,
+                        labelPair.label.Token,
+                        labelPair.label.Text + labelOp + labelPair.element.Text,
+                        prevLabelPair.label.Text + prevLabelOp + prevLabelPair.element.Text);
             }
         }
 

@@ -50,57 +50,108 @@ namespace Antlr4.Codegen
 
             if (g.IsLexer())
             {
-                Template lexer = gen.GenerateLexer();
+                if (target.NeedsHeader())
+                {
+                    Template lexerHeader = gen.GenerateLexer(true); // Header file if needed.
+                    if (g.tool.errMgr.GetNumErrors() == errorCount)
+                    {
+                        WriteRecognizer(lexerHeader, gen, true);
+                    }
+                }
+                Template lexer = gen.GenerateLexer(false);
                 if (g.tool.errMgr.GetNumErrors() == errorCount)
                 {
-                    WriteRecognizer(lexer, gen);
+                    WriteRecognizer(lexer, gen, false);
                 }
             }
             else
             {
-                Template parser = gen.GenerateParser();
-                if (g.tool.errMgr.GetNumErrors() == errorCount)
+                if (target.NeedsHeader())
                 {
-                    WriteRecognizer(parser, gen);
-                }
-                if (g.tool.gen_listener)
-                {
-                    Template listener = gen.GenerateListener();
+                    Template parserHeader = gen.GenerateParser(true);
                     if (g.tool.errMgr.GetNumErrors() == errorCount)
                     {
-                        gen.WriteListener(listener);
+                        WriteRecognizer(parserHeader, gen, true);
+                    }
+                }
+                Template parser = gen.GenerateParser(false);
+                if (g.tool.errMgr.GetNumErrors() == errorCount)
+                {
+                    WriteRecognizer(parser, gen, false);
+                }
+
+                if (g.tool.gen_listener)
+                {
+                    if (target.NeedsHeader())
+                    {
+                        Template listenerHeader = gen.GenerateListener(true);
+                        if (g.tool.errMgr.GetNumErrors() == errorCount)
+                        {
+                            gen.WriteListener(listenerHeader, true);
+                        }
+                    }
+                    Template listener = gen.GenerateListener(false);
+                    if (g.tool.errMgr.GetNumErrors() == errorCount)
+                    {
+                        gen.WriteListener(listener, false);
+                    }
+
+                    if (target.NeedsHeader())
+                    {
+                        Template baseListener = gen.GenerateBaseListener(true);
+                        if (g.tool.errMgr.GetNumErrors() == errorCount)
+                        {
+                            gen.WriteBaseListener(baseListener, true);
+                        }
                     }
                     if (target.WantsBaseListener())
                     {
-                        Template baseListener = gen.GenerateBaseListener();
+                        Template baseListener = gen.GenerateBaseListener(false);
                         if (g.tool.errMgr.GetNumErrors() == errorCount)
                         {
-                            gen.WriteBaseListener(baseListener);
+                            gen.WriteBaseListener(baseListener, false);
                         }
                     }
                 }
                 if (g.tool.gen_visitor)
                 {
-                    Template visitor = gen.GenerateVisitor();
+                    if (target.NeedsHeader())
+                    {
+                        Template visitorHeader = gen.GenerateVisitor(true);
+                        if (g.tool.errMgr.GetNumErrors() == errorCount)
+                        {
+                            gen.WriteVisitor(visitorHeader, true);
+                        }
+                    }
+                    Template visitor = gen.GenerateVisitor(false);
                     if (g.tool.errMgr.GetNumErrors() == errorCount)
                     {
-                        gen.WriteVisitor(visitor);
+                        gen.WriteVisitor(visitor, false);
+                    }
+
+                    if (target.NeedsHeader())
+                    {
+                        Template baseVisitor = gen.GenerateBaseVisitor(true);
+                        if (g.tool.errMgr.GetNumErrors() == errorCount)
+                        {
+                            gen.WriteBaseVisitor(baseVisitor, true);
+                        }
                     }
                     if (target.WantsBaseVisitor())
                     {
-                        Template baseVisitor = gen.GenerateBaseVisitor();
+                        Template baseVisitor = gen.GenerateBaseVisitor(false);
                         if (g.tool.errMgr.GetNumErrors() == errorCount)
                         {
-                            gen.WriteBaseVisitor(baseVisitor);
+                            gen.WriteBaseVisitor(baseVisitor, false);
                         }
                     }
                 }
-                gen.WriteHeaderFile();
             }
+
             gen.WriteVocabFile();
         }
 
-        protected virtual void WriteRecognizer(Template template, CodeGenerator gen)
+        protected virtual void WriteRecognizer(Template template, CodeGenerator gen, bool header)
         {
 #if false
             if (g.tool.launch_ST_inspector)
@@ -120,7 +171,7 @@ namespace Antlr4.Codegen
             }
 #endif
 
-            gen.WriteRecognizer(template);
+            gen.WriteRecognizer(template, header);
         }
     }
 }

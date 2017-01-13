@@ -427,7 +427,7 @@ namespace Antlr4.Runtime.Atn
             {
                 if (data[i_4] < char.MinValue || data[i_4] > char.MaxValue)
                 {
-                    throw new NotSupportedException("Serialized ATN data element " + data.Get(i_4) + " element " + i_4 + " out of range " + (int)char.MinValue + ".." + (int)char.MaxValue);
+                    throw new NotSupportedException("Serialized ATN data element " + data[i_4] + " element " + i_4 + " out of range " + (int)char.MinValue + ".." + (int)char.MaxValue);
                 }
                 int value = (data[i_4] + 2) & unchecked((int)(0xFFFF));
                 data[i_4] = value;

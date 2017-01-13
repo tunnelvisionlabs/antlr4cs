@@ -14,8 +14,10 @@ namespace Antlr4.Misc
 
         public class Node
         {
+            private static readonly IList<Node> EmptyEdges = new Node[0];
+
             internal T payload;
-            internal IList<Node> edges; // points at which nodes?
+            internal IList<Node> edges = EmptyEdges; // points at which nodes?
 
             public Node(T payload)
             {
@@ -24,7 +26,7 @@ namespace Antlr4.Misc
 
             public virtual void AddEdge(Node n)
             {
-                if (edges == null)
+                if (edges == EmptyEdges)
                     edges = new List<Node>();
                 if (!edges.Contains(n))
                     edges.Add(n);
@@ -47,7 +49,7 @@ namespace Antlr4.Misc
             a_node.AddEdge(b_node);
         }
 
-        protected virtual Node GetNode(T a)
+        protected internal virtual Node GetNode(T a)
         {
             Node existing;
             if (nodes.TryGetValue(a, out existing) && existing != null)

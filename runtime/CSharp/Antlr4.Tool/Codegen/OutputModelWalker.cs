@@ -46,7 +46,7 @@ namespace Antlr4.Codegen
             this.templates = templates;
         }
 
-        public virtual Template Walk(OutputModelObject omo)
+        public virtual Template Walk(OutputModelObject omo, bool header)
         {
             // CREATE TEMPLATE FOR THIS OUTPUT OBJECT
             Type cl = omo.GetType();
@@ -56,6 +56,10 @@ namespace Antlr4.Codegen
                 tool.errMgr.ToolError(ErrorType.NO_MODEL_TO_TEMPLATE_MAPPING, cl.Name);
                 return new Template("[" + templateName + " invalid]");
             }
+
+            if (header)
+                templateName += "Header";
+
             Template st = templates.GetInstanceOf(templateName);
             if (st == null)
             {
@@ -106,7 +110,7 @@ namespace Antlr4.Codegen
                     {
                         // SINGLE MODEL OBJECT?
                         OutputModelObject nestedOmo = (OutputModelObject)o;
-                        Template nestedST = Walk(nestedOmo);
+                        Template nestedST = Walk(nestedOmo, header);
                         //System.Console.WriteLine("set ModelElement " + fieldName + "=" + nestedST + " in " + templateName);
                         st.Add(fieldName, nestedST);
                     }
@@ -117,7 +121,7 @@ namespace Antlr4.Codegen
                         for (IDictionaryEnumerator enumerator = nestedOmoMap.GetEnumerator(); enumerator.MoveNext(); )
                         {
                             DictionaryEntry entry = enumerator.Entry;
-                            Template nestedST = Walk((OutputModelObject)entry.Value);
+                            Template nestedST = Walk((OutputModelObject)entry.Value, header);
                             //System.Console.WriteLine("set ModelElement " + fieldName + "=" + nestedST + " in " + templateName);
                             m[entry.Key] = nestedST;
                         }
@@ -132,7 +136,7 @@ namespace Antlr4.Codegen
                         {
                             if (nestedOmo == null)
                                 continue;
-                            Template nestedST = Walk((OutputModelObject)nestedOmo);
+                            Template nestedST = Walk((OutputModelObject)nestedOmo, header);
                             //System.Console.WriteLine("set ModelElement " + fieldName + "=" + nestedST + " in " + templateName);
                             st.Add(fieldName, nestedST);
                         }

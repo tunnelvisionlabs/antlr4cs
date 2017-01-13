@@ -61,6 +61,11 @@ namespace Antlr4.Tool.Ast
                 if (v.StartsWith("'") || v.StartsWith("\""))
                 {
                     v = CharSupport.GetStringFromGrammarStringLiteral(v);
+                    if (v == null)
+                    {
+                        g.tool.errMgr.GrammarError(ErrorType.INVALID_ESCAPE_SEQUENCE, g.fileName, value.Token);
+                        v = "";
+                    }
                 }
                 return v;
             }

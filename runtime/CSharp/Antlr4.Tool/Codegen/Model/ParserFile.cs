@@ -12,30 +12,25 @@ namespace Antlr4.Codegen.Model
     public class ParserFile : OutputFile
     {
         public string genPackage; // from -package cmd-line
+        public string exportMacro; // from -DexportMacro cmd-line
+        public bool genListener; // from -listener cmd-line
+        public bool genVisitor; // from -visitor cmd-line
         [ModelElement]
         public Parser parser;
         [ModelElement]
         public IDictionary<string, Action> namedActions;
         [ModelElement]
         public ActionChunk contextSuperClass;
-        public bool genListener = false;
-        public bool genVisitor = false;
         public string grammarName;
 
         public ParserFile(OutputModelFactory factory, string fileName)
             : base(factory, fileName)
         {
             Grammar g = factory.GetGrammar();
-            namedActions = new Dictionary<string, Action>();
-            foreach (string name in g.namedActions.Keys)
-            {
-                ActionAST ast;
-                g.namedActions.TryGetValue(name, out ast);
-                namedActions[name] = new Action(factory, ast);
-            }
-
+            namedActions = BuildNamedActions(factory.GetGrammar());
             genPackage = g.tool.genPackage;
-            // need the below members in the ST for Python
+            exportMacro = factory.GetGrammar().GetOptionString("exportMacro");
+            // need the below members in the ST for Python, C++
             genListener = g.tool.gen_listener;
             genVisitor = g.tool.gen_visitor;
             grammarName = g.name;

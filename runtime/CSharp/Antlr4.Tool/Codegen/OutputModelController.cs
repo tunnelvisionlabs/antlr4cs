@@ -55,27 +55,26 @@ namespace Antlr4.Codegen
          *  controller as factory in SourceGenTriggers so it triggers code generation
          *  extensions too, not just the factory functions in this factory.
          */
-        public virtual OutputModelObject BuildParserOutputModel()
+        public virtual OutputModelObject BuildParserOutputModel(bool header)
         {
-            Grammar g = @delegate.GetGrammar();
             CodeGenerator gen = @delegate.GetGenerator();
-            ParserFile file = ParserFile(gen.GetRecognizerFileName());
+            ParserFile file = ParserFile(gen.GetRecognizerFileName(header));
             SetRoot(file);
-            Parser parser = Parser(file);
-            file.parser = parser;
+            file.parser = Parser(file);
 
+            Grammar g = @delegate.GetGrammar();
             foreach (Rule r in g.rules.Values)
             {
-                BuildRuleFunction(parser, r);
+                BuildRuleFunction(file.parser, r);
             }
 
             return file;
         }
 
-        public virtual OutputModelObject BuildLexerOutputModel()
+        public virtual OutputModelObject BuildLexerOutputModel(bool header)
         {
             CodeGenerator gen = @delegate.GetGenerator();
-            LexerFile file = LexerFile(gen.GetRecognizerFileName());
+            LexerFile file = LexerFile(gen.GetRecognizerFileName(header));
             SetRoot(file);
             file.lexer = Lexer(file);
 
@@ -88,28 +87,28 @@ namespace Antlr4.Codegen
             return file;
         }
 
-        public virtual OutputModelObject BuildListenerOutputModel()
+        public virtual OutputModelObject BuildListenerOutputModel(bool header)
         {
             CodeGenerator gen = @delegate.GetGenerator();
-            return new ListenerFile(@delegate, gen.GetListenerFileName());
+            return new ListenerFile(@delegate, gen.GetListenerFileName(header));
         }
 
-        public virtual OutputModelObject BuildBaseListenerOutputModel()
+        public virtual OutputModelObject BuildBaseListenerOutputModel(bool header)
         {
             CodeGenerator gen = @delegate.GetGenerator();
-            return new BaseListenerFile(@delegate, gen.GetBaseListenerFileName());
+            return new BaseListenerFile(@delegate, gen.GetBaseListenerFileName(header));
         }
 
-        public virtual OutputModelObject BuildVisitorOutputModel()
+        public virtual OutputModelObject BuildVisitorOutputModel(bool header)
         {
             CodeGenerator gen = @delegate.GetGenerator();
-            return new VisitorFile(@delegate, gen.GetVisitorFileName());
+            return new VisitorFile(@delegate, gen.GetVisitorFileName(header));
         }
 
-        public virtual OutputModelObject BuildBaseVisitorOutputModel()
+        public virtual OutputModelObject BuildBaseVisitorOutputModel(bool header)
         {
             CodeGenerator gen = @delegate.GetGenerator();
-            return new BaseVisitorFile(@delegate, gen.GetBaseVisitorFileName());
+            return new BaseVisitorFile(@delegate, gen.GetBaseVisitorFileName(header));
         }
 
         public virtual ParserFile ParserFile(string fileName)
@@ -449,7 +448,7 @@ namespace Antlr4.Codegen
             IList<SrcOp> ops = @delegate.Wildcard(ast, labelAST);
             foreach (CodeGeneratorExtension ext in extensions)
             {
-                ops = ext.Set(ops);
+                ops = ext.Wildcard(ops);
             }
             return ops;
         }

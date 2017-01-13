@@ -100,7 +100,7 @@ namespace Antlr4.Misc
             return b;
         }
 
-        /** Find exact object type or sublass of cl in list */
+        /** Find exact object type or subclass of cl in list */
         public static T Find<T>(IEnumerable ops)
         {
             foreach (object o in ops)

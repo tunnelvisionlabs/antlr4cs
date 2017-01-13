@@ -23,10 +23,10 @@ namespace Antlr4.Codegen.Model
          * {@link #literalNames} and {@link #symbolicNames}.
          */
         [System.Obsolete]
-        public string[] tokenNames;
+        public IList<string> tokenNames;
 
-        public string[] literalNames;
-        public string[] symbolicNames;
+        public IList<string> literalNames;
+        public IList<string> symbolicNames;
         public ICollection<string> ruleNames;
         public ICollection<Rule> rules;
         [ModelElement]
@@ -76,7 +76,7 @@ namespace Antlr4.Codegen.Model
             abstractRecognizer = g.IsAbstract();
         }
 
-        protected static string[] TranslateTokenStringsToTarget(string[] tokenStrings, OutputModelFactory factory)
+        protected static IList<string> TranslateTokenStringsToTarget(string[] tokenStrings, OutputModelFactory factory)
         {
             string[] result = (string[])tokenStrings.Clone();
             for (int i = 0; i < tokenStrings.Length; i++)

@@ -3,6 +3,7 @@
 
 namespace Antlr4.Codegen
 {
+    using System.Diagnostics;
     using System.Text;
     using Antlr4.Codegen.Model;
     using Antlr4.Misc;
@@ -31,7 +32,7 @@ namespace Antlr4.Codegen
          */
         protected string[] targetCharValueEscape = new string[255];
 
-        private readonly CodeGenerator gen;
+        protected readonly CodeGenerator gen;
         private readonly string language;
         private TemplateGroup templates;
 
@@ -70,25 +71,9 @@ namespace Antlr4.Codegen
             return templates;
         }
 
-        protected internal virtual void GenFile(Grammar g,
-                               Template outputFileST,
-                               string fileName)
+        protected internal virtual void GenFile(Grammar g, Template outputFileST, string fileName)
         {
             GetCodeGenerator().Write(outputFileST, fileName);
-        }
-
-        protected virtual void GenListenerFile(Grammar g,
-                                       Template outputFileST)
-        {
-            string fileName = GetCodeGenerator().GetListenerFileName();
-            GetCodeGenerator().Write(outputFileST, fileName);
-        }
-
-        protected internal virtual void GenRecognizerHeaderFile(Grammar g,
-                                               Template headerFileST,
-                                               string extName) // e.g., ".h"
-        {
-            // no header file by default
         }
 
         /** Get a meaningful name for a token type useful during code generation.
@@ -290,6 +275,60 @@ namespace Antlr4.Codegen
             return GetTokenTypeAsTargetLabel(GetCodeGenerator().g, ttype);
         }
 
+        /** Generate TParser.java and TLexer.java from T.g4 if combined, else
+         *  just use T.java as output regardless of type.
+         */
+        public virtual string GetRecognizerFileName(bool header)
+        {
+            Template extST = GetTemplates().GetInstanceOf("codeFileExtension");
+            string recognizerName = gen.g.GetRecognizerName();
+            return recognizerName + extST.Render();
+        }
+
+        /** A given grammar T, return the listener name such as
+         *  TListener.java, if we're using the Java target.
+         */
+        public virtual string GetListenerFileName(bool header)
+        {
+            Debug.Assert(gen.g.name != null);
+            Template extST = GetTemplates().GetInstanceOf("codeFileExtension");
+            string listenerName = gen.g.name + "Listener";
+            return listenerName + extST.Render();
+        }
+
+        /** A given grammar T, return the visitor name such as
+         *  TVisitor.java, if we're using the Java target.
+         */
+        public virtual string GetVisitorFileName(bool header)
+        {
+            Debug.Assert(gen.g.name != null);
+            Template extST = GetTemplates().GetInstanceOf("codeFileExtension");
+            string listenerName = gen.g.name + "Visitor";
+            return listenerName + extST.Render();
+        }
+
+        /** A given grammar T, return a blank listener implementation
+         *  such as TBaseListener.java, if we're using the Java target.
+         */
+        public virtual string GetBaseListenerFileName(bool header)
+        {
+            Debug.Assert(gen.g.name != null);
+            Template extST = GetTemplates().GetInstanceOf("codeFileExtension");
+            string listenerName = gen.g.name + "BaseListener";
+            return listenerName + extST.Render();
+        }
+
+        /** A given grammar T, return a blank listener implementation
+         *  such as TBaseListener.java, if we're using the Java target.
+         */
+        public virtual string GetBaseVisitorFileName(bool header)
+        {
+            Debug.Assert(gen.g.name != null);
+            Template extST = GetTemplates().GetInstanceOf("codeFileExtension");
+            string listenerName = gen.g.name + "BaseVisitor";
+            return listenerName + extST.Render();
+        }
+
         /**
          * Gets the maximum number of 16-bit unsigned integers that can be encoded
          * in a single segment of the serialized ATN.
@@ -422,6 +461,13 @@ namespace Antlr4.Codegen
         public virtual bool SupportsOverloadedMethods()
         {
             return true;
+        }
+
+        /** @since 4.6 */
+        public virtual bool NeedsHeader()
+        {
+            // Override in targets that need header files.
+            return false;
         }
     }
 }

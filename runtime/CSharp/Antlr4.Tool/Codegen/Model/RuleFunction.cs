@@ -13,6 +13,7 @@ namespace Antlr4.Codegen.Model
     using Antlr4.Tool;
     using Antlr4.Tool.Ast;
     using IntervalSet = Antlr4.Runtime.Misc.IntervalSet;
+    using Tuple = System.Tuple;
 
     /** */
     public class RuleFunction : OutputModelObject
@@ -203,6 +204,7 @@ namespace Antlr4.Codegen.Model
         public virtual ISet<Decl.Decl> GetDeclsForAllElements(IList<AltAST> altASTs)
         {
             ISet<string> needsList = new HashSet<string>();
+            ISet<string> optional = new HashSet<string>();
             ISet<string> suppress = new HashSet<string>();
             IList<GrammarAST> allRefs = new List<GrammarAST>();
             foreach (AltAST ast in altASTs)
@@ -212,13 +214,19 @@ namespace Antlr4.Codegen.Model
                 foreach (var @ref in refs)
                     allRefs.Add(@ref);
 
-                FrequencySet<string> altFreq = GetElementFrequenciesForAlt(ast);
+                System.Tuple<FrequencySet<string>, FrequencySet<string>> minAndAltFreq = GetElementFrequenciesForAlt(ast);
+                FrequencySet<string> minFreq = minAndAltFreq.Item1;
+                FrequencySet<string> altFreq = minAndAltFreq.Item2;
                 foreach (GrammarAST t in refs)
                 {
                     string refLabelName = GetLabelName(rule.g, t);
                     if (altFreq.GetCount(refLabelName) == 0)
                     {
                         suppress.Add(refLabelName);
+                    }
+                    if (minFreq.GetCount(refLabelName) == 0)
+                    {
+                        optional.Add(refLabelName);
                     }
                     if (altFreq.GetCount(refLabelName) > 1)
                     {
@@ -238,7 +246,8 @@ namespace Antlr4.Codegen.Model
 
                 IList<Decl.Decl> d = GetDeclForAltElement(t,
                                                     refLabelName,
-                                                    needsList.Contains(refLabelName));
+                                                    needsList.Contains(refLabelName),
+                                                    optional.Contains(refLabelName));
                 decls.UnionWith(d);
             }
 
@@ -258,7 +267,7 @@ namespace Antlr4.Codegen.Model
         }
 
         /** Given list of X and r refs in alt, compute how many of each there are */
-        protected virtual FrequencySet<string> GetElementFrequenciesForAlt(AltAST ast)
+        protected virtual System.Tuple<FrequencySet<string>, FrequencySet<string>> GetElementFrequenciesForAlt(AltAST ast)
         {
             try
             {
@@ -267,19 +276,19 @@ namespace Antlr4.Codegen.Model
                 if (visitor.frequencies.Count != 1)
                 {
                     factory.GetGrammar().tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR);
-                    return new FrequencySet<string>();
+                    return Tuple.Create(new FrequencySet<string>(), new FrequencySet<string>());
                 }
 
-                return visitor.frequencies.Peek();
+                return Tuple.Create(visitor.GetMinFrequencies(), visitor.frequencies.Peek());
             }
             catch (RecognitionException ex)
             {
                 factory.GetGrammar().tool.errMgr.ToolError(ErrorType.INTERNAL_ERROR, ex);
-                return new FrequencySet<string>();
+                return Tuple.Create(new FrequencySet<string>(), new FrequencySet<string>());
             }
         }
 
-        public virtual IList<Decl.Decl> GetDeclForAltElement(GrammarAST t, string refLabelName, bool needList)
+        public virtual IList<Decl.Decl> GetDeclForAltElement(GrammarAST t, string refLabelName, bool needList, bool optional)
         {
             int lfIndex = refLabelName.IndexOf(ATNSimulator.RuleVariantDelimiter);
             if (lfIndex >= 0)
@@ -301,7 +310,7 @@ namespace Antlr4.Codegen.Model
                 }
                 else
                 {
-                    decls.Add(new ContextRuleGetterDecl(factory, refLabelName, ctxName));
+                    decls.Add(new ContextRuleGetterDecl(factory, refLabelName, ctxName, optional));
                 }
             }
             else
@@ -314,7 +323,7 @@ namespace Antlr4.Codegen.Model
                 }
                 else
                 {
-                    decls.Add(new ContextTokenGetterDecl(factory, refLabelName));
+                    decls.Add(new ContextTokenGetterDecl(factory, refLabelName, optional));
                 }
             }
             return decls;

@@ -5,6 +5,7 @@ namespace Antlr4.Automata
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using Antlr4.Codegen;
     using Antlr4.Misc;
     using Antlr4.Parse;
@@ -45,6 +46,8 @@ namespace Antlr4.Automata
             { "MAX_CHAR_VALUE", Lexer.MaxCharValue },
             { "MIN_CHAR_VALUE", Lexer.MinCharValue },
         };
+
+        private readonly IList<string> ruleCommands = new List<string>();
 
         /**
          * Maps from an action index to a {@link LexerAction} object.
@@ -114,6 +117,12 @@ namespace Antlr4.Automata
 
             ATNOptimizer.Optimize(g, atn);
             return atn;
+        }
+
+        public override Handle Rule(GrammarAST ruleAST, string name, Handle blk)
+        {
+            ruleCommands.Clear();
+            return base.Rule(ruleAST, name, blk);
         }
 
         public override Handle Action(ActionAST action)
@@ -205,6 +214,7 @@ namespace Antlr4.Automata
             }
 
             cmdST.Add("arg", arg.Text);
+            cmdST.Add("grammar", arg.g);
             return Action(cmdST.Render());
         }
 
@@ -247,6 +257,7 @@ namespace Antlr4.Automata
             ATNState right = NewState(b);
             int t1 = CharSupport.GetCharValueFromGrammarCharLiteral(a.Text);
             int t2 = CharSupport.GetCharValueFromGrammarCharLiteral(b.Text);
+            CheckRange(a, b, t1, t2);
             left.AddTransition(new RangeTransition(right, t1, t2));
             a.atnState = left;
             b.atnState = left;
@@ -264,7 +275,11 @@ namespace Antlr4.Automata
                 {
                     int a = CharSupport.GetCharValueFromGrammarCharLiteral(t.GetChild(0).Text);
                     int b = CharSupport.GetCharValueFromGrammarCharLiteral(t.GetChild(1).Text);
-                    set.Add(a, b);
+                    if (CheckRange((GrammarAST)t.GetChild(0), (GrammarAST)t.GetChild(1), a, b))
+                    {
+                        CheckSetCollision(associatedAST, set, a, b);
+                        set.Add(a, b);
+                    }
                 }
                 else if (t.Type == ANTLRParser.LEXER_CHAR_SET)
                 {
@@ -275,13 +290,13 @@ namespace Antlr4.Automata
                     int c = CharSupport.GetCharValueFromGrammarCharLiteral(t.Text);
                     if (c != -1)
                     {
+                        CheckSetCollision(associatedAST, set, c);
                         set.Add(c);
                     }
                     else
                     {
                         g.tool.errMgr.GrammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
                                                    g.fileName, t.Token, t.Text);
-
                     }
                 }
                 else if (t.Type == ANTLRParser.TOKEN_REF)
@@ -313,6 +328,32 @@ namespace Antlr4.Automata
             return new Handle(left, right);
         }
 
+        protected virtual bool CheckRange(GrammarAST leftNode, GrammarAST rightNode, int leftValue, int rightValue)
+        {
+            bool result = true;
+            if (leftValue == -1)
+            {
+                result = false;
+                g.tool.errMgr.GrammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
+                        g.fileName, leftNode.Token, leftNode.Text);
+            }
+            if (rightValue == -1)
+            {
+                result = false;
+                g.tool.errMgr.GrammarError(ErrorType.INVALID_LITERAL_IN_LEXER_SET,
+                        g.fileName, rightNode.Token, rightNode.Text);
+            }
+            if (!result)
+                return result;
+
+            if (rightValue < leftValue)
+            {
+                g.tool.errMgr.GrammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED,
+                        g.fileName, ((GrammarAST)leftNode.Parent).Token, leftNode.Text + ".." + rightNode.Text);
+            }
+            return result;
+        }
+
         /** For a lexer, a string is a sequence of char to match.  That is,
          *  "fog" is treated as 'f' 'o' 'g' not as a single transition in
          *  the DFA.  Machine== o-'f'-&gt;o-'o'-&gt;o-'g'-&gt;o and has n+1 states
@@ -321,11 +362,19 @@ namespace Antlr4.Automata
         public override Handle StringLiteral(TerminalAST stringLiteralAST)
         {
             string chars = stringLiteralAST.Text;
-            chars = CharSupport.GetStringFromGrammarStringLiteral(chars);
-            int n = chars.Length;
             ATNState left = NewState(stringLiteralAST);
+            ATNState right;
+            chars = CharSupport.GetStringFromGrammarStringLiteral(chars);
+            if (chars == null)
+            {
+                g.tool.errMgr.GrammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
+                        g.fileName, stringLiteralAST.Token);
+                return new Handle(left, left);
+            }
+
+            int n = chars.Length;
             ATNState prev = left;
-            ATNState right = null;
+            right = null;
             for (int i = 0; i < n; i++)
             {
                 right = NewState(stringLiteralAST);
@@ -354,16 +403,30 @@ namespace Antlr4.Automata
             string cset = '"' + chars + '"';
             IntervalSet set = new IntervalSet();
 
+            if (chars.Length == 0)
+            {
+                g.tool.errMgr.GrammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED,
+                        g.fileName, charSetAST.Token, "[]");
+                return set;
+            }
+
             // unescape all valid escape char like \n, leaving escaped dashes as '\-'
             // so we can avoid seeing them as '-' range ops.
             chars = CharSupport.GetStringFromGrammarStringLiteral(cset);
-            // now make x-y become set of char
+            if (chars == null)
+            {
+                g.tool.errMgr.GrammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
+                                           g.fileName, charSetAST.Token);
+                return set;
+            }
             int n = chars.Length;
+            // now make x-y become set of char
             for (int i = 0; i < n; i++)
             {
                 int c = chars[i];
                 if (c == '\\' && (i + 1) < n && chars[i + 1] == '-')
                 { // \-
+                    CheckSetCollision(charSetAST, set, '-');
                     set.Add('-');
                     i++;
                 }
@@ -372,15 +435,72 @@ namespace Antlr4.Automata
                     int x = c;
                     int y = chars[i + 2];
                     if (x <= y)
+                    {
+                        CheckSetCollision(charSetAST, set, x, y);
                         set.Add(x, y);
+                    }
+                    else
+                    {
+                        g.tool.errMgr.GrammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED,
+                                                   g.fileName, charSetAST.Token, "[" + (char)x + "-" + (char)y + "]");
+                    }
                     i += 2;
                 }
                 else
                 {
+                    CheckSetCollision(charSetAST, set, c);
                     set.Add(c);
                 }
             }
             return set;
+        }
+
+        protected virtual void CheckSetCollision(GrammarAST ast, IntervalSet set, int el)
+        {
+            if (set.Contains(el))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.CHARACTERS_COLLISION_IN_SET, g.fileName, ast.Token,
+                        (char)el, ast.Text);
+            }
+        }
+
+        protected virtual void CheckSetCollision(GrammarAST ast, IntervalSet set, int a, int b)
+        {
+            for (int i = a; i <= b; i++)
+            {
+                if (set.Contains(i))
+                {
+                    string setText;
+                    if (ast.Children == null)
+                    {
+                        setText = ast.Text;
+                    }
+                    else
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        foreach (object child in ast.Children)
+                        {
+                            if (child is RangeAST)
+                            {
+                                sb.Append(((RangeAST)child).GetChild(0).Text);
+                                sb.Append("..");
+                                sb.Append(((RangeAST)child).GetChild(1).Text);
+                            }
+                            else
+                            {
+                                sb.Append(((GrammarAST)child).Text);
+                            }
+                            sb.Append(" | ");
+                        }
+                        sb.Remove(sb.Length - 3, 3);
+                        setText = sb.ToString();
+                    }
+
+                    g.tool.errMgr.GrammarError(ErrorType.CHARACTERS_COLLISION_IN_SET, g.fileName, ast.Token,
+                                        (char)a + "-" + (char)b, setText);
+                    break;
+                }
+            }
         }
 
         public override Handle TokenRef(TerminalAST node)
@@ -397,9 +517,11 @@ namespace Antlr4.Automata
         }
 
         [return: Nullable]
-        protected virtual ILexerAction CreateLexerAction([NotNull] GrammarAST ID, [Nullable] GrammarAST arg)
+        private ILexerAction CreateLexerAction([NotNull] GrammarAST ID, [Nullable] GrammarAST arg)
         {
             string command = ID.Text;
+            CheckCommands(command, ID.Token);
+
             if ("skip".Equals(command) && arg == null)
             {
                 return LexerSkipAction.Instance;
@@ -415,8 +537,7 @@ namespace Antlr4.Automata
             else if ("mode".Equals(command) && arg != null)
             {
                 string modeName = arg.Text;
-                CheckMode(modeName, arg.Token);
-                int? mode = GetConstantValue(modeName, arg.Token);
+                int? mode = GetModeConstantValue(modeName, arg.Token);
                 if (mode == null)
                 {
                     return null;
@@ -427,8 +548,7 @@ namespace Antlr4.Automata
             else if ("pushMode".Equals(command) && arg != null)
             {
                 string modeName = arg.Text;
-                CheckMode(modeName, arg.Token);
-                int? mode = GetConstantValue(modeName, arg.Token);
+                int? mode = GetModeConstantValue(modeName, arg.Token);
                 if (mode == null)
                 {
                     return null;
@@ -439,8 +559,7 @@ namespace Antlr4.Automata
             else if ("type".Equals(command) && arg != null)
             {
                 string typeName = arg.Text;
-                CheckToken(typeName, arg.Token);
-                int? type = GetConstantValue(typeName, arg.Token);
+                int? type = GetTokenConstantValue(typeName, arg.Token);
                 if (type == null)
                 {
                     return null;
@@ -451,8 +570,7 @@ namespace Antlr4.Automata
             else if ("channel".Equals(command) && arg != null)
             {
                 string channelName = arg.Text;
-                CheckChannel(channelName, arg.Token);
-                int? channel = GetConstantValue(channelName, arg.Token);
+                int? channel = GetChannelConstantValue(channelName, arg.Token);
                 if (channel == null)
                 {
                     return null;
@@ -466,71 +584,171 @@ namespace Antlr4.Automata
             }
         }
 
-        protected virtual void CheckMode(string modeName, IToken token)
+        private void CheckCommands(string command, IToken commandToken)
         {
-            if (!modeName.Equals("DEFAULT_MODE") && COMMON_CONSTANTS.ContainsKey(modeName))
+            // Command combinations list: https://github.com/antlr/antlr4/issues/1388#issuecomment-263344701
+            if (!command.Equals("pushMode") && !command.Equals("popMode"))
             {
-                g.tool.errMgr.GrammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
-            }
-        }
+                if (ruleCommands.Contains(command))
+                {
+                    g.tool.errMgr.GrammarError(ErrorType.DUPLICATED_COMMAND, g.fileName, commandToken, command);
+                }
 
-        protected virtual void CheckToken(string tokenName, IToken token)
-        {
-            if (!tokenName.Equals("EOF") && COMMON_CONSTANTS.ContainsKey(tokenName))
-            {
-                g.tool.errMgr.GrammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
-            }
-        }
+                if (!ruleCommands.Equals("mode"))
+                {
+                    string firstCommand = null;
 
-        protected virtual void CheckChannel(string channelName, IToken token)
-        {
-            if (!channelName.Equals("HIDDEN") && !channelName.Equals("DEFAULT_TOKEN_CHANNEL") && COMMON_CONSTANTS.ContainsKey(channelName))
-            {
-                g.tool.errMgr.GrammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+                    if (command.Equals("skip"))
+                    {
+                        if (ruleCommands.Contains("more"))
+                        {
+                            firstCommand = "more";
+                        }
+                        else if (ruleCommands.Contains("type"))
+                        {
+                            firstCommand = "type";
+                        }
+                        else if (ruleCommands.Contains("channel"))
+                        {
+                            firstCommand = "channel";
+                        }
+                    }
+                    else if (command.Equals("more"))
+                    {
+                        if (ruleCommands.Contains("skip"))
+                        {
+                            firstCommand = "skip";
+                        }
+                        else if (ruleCommands.Contains("type"))
+                        {
+                            firstCommand = "type";
+                        }
+                        else if (ruleCommands.Contains("channel"))
+                        {
+                            firstCommand = "channel";
+                        }
+                    }
+                    else if (command.Equals("type") || command.Equals("channel"))
+                    {
+                        if (ruleCommands.Contains("more"))
+                        {
+                            firstCommand = "more";
+                        }
+                        else if (ruleCommands.Contains("skip"))
+                        {
+                            firstCommand = "skip";
+                        }
+                    }
+
+                    if (firstCommand != null)
+                    {
+                        g.tool.errMgr.GrammarError(ErrorType.INCOMPATIBLE_COMMANDS, g.fileName, commandToken, firstCommand, command);
+                    }
+                }
             }
+
+            ruleCommands.Add(command);
         }
 
         [return: Nullable]
-        protected virtual int? GetConstantValue([Nullable] string name, [Nullable] IToken token)
+        private int? GetModeConstantValue([Nullable] string modeName, [Nullable] IToken token)
         {
-            if (name == null)
+            if (modeName == null)
             {
                 return null;
             }
 
-            int commonConstant;
-            if (COMMON_CONSTANTS.TryGetValue(name, out commonConstant))
+            if (modeName.Equals("DEFAULT_MODE"))
             {
-                return commonConstant;
+                return Lexer.DefaultMode;
             }
-
-            int tokenType = g.GetTokenType(name);
-            if (tokenType != Antlr4.Runtime.TokenConstants.InvalidType)
+            if (COMMON_CONSTANTS.ContainsKey(modeName))
             {
-                return tokenType;
-            }
-
-            int channelValue = g.GetChannelValue(name);
-            if (channelValue >= Antlr4.Runtime.TokenConstants.MinUserChannelValue)
-            {
-                return channelValue;
+                g.tool.errMgr.GrammarError(ErrorType.MODE_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+                return null;
             }
 
             IList<string> modeNames = new List<string>(((LexerGrammar)g).modes.Keys);
-            int mode = modeNames.IndexOf(name);
+            int mode = modeNames.IndexOf(modeName);
             if (mode >= 0)
             {
                 return mode;
             }
 
             int result;
-            if (!int.TryParse(name, out result))
+            if (int.TryParse(modeName, out result))
+                return result;
+
+            g.tool.errMgr.GrammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_MODE_NAME, g.fileName, token, token.Text);
+            return null;
+        }
+
+        [return: Nullable]
+        private int? GetTokenConstantValue([Nullable] string tokenName, [Nullable] IToken token)
+        {
+            if (tokenName == null)
             {
-                g.tool.errMgr.GrammarError(ErrorType.UNKNOWN_LEXER_CONSTANT, g.fileName, token, currentRule.name, token != null ? token.Text : null);
                 return null;
             }
 
-            return result;
+            if (tokenName.Equals("EOF"))
+            {
+                return Lexer.Eof;
+            }
+            if (COMMON_CONSTANTS.ContainsKey(tokenName))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.TOKEN_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+                return null;
+            }
+
+            int tokenType = g.GetTokenType(tokenName);
+            if (tokenType != Antlr4.Runtime.TokenConstants.InvalidType)
+            {
+                return tokenType;
+            }
+
+            int result;
+            if (int.TryParse(tokenName, out result))
+                return result;
+
+            g.tool.errMgr.GrammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_TOKEN_NAME, g.fileName, token, token.Text);
+            return null;
+        }
+
+        [return: Nullable]
+        private int? GetChannelConstantValue([Nullable] string channelName, [Nullable] IToken token)
+        {
+            if (channelName == null)
+            {
+                return null;
+            }
+
+            if (channelName.Equals("HIDDEN"))
+            {
+                return Lexer.Hidden;
+            }
+            if (channelName.Equals("DEFAULT_TOKEN_CHANNEL"))
+            {
+                return Lexer.DefaultTokenChannel;
+            }
+            if (COMMON_CONSTANTS.ContainsKey(channelName))
+            {
+                g.tool.errMgr.GrammarError(ErrorType.CHANNEL_CONFLICTS_WITH_COMMON_CONSTANTS, g.fileName, token, token.Text);
+                return null;
+            }
+
+            int channelValue = g.GetChannelValue(channelName);
+            if (channelValue >= Antlr4.Runtime.TokenConstants.MinUserChannelValue)
+            {
+                return channelValue;
+            }
+
+            int result;
+            if (int.TryParse(channelName, out result))
+                return result;
+
+            g.tool.errMgr.GrammarError(ErrorType.CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_CHANNEL_NAME, g.fileName, token, token.Text);
+            return null;
         }
     }
 }

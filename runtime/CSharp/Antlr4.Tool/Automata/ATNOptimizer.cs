@@ -98,10 +98,24 @@ namespace Antlr4.Automata
                         {
                             throw new NotImplementedException();
                         }
-                        else
+
+                        IntervalSet set = matchTransition.Label;
+                        int minElem = set.MinElement;
+                        int maxElem = set.MaxElement;
+                        for (int k = minElem; k <= maxElem; k++)
                         {
-                            matchSet.AddAll(matchTransition.Label);
+                            if (matchSet.Contains(k))
+                            {
+                                char setMin = (char)set.MinElement;
+                                char setMax = (char)set.MaxElement;
+                                // TODO: Token is missing (i.e. position in source will not be displayed).
+                                g.tool.errMgr.GrammarError(ErrorType.CHARACTERS_COLLISION_IN_SET, g.fileName,
+                                                           null, (char)minElem + "-" + (char)maxElem, "[" + setMin + "-" + setMax + "]");
+                                break;
+                            }
                         }
+
+                        matchSet.AddAll(set);
                     }
 
                     Transition newTransition;

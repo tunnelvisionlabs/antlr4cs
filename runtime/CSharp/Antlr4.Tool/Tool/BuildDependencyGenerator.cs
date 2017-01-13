@@ -82,7 +82,11 @@ namespace Antlr4.Tool
             IList<string> files = new List<string>();
 
             // add generated recognizer; e.g., TParser.java
-            files.Add(GetOutputFile(generator.GetRecognizerFileName()));
+            if (generator.GetTarget().NeedsHeader())
+            {
+                files.Add(GetOutputFile(generator.GetRecognizerFileName(true)));
+            }
+            files.Add(GetOutputFile(generator.GetRecognizerFileName(false)));
             // add output vocab file; e.g., T.tokens. This is always generated to
             // the base output directory, which will be just . if there is no -o option
             //
@@ -118,17 +122,35 @@ namespace Antlr4.Tool
             if (g.tool.gen_listener)
             {
                 // add generated listener; e.g., TListener.java
-                files.Add(GetOutputFile(generator.GetListenerFileName()));
+                if (generator.GetTarget().NeedsHeader())
+                {
+                    files.Add(GetOutputFile(generator.GetListenerFileName(true)));
+                }
+                files.Add(GetOutputFile(generator.GetListenerFileName(false)));
+
                 // add generated base listener; e.g., TBaseListener.java
-                files.Add(GetOutputFile(generator.GetBaseListenerFileName()));
+                if (generator.GetTarget().NeedsHeader())
+                {
+                    files.Add(GetOutputFile(generator.GetBaseListenerFileName(true)));
+                }
+                files.Add(GetOutputFile(generator.GetBaseListenerFileName(false)));
             }
 
             if (g.tool.gen_visitor)
             {
                 // add generated visitor; e.g., TVisitor.java
-                files.Add(GetOutputFile(generator.GetVisitorFileName()));
+                if (generator.GetTarget().NeedsHeader())
+                {
+                    files.Add(GetOutputFile(generator.GetVisitorFileName(true)));
+                }
+                files.Add(GetOutputFile(generator.GetVisitorFileName(false)));
+
                 // add generated base visitor; e.g., TBaseVisitor.java
-                files.Add(GetOutputFile(generator.GetBaseVisitorFileName()));
+                if (generator.GetTarget().NeedsHeader())
+                {
+                    files.Add(GetOutputFile(generator.GetBaseVisitorFileName(true)));
+                }
+                files.Add(GetOutputFile(generator.GetBaseVisitorFileName(false)));
             }
 
 

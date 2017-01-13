@@ -66,6 +66,7 @@ namespace Antlr4.Tool
                 "abstract",
                 "tokenVocab",
                 "language",
+                "exportMacro",
                 };
 
         public static readonly ISet<string> lexerOptions = parserOptions;
@@ -397,6 +398,8 @@ namespace Antlr4.Tool
             GrammarAST i = (GrammarAST)ast.GetFirstChildWithType(ANTLRParser.IMPORT);
             if (i == null)
                 return;
+            ISet<string> visited = new HashSet<string>();
+            visited.Add(this.name);
             importedGrammars = new List<Grammar>();
             foreach (object c in i.Children)
             {
@@ -410,6 +413,11 @@ namespace Antlr4.Tool
                 else if (t.Type == ANTLRParser.ID)
                 {
                     importedGrammarName = t.Text;
+                }
+                if (visited.Contains(importedGrammarName))
+                {
+                    // ignore circular refs
+                    continue;
                 }
                 Grammar g;
                 try

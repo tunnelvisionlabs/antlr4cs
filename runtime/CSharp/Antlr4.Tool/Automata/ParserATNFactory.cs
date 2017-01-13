@@ -69,7 +69,11 @@ namespace Antlr4.Automata
 
             foreach (System.Tuple<Rule, ATNState, ATNState> pair in preventEpsilonClosureBlocks) {
                 LL1Analyzer analyzer = new LL1Analyzer(atn);
-                if (analyzer.Look(pair.Item2, pair.Item3, PredictionContext.EmptyLocal).Contains(Antlr4.Runtime.TokenConstants.Epsilon)) {
+                ATNState blkStart = pair.Item2;
+                ATNState blkStop = pair.Item3;
+                IntervalSet lookahead = analyzer.Look(blkStart, blkStop, PredictionContext.EmptyLocal);
+                if (lookahead.Contains(Antlr4.Runtime.TokenConstants.Epsilon))
+                {
                     ErrorType errorType = pair.Item1 is LeftRecursiveRule ? ErrorType.EPSILON_LR_FOLLOW : ErrorType.EPSILON_CLOSURE;
                     g.tool.errMgr.GrammarError(errorType, g.fileName, ((GrammarAST)pair.Item1.ast.GetChild(0)).Token, pair.Item1.name);
                 }
@@ -182,7 +186,12 @@ namespace Antlr4.Automata
         /** Not valid for non-lexers. */
         [return: NotNull]
         public virtual Handle Range([NotNull] GrammarAST a, [NotNull] GrammarAST b) {
-            throw new InvalidOperationException("This construct is not valid in parsers.");
+            g.tool.errMgr.GrammarError(ErrorType.TOKEN_RANGE_IN_PARSER, g.fileName,
+                                       a.Token,
+                                       a.Token.Text,
+                                       b.Token.Text);
+            // From a..b, yield ATN for just a.
+            return TokenRef((TerminalAST)a);
         }
 
         protected virtual int GetTokenType([NotNull] GrammarAST atom) {
@@ -563,6 +572,20 @@ namespace Antlr4.Automata
         }
 
         protected virtual void Epsilon(ATNState a, [NotNull] ATNState b, bool prepend) {
+            foreach (Transition t in a.Transitions)
+            {
+                if (t.TransitionType != TransitionType.Epsilon)
+                {
+                    continue;
+                }
+
+                if (t.target == b && ((EpsilonTransition)t).OutermostPrecedenceReturn == -1)
+                {
+                    // This transition was already added
+                    return;
+                }
+            }
+
             if (a != null) {
                 int index = prepend ? 0 : a.NumberOfTransitions;
                 a.AddTransition(index, new EpsilonTransition(b));

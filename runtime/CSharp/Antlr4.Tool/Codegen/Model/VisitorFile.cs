@@ -12,6 +12,7 @@ namespace Antlr4.Codegen.Model
     public class VisitorFile : OutputFile
     {
         public string genPackage; // from -package cmd-line
+        public string exportMacro; // from -DexportMacro cmd-line
         public string grammarName;
         public string parserName;
         /**
@@ -27,11 +28,14 @@ namespace Antlr4.Codegen.Model
 
         [ModelElement]
         public Action header;
+        [ModelElement]
+        public IDictionary<string, Action> namedActions;
 
         public VisitorFile(OutputModelFactory factory, string fileName)
             : base(factory, fileName)
         {
             Grammar g = factory.GetGrammar();
+            namedActions = BuildNamedActions(g);
             parserName = g.GetRecognizerName();
             grammarName = g.name;
 
@@ -72,6 +76,7 @@ namespace Antlr4.Codegen.Model
                 header = new Action(factory, ast);
 
             genPackage = factory.GetGrammar().tool.genPackage;
+            exportMacro = factory.GetGrammar().GetOptionString("exportMacro");
         }
     }
 }

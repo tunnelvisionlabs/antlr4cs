@@ -27,6 +27,16 @@ namespace Antlr4.Codegen.Model.Decl
         [ModelElement]
         public IList<OutputModelObject> extensionMembers;
 
+        // Track these separately; Go target needs to generate getters/setters
+        // Do not make them templates; we only need the Decl object not the ST
+        // built from it. Avoids adding args to StructDecl template
+        public OrderedHashSet<Decl> tokenDecls = new OrderedHashSet<Decl>();
+        public OrderedHashSet<Decl> tokenTypeDecls = new OrderedHashSet<Decl>();
+        public OrderedHashSet<Decl> tokenListDecls = new OrderedHashSet<Decl>();
+        public OrderedHashSet<Decl> ruleContextDecls = new OrderedHashSet<Decl>();
+        public OrderedHashSet<Decl> ruleContextListDecls = new OrderedHashSet<Decl>();
+        public OrderedHashSet<Decl> attributeDecls = new OrderedHashSet<Decl>();
+
         public StructDecl(OutputModelFactory factory, Rule r)
             : base(factory, factory.GetTarget().GetRuleFunctionContextStructName(r))
         {
@@ -56,10 +66,37 @@ namespace Antlr4.Codegen.Model.Decl
         public virtual void AddDecl(Decl d)
         {
             d.ctx = this;
+
             if (d is ContextGetterDecl)
                 getters.Add(d);
             else
                 attrs.Add(d);
+
+            // add to specific "lists"
+            if (d is TokenTypeDecl)
+            {
+                tokenTypeDecls.Add(d);
+            }
+            else if (d is TokenListDecl)
+            {
+                tokenListDecls.Add(d);
+            }
+            else if (d is TokenDecl)
+            {
+                tokenDecls.Add(d);
+            }
+            else if (d is RuleContextListDecl)
+            {
+                ruleContextListDecls.Add(d);
+            }
+            else if (d is RuleContextDecl)
+            {
+                ruleContextDecls.Add(d);
+            }
+            else if (d is AttributeDecl)
+            {
+                attributeDecls.Add(d);
+            }
         }
 
         public virtual void AddDecl(Attribute a)

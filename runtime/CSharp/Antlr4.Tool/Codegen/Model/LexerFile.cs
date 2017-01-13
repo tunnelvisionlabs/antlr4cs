@@ -10,6 +10,9 @@ namespace Antlr4.Codegen.Model
     public class LexerFile : OutputFile
     {
         public string genPackage; // from -package cmd-line
+        public string exportMacro; // from -DexportMacro cmd-line
+        public bool genListener; // from -listener cmd-line
+        public bool genVisitor; // from -visitor cmd-line
         [ModelElement]
         public Lexer lexer;
         [ModelElement]
@@ -18,16 +21,11 @@ namespace Antlr4.Codegen.Model
         public LexerFile(OutputModelFactory factory, string fileName)
             : base(factory, fileName)
         {
-            namedActions = new Dictionary<string, Action>();
-            Grammar g = factory.GetGrammar();
-            foreach (string name in g.namedActions.Keys)
-            {
-                ActionAST ast;
-                g.namedActions.TryGetValue(name, out ast);
-                namedActions[name] = new Action(factory, ast);
-            }
-
+            namedActions = BuildNamedActions(factory.GetGrammar());
             genPackage = factory.GetGrammar().tool.genPackage;
+            exportMacro = factory.GetGrammar().GetOptionString("exportMacro");
+            genListener = factory.GetGrammar().tool.gen_listener;
+            genVisitor = factory.GetGrammar().tool.gen_visitor;
         }
     }
 }

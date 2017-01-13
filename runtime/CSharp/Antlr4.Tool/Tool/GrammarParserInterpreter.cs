@@ -11,6 +11,7 @@ namespace Antlr4.Tool
     using ArgumentException = System.ArgumentException;
     using BitSet = Antlr4.Runtime.Sharpen.BitSet;
     using Exception = System.Exception;
+    using Interval = Antlr4.Runtime.Misc.Interval;
     using Type = System.Type;
 
     /** A heavier weight {@link ParserInterpreter} that creates parse trees
@@ -274,6 +275,13 @@ namespace Antlr4.Tool
             // Create a new parser interpreter to parse the ambiguous subphrase
             ParserInterpreter parser = DeriveTempParserInterpreter(g, originalParser, tokens);
 
+            if (stopIndex >= (tokens.Size - 1))
+            {
+                // if we are pointing at EOF token
+                // EOF is not in tree, so must be 1 less than last non-EOF token
+                stopIndex = tokens.Size - 2;
+            }
+
             // get ambig trees
             int alt = alts.NextSetBit(0);
             while (alt >= 0)
@@ -336,8 +344,6 @@ namespace Antlr4.Tool
             IList<ParserRuleContext> trees = new List<ParserRuleContext>();
             // Create a new parser interpreter to parse the ambiguous subphrase
             ParserInterpreter parser = DeriveTempParserInterpreter(g, originalParser, tokens);
-            BailButConsumeErrorStrategy errorHandler = new BailButConsumeErrorStrategy();
-            parser.ErrorHandler = errorHandler;
 
             DecisionState decisionState = originalParser.Atn.decisionToState[decision];
 
@@ -346,6 +352,8 @@ namespace Antlr4.Tool
                 // re-parse entire input for all ambiguous alternatives
                 // (don't have to do first as it's been parsed, but do again for simplicity
                 //  using this temp parser.)
+                BailButConsumeErrorStrategy errorHandler = new BailButConsumeErrorStrategy();
+                parser.ErrorHandler = errorHandler;
                 parser.Reset();
                 parser.AddDecisionOverride(decision, startIndex, alt);
                 ParserRuleContext tt = parser.Parse(startRuleIndex);
@@ -354,6 +362,16 @@ namespace Antlr4.Tool
                 {
                     stopTreeAt = errorHandler.firstErrorTokenIndex; // cut off rest at first error
                 }
+
+                Interval overallRange = tt.SourceInterval;
+                if (stopTreeAt > overallRange.b)
+                {
+                    // If we try to look beyond range of tree, stopTreeAt must be EOF
+                    // for which there is no EOF ref in grammar. That means tree
+                    // will not have node for stopTreeAt; limit to overallRange.b
+                    stopTreeAt = overallRange.b;
+                }
+
                 ParserRuleContext subtree =
                     Trees.GetRootOfSubtreeEnclosingRegion(tt,
                                                           startIndex,

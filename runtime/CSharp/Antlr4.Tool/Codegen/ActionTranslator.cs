@@ -176,33 +176,25 @@ namespace Antlr4.Codegen
                 return;
             }
             Attribute a = node.resolver.ResolveToAttribute(x.Text, y.Text, node);
+            if (a == null)
+            {
+                // Added in response to https://github.com/antlr/antlr4/issues/1211
+                gen.g.tool.errMgr.GrammarError(ErrorType.UNKNOWN_SIMPLE_ATTRIBUTE,
+                                               gen.g.fileName, x,
+                                               x.Text,
+                                               "rule");
+                return;
+            }
             switch (a.dict.type)
             {
             case AttributeDict.DictType.ARG:
                 chunks.Add(new ArgRef(nodeContext, y.Text));
                 break; // has to be current rule
             case AttributeDict.DictType.RET:
-                if (factory.GetCurrentRuleFunction() != null &&
-                    factory.GetCurrentRuleFunction().name.Equals(x.Text))
-                {
-                    chunks.Add(new RetValueRef(rf.ruleCtx, y.Text));
-                    break;
-                }
-                else
-                {
-                    chunks.Add(new QRetValueRef(nodeContext, GetRuleLabel(x.Text), y.Text));
-                    break;
-                }
+                chunks.Add(new QRetValueRef(nodeContext, GetRuleLabel(x.Text), y.Text));
+                break;
             case AttributeDict.DictType.PREDEFINED_RULE:
-                if (factory.GetCurrentRuleFunction() != null &&
-                    factory.GetCurrentRuleFunction().name.Equals(x.Text))
-                {
-                    chunks.Add(GetRulePropertyRef(y));
-                }
-                else
-                {
-                    chunks.Add(GetRulePropertyRef(x, y));
-                }
+                chunks.Add(GetRulePropertyRef(x, y));
                 break;
             case AttributeDict.DictType.TOKEN:
                 chunks.Add(GetTokenPropertyRef(x, y));

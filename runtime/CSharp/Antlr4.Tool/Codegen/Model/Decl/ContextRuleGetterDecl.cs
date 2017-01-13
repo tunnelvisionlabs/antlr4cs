@@ -7,11 +7,13 @@ namespace Antlr4.Codegen.Model.Decl
     public class ContextRuleGetterDecl : ContextGetterDecl
     {
         public string ctxName;
+        public bool optional;
 
-        public ContextRuleGetterDecl(OutputModelFactory factory, string name, string ctxName)
+        public ContextRuleGetterDecl(OutputModelFactory factory, string name, string ctxName, bool optional)
             : base(factory, name)
         {
             this.ctxName = ctxName;
+            this.optional = optional;
         }
     }
 }

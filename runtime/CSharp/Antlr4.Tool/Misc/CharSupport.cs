@@ -29,6 +29,8 @@ namespace Antlr4.Misc
             ANTLRLiteralEscapedCharValue['\\'] = '\\';
             ANTLRLiteralEscapedCharValue['\''] = '\'';
             ANTLRLiteralEscapedCharValue['"'] = '"';
+            ANTLRLiteralEscapedCharValue['-'] = '-';
+            ANTLRLiteralEscapedCharValue[']'] = ']';
             ANTLRLiteralCharValueEscape['\n'] = "\\n";
             ANTLRLiteralCharValueEscape['\r'] = "\\r";
             ANTLRLiteralCharValueEscape['\t'] = "\\t";
@@ -85,6 +87,48 @@ namespace Antlr4.Misc
             return GetCharValueFromCharInGrammarLiteral(literal.Substring(1, literal.Length - 2));
         }
 
+        public static string GetStringFromGrammarStringLiteral(string literal)
+        {
+            StringBuilder buf = new StringBuilder();
+            int i = 1; // skip first quote
+            int n = literal.Length - 1; // skip last quote
+            while (i < n)
+            { // scan all but last quote
+                int end = i + 1;
+                if (literal[i] == '\\')
+                {
+                    end = i + 2;
+                    if (i + 1 < n && literal[i + 1] == 'u')
+                    {
+                        for (end = i + 2; end < i + 6; end++)
+                        {
+                            if (end > n)
+                                return null; // invalid escape sequence.
+                            char charAt = literal[end];
+                            if (!char.IsDigit(charAt) && !(charAt >= 'a' && charAt <= 'f') && !(charAt >= 'A' && charAt <= 'F'))
+                            {
+                                return null; // invalid escape sequence.
+                            }
+                        }
+                    }
+                }
+                if (end > n)
+                    return null; // invalid escape sequence.
+
+                string esc = literal.Substring(i, end - i);
+                int c = GetCharValueFromCharInGrammarLiteral(esc);
+                if (c == -1)
+                {
+                    return null; // invalid escape sequence.
+                }
+                else
+                    buf.Append((char)c);
+                i = end;
+            }
+
+            return buf.ToString();
+        }
+
         /** Given char x or \t or \u1234 return the char value;
          *  Unnecessary escapes like '\{' yield -1.
          */
@@ -111,41 +155,14 @@ namespace Antlr4.Misc
                 if (!cstr.StartsWith("\\u"))
                     return -1;
                 string unicodeChars = cstr.Substring(2, cstr.Length - 2);
-                return int.Parse(unicodeChars, NumberStyles.AllowHexSpecifier);
+                int result;
+                if (!int.TryParse(unicodeChars, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out result))
+                    return -1;
+
+                return result;
             default:
                 return -1;
             }
-        }
-
-        public static string GetStringFromGrammarStringLiteral(string literal)
-        {
-            StringBuilder buf = new StringBuilder();
-            int i = 1; // skip first quote
-            int n = literal.Length - 1; // skip last quote
-            while (i < n)
-            { // scan all but last quote
-                int end = i + 1;
-                if (literal[i] == '\\')
-                {
-                    end = i + 2;
-                    if ((i + 1) >= n)
-                        break; // ignore spurious \ on end
-                    if (literal[i + 1] == 'u')
-                        end = i + 6;
-                }
-                if (end > n)
-                    break;
-                string esc = literal.Substring(i, end - i);
-                int c = GetCharValueFromCharInGrammarLiteral(esc);
-                if (c == -1)
-                {
-                    buf.Append(esc);
-                }
-                else
-                    buf.Append((char)c);
-                i = end;
-            }
-            return buf.ToString();
         }
 
         public static string Capitalize(string s)

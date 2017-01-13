@@ -3,7 +3,9 @@
 
 namespace Antlr4.Codegen.Model
 {
+    using System.Collections.Generic;
     using Antlr4.Tool;
+    using Antlr4.Tool.Ast;
 
     public abstract class OutputFile : OutputModelObject
     {
@@ -22,6 +24,17 @@ namespace Antlr4.Codegen.Model
             ANTLRVersion = AntlrTool.VERSION;
             TokenLabelType = g.GetOptionString("TokenLabelType");
             InputSymbolType = TokenLabelType;
+        }
+
+        public virtual IDictionary<string, Action> BuildNamedActions(Grammar g)
+        {
+            IDictionary<string, Action> namedActions = new Dictionary<string, Action>();
+            foreach (string name in g.namedActions.Keys)
+            {
+                ActionAST ast = g.namedActions[name];
+                namedActions[name] = new Action(factory, ast);
+            }
+            return namedActions;
         }
     }
 }

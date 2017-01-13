@@ -148,7 +148,7 @@ namespace Antlr4.Tool
         }
 
         /**
-         * Raise a predefined message with some number of paramters for the StringTemplate but for which there
+         * Raise a predefined message with some number of parameters for the StringTemplate but for which there
          * is no location information possible.
          * @param errorType The Message Descriptor
          * @param args The arguments to pass to the StringTemplate

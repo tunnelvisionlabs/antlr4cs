@@ -6,9 +6,12 @@ namespace Antlr4.Codegen.Model.Decl
     /** {@code public Token X() { }} */
     public class ContextTokenGetterDecl : ContextGetterDecl
     {
-        public ContextTokenGetterDecl(OutputModelFactory factory, string name)
+        public bool optional;
+
+        public ContextTokenGetterDecl(OutputModelFactory factory, string name, bool optional)
             : base(factory, name)
         {
+            this.optional = optional;
         }
     }
 }

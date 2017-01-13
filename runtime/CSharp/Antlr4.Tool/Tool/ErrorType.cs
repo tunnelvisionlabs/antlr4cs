@@ -293,9 +293,9 @@ namespace Antlr4.Tool
         /**
          * Compiler Error 79.
          *
-         * <p>missing arguments(s) on rule reference: <em>rule</em></p>
+         * <p>missing argument(s) on rule reference: <em>rule</em></p>
          */
-        public static readonly ErrorType MISSING_RULE_ARGS = new ErrorType(nameof(MISSING_RULE_ARGS), 79, "missing arguments(s) on rule reference: <arg>", ErrorSeverity.ERROR);
+        public static readonly ErrorType MISSING_RULE_ARGS = new ErrorType(nameof(MISSING_RULE_ARGS), 79, "missing argument(s) on rule reference: <arg>", ErrorSeverity.ERROR);
         /**
          * Compiler Error 80.
          *
@@ -1001,11 +1001,83 @@ namespace Antlr4.Tool
          *
          * <p>empty strings not allowed</p>
          *
-         * <pre>A: '''test''';</pre>
-         * <pre>B: '';</pre>
-         * <pre>C: 'test' '';</pre>
+         * <pre>
+         * A: '''test''';
+         * B: '';
+         * C: 'test' '';
+         * D: [];
+         * E: [f-a];
+         * </pre>
          */
-        public static readonly ErrorType EMPTY_STRINGS_NOT_ALLOWED = new ErrorType(nameof(EMPTY_STRINGS_NOT_ALLOWED), 174, "string literals cannot be empty", ErrorSeverity.ERROR);
+        public static readonly ErrorType EMPTY_STRINGS_AND_SETS_NOT_ALLOWED = new ErrorType(nameof(EMPTY_STRINGS_AND_SETS_NOT_ALLOWED), 174, "string literals and sets cannot be empty: <arg>", ErrorSeverity.ERROR);
+        /**
+         * Compiler Error 175.
+         *
+         * <p>'<em>name</em>' is not a recognized token name</p>
+         *
+         * <pre>TOKEN: 'a' -> type(CHANNEL1); // warning 175</pre>
+         */
+        public static readonly ErrorType CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_TOKEN_NAME = new ErrorType(nameof(CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_TOKEN_NAME), 175, "'<arg>' is not a recognized token name", ErrorSeverity.WARNING);
+        /**
+         * Compiler Error 176.
+         *
+         * <p>'<em>name</em>' is not a recognized mode name</p>
+         *
+         * <pre>TOKEN: 'a' -> mode(MODE1); // warning 176</pre>
+         */
+        public static readonly ErrorType CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_MODE_NAME = new ErrorType(nameof(CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_MODE_NAME), 176, "'<arg>' is not a recognized mode name", ErrorSeverity.WARNING);
+        /**
+         * Compiler Error 177.
+         *
+         * <p>'<em>name</em>' is not a recognized channel name</p>
+         *
+         * <pre>TOKEN: 'a' -> channel(TOKEN1); // warning 177</pre>
+         */
+        public static readonly ErrorType CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_CHANNEL_NAME = new ErrorType(nameof(CONSTANT_VALUE_IS_NOT_A_RECOGNIZED_CHANNEL_NAME), 177, "'<arg>' is not a recognized channel name", ErrorSeverity.WARNING);
+        /*
+        * Compiler Warning 178.
+        *
+        * <p>duplicated command '<em>command</em>'</p>
+        *
+        * <p>TOKEN: 'asdf' -> mode(MODE1), mode(MODE2);</p>
+        * */
+        public static readonly ErrorType DUPLICATED_COMMAND = new ErrorType(nameof(DUPLICATED_COMMAND), 178, "duplicated command '<arg>'", ErrorSeverity.WARNING);
+        /*
+        * Compiler Waring 179.
+        *
+        * <p>incompatible commands '<em>command1</em>' and '<em>command2</em>'</p>
+        *
+        * <p>T00: 'a00' -> skip, more;</p>
+         */
+        public static readonly ErrorType INCOMPATIBLE_COMMANDS = new ErrorType(nameof(INCOMPATIBLE_COMMANDS), 179, "incompatible commands '<arg>' and '<arg2>'", ErrorSeverity.WARNING);
+        /**
+         * Compiler Warning 180.
+         *
+         * <p>chars '"a-f"' used multiple times in set '[a-fc-m]'</p>
+         *
+         * <pre>
+         * A:    [aa-z];   // warning 180
+         * B:    [a-fc-m]; // warning 180
+         * </pre>
+         *
+         * <p>TODO: Does not work with fragment rules.</p>
+         */
+        public static readonly ErrorType CHARACTERS_COLLISION_IN_SET = new ErrorType(nameof(CHARACTERS_COLLISION_IN_SET), 180, "chars '\"<arg>\"' used multiple times in set: <arg2>", ErrorSeverity.WARNING);
+
+        /**
+         * Compiler Warning 181
+         *
+         * <p>The token range operator makes no sense in the parser as token types
+         * are not ordered (except in implementation).
+         * </p>
+         *
+         * <pre>
+         * grammar T;
+         * a : 'A'..'Z' ;
+         * </pre>
+         *
+         */
+        public static readonly ErrorType TOKEN_RANGE_IN_PARSER = new ErrorType(nameof(TOKEN_RANGE_IN_PARSER), 181, "token ranges not allowed in parser: <arg>..<arg2>", ErrorSeverity.ERROR);
 
         /*
          * Backward incompatibility errors

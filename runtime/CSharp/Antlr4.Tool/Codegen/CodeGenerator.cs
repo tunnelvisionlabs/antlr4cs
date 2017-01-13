@@ -124,7 +124,7 @@ namespace Antlr4.Codegen
             return controller;
         }
 
-        private Template Walk(OutputModelObject outputModel)
+        private Template Walk(OutputModelObject outputModel, bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -133,32 +133,61 @@ namespace Antlr4.Codegen
             }
 
             OutputModelWalker walker = new OutputModelWalker(tool, target.GetTemplates());
-            return walker.Walk(outputModel);
+            return walker.Walk(outputModel, header);
         }
 
         public virtual Template GenerateLexer()
         {
-            return Walk(CreateController().BuildLexerOutputModel());
+            return GenerateLexer(false);
         }
+        public virtual Template GenerateLexer(bool header)
+        {
+            return Walk(CreateController().BuildLexerOutputModel(header), header);
+        }
+
         public virtual Template GenerateParser()
         {
-            return Walk(CreateController().BuildParserOutputModel());
+            return GenerateParser(false);
         }
+        public virtual Template GenerateParser(bool header)
+        {
+            return Walk(CreateController().BuildParserOutputModel(header), header);
+        }
+
         public virtual Template GenerateListener()
         {
-            return Walk(CreateController().BuildListenerOutputModel());
+            return GenerateListener(false);
         }
+        public virtual Template GenerateListener(bool header)
+        {
+            return Walk(CreateController().BuildListenerOutputModel(header), header);
+        }
+
         public virtual Template GenerateBaseListener()
         {
-            return Walk(CreateController().BuildBaseListenerOutputModel());
+            return GenerateBaseListener(false);
         }
+        public virtual Template GenerateBaseListener(bool header)
+        {
+            return Walk(CreateController().BuildBaseListenerOutputModel(header), header);
+        }
+
         public virtual Template GenerateVisitor()
         {
-            return Walk(CreateController().BuildVisitorOutputModel());
+            return GenerateVisitor(false);
         }
+        public virtual Template GenerateVisitor(bool header)
+        {
+            return Walk(CreateController().BuildVisitorOutputModel(header), header);
+        }
+
         public virtual Template GenerateBaseVisitor()
         {
-            return Walk(CreateController().BuildBaseVisitorOutputModel());
+            return GenerateBaseVisitor(false);
+        }
+        public virtual Template GenerateBaseVisitor(bool header)
+        {
+            return Walk(CreateController().BuildBaseVisitorOutputModel(header), header);
         }
 
         /** Generate a token vocab file with all the token names/types.  For example:
@@ -199,7 +228,7 @@ namespace Antlr4.Codegen
             return vocabFileST;
         }
 
-        public virtual void WriteRecognizer(Template outputFileST)
+        public virtual void WriteRecognizer(Template outputFileST, bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -207,10 +236,10 @@ namespace Antlr4.Codegen
                 throw new NotSupportedException("Cannot generate code without a target.");
             }
 
-            target.GenFile(g, outputFileST, GetRecognizerFileName());
+            target.GenFile(g, outputFileST, GetRecognizerFileName(header));
         }
 
-        public virtual void WriteListener(Template outputFileST)
+        public virtual void WriteListener(Template outputFileST, bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -218,10 +247,10 @@ namespace Antlr4.Codegen
                 throw new NotSupportedException("Cannot generate code without a target.");
             }
 
-            target.GenFile(g, outputFileST, GetListenerFileName());
+            target.GenFile(g, outputFileST, GetListenerFileName(header));
         }
 
-        public virtual void WriteBaseListener(Template outputFileST)
+        public virtual void WriteBaseListener(Template outputFileST, bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -229,10 +258,10 @@ namespace Antlr4.Codegen
                 throw new NotSupportedException("Cannot generate code without a target.");
             }
 
-            target.GenFile(g, outputFileST, GetBaseListenerFileName());
+            target.GenFile(g, outputFileST, GetBaseListenerFileName(header));
         }
 
-        public virtual void WriteVisitor(Template outputFileST)
+        public virtual void WriteVisitor(Template outputFileST, bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -240,10 +269,10 @@ namespace Antlr4.Codegen
                 throw new NotSupportedException("Cannot generate code without a target.");
             }
 
-            target.GenFile(g, outputFileST, GetVisitorFileName());
+            target.GenFile(g, outputFileST, GetVisitorFileName(header));
         }
 
-        public virtual void WriteBaseVisitor(Template outputFileST)
+        public virtual void WriteBaseVisitor(Template outputFileST, bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -251,27 +280,7 @@ namespace Antlr4.Codegen
                 throw new NotSupportedException("Cannot generate code without a target.");
             }
 
-            target.GenFile(g, outputFileST, GetBaseVisitorFileName());
-        }
-
-        public virtual void WriteHeaderFile()
-        {
-            AbstractTarget target = GetTarget();
-            if (target == null)
-            {
-                throw new NotSupportedException("Cannot generate code without a target.");
-            }
-
-            string fileName = GetHeaderFileName();
-            if (fileName == null)
-                return;
-            if (target.GetTemplates().IsDefined("headerFile"))
-            {
-                Template extST = target.GetTemplates().GetInstanceOf("headerFileExtension");
-                Template headerFileST = null;
-                // TODO:  don't hide this header file generation here!
-                target.GenRecognizerHeaderFile(g, headerFileST, extST.Render(lineWidth));
-            }
+            target.GenFile(g, outputFileST, GetBaseVisitorFileName(header));
         }
 
         public virtual void WriteVocabFile()
@@ -314,77 +323,28 @@ namespace Antlr4.Codegen
             }
         }
 
-        /** Generate TParser.java and TLexer.java from T.g4 if combined, else
-         *  just use T.java as output regardless of type.
-         */
         public virtual string GetRecognizerFileName()
         {
-            AbstractTarget target = GetTarget();
-            if (target == null)
-            {
-                throw new NotSupportedException("Cannot generate code without a target.");
-            }
-
-            Template extST = target.GetTemplates().GetInstanceOf("codeFileExtension");
-            string recognizerName = g.GetRecognizerName();
-            return recognizerName + extST.Render();
+            return GetRecognizerFileName(false);
         }
-
-        /** A given grammar T, return the listener name such as
-         *  TListener.java, if we're using the Java target.
-         */
         public virtual string GetListenerFileName()
         {
-            AbstractTarget target = GetTarget();
-            if (target == null)
-            {
-                throw new NotSupportedException("Cannot generate code without a target.");
-            }
-
-            Debug.Assert(g.name != null);
-            Template extST = target.GetTemplates().GetInstanceOf("codeFileExtension");
-            string listenerName = g.name + "Listener";
-            return listenerName + extST.Render();
+            return GetListenerFileName(false);
         }
-
-        /** A given grammar T, return the visitor name such as
-         *  TVisitor.java, if we're using the Java target.
-         */
         public virtual string GetVisitorFileName()
         {
-            AbstractTarget target = GetTarget();
-            if (target == null)
-            {
-                throw new NotSupportedException("Cannot generate code without a target.");
-            }
-
-            Debug.Assert(g.name != null);
-            Template extST = target.GetTemplates().GetInstanceOf("codeFileExtension");
-            string listenerName = g.name + "Visitor";
-            return listenerName + extST.Render();
+            return GetVisitorFileName(false);
         }
-
-        /** A given grammar T, return a blank listener implementation
-         *  such as TBaseListener.java, if we're using the Java target.
-         */
         public virtual string GetBaseListenerFileName()
         {
-            AbstractTarget target = GetTarget();
-            if (target == null)
-            {
-                throw new NotSupportedException("Cannot generate code without a target.");
-            }
-
-            Debug.Assert(g.name != null);
-            Template extST = target.GetTemplates().GetInstanceOf("codeFileExtension");
-            string listenerName = g.name + "BaseListener";
-            return listenerName + extST.Render();
+            return GetBaseListenerFileName(false);
+        }
+        public virtual string GetBaseVisitorFileName()
+        {
+            return GetBaseVisitorFileName(false);
         }
 
-        /** A given grammar T, return a blank listener implementation
-         *  such as TBaseListener.java, if we're using the Java target.
-         */
-        public virtual string GetBaseVisitorFileName()
+        public virtual string GetRecognizerFileName(bool header)
         {
             AbstractTarget target = GetTarget();
             if (target == null)
@@ -392,10 +352,51 @@ namespace Antlr4.Codegen
                 throw new NotSupportedException("Cannot generate code without a target.");
             }
 
-            Debug.Assert(g.name != null);
-            Template extST = target.GetTemplates().GetInstanceOf("codeFileExtension");
-            string listenerName = g.name + "BaseVisitor";
-            return listenerName + extST.Render();
+            return target.GetRecognizerFileName(header);
+        }
+
+        public virtual string GetListenerFileName(bool header)
+        {
+            AbstractTarget target = GetTarget();
+            if (target == null)
+            {
+                throw new NotSupportedException("Cannot generate code without a target.");
+            }
+
+            return target.GetListenerFileName(header);
+        }
+
+        public virtual string GetVisitorFileName(bool header)
+        {
+            AbstractTarget target = GetTarget();
+            if (target == null)
+            {
+                throw new NotSupportedException("Cannot generate code without a target.");
+            }
+
+            return target.GetVisitorFileName(header);
+        }
+
+        public virtual string GetBaseListenerFileName(bool header)
+        {
+            AbstractTarget target = GetTarget();
+            if (target == null)
+            {
+                throw new NotSupportedException("Cannot generate code without a target.");
+            }
+
+            return target.GetBaseListenerFileName(header);
+        }
+
+        public virtual string GetBaseVisitorFileName(bool header)
+        {
+            AbstractTarget target = GetTarget();
+            if (target == null)
+            {
+                throw new NotSupportedException("Cannot generate code without a target.");
+            }
+
+            return target.GetBaseVisitorFileName(header);
         }
 
         /** What is the name of the vocab file generated for this grammar?

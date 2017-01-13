@@ -5,12 +5,12 @@ namespace Antlr4.Tool
 {
     using IToken = Antlr.Runtime.IToken;
 
-    /** Track the names of attributes define in arg lists, return values,
+    /** Track the names of attributes defined in arg lists, return values,
      *  scope blocks etc...
      */
     public class Attribute
     {
-        /** The entire declaration such as "String foo;" */
+        /** The entire declaration such as "String foo" or "x:int" */
         public string decl;
 
         /** The type; might be empty such as for Python which has no static typing */
@@ -47,9 +47,15 @@ namespace Antlr4.Tool
         {
             if (initValue != null)
             {
-                return type + " " + name + "=" + initValue;
+                return name + ":" + type + "=" + initValue;
             }
-            return type + " " + name;
+
+            if (type != null)
+            {
+                return name + ":" + type;
+            }
+
+            return name;
         }
     }
 }

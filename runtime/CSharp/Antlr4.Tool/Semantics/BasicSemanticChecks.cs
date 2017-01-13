@@ -610,7 +610,7 @@ namespace Antlr4.Semantics
             string text = tree.Text;
             if (text.Equals("''"))
             {
-                g.tool.errMgr.GrammarError(ErrorType.EMPTY_STRINGS_NOT_ALLOWED, g.fileName, tree.Token);
+                g.tool.errMgr.GrammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, g.fileName, tree.Token);
             }
         }
 

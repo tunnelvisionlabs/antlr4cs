@@ -39,7 +39,7 @@ namespace Antlr4.Tool
         /**
          * Standard constructor to build an instance of the Enum entries
          *
-         * @param text The human readable string representing the serverity level
+         * @param text The human readable string representing the severity level
          */
         private ErrorSeverity(string text)
         {

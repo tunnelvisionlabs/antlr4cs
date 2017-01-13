@@ -15,6 +15,7 @@ namespace Antlr4.Codegen.Model
     public class ListenerFile : OutputFile
     {
         public string genPackage; // from -package cmd-line
+        public string exportMacro; // from -DexportMacro cmd-line
         public string grammarName;
         public string parserName;
         /**
@@ -30,6 +31,8 @@ namespace Antlr4.Codegen.Model
 
         [ModelElement]
         public Action header;
+        [ModelElement]
+        public IDictionary<string, Action> namedActions;
 
         public ListenerFile(OutputModelFactory factory, string fileName)
             : base(factory, fileName)
@@ -37,6 +40,8 @@ namespace Antlr4.Codegen.Model
             Grammar g = factory.GetGrammar();
             parserName = g.GetRecognizerName();
             grammarName = g.name;
+
+            namedActions = BuildNamedActions(factory.GetGrammar());
 
             foreach (KeyValuePair<string, IList<RuleAST>> entry in g.contextASTs)
             {
@@ -75,6 +80,7 @@ namespace Antlr4.Codegen.Model
                 header = new Action(factory, ast);
 
             genPackage = factory.GetGrammar().tool.genPackage;
+            exportMacro = factory.GetGrammar().GetOptionString("exportMacro");
         }
     }
 }

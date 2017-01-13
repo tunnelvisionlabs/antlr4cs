@@ -101,7 +101,7 @@ binary
 
 prefix
 	:	^(	ALT elementOptions?
-			({!((CommonTree)input.LT(1)).Text.Equals(ruleName)}? element)+
+			element+
 			recurse epsilonElement*
 		 )
          {SetAltAssoc((AltAST)$ALT,currentOuterAltNumber);}

@@ -176,6 +176,7 @@
     <Compile Include="Codegen\Model\ThrowRecognitionException.cs" />
     <Compile Include="Codegen\Model\VisitorDispatchMethod.cs" />
     <Compile Include="Codegen\Model\VisitorFile.cs" />
+    <Compile Include="Codegen\Model\Wildcard.cs" />
     <Compile Include="Codegen\OutputModelController.cs" />
     <Compile Include="Codegen\OutputModelFactory.cs" />
     <Compile Include="Codegen\OutputModelWalker.cs" />
@@ -188,7 +189,6 @@
     <Compile Include="Codegen\Target\CSharp_v4_0Target.cs" />
     <Compile Include="Codegen\Target\CSharp_v4_5Target.cs" />
     <Compile Include="Codegen\Target\JavaTarget.cs" />
-    <Compile Include="Codegen\Wildcard.cs" />
     <Compile Include="Misc\CharSupport.cs" />
     <Compile Include="Misc\FrequencySet`1.cs" />
     <Compile Include="Misc\Graph`1.cs" />

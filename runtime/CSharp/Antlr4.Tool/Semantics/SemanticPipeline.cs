@@ -67,11 +67,14 @@ namespace Antlr4.Semantics
             }
 
             // DO BASIC / EASY SEMANTIC CHECKS
+            int prevErrors = g.tool.errMgr.GetNumErrors();
             BasicSemanticChecks basics = new BasicSemanticChecks(g, ruleCollector);
             basics.Process();
+            if (g.tool.errMgr.GetNumErrors() > prevErrors)
+                return;
 
             // TRANSFORM LEFT-RECURSIVE RULES
-            int prevErrors = g.tool.errMgr.GetNumErrors();
+            prevErrors = g.tool.errMgr.GetNumErrors();
             LeftRecursiveRuleTransformer lrtrans =
                 new LeftRecursiveRuleTransformer(g.ast, ruleCollector.rules.Values, g);
             lrtrans.TranslateLeftRecursiveRules();
