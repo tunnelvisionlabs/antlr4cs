@@ -39,7 +39,7 @@ namespace Antlr4.Codegen.Model
                     if (altLabelCtxs != null)
                     {
                         AltLabelStructDecl s;
-                        if (altLabelCtxs.TryGetValue(altLabel, out s) && s != null)
+                        if (altLabel != null && altLabelCtxs.TryGetValue(altLabel, out s) && s != null)
                             @struct = s; // if alt label, use subctx
                     }
 

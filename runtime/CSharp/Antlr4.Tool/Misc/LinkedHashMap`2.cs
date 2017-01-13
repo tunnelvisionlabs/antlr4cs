@@ -393,8 +393,12 @@ namespace Antlr4.Misc
 
             public void CopyTo(TValue[] array, int arrayIndex)
             {
-                TValue[] values = this.ToArray();
-                values.CopyTo(array, arrayIndex);
+                if (arrayIndex < 0 || arrayIndex > array.Length - Count)
+                    throw new ArgumentException();
+
+                int currentIndex = arrayIndex;
+                foreach (TValue value in this)
+                    array[currentIndex++] = value;
             }
 
             public IEnumerator<TValue> GetEnumerator()
