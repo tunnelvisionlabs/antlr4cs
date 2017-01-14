@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Antlr4.Build.Tasks</RootNamespace>
-    <AssemblyName>Antlr4BuildTasks.net35</AssemblyName>
+    <AssemblyName>Antlr4BuildTasks</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj\net35\</BaseIntermediateOutputPath>

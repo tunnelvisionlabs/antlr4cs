@@ -8,15 +8,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if NET40
-[assembly: AssemblyTitle("Antlr4BuildTasks.net40")]
-[assembly: AssemblyProduct("Antlr4BuildTasks.net40")]
-#elif NET35
-[assembly: AssemblyTitle("Antlr4BuildTasks.net35")]
-[assembly: AssemblyProduct("Antlr4BuildTasks.net35")]
-#else
-#error Unknown assembly.
-#endif
+[assembly: AssemblyTitle("Antlr4BuildTasks")]
+[assembly: AssemblyProduct("Antlr4BuildTasks")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tunnel Vision Laboratories, LLC")]
