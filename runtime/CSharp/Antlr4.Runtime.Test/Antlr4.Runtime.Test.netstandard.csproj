@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Antlr4.Runtime.Test</RootNamespace>
-    <AssemblyName>Antlr4.Runtime.Test.portable_net45</AssemblyName>
+    <AssemblyName>Antlr4.Runtime.Test.netstandard</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -17,14 +17,14 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
-    <BaseIntermediateOutputPath>obj\portable-net45\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\netstandard\</BaseIntermediateOutputPath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\portable-net45\Debug\</OutputPath>
+    <OutputPath>bin\netstandard\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE;PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,7 +33,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\portable-net45\Release\</OutputPath>
+    <OutputPath>bin\netstandard\Release\</OutputPath>
     <DefineConstants>TRACE;PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -76,9 +76,9 @@
     <Compile Include="TestPerformance.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.portable-net45.csproj">
+    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.netstandard.csproj">
       <Project>{12269283-ee92-4faa-b849-53cd24f341fa}</Project>
-      <Name>Antlr4.Runtime.portable-net45</Name>
+      <Name>Antlr4.Runtime.netstandard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -90,7 +90,7 @@
     <None Include="..\..\..\build\keys\TestingKey.snk">
       <Link>TestingKey.snk</Link>
     </None>
-    <None Include="packages.Antlr4.Runtime.Test.portable-net45.config" />
+    <None Include="packages.Antlr4.Runtime.Test.netstandard.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

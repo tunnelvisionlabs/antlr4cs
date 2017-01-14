@@ -58,9 +58,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{4CE79A54
 		..\..\build\version.ps1 = ..\..\build\version.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.portable-net45", "Antlr4.Runtime\Antlr4.Runtime.portable-net45.csproj", "{12269283-EE92-4FAA-B849-53CD24F341FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.netstandard", "Antlr4.Runtime\Antlr4.Runtime.netstandard.csproj", "{12269283-EE92-4FAA-B849-53CD24F341FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.portable-net45", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.portable-net45.csproj", "{5844076E-3C92-4122-BB7A-0D745C3F5334}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.netstandard", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.netstandard.csproj", "{5844076E-3C92-4122-BB7A-0D745C3F5334}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Tool.netstandard", "Antlr4.Tool\Antlr4.Tool.netstandard.csproj", "{80DF5B27-A8B9-4B6D-8CF2-314E8BD772F8}"
 EndProject

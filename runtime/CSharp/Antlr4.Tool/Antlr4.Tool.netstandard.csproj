@@ -361,9 +361,9 @@
     </Antlr3>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.portable-net45.csproj">
+    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.netstandard.csproj">
       <Project>{12269283-ee92-4faa-b849-53cd24f341fa}</Project>
-      <Name>Antlr4.Runtime.portable-net45</Name>
+      <Name>Antlr4.Runtime.netstandard</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

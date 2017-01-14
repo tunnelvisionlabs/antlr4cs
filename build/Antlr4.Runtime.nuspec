@@ -53,9 +53,9 @@
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net40\$Configuration$\Antlr4.Runtime.pdb" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net40\$Configuration$\Antlr4.Runtime.xml" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
 
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net45\$Configuration$\Antlr4.Runtime.dll" target="lib\netstandard1.1"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net45\$Configuration$\Antlr4.Runtime.pdb" target="lib\netstandard1.1"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net45\$Configuration$\Antlr4.Runtime.xml" target="lib\netstandard1.1"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\netstandard\$Configuration$\Antlr4.Runtime.dll" target="lib\netstandard1.1"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\netstandard\$Configuration$\Antlr4.Runtime.pdb" target="lib\netstandard1.1"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\netstandard\$Configuration$\Antlr4.Runtime.xml" target="lib\netstandard1.1"/>
 
     <!-- Source Code -->
 
