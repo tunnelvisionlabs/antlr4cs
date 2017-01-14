@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Antlr4.Build.Tasks</RootNamespace>
-    <AssemblyName>Antlr4BuildTasks.net40</AssemblyName>
+    <AssemblyName>Antlr4BuildTasks</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseIntermediateOutputPath>obj\net40\</BaseIntermediateOutputPath>
