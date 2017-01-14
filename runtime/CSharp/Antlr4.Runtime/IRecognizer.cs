@@ -8,7 +8,7 @@ namespace Antlr4.Runtime
 
     public interface IRecognizer
     {
-        [Obsolete]
+        [Obsolete("Use IRecognizer.Vocabulary instead.")]
         string[] TokenNames
         {
             get;
