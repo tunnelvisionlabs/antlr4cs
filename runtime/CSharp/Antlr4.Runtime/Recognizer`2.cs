@@ -306,6 +306,10 @@ namespace Antlr4.Runtime
             _listeners = new IAntlrErrorListener<Symbol>[0];
         }
 
+        /// <summary>
+        /// Gets a copy of the error listeners registered with this recognizer instance. Since this list is a copy of
+        /// the original, any changes made to it will have no impact on the recognizer.
+        /// </summary>
         [NotNull]
         public virtual IList<IAntlrErrorListener<Symbol>> ErrorListeners
         {
