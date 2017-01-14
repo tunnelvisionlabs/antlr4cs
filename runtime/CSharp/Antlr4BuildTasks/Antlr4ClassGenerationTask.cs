@@ -6,11 +6,8 @@ namespace Antlr4.Build.Tasks
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
-    using System.Security;
-    using System.Security.Policy;
     using System.Threading;
     using Microsoft.Build.Framework;
     using Microsoft.Build.Utilities;

@@ -10,9 +10,9 @@ namespace Antlr4.Build.Tasks
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
-    using RegistryHive = Microsoft.Win32.RegistryHive;
     using RegistryKey = Microsoft.Win32.RegistryKey;
 #if NET40PLUS
+    using RegistryHive = Microsoft.Win32.RegistryHive;
     using RegistryView = Microsoft.Win32.RegistryView;
 #else
     using Registry = Microsoft.Win32.Registry;
