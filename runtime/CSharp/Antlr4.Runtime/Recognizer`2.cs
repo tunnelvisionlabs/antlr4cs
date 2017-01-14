@@ -44,7 +44,7 @@ namespace Antlr4.Runtime
         /// error reporting.  The generated parsers implement a method
         /// that overrides this to point to their String[] tokenNames.
         /// </remarks>
-        [System.ObsoleteAttribute(@"Use Recognizer{Symbol, ATNInterpreter}.Vocabulary() instead.")]
+        [Obsolete("Use IRecognizer.Vocabulary instead.")]
         public abstract string[] TokenNames
         {
             get;

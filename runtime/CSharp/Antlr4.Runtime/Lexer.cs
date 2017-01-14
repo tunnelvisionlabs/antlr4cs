@@ -447,7 +447,7 @@ outer_continue: ;
         /// error reporting.  The generated parsers implement a method
         /// that overrides this to point to their String[] tokenNames.
         /// </remarks>
-        [Obsolete]
+        [Obsolete("Use IRecognizer.Vocabulary instead.")]
         public override string[] TokenNames
         {
             get

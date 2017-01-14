@@ -304,7 +304,7 @@ private static string[] GenerateTokenNames(IVocabulary vocabulary, int length) {
 	return tokenNames;
 }
 
-[System.Obsolete]
+[System.Obsolete("Use IRecognizer.Vocabulary instead.")]
 public override string[] TokenNames
 {
 	get

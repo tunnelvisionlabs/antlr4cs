@@ -166,7 +166,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        [Obsolete]
+        [Obsolete("Use IRecognizer.Vocabulary instead.")]
         public override string[] TokenNames
         {
             get
