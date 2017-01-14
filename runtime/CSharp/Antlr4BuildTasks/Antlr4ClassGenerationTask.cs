@@ -298,9 +298,7 @@ namespace Antlr4.Build.Tasks
         {
             while (exception != null)
             {
-                if ((exception is OutOfMemoryException)
-                    || (exception is InsufficientMemoryException)
-                    || (exception is ThreadAbortException))
+                if (exception is OutOfMemoryException)
                 {
                     return true;
                 }

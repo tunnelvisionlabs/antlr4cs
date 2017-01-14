@@ -55,6 +55,7 @@
     <Compile Include="BuildMessage.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TraceLevel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Antlr4.net35.props">

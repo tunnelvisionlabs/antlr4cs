@@ -10,12 +10,14 @@ namespace Antlr4.Build.Tasks
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
+#if !NETSTANDARD
     using RegistryKey = Microsoft.Win32.RegistryKey;
 #if NET40PLUS
     using RegistryHive = Microsoft.Win32.RegistryHive;
     using RegistryView = Microsoft.Win32.RegistryView;
 #else
     using Registry = Microsoft.Win32.Registry;
+#endif
 #endif
     using StringBuilder = System.Text.StringBuilder;
 
@@ -142,6 +144,7 @@ namespace Antlr4.Build.Tasks
         {
             get
             {
+#if !NETSTANDARD
                 string javaHome;
                 if (TryGetJavaHome(RegistryView.Default, JavaVendor, JavaInstallation, out javaHome))
                     return javaHome;
@@ -151,6 +154,7 @@ namespace Antlr4.Build.Tasks
 
                 if (TryGetJavaHome(RegistryView.Registry32, JavaVendor, JavaInstallation, out javaHome))
                     return javaHome;
+#endif
 
                 if (Directory.Exists(Environment.GetEnvironmentVariable("JAVA_HOME")))
                     return Environment.GetEnvironmentVariable("JAVA_HOME");
@@ -159,6 +163,7 @@ namespace Antlr4.Build.Tasks
             }
         }
 
+#if !NETSTANDARD
         private static bool TryGetJavaHome(RegistryView registryView, string vendor, string installation, out string javaHome)
         {
             javaHome = null;
@@ -186,6 +191,7 @@ namespace Antlr4.Build.Tasks
                 }
             }
         }
+#endif
 #else
         private string JavaHome
         {
@@ -326,7 +332,7 @@ namespace Antlr4.Build.Tasks
                 process.Start();
                 process.BeginErrorReadLine();
                 process.BeginOutputReadLine();
-                process.StandardInput.Close();
+                process.StandardInput.Dispose();
                 process.WaitForExit();
 
                 return process.ExitCode == 0;
