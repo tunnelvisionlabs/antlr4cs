@@ -57,10 +57,6 @@
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net45\$Configuration$\Antlr4.Runtime.pdb" target="lib\netstandard1.1"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net45\$Configuration$\Antlr4.Runtime.xml" target="lib\netstandard1.1"/>
 
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\netcore45\$Configuration$\Antlr4.Runtime.dll" target="lib\netcore45"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\netcore45\$Configuration$\Antlr4.Runtime.pdb" target="lib\netcore45"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\netcore45\$Configuration$\Antlr4.Runtime.xml" target="lib\netcore45"/>
-
     <!-- Source Code -->
 
     <file exclude="..\runtime\CSharp\Antlr4.Runtime\obj\**\*.cs" src="..\runtime\CSharp\Antlr4.Runtime\**\*.cs" target="src"/>
