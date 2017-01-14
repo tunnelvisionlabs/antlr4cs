@@ -7,7 +7,9 @@ namespace Antlr4.Build.Tasks
     using System.Diagnostics;
     using System.Text.RegularExpressions;
 
+#if !NETSTANDARD
     [Serializable]
+#endif
     internal struct BuildMessage
     {
         private static readonly Regex BuildMessageFormat = new Regex(@"^\s*(?<SEVERITY>[a-z]+)\((?<CODE>[0-9]+)\):\s*((?<FILE>.*):(?<LINE>[0-9]+):(?<COLUMN>[0-9]+):)?\s*(?:syntax error:\s*)?(?<MESSAGE>.*)$", RegexOptions.Compiled);
