@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Antlr4.Runtime.Sharpen;
 
-namespace Antlr4.Runtime.Misc
+namespace Antlr4.Misc
 {
     /// <summary>A HashMap that remembers the order that the elements were added.</summary>
     /// <remarks>
@@ -14,11 +14,8 @@ namespace Antlr4.Runtime.Misc
     /// I need the replace/set-element-i functionality so I'm subclassing
     /// LinkedHashSet.
     /// </remarks>
-    [System.Serializable]
     public class OrderedHashSet<T> : LinkedHashSet<T>
     {
-        private const long serialVersionUID = 5281944403755906761L;
-
         /// <summary>Track the elements as they are added to the set</summary>
         protected internal List<T> elements = new List<T>();
 
@@ -34,7 +31,7 @@ namespace Antlr4.Runtime.Misc
         public virtual T Set(int i, T value)
         {
             T oldElement = elements[i];
-            elements.Set(i, value);
+            elements[i] = value;
             // update list
             base.Remove(oldElement);
             // now update the set: remove/add
@@ -44,7 +41,8 @@ namespace Antlr4.Runtime.Misc
 
         public virtual bool Remove(int i)
         {
-            T o = elements.RemoveAt(i);
+            T o = elements[i];
+            elements.RemoveAt(i);
             return base.Remove(o);
         }
 
@@ -68,7 +66,7 @@ namespace Antlr4.Runtime.Misc
             return result;
         }
 
-        public override bool Remove(object o)
+        public override bool Remove(T o)
         {
             throw new NotSupportedException();
         }
@@ -112,19 +110,6 @@ namespace Antlr4.Runtime.Misc
             {
                 return elements;
             }
-        }
-
-        public override object Clone()
-        {
-            OrderedHashSet<T> dup = (OrderedHashSet<T>)base.Clone();
-            // safe (result of clone)
-            dup.elements = new List<T>(this.elements);
-            return dup;
-        }
-
-        public override object[] ToArray()
-        {
-            return Sharpen.Collections.ToArray(elements);
         }
 
         public override string ToString()

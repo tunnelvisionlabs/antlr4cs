@@ -1,0 +1,100 @@
+// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+tree grammar BlockSetTransformer;
+options {
+	language     = CSharp3;
+	tokenVocab   = ANTLRParser;
+	ASTLabelType = GrammarAST;
+	output		 = AST;
+	filter		 = true;
+}
+
+@namespace{Antlr4.Parse}
+
+@header {
+//import org.antlr.v4.misc.Utils;
+using Antlr4.Misc;
+using Antlr4.Tool;
+using Antlr4.Tool.Ast;
+//import org.antlr.v4.runtime.misc.IntervalSet;
+}
+
+@members {
+public string currentRuleName;
+public GrammarAST currentAlt;
+public Grammar g;
+public BlockSetTransformer(ITreeNodeStream input, Grammar g)
+	: this(input, new RecognizerSharedState())
+{
+	this.g = g;
+}
+}
+
+topdown
+    :	^(RULE (id=TOKEN_REF|id=RULE_REF) {currentRuleName=$id.text;} .+)
+    |	setAlt
+    |	ebnfBlockSet
+    |	blockSet
+	;
+
+setAlt
+	:	{this.InContext("RULE BLOCK")}?
+		ALT {currentAlt = $start;}
+	;
+
+// (BLOCK (ALT (+ (BLOCK (ALT INT) (ALT ID)))))
+ebnfBlockSet
+@after {
+	GrammarTransformPipeline.SetGrammarPtr(g, $tree);
+}
+	:	^(ebnfSuffix blockSet) -> ^(ebnfSuffix ^(BLOCK<node=BlockAST> ^(ALT<node=AltAST> blockSet)))
+	;
+
+ebnfSuffix
+@after {$tree = (GrammarAST)adaptor.DupNode($start);}
+	:	OPTIONAL
+  	|	CLOSURE
+   	|	POSITIVE_CLOSURE
+	;
+
+blockSet
+@init {
+bool inLexer = Grammar.IsTokenName(currentRuleName);
+}
+@after {
+	GrammarTransformPipeline.SetGrammarPtr(g, $tree);
+}
+	:	{this.InContext("RULE")}? // top-level: rule block and > 1 alt
+		^(BLOCK ^(alt=ALT elementOptions? {((AltAST)$alt).altLabel==null}? setElement[inLexer]) ( ^(ALT elementOptions? setElement[inLexer]) )+)
+		-> ^(BLOCK<node=BlockAST>[$BLOCK.Token] ^(ALT<node=AltAST>[$BLOCK.Token,"ALT"] ^(SET[$BLOCK.Token, "SET"] setElement+)))
+	|	{!this.InContext("RULE")}? // if not rule block and > 1 alt
+		^(BLOCK ^(ALT elementOptions? setElement[inLexer]) ( ^(ALT elementOptions? setElement[inLexer]) )+)
+		-> ^(SET[$BLOCK.Token, "SET"] setElement+)
+	;
+
+setElement[bool inLexer]
+@after {
+	GrammarTransformPipeline.SetGrammarPtr(g, $tree);
+}
+	:	(	^(a=STRING_LITERAL elementOptions) {!inLexer || CharSupport.GetCharValueFromGrammarCharLiteral($a.Text)!=-1}?
+		|	  a=STRING_LITERAL {!inLexer || CharSupport.GetCharValueFromGrammarCharLiteral($a.Text)!=-1}?
+		|	{!inLexer}?=> ^(TOKEN_REF elementOptions)
+		|	{!inLexer}?=>   TOKEN_REF
+		|	{inLexer}?=>  ^(RANGE a=STRING_LITERAL b=STRING_LITERAL)
+			{CharSupport.GetCharValueFromGrammarCharLiteral($a.Text)!=-1 &&
+			 CharSupport.GetCharValueFromGrammarCharLiteral($b.Text)!=-1}?
+		)
+	;
+
+elementOptions
+	:	^(ELEMENT_OPTIONS elementOption*)
+	;
+
+elementOption
+	:	ID
+	|	^(ASSIGN id=ID v=ID)
+	|	^(ASSIGN ID v=STRING_LITERAL)
+	|	^(ASSIGN ID v=ACTION)
+	|	^(ASSIGN ID v=INT)
+	;

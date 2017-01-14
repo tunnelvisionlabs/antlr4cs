@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Antlr3.3.5.1\build\Antlr3.props" Condition="Exists('..\packages\Antlr3.3.5.1\build\Antlr3.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CC2C302F-259E-4D33-9226-DC58A08033A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Antlr4</RootNamespace>
+    <AssemblyName>Antlr4</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseIntermediateOutputPath>obj\net45\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\net45\Debug\</OutputPath>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\net45\Release\</OutputPath>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>1591;1573</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' == 'Final'">..\..\..\build\keys\Antlr4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' != 'Final'">..\..\..\build\keys\Antlr4.dev.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Antlr4.StringTemplate, Version=4.0.7.0, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\StringTemplate4.4.0.8\lib\net35-client\Antlr4.StringTemplate.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Analysis\AnalysisPipeline.cs" />
+    <Compile Include="Analysis\LeftFactoringRuleTransformer.cs" />
+    <Compile Include="Analysis\LeftRecursionDetector.cs" />
+    <Compile Include="Analysis\LeftRecursiveRuleAltInfo.cs" />
+    <Compile Include="Analysis\LeftRecursiveRuleAnalyzer.cs" />
+    <Compile Include="Analysis\LeftRecursiveRuleTransformer.cs" />
+    <Compile Include="AntlrTool.cs" />
+    <Compile Include="Automata\ATNFactory.cs" />
+    <Compile Include="Automata\ATNOptimizer.cs" />
+    <Compile Include="Automata\ATNPrinter.cs" />
+    <Compile Include="Automata\ATNVisitor.cs" />
+    <Compile Include="Automata\LexerATNFactory.cs" />
+    <Compile Include="Automata\ParserATNFactory.cs" />
+    <Compile Include="Automata\TailEpsilonRemover.cs" />
+    <Compile Include="Codegen\ActionTranslator.cs" />
+    <Compile Include="Codegen\BlankOutputModelFactory.cs" />
+    <Compile Include="Codegen\CodeGenerator.cs" />
+    <Compile Include="Codegen\CodeGeneratorExtension.cs" />
+    <Compile Include="Codegen\CodeGenPipeline.cs" />
+    <Compile Include="Codegen\DefaultOutputModelFactory.cs" />
+    <Compile Include="Codegen\LexerFactory.cs" />
+    <Compile Include="Codegen\Model\Action.cs" />
+    <Compile Include="Codegen\Model\AddToLabelList.cs" />
+    <Compile Include="Codegen\Model\AltBlock.cs" />
+    <Compile Include="Codegen\Model\ArgAction.cs" />
+    <Compile Include="Codegen\Model\BaseListenerFile.cs" />
+    <Compile Include="Codegen\Model\BaseVisitorFile.cs" />
+    <Compile Include="Codegen\Model\CaptureNextToken.cs" />
+    <Compile Include="Codegen\Model\CaptureNextTokenType.cs" />
+    <Compile Include="Codegen\Model\Choice.cs" />
+    <Compile Include="Codegen\Model\Chunk\ActionChunk.cs" />
+    <Compile Include="Codegen\Model\Chunk\ActionTemplate.cs" />
+    <Compile Include="Codegen\Model\Chunk\ActionText.cs" />
+    <Compile Include="Codegen\Model\Chunk\ArgRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\LabelRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\ListLabelRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\LocalRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\NonLocalAttrRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\QRetValueRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\RetValueRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\RulePropertyRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\RulePropertyRef_ctx.cs" />
+    <Compile Include="Codegen\Model\Chunk\RulePropertyRef_parser.cs" />
+    <Compile Include="Codegen\Model\Chunk\RulePropertyRef_start.cs" />
+    <Compile Include="Codegen\Model\Chunk\RulePropertyRef_stop.cs" />
+    <Compile Include="Codegen\Model\Chunk\RulePropertyRef_text.cs" />
+    <Compile Include="Codegen\Model\Chunk\SetAttr.cs" />
+    <Compile Include="Codegen\Model\Chunk\SetNonLocalAttr.cs" />
+    <Compile Include="Codegen\Model\Chunk\ThisRulePropertyRef_ctx.cs" />
+    <Compile Include="Codegen\Model\Chunk\ThisRulePropertyRef_parser.cs" />
+    <Compile Include="Codegen\Model\Chunk\ThisRulePropertyRef_start.cs" />
+    <Compile Include="Codegen\Model\Chunk\ThisRulePropertyRef_stop.cs" />
+    <Compile Include="Codegen\Model\Chunk\ThisRulePropertyRef_text.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_channel.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_index.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_int.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_line.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_pos.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_text.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenPropertyRef_type.cs" />
+    <Compile Include="Codegen\Model\Chunk\TokenRef.cs" />
+    <Compile Include="Codegen\Model\CodeBlockForAlt.cs" />
+    <Compile Include="Codegen\Model\CodeBlockForOuterMostAlt.cs" />
+    <Compile Include="Codegen\Model\dbg.cs" />
+    <Compile Include="Codegen\Model\Decl\AltLabelStructDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\AttributeDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\CodeBlock.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextRuleGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextRuleListGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextRuleListIndexedGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextTokenGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextTokenListGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\ContextTokenListIndexedGetterDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\Decl.cs" />
+    <Compile Include="Codegen\Model\Decl\ElementListDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\RuleContextDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\RuleContextListDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\StructDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\TokenDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\TokenListDecl.cs" />
+    <Compile Include="Codegen\Model\Decl\TokenTypeDecl.cs" />
+    <Compile Include="Codegen\Model\DispatchMethod.cs" />
+    <Compile Include="Codegen\Model\ElementFrequenciesVisitor.cs" />
+    <Compile Include="Codegen\Model\ExceptionClause.cs" />
+    <Compile Include="Codegen\Model\InvokeRule.cs" />
+    <Compile Include="Codegen\Model\LabeledOp.cs" />
+    <Compile Include="Codegen\Model\LeftFactoredRuleFunction.cs" />
+    <Compile Include="Codegen\Model\LeftRecursiveRuleFunction.cs" />
+    <Compile Include="Codegen\Model\LeftUnfactoredRuleFunction.cs" />
+    <Compile Include="Codegen\Model\Lexer.cs" />
+    <Compile Include="Codegen\Model\LexerFile.cs" />
+    <Compile Include="Codegen\Model\ListenerDispatchMethod.cs" />
+    <Compile Include="Codegen\Model\ListenerFile.cs" />
+    <Compile Include="Codegen\Model\LL1AltBlock.cs" />
+    <Compile Include="Codegen\Model\LL1Choice.cs" />
+    <Compile Include="Codegen\Model\LL1Loop.cs" />
+    <Compile Include="Codegen\Model\LL1OptionalBlock.cs" />
+    <Compile Include="Codegen\Model\LL1OptionalBlockSingleAlt.cs" />
+    <Compile Include="Codegen\Model\LL1PlusBlockSingleAlt.cs" />
+    <Compile Include="Codegen\Model\LL1StarBlockSingleAlt.cs" />
+    <Compile Include="Codegen\Model\Loop.cs" />
+    <Compile Include="Codegen\Model\MatchNotSet.cs" />
+    <Compile Include="Codegen\Model\MatchSet.cs" />
+    <Compile Include="Codegen\Model\MatchToken.cs" />
+    <Compile Include="Codegen\Model\ModelElement.cs" />
+    <Compile Include="Codegen\Model\OptionalBlock.cs" />
+    <Compile Include="Codegen\Model\OutputFile.cs" />
+    <Compile Include="Codegen\Model\OutputModelObject.cs" />
+    <Compile Include="Codegen\Model\Parser.cs" />
+    <Compile Include="Codegen\Model\ParserFile.cs" />
+    <Compile Include="Codegen\Model\PlusBlock.cs" />
+    <Compile Include="Codegen\Model\Recognizer.cs" />
+    <Compile Include="Codegen\Model\RuleActionFunction.cs" />
+    <Compile Include="Codegen\Model\RuleElement.cs" />
+    <Compile Include="Codegen\Model\RuleFunction.cs" />
+    <Compile Include="Codegen\Model\RuleSempredFunction.cs" />
+    <Compile Include="Codegen\Model\SemPred.cs" />
+    <Compile Include="Codegen\Model\SerializedATN.cs" />
+    <Compile Include="Codegen\Model\SrcOp.cs" />
+    <Compile Include="Codegen\Model\StarBlock.cs" />
+    <Compile Include="Codegen\Model\Sync.cs" />
+    <Compile Include="Codegen\Model\TestSetInline.cs" />
+    <Compile Include="Codegen\Model\ThrowEarlyExitException.cs" />
+    <Compile Include="Codegen\Model\ThrowNoViableAlt.cs" />
+    <Compile Include="Codegen\Model\ThrowRecognitionException.cs" />
+    <Compile Include="Codegen\Model\VisitorDispatchMethod.cs" />
+    <Compile Include="Codegen\Model\VisitorFile.cs" />
+    <Compile Include="Codegen\Model\Wildcard.cs" />
+    <Compile Include="Codegen\OutputModelController.cs" />
+    <Compile Include="Codegen\OutputModelFactory.cs" />
+    <Compile Include="Codegen\OutputModelWalker.cs" />
+    <Compile Include="Codegen\ParserFactory.cs" />
+    <Compile Include="Codegen\Target.cs" />
+    <Compile Include="Codegen\Target\CSharpTarget.cs" />
+    <Compile Include="Codegen\Target\CSharp_v2_0Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v3_0Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v3_5Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v4_0Target.cs" />
+    <Compile Include="Codegen\Target\CSharp_v4_5Target.cs" />
+    <Compile Include="Codegen\Target\JavaTarget.cs" />
+    <Compile Include="Misc\CharSupport.cs" />
+    <Compile Include="Misc\FrequencySet`1.cs" />
+    <Compile Include="Misc\Graph`1.cs" />
+    <Compile Include="Misc\LinkedHashMap`2.cs" />
+    <Compile Include="Misc\LinkedHashSet`1.cs" />
+    <Compile Include="Misc\LogManager.cs" />
+    <Compile Include="Misc\OrderedHashMap`2.cs" />
+    <Compile Include="Misc\OrderedHashSet`1.cs" />
+    <Compile Include="Misc\TreeParserExtensions.cs" />
+    <Compile Include="Misc\Utils.cs" />
+    <Compile Include="Parse\ActionSplitterListener.cs" />
+    <Compile Include="Parse\GrammarASTAdaptor.cs" />
+    <Compile Include="Parse\GrammarToken.cs" />
+    <Compile Include="Parse\ResyncToEndOfRuleBlock.cs" />
+    <Compile Include="Parse\ScopeParser.cs" />
+    <Compile Include="Parse\TokenVocabParser.cs" />
+    <Compile Include="Parse\ToolANTLRLexer.cs" />
+    <Compile Include="Parse\ToolANTLRParser.cs" />
+    <Compile Include="Parse\v3TreeGrammarException.cs" />
+    <Compile Include="Parse\v4ParserException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Semantics\ActionSniffer.cs" />
+    <Compile Include="Semantics\AttributeChecks.cs" />
+    <Compile Include="Semantics\BasicSemanticChecks.cs" />
+    <Compile Include="Semantics\BlankActionSplitterListener.cs" />
+    <Compile Include="Semantics\RuleCollector.cs" />
+    <Compile Include="Semantics\SemanticPipeline.cs" />
+    <Compile Include="Semantics\SymbolChecks.cs" />
+    <Compile Include="Semantics\SymbolCollector.cs" />
+    <Compile Include="Semantics\UseDefAnalyzer.cs" />
+    <Compile Include="Tool\Alternative.cs" />
+    <Compile Include="Tool\ANTLRMessage.cs" />
+    <Compile Include="Tool\ANTLRToolListener.cs" />
+    <Compile Include="Tool\Ast\ActionAST.cs" />
+    <Compile Include="Tool\Ast\AltAST.cs" />
+    <Compile Include="Tool\Ast\BlockAST.cs" />
+    <Compile Include="Tool\Ast\GrammarAST.cs" />
+    <Compile Include="Tool\Ast\GrammarASTErrorNode.cs" />
+    <Compile Include="Tool\Ast\GrammarASTVisitor.cs" />
+    <Compile Include="Tool\Ast\GrammarASTWithOptions.cs" />
+    <Compile Include="Tool\Ast\GrammarRootAST.cs" />
+    <Compile Include="Tool\Ast\NotAST.cs" />
+    <Compile Include="Tool\Ast\OptionalBlockAST.cs" />
+    <Compile Include="Tool\Ast\PlusBlockAST.cs" />
+    <Compile Include="Tool\Ast\PredAST.cs" />
+    <Compile Include="Tool\Ast\QuantifierAST.cs" />
+    <Compile Include="Tool\Ast\RangeAST.cs" />
+    <Compile Include="Tool\Ast\RuleAST.cs" />
+    <Compile Include="Tool\Ast\RuleElementAST.cs" />
+    <Compile Include="Tool\Ast\RuleRefAST.cs" />
+    <Compile Include="Tool\Ast\SetAST.cs" />
+    <Compile Include="Tool\Ast\StarBlockAST.cs" />
+    <Compile Include="Tool\Ast\TerminalAST.cs" />
+    <Compile Include="Tool\Attribute.cs" />
+    <Compile Include="Tool\AttributeDict.cs" />
+    <Compile Include="Tool\AttributeResolver.cs" />
+    <Compile Include="Tool\BuildDependencyGenerator.cs" />
+    <Compile Include="Tool\DefaultToolListener.cs" />
+    <Compile Include="Tool\DOTGenerator.cs" />
+    <Compile Include="Tool\ErrorManager.cs" />
+    <Compile Include="Tool\ErrorSeverity.cs" />
+    <Compile Include="Tool\ErrorType.cs" />
+    <Compile Include="Tool\Grammar.cs" />
+    <Compile Include="Tool\GrammarInterpreterRuleContext.cs" />
+    <Compile Include="Tool\GrammarParserInterpreter.cs" />
+    <Compile Include="Tool\GrammarSemanticsMessage.cs" />
+    <Compile Include="Tool\GrammarSyntaxMessage.cs" />
+    <Compile Include="Tool\GrammarTransformPipeline.cs" />
+    <Compile Include="Tool\LabelElementPair.cs" />
+    <Compile Include="Tool\LabelType.cs" />
+    <Compile Include="Tool\LeftRecursionCyclesMessage.cs" />
+    <Compile Include="Tool\LeftRecursiveRule.cs" />
+    <Compile Include="Tool\LexerGrammar.cs" />
+    <Compile Include="Tool\Rule.cs" />
+    <Compile Include="Tool\ToolMessage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\build\keys\Antlr4.dev.snk">
+      <Link>Antlr4.dev.snk</Link>
+    </None>
+    <None Include="..\..\..\build\keys\Antlr4.snk">
+      <Link>Antlr4.snk</Link>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\codegen\Java\Java.stg">
+      <Link>Tool\Templates\Codegen\Java\Java.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\depend.stg">
+      <Link>Tool\Templates\depend.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\dot\graphs.stg">
+      <Link>Tool\Templates\Dot\graphs.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\LeftRecursiveRules.stg">
+      <Link>Tool\Templates\LeftRecursiveRules.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\messages\formats\antlr.stg">
+      <Link>Tool\Templates\Messages\Formats\antlr.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\messages\formats\gnu.stg">
+      <Link>Tool\Templates\Messages\Formats\gnu.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\reference\antlr4\tool\resources\org\antlr\v4\tool\templates\messages\formats\vs2005.stg">
+      <Link>Tool\Templates\Messages\Formats\vs2005.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v2_0.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v2_0.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v3_0.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v3_0.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v3_5.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v3_5.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v4_0.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v4_0.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\tool\resources\org\antlr\v4\tool\templates\codegen\CSharp\CSharp_v4_5.stg">
+      <Link>Tool\Templates\Codegen\CSharp\CSharp_v4_5.stg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.Antlr4.Tool.net45.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Antlr3 Include="Codegen\SourceGenTriggers.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Codegen</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ActionSplitter.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ANTLRLexer.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ANTLRParser.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\ATNBuilder.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\BlockSetTransformer.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\GrammarTreeVisitor.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+    <Antlr3 Include="Parse\LeftRecursiveRuleWalker.g3">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
+    </Antlr3>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.net45.csproj">
+      <Project>{e1d192de-5347-48c4-a9f4-a8cba2af3869}</Project>
+      <Name>Antlr4.Runtime.net45</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Antlr3.3.5.1\build\Antlr3.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr3.3.5.1\build\Antlr3.props'))" />
+    <Error Condition="!Exists('..\packages\Antlr3.3.5.1\build\Antlr3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr3.3.5.1\build\Antlr3.targets'))" />
+  </Target>
+  <Import Project="..\packages\Antlr3.3.5.1\build\Antlr3.targets" Condition="Exists('..\packages\Antlr3.3.5.1\build\Antlr3.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

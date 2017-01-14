@@ -1,0 +1,173 @@
+// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+tree grammar SourceGenTriggers;
+options {
+	language     = CSharp3;
+	tokenVocab   = ANTLRParser;
+	ASTLabelType = GrammarAST;
+}
+
+@namespace{Antlr4.Codegen}
+
+@header {
+using System.Linq;
+using Antlr4.Codegen.Model;
+using Antlr4.Codegen.Model.Decl;
+using Antlr4.Misc;
+using Antlr4.Tool;
+using Antlr4.Tool.Ast;
+}
+
+@members {
+	public OutputModelController controller;
+	public bool hasLookaheadBlock;
+
+	public SourceGenTriggers(ITreeNodeStream input, OutputModelController controller)
+		: this(input)
+	{
+		this.controller = controller;
+	}
+}
+
+dummy : block[null, null] ;
+
+public
+block[GrammarAST label, GrammarAST ebnfRoot] returns [IList<SrcOp> omos]
+    :	^(	blk=BLOCK (^(OPTIONS .+))?
+			{IList<CodeBlockForAlt> alts = new List<CodeBlockForAlt>();}
+    		( alternative {alts.Add($alternative.altCodeBlock);} )+
+    	)
+    	{
+    	if ( alts.Count==1 && ebnfRoot==null) return alts.Cast<SrcOp>().ToArray();
+    	if ( ebnfRoot==null ) {
+    	    $omos = DefaultOutputModelFactory.List(controller.GetChoiceBlock((BlockAST)$blk, alts, $label));
+    	}
+    	else {
+            Choice choice = controller.GetEBNFBlock($ebnfRoot, alts);
+            hasLookaheadBlock |= choice is PlusBlock || choice is StarBlock;
+    	    $omos = DefaultOutputModelFactory.List(choice);
+    	}
+    	}
+    ;
+
+alternative returns [CodeBlockForAlt altCodeBlock, IList<SrcOp> ops]
+@init {
+   	bool outerMost = this.InContext("RULE BLOCK");
+}
+@after {
+   	controller.FinishAlternative($altCodeBlock, $ops, outerMost);
+}
+    :	a=alt[outerMost] {$altCodeBlock=$a.altCodeBlock; $ops=$a.ops;}
+	;
+
+alt[bool outerMost] returns [CodeBlockForAlt altCodeBlock, IList<SrcOp> ops]
+@init {
+	// set alt if outer ALT only (the only ones with alt field set to Alternative object)
+	AltAST altAST = (AltAST)retval.Start;
+	if ( outerMost ) controller.SetCurrentOuterMostAlt(altAST.alt);
+}
+	:	{
+		IList<SrcOp> elems = new List<SrcOp>();
+		// TODO: shouldn't we pass $start to controller.alternative()?
+		$altCodeBlock = controller.Alternative(controller.GetCurrentOuterMostAlt(), outerMost);
+		$altCodeBlock.ops = $ops = elems;
+		controller.SetCurrentBlock($altCodeBlock);
+		}
+		^( ALT elementOptions? ( element {if ($element.omos!=null) foreach (var elem in $element.omos) elems.Add(elem);} )+ )
+
+	|	^(ALT elementOptions? EPSILON)
+        {$altCodeBlock = controller.Epsilon(controller.GetCurrentOuterMostAlt(), outerMost);}
+    ;
+
+element returns [IList<SrcOp> omos]
+	:	labeledElement					{$omos = $labeledElement.omos;}
+	|	atom[null,false]			{$omos = $atom.omos;}
+	|	subrule							{$omos = $subrule.omos;}
+	|   ACTION							{$omos = controller.Action((ActionAST)$ACTION);}
+	|   SEMPRED							{$omos = controller.Sempred((ActionAST)$SEMPRED);}
+	|	^(ACTION elementOptions)		{$omos = controller.Action((ActionAST)$ACTION);}
+	|   ^(SEMPRED elementOptions)		{$omos = controller.Sempred((ActionAST)$SEMPRED);}
+	;
+
+labeledElement returns [IList<SrcOp> omos]
+	:	^(ASSIGN ID atom[$ID,false] )			{$omos = $atom.omos;}
+	|	^(PLUS_ASSIGN ID atom[$ID,false])		{$omos = $atom.omos;}
+	|	^(ASSIGN ID block[$ID,null] )			{$omos = $block.omos;}
+	|	^(PLUS_ASSIGN ID block[$ID,null])		{$omos = $block.omos;}
+	;
+
+subrule returns [IList<SrcOp> omos]
+	:	^(OPTIONAL b=block[null,$OPTIONAL])
+		{
+		$omos = $block.omos;
+		}
+	|	(	^(op=CLOSURE b=block[null,null])
+		|	^(op=POSITIVE_CLOSURE b=block[null,null])
+		)
+		{
+		IList<CodeBlockForAlt> alts = new List<CodeBlockForAlt>();
+		SrcOp blk = $b.omos[0];
+		CodeBlockForAlt alt = new CodeBlockForAlt(controller.@delegate);
+		alt.AddOp(blk);
+		alts.Add(alt);
+		SrcOp loop = controller.GetEBNFBlock($op, alts); // "star it"
+        hasLookaheadBlock |= loop is PlusBlock || loop is StarBlock;
+   	    $omos = DefaultOutputModelFactory.List(loop);
+		}
+	| 	block[null, null]					{$omos = $block.omos;}
+    ;
+
+blockSet[GrammarAST label, bool invert] returns [IList<SrcOp> omos]
+    :	^(SET atom[label,invert]+) {$omos = controller.Set($SET, $label, invert);}
+    ;
+
+/*
+setElement
+	:	STRING_LITERAL
+	|	TOKEN_REF
+	|	^(RANGE STRING_LITERAL STRING_LITERAL)
+	;
+*/
+
+// TODO: combine ROOT/BANG into one then just make new op ref'ing return value of atom/terminal...
+// TODO: same for NOT
+atom[GrammarAST label, bool invert] returns [IList<SrcOp> omos]
+	:	^(NOT a=atom[$label, true])		{$omos = $a.omos;}
+	|	range[label]							{$omos = $range.omos;}
+	|	^(DOT ID terminal[$label])
+	|	^(DOT ID ruleref[$label])
+    |	^(WILDCARD .)							{$omos = controller.Wildcard($WILDCARD, $label);}
+    |	WILDCARD								{$omos = controller.Wildcard($WILDCARD, $label);}
+    |   terminal[label]					{$omos = $terminal.omos;}
+    |   ruleref[label]					{$omos = $ruleref.omos;}
+	|	blockSet[$label, invert]		{$omos = $blockSet.omos;}
+	;
+
+ruleref[GrammarAST label] returns [IList<SrcOp> omos]
+    :	^(RULE_REF ARG_ACTION? elementOptions?)		{$omos = controller.RuleRef($RULE_REF, $label, $ARG_ACTION);}
+    ;
+
+range[GrammarAST label] returns [IList<SrcOp> omos]
+    :	^(RANGE a=STRING_LITERAL b=STRING_LITERAL)
+    ;
+
+terminal[GrammarAST label] returns [IList<SrcOp> omos]
+    :  ^(STRING_LITERAL .)			{$omos = controller.StringRef($STRING_LITERAL, $label);}
+    |	STRING_LITERAL				{$omos = controller.StringRef($STRING_LITERAL, $label);}
+    |	^(TOKEN_REF ARG_ACTION .)	{$omos = controller.TokenRef($TOKEN_REF, $label, $ARG_ACTION);}
+    |	^(TOKEN_REF .)				{$omos = controller.TokenRef($TOKEN_REF, $label, null);}
+    |	TOKEN_REF					{$omos = controller.TokenRef($TOKEN_REF, $label, null);}
+    ;
+
+elementOptions
+    :	^(ELEMENT_OPTIONS elementOption+)
+    ;
+
+elementOption
+    :	ID
+    |   ^(ASSIGN ID ID)
+    |   ^(ASSIGN ID STRING_LITERAL)
+    |   ^(ASSIGN ID ACTION)
+    |   ^(ASSIGN ID INT)
+    ;

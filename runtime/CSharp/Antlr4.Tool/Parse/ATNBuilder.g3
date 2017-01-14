@@ -1,0 +1,170 @@
+// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+tree grammar ATNBuilder;
+options {
+	language     = CSharp3;
+	tokenVocab   = ANTLRParser;
+	ASTLabelType = GrammarAST;
+//	filter 	     = true;
+}
+
+@namespace{Antlr4.Parse}
+
+// Include the copyright in this source and also the generated source
+@header {
+// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+//import org.antlr.v4.tool.*;
+//import org.antlr.v4.tool.ast.*;
+using Antlr4.Tool.Ast;
+using ATNFactory = Antlr4.Automata.ATNFactory;
+using Handle = Antlr4.Automata.Handle;
+}
+
+@members {
+	ATNFactory factory;
+	public ATNBuilder(ITreeNodeStream input, ATNFactory factory)
+		: this(input)
+	{
+		this.factory = factory;
+	}
+}
+
+dummy : block[null] ; // avoid error about no start rule
+
+public
+ruleBlock[GrammarAST ebnfRoot] returns [Handle p]
+@init {
+    IList<Handle> alts = new List<Handle>();
+    int alt = 1;
+    factory.SetCurrentOuterAlt(alt);
+}
+    :	^(BLOCK
+            (^(OPTIONS .*))?
+            (   a=alternative
+                {alts.Add($a.p); factory.SetCurrentOuterAlt(++alt);}
+            )+
+        )
+    	{$p = factory.Block((BlockAST)$BLOCK, ebnfRoot, alts);}
+    ;
+
+block[GrammarAST ebnfRoot] returns [Handle p]
+@init {IList<Handle> alts = new List<Handle>();}
+    :	^(BLOCK (^(OPTIONS .*))? (a=alternative {alts.Add($a.p);})+)
+    	{$p = factory.Block((BlockAST)$BLOCK, ebnfRoot, alts);}
+    ;
+
+alternative returns [Handle p]
+@init {IList<Handle> els = new List<Handle>();}
+    :	^(LEXER_ALT_ACTION a=alternative lexerCommands)
+        {$p = factory.LexerAltCommands($a.p,$lexerCommands.p);}
+    |	^(ALT elementOptions? EPSILON)							{$p = factory.Epsilon($EPSILON);}
+    |   ^(ALT elementOptions? (e=element {els.Add($e.p);})+)	{$p = factory.Alt(els);}
+    ;
+
+lexerCommands returns [Handle p]
+@init {IList<Handle> cmds = new List<Handle>();}
+    :   (c=lexerCommand {if ($c.cmd != null) cmds.Add($c.cmd);})+
+        {
+        $p = factory.Alt(cmds);
+        }
+    ;
+
+lexerCommand returns [Handle cmd]
+	:	^(LEXER_ACTION_CALL ID lexerCommandExpr)
+        {$cmd = factory.LexerCallCommand($ID, $lexerCommandExpr.start);}
+	|	ID
+        {$cmd = factory.LexerCommand($ID);}
+	;
+
+lexerCommandExpr
+	:	ID
+	|	INT
+	;
+
+element returns [Handle p]
+	:	labeledElement				{$p = $labeledElement.p;}
+	|	atom						{$p = $atom.p;}
+	|	subrule						{$p = $subrule.p;}
+	|   ACTION						{$p = factory.Action((ActionAST)$ACTION);}
+	|   SEMPRED						{$p = factory.Sempred((PredAST)$SEMPRED);}
+	|   ^(ACTION .)					{$p = factory.Action((ActionAST)$ACTION);}
+	|   ^(SEMPRED .)				{$p = factory.Sempred((PredAST)$SEMPRED);}
+    |	^(NOT b=blockSet[true])		{$p = $b.p;}
+    |	LEXER_CHAR_SET					{$p = factory.CharSetLiteral($start);}
+	;
+
+astOperand returns [Handle p]
+	:	atom						{$p = $atom.p;}
+	|	^(NOT blockSet[true])		{$p = $blockSet.p;}
+	;
+
+labeledElement returns [Handle p]
+	:	^(ASSIGN ID element)	    {$p = factory.Label($element.p);}
+	|	^(PLUS_ASSIGN ID element)   {$p = factory.ListLabel($element.p);}
+	;
+
+subrule returns [Handle p]
+	:	^(OPTIONAL block[$start])			{$p = $block.p;}
+	|	^(CLOSURE block[$start])			{$p = $block.p;}
+	|	^(POSITIVE_CLOSURE block[$start])	{$p = $block.p;}
+	| 	block[null] 						{$p = $block.p;}
+    ;
+
+blockSet[bool invert] returns [Handle p]
+@init {IList<GrammarAST> alts = new List<GrammarAST>();}
+	:	^(SET (setElement {alts.Add($setElement.start);})+) {$p = factory.Set($start, alts, $invert);}
+	;
+
+/** Don't combine with atom otherwise it will build spurious ATN nodes */
+setElement
+	:	^(STRING_LITERAL .)
+	|	^(TOKEN_REF .)
+	|	STRING_LITERAL
+	|	TOKEN_REF
+	|	^(RANGE a=STRING_LITERAL b=STRING_LITERAL)
+    |   LEXER_CHAR_SET
+	;
+
+atom returns [Handle p]
+	:	range					{$p = $range.p;}
+	|	^(DOT ID terminal)		{$p = $terminal.p;}
+	|	^(DOT ID ruleref)		{$p = $ruleref.p;}
+    |	^(WILDCARD .)			{$p = factory.Wildcard($start);}
+    |	WILDCARD				{$p = factory.Wildcard($start);}
+    |	blockSet[false]			{$p = $blockSet.p;}
+    |   terminal				{$p = $terminal.p;}
+    |   ruleref					{$p = $ruleref.p;}
+    ;
+
+ruleref returns [Handle p]
+    :	^(RULE_REF ARG_ACTION? ^(ELEMENT_OPTIONS .*))		{$p = factory.RuleRef($RULE_REF);}
+    |	^(RULE_REF ARG_ACTION?)								{$p = factory.RuleRef($RULE_REF);}
+    |	RULE_REF											{$p = factory.RuleRef($RULE_REF);}
+    ;
+
+range returns [Handle p]
+    : ^(RANGE a=STRING_LITERAL b=STRING_LITERAL) {$p = factory.Range($a,$b);}
+    ;
+
+terminal returns [Handle p]
+    :  ^(STRING_LITERAL .)			{$p = factory.StringLiteral((TerminalAST)$start);}
+    |	STRING_LITERAL				{$p = factory.StringLiteral((TerminalAST)$start);}
+    |	^(TOKEN_REF ARG_ACTION .)	{$p = factory.TokenRef((TerminalAST)$start);}
+    |	^(TOKEN_REF .)				{$p = factory.TokenRef((TerminalAST)$start);}
+    |	TOKEN_REF					{$p = factory.TokenRef((TerminalAST)$start);}
+    ;
+
+elementOptions
+	:	^(ELEMENT_OPTIONS elementOption*)
+	;
+
+elementOption
+	:	ID
+	|	^(ASSIGN ID ID)
+	|	^(ASSIGN ID STRING_LITERAL)
+	|	^(ASSIGN ID ACTION)
+	|	^(ASSIGN ID INT)
+	;

@@ -1,0 +1,13 @@
+﻿{
+  "dependencies": {
+    "Antlr3": "3.5.1",
+    "Antlr3.Runtime": "3.5.1",
+    "StringTemplate4": "4.0.8",
+    "NETStandard.Library": "1.6.0"
+  },
+
+  "frameworks": {
+    "netstandard1.5": {
+    }
+  }
+}

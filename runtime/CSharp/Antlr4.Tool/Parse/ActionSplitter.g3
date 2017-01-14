@@ -1,0 +1,104 @@
+// Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
+// Licensed under the BSD License. See LICENSE.txt in the project root for license information.
+
+lexer grammar ActionSplitter;
+
+options {
+	language=CSharp3;
+	filter=true;
+}
+
+@namespace{Antlr4.Parse}
+
+@header {
+using Antlr4.Tool;
+using Antlr4.Tool.Ast;
+using StringBuilder = System.Text.StringBuilder;
+}
+
+@members {
+ActionSplitterListener @delegate;
+
+public ActionSplitter(ICharStream input, ActionSplitterListener @delegate)
+	: this(input, new RecognizerSharedState())
+{
+	this.@delegate = @delegate;
+}
+
+/** force filtering (and return tokens). triggers all above actions. */
+public virtual IList<IToken> GetActionTokens() {
+    IList<IToken> chunks = new List<IToken>();
+    IToken t = NextToken();
+    while ( t.Type != TokenTypes.EndOfFile ) {
+        chunks.Add(t);
+        t = NextToken();
+    }
+    return chunks;
+}
+
+private bool IsIDStartChar(int c) {
+	return c == '_' || char.IsLetter((char)c);
+}
+}
+
+// ignore comments right away
+
+COMMENT
+    :   '/*' ( options {greedy=false;} : . )* '*/' {@delegate.Text($text);}
+    ;
+
+LINE_COMMENT
+    : '//' ~('\n'|'\r')* '\r'? '\n' {@delegate.Text($text);}
+    ;
+
+SET_NONLOCAL_ATTR
+	:	'$' x=ID '::' y=ID WS? '=' expr=ATTR_VALUE_EXPR ';'
+		{
+		@delegate.SetNonLocalAttr($text, $x, $y, $expr);
+		}
+	;
+
+NONLOCAL_ATTR
+	:	'$' x=ID '::' y=ID {@delegate.NonLocalAttr($text, $x, $y);}
+	;
+
+QUALIFIED_ATTR
+	:	'$' x=ID '.' y=ID {input.LA(1)!='('}? {@delegate.QualifiedAttr($text, $x, $y);}
+	;
+
+SET_ATTR
+	:	'$' x=ID WS? '=' expr=ATTR_VALUE_EXPR ';'
+		{
+		@delegate.SetAttr($text, $x, $expr);
+		}
+	;
+
+ATTR
+	:	'$' x=ID {@delegate.Attr($text, $x);}
+	;
+
+// Anything else is just random text
+TEXT
+@init {StringBuilder buf = new StringBuilder();}
+@after {@delegate.Text(buf.ToString());}
+	:	(	c=~('\\'| '$') {buf.Append((char)$c);}
+		|	'\\$' {buf.Append('$');}
+		|	'\\' c=~('$') {buf.Append('\\').Append((char)$c);}
+		|	{!IsIDStartChar(input.LA(2))}? => '$' {buf.Append('$');}
+		)+
+	;
+
+fragment
+ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
+    ;
+
+/** Don't allow an = as first char to prevent $x == 3; kind of stuff. */
+fragment
+ATTR_VALUE_EXPR
+	:	~'=' (~';')*
+	;
+
+fragment
+WS	:	(' '|'\t'|'\n'|'\r')+
+	;
+
