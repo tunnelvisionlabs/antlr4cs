@@ -959,7 +959,9 @@ namespace Antlr4.Runtime
         {
             get
             {
+#pragma warning disable 618 // Type or member is obsolete
                 return new ProxyParserErrorListener(ErrorListeners);
+#pragma warning restore 618 // Type or member is obsolete
             }
         }
 

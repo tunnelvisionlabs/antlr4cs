@@ -311,6 +311,7 @@ namespace Antlr4.Runtime
         /// the original, any changes made to it will have no impact on the recognizer.
         /// </summary>
         [NotNull]
+        [Obsolete("Use AddErrorListener, RemoveErrorListener(s), or ErrorListenerDispatch as appropriate.")]
         public virtual IList<IAntlrErrorListener<Symbol>> ErrorListeners
         {
             get
@@ -323,7 +324,7 @@ namespace Antlr4.Runtime
         {
             get
             {
-                return new ProxyErrorListener<Symbol>(ErrorListeners);
+                return new ProxyErrorListener<Symbol>((IAntlrErrorListener<Symbol>[])_listeners.Clone());
             }
         }
 
