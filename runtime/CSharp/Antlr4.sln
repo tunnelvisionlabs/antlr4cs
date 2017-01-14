@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\..\Readme.md = ..\..\Readme.md
 		..\..\reference\sharpen-all-options.txt = ..\..\reference\sharpen-all-options.txt
 		..\..\reference\sharpen.md = ..\..\reference\sharpen.md
+		..\..\THIRD-PARTY-NOTICES.txt = ..\..\THIRD-PARTY-NOTICES.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.net45", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.net45.csproj", "{9D8C43DF-71F9-4CC9-83AD-A39FAEBCECA0}"
