@@ -24,5 +24,6 @@
   </metadata>
   <files>
     <file src="..\LICENSE.txt" target="tools"/>
+    <file src="..\THIRD-PARTY-NOTICES.txt" target="tools"/>
   </files>
 </package>
