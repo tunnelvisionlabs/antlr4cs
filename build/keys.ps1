@@ -10,7 +10,6 @@ If ($AntlrVersion.Contains('-')) {
 		'net35-client' = 'e9931a4108ef2354'
 		'net40-client' = 'e9931a4108ef2354'
 		'net45' = 'e9931a4108ef2354'
-		'netcore45' = 'e9931a4108ef2354'
 		'portable-net40' = 'e9931a4108ef2354'
 		'portable-net45' = 'e9931a4108ef2354'
 	}
@@ -25,7 +24,6 @@ If ($AntlrVersion.Contains('-')) {
 		'net35-client' = '09abb75b9ed49849'
 		'net40-client' = '09abb75b9ed49849'
 		'net45' = '09abb75b9ed49849'
-		'netcore45' = '09abb75b9ed49849'
 		'portable-net40' = '09abb75b9ed49849'
 		'portable-net45' = '09abb75b9ed49849'
 	}
