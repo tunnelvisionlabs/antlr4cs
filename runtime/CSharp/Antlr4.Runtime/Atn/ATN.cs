@@ -85,6 +85,14 @@ namespace Antlr4.Runtime.Atn
             this.maxTokenType = maxTokenType;
         }
 
+        /// <summary>
+        /// Clears the DFA cached for this ATN.
+        /// </summary>
+        /// <remarks>
+        /// <para>This method is not safe for concurrent use. Since recognizers by default share an <see cref="ATN"/>
+        /// instance, all parsing operations by all recognizers using this instance must be stopped before the DFA can
+        /// be safely cleared.</para>
+        /// </remarks>
         public void ClearDFA()
         {
             decisionToDFA = new DFA[decisionToState.Count];
