@@ -16,7 +16,7 @@ namespace Antlr4.Runtime
     public abstract class Recognizer<Symbol, ATNInterpreter> : IRecognizer
         where ATNInterpreter : ATNSimulator
     {
-        public const int Eof = -1;
+        public const int EOF = -1;
 
 #if NET40PLUS && !NETSTANDARD
         private static readonly ConditionalWeakTable<IVocabulary, IDictionary<string, int>> tokenTypeMapCache = new ConditionalWeakTable<IVocabulary, IDictionary<string, int>>();
