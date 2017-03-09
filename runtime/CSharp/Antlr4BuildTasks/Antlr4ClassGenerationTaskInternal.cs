@@ -291,19 +291,10 @@ namespace Antlr4.Build.Tasks
 
                 if (!string.IsNullOrEmpty(TargetLanguage))
                 {
-                    string framework = TargetFrameworkVersion;
-                    if (string.IsNullOrEmpty(framework))
-                        framework = "v2.0";
-                    else if (new Version(framework.Substring(1)) >= new Version(4, 5))
-                        framework = "v4.5";
-
-                    string language;
-                    if (TargetLanguage.Equals("CSharp", StringComparison.OrdinalIgnoreCase))
-                        language = TargetLanguage + '_' + framework.Replace('.', '_');
-                    else
-                        language = TargetLanguage;
-
-                    arguments.Add("-Dlanguage=" + language);
+                    // Since the C# target currently produces the same code for all target framework versions, we can
+                    // avoid bugs with support for newer frameworks by just passing CSharp as the language and allowing
+                    // the tool to use a default.
+                    arguments.Add("-Dlanguage=" + TargetLanguage);
                 }
 
                 if (!string.IsNullOrEmpty(TargetNamespace))
