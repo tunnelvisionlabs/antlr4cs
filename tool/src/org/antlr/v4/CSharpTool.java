@@ -57,7 +57,7 @@ public class CSharpTool extends Tool {
 			grammarOptions = new HashMap<String, String>();
 		}
 
-		if (!grammarOptions.containsKey("language")) {
+		if (!grammarOptions.containsKey("language") || grammarOptions.get("language").equals("CSharp")) {
 			grammarOptions.put("language", "CSharp_v4_5");
 		}
 	}
