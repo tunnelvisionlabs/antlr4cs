@@ -223,7 +223,19 @@ recommended), because the Framework Compatibility graph above includes a chain e
 
 ## Generated Code
 
-*TODO*
+During the build, generated code for a grammar is placed in the intermediate output directory. By default, this is
+**obj\Debug** for debug builds, and **obj\Release** for release builds. These generated files are managed during the
+build process:
+
+* The generated files for the current build configuration are automatically included during the compilation process
+* If the grammar is renamed or removed, old generated files will be deleted during the next build
+* The generated files are removed during a 'clean' operation
+
+The generated files are not intended to be included in source control, so there is no need to copy them to another
+location or manually include them in the project. Since each generated type is declared with the `partial` modifier,
+users wishing to extend the behavior of the generated code can do so by including a separate file in the project which
+has another definition for the `partial` type. When adding files to a project using the templates in the ANTLR Language
+Support extension, empty code files for this purpose are created and added to the project automatically.
 
 ## Extra Features in the C# Target
 
