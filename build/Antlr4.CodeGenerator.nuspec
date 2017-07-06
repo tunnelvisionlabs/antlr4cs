@@ -46,6 +46,10 @@
 
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.props" target="build\Antlr4.CodeGenerator.props"/>
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.targets" target="build\Antlr4.CodeGenerator.targets"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4BuildTasks.dll" target="build"/>
+
+    <!-- Build Tasks -->
+
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4BuildTasks.dll" target="tools\net40"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\netstandard\$Configuration$\Antlr4BuildTasks.dll" target="tools\netstandard"/>
   </files>
 </package>
