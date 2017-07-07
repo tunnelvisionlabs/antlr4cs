@@ -207,8 +207,16 @@ namespace Antlr4.Build.Tasks
             errorCode = Log.ExtractMessageCode(message.Message, out logMessage);
             if (string.IsNullOrEmpty(errorCode))
             {
-                errorCode = "AC1000";
-                logMessage = "Unknown build error: " + message.Message;
+                if (message.Message.StartsWith("Executing command:") && message.Severity == TraceLevel.Info)
+                {
+                    // This is a known informational message
+                    logMessage = message.Message;
+                }
+                else
+                {
+                    errorCode = "AC1000";
+                    logMessage = "Unknown build error: " + message.Message;
+                }
             }
 
             string subcategory = null;
