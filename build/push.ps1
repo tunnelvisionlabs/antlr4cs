@@ -1,5 +1,6 @@
 param (
-	[string]$Source = 'https://www.nuget.org/api/v2/package'
+	[string]$Source = 'https://www.nuget.org/',
+	[switch]$NoUpdate
 )
 
 . .\version.ps1
@@ -29,6 +30,10 @@ ForEach ($package in $packages) {
 }
 
 $nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
+If (-not $NoUpdate) {
+	&$nuget update -self
+}
+
 ForEach ($package in $packages) {
 	&$nuget 'push' ".\nuget\$package.$AntlrVersion.nupkg" -Source $Source
 }
