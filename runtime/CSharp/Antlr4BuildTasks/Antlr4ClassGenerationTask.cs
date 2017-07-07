@@ -207,7 +207,7 @@ namespace Antlr4.Build.Tasks
             errorCode = Log.ExtractMessageCode(message.Message, out logMessage);
             if (string.IsNullOrEmpty(errorCode))
             {
-                if (message.Message.StartsWith("Executing command:") && message.Severity == TraceLevel.Info)
+                if (message.Message.StartsWith("Executing command:", StringComparison.Ordinal) && message.Severity == TraceLevel.Info)
                 {
                     // This is a known informational message
                     logMessage = message.Message;
