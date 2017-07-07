@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tunnelvisionlabs</groupId>
     <artifactId>antlr4-csharp</artifactId>
-    <version>4.6.2-SNAPSHOT</version>
+    <version>4.6.2</version>
     <packaging>jar</packaging>
 
     <name>ANTLR 4 Target C#</name>
@@ -68,7 +68,7 @@
         <url>https://github.com/tunnelvisionlabs/antlr4cs/tree/master</url>
         <connection>scm:git:git://github.com/tunnelvisionlabs/antlr4cs.git</connection>
         <developerConnection>scm:git:git@github.com:tunnelvisionlabs/antlr4cs.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v4.6.2</tag>
     </scm>
 
     <dependencies>
