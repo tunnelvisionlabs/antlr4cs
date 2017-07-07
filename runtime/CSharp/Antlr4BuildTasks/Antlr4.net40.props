@@ -10,6 +10,6 @@
     <Antlr4BuildTaskPath Condition="'$(Antlr4NetStandard)' != 'True'">..\tools\net40</Antlr4BuildTaskPath>
     <Antlr4BuildTaskPath Condition="'$(Antlr4NetStandard)' == 'True'">..\tools\netstandard</Antlr4BuildTaskPath>
     <!-- Path to the ANTLR tool itself -->
-    <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.2-complete.jar</Antlr4ToolPath>
+    <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.3-SNAPSHOT-complete.jar</Antlr4ToolPath>
   </PropertyGroup>
 </Project>
