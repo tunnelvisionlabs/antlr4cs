@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp1.1;net45</TargetFrameworks>
+    <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Grammar.g4">
+      <CustomToolNamespace>DotnetValidation</CustomToolNamespace>
+      <Generator>MSBuild:Compile</Generator>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="@(Antlr4)" />
+  </ItemGroup>
+</Project>
