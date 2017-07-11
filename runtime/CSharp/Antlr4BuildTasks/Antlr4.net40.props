@@ -1,14 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Antlr4NetStandard Condition="'$(MSBuildToolsVersion)' == '2.0' OR
-                      '$(MSBuildToolsVersion)' == '3.5' OR
-                      '$(MSBuildToolsVersion)' == '4.0' OR
-                      '$(MSBuildToolsVersion)' == '12.0'">False</Antlr4NetStandard>
-    <Antlr4NetStandard Condition="'$(Antlr4NetStandard)' == ''">True</Antlr4NetStandard>
     <!-- Folder containing Antlr4BuildTasks.dll -->
-    <Antlr4BuildTaskPath Condition="'$(Antlr4NetStandard)' != 'True'">..\tools\net40</Antlr4BuildTaskPath>
-    <Antlr4BuildTaskPath Condition="'$(Antlr4NetStandard)' == 'True'">..\tools\netstandard</Antlr4BuildTaskPath>
+    <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' != 'Core'">..\tools\net40</Antlr4BuildTaskPath>
+    <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' == 'Core'">..\tools\netstandard</Antlr4BuildTaskPath>
     <!-- Path to the ANTLR tool itself -->
     <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.3-SNAPSHOT-complete.jar</Antlr4ToolPath>
   </PropertyGroup>
