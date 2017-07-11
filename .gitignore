@@ -18,8 +18,8 @@ TestResults/
 .vs/
 
 # ignore C# build directories
-[Dd]ebug/
-[Rr]elease/
+bin/
+obj/
 reference/.metadata/
 reference/reference.net/
 /runtime/CSharp/packages/
