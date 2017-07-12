@@ -22,9 +22,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <Antlr4DesignTimeBuild>false</Antlr4DesignTimeBuild>
+    <Antlr4DesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</Antlr4DesignTimeBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <Antlr4BuildTaskLocation Condition="'$(Antlr4BuildTaskPath)'==''">$(MSBuildBinPath)</Antlr4BuildTaskLocation>
     <Antlr4BuildTaskLocation Condition="'$(Antlr4BuildTaskPath)'!=''">$(Antlr4BuildTaskPath)</Antlr4BuildTaskLocation>
-    <Antlr4ToolLocation Condition="'$(Antlr4ToolPath)'==''">$(MSBuildBinPath)\Antlr4\antlr4-csharp-4.6.4-SNAPSHOT-complete.jar</Antlr4ToolLocation>
+    <Antlr4ToolLocation Condition="'$(Antlr4ToolPath)'==''">$(MSBuildBinPath)\Antlr4\antlr4-csharp-4.6.5-SNAPSHOT-complete.jar</Antlr4ToolLocation>
     <Antlr4ToolLocation Condition="'$(Antlr4ToolPath)'!=''">$(Antlr4ToolPath)</Antlr4ToolLocation>
 
     <Antlr4JavaVendor Condition="'$(Antlr4JavaVendor)'==''">JavaSoft</Antlr4JavaVendor>
@@ -88,7 +93,7 @@
 
   <Target Name="Antlr4DesignTimeGrammarCompilation">
     <!-- Only if we are not actually performing a compile i.e. we are in design mode -->
-    <CallTarget Condition="'$(BuildingProject)' != 'true'"
+    <CallTarget Condition="'$(Antlr4DesignTimeBuild)' == 'true'"
                 Targets="Antlr4Compile" />
   </Target>
 
@@ -103,10 +108,6 @@
       <Antlr4GeneratedCodeFiles Remove="@(Antlr4GeneratedCodeFiles)" />
     </ItemGroup>
 
-    <PropertyGroup>
-      <_IntellisenseOnlyCompile>false</_IntellisenseOnlyCompile>
-      <_IntellisenseOnlyCompile Condition="'$(BuildingProject)' != 'true'">true</_IntellisenseOnlyCompile>
-    </PropertyGroup>
     <Antlr4ClassGenerationTask
       ToolPath="$(Antlr4ToolLocation)"
       JavaVendor="$(Antlr4JavaVendor)"
@@ -119,7 +120,7 @@
       TargetFrameworkVersion="$(TargetFrameworkVersion)"
       TargetNamespace="%(Antlr4.CustomToolNamespace)"
       SourceCodeFiles="@(Antlr4 -> '%(FullPath)')"
-      ContinueOnError="$(_IntellisenseOnlyCompile)"
+      ContinueOnError="$(Antlr4DesignTimeBuild)"
       TokensFiles="@(Antlr4Tokens)"
       AbstractGrammarFiles="@(Antlr4AbstractGrammar)"
       LanguageSourceExtensions="$(DefaultLanguageSourceExtension)"
@@ -132,7 +133,7 @@
     </Antlr4ClassGenerationTask>
 
     <WriteLinesToFile
-      Condition="'$(_IntellisenseOnlyCompile)' != 'true'"
+      Condition="'$(Antlr4DesignTimeBuild)' != 'true'"
       File="$(IntermediateOutputPath)$(Antlr4GenCodeFileNames)"
       Lines="@(Antlr4GeneratedCodeFiles)"
       Overwrite="true"/>
