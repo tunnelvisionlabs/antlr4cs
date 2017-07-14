@@ -101,6 +101,18 @@ $CSharpToolVersionNodeInfo = Select-Xml "/mvn:project/mvn:version" -Namespace @{
 $CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
 
 $nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
+If (-not (Test-Path $nuget)) {
+	If (-not (Test-Path '..\runtime\CSharp\.nuget')) {
+		mkdir '..\runtime\CSharp\.nuget'
+	}
+
+	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
+	Invoke-WebRequest $nugetSource -OutFile $nuget
+	If (-not $?) {
+		$host.ui.WriteErrorLine('Unable to download NuGet executable, aborting!')
+		exit $LASTEXITCODE
+	}
+}
 
 # build the main project
 if ($VisualStudioVersion -eq '4.0') {
