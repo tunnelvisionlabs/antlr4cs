@@ -10,7 +10,7 @@ namespace Antlr4.Runtime.Tree
         /// <summary>
         /// <inheritDoc/>
         /// <p>The default implementation calls
-        /// <see cref="IParseTree.Accept{T}(IParseTreeVisitor{T})"/>
+        /// <see cref="IParseTree.Accept{Result}(IParseTreeVisitor{Result})"/>
         /// on the
         /// specified tree.</p>
         /// </summary>
