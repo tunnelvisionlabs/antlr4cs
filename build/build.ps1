@@ -105,6 +105,8 @@ $nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
 # build the main project
 if ($VisualStudioVersion -eq '4.0') {
 	$msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
+} ElseIf ($VisualStudioVersion -eq '15.0') {
+	$msbuild = "MSBuild.exe"
 } Else {
 	$msbuild = "${env:ProgramFiles(x86)}\MSBuild\$VisualStudioVersion\Bin\MSBuild.exe"
 }
