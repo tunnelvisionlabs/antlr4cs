@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "Antlr4.CodeGenerator": "4.5.3.1-alpha002",
+    "Antlr4.CodeGenerator": "4.6.4",
     "NETStandard.Library": "1.6.0"
   },
 
