@@ -25,10 +25,10 @@
   <Choose>
     <When Condition="'$(TargetFramework)' == 'net40'">
       <PropertyGroup>
-        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
         <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
       </PropertyGroup>
+
       <ItemGroup>
         <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
           <SetTargetFramework>TargetFramework=net40-client</SetTargetFramework>
@@ -66,10 +66,27 @@
     <AssemblyOriginatorKeyFile>..\..\..\build\keys\TestingKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <Choose>
+    <When Condition="'$(MSTest2)' == 'false'">
+      <!-- Workaround for https://github.com/dotnet/roslyn-project-system/issues/1739 -->
+      <PropertyGroup>
+        <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+        <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
   <ItemGroup>
     <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
   </ItemGroup>
 
   <ItemGroup>
