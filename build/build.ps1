@@ -6,7 +6,7 @@ param (
 	[string]$Logger,
 	[string]$Java6Home,
 	[string]$MavenHome,
-	[string]$MavenRepo = "$($env:USERPROFILE)\.m2",
+	[string]$MavenRepo,
 	[switch]$SkipMaven,
 	[switch]$SkipKeyCheck,
 	[switch]$GenerateTests,
@@ -85,8 +85,12 @@ If (-not $SkipMaven) {
 		$SkipTestsArg = 'true'
 	}
 
+	If ($MavenRepo) {
+		$MavenRepoArg = "-Dmaven.repo.local=`"$MavenRepo`""
+	}
+
 	$MavenGoal = 'package'
-	&$MavenPath '-B' "-DskipTests=$SkipTestsArg" '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
+	&$MavenPath '-B' $MavenRepoArg "-DskipTests=$SkipTestsArg" '--errors' '-e' '-Dgpg.useagent=true' "-Djava6.home=$Java6Home" '-Psonatype-oss-release' $MavenGoal
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Maven build of the C# Target custom Tool failed, aborting!')
 		cd $OriginalPath
