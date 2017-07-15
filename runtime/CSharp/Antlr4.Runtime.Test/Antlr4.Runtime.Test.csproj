@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Antlr4.Runtime.Test.netstandard</AssemblyName>
+    <TargetFramework>net45</TargetFramework>
+    <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
+    <Description>Unit tests for ANTLR 4.</Description>
+    <Copyright>Copyright © Sam Harwell 2013</Copyright>
+    <Company>Tunnel Vision Laboratories, LLC</Company>
+    <AssemblyTitle>Antlr4.Runtime.Test</AssemblyTitle>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\build\keys\TestingKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Java-LR.g4" />
+    <EmbeddedResource Include="Java.g4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Java.g4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Generated\TestLexerExec\testLargeLexer\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\build\keys\TestingKey.snk">
+      <Link>TestingKey.snk</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+
+</Project>

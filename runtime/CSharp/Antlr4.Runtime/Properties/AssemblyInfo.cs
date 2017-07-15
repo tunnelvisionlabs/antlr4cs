@@ -9,12 +9,14 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
+#if !NETSTANDARD
 [assembly: AssemblyTitle("Antlr4.Runtime")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tunnel Vision Laboratories, LLC")]
 [assembly: AssemblyProduct("Antlr4.Runtime")]
 [assembly: AssemblyCopyright("Copyright © Sam Harwell 2015")]
+#endif
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(false)]
@@ -31,6 +33,7 @@ using System.Runtime.InteropServices;
 #endif
 #endif
 
+#if !NETSTANDARD
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
@@ -45,4 +48,5 @@ using System.Runtime.InteropServices;
 #if !COMPACT
 [assembly: AssemblyFileVersion("4.6.5.0")]
 [assembly: AssemblyInformationalVersion("4.6.5-dev")]
+#endif
 #endif

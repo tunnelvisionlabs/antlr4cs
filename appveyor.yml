@@ -1,5 +1,5 @@
 version: 1.0.{build}
-os: Visual Studio 2015
+os: Visual Studio 2017
 configuration: Release
 init:
 - git config --global core.autocrlf true
@@ -12,11 +12,11 @@ cache:
 - NETCFv35PowerToys.msi -> build\appveyor-install.ps1
 build_script:
 - cd build
-- powershell -Command .\build.ps1 -VisualStudioVersion "14.0" -Verbosity minimal -GenerateTests -Logger "${env:ProgramFiles}\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" -Java6Home "${env:ProgramFiles}\Java\jdk1.7.0\jre"
+- powershell -Command .\build.ps1 -VisualStudioVersion "15.0" -Verbosity minimal -GenerateTests -Logger "${env:ProgramFiles}\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" -Java6Home "${env:ProgramFiles}\Java\jdk1.7.0\jre"
 - cd ..
 test_script:
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\net45\%CONFIGURATION%\Antlr4.Runtime.Test.net45.dll"
-- vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\netstandard\%CONFIGURATION%\Antlr4.Runtime.Test.netstandard.dll"
+- vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\%CONFIGURATION%\net45\Antlr4.Runtime.Test.netstandard.dll"
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\portable-net40\%CONFIGURATION%\Antlr4.Runtime.Test.portable_net40.dll"
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\net40\%CONFIGURATION%\Antlr4.Runtime.Test.net40_client.dll"
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\net35\%CONFIGURATION%\Antlr4.Runtime.Test.net35_client.dll"

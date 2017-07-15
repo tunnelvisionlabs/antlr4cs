@@ -47,8 +47,8 @@
 
     <!-- Build Configuration -->
 
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net35\$Configuration$\Antlr4.net35.props" target="build\Antlr4.props"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net35\$Configuration$\Antlr4.net35.targets" target="build\Antlr4.targets"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net35\$Configuration$\Antlr4BuildTasks.dll" target="build"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net35\Antlr4.net35.props" target="build\Antlr4.props"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net35\Antlr4.net35.targets" target="build\Antlr4.targets"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net35\Antlr4BuildTasks.dll" target="build"/>
   </files>
 </package>

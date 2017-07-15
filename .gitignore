@@ -8,6 +8,7 @@
 *.lock.json
 *.nuget.props
 *.nuget.targets
+[nN]u[gG]et.exe
 
 # Ignored testing and profiling files
 TestResults/

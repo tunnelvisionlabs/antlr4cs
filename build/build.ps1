@@ -1,6 +1,6 @@
 param (
 	[switch]$Debug,
-	[string]$VisualStudioVersion = "14.0",
+	[string]$VisualStudioVersion = "15.0",
 	[switch]$NoClean,
 	[string]$Verbosity = "normal",
 	[string]$Logger,
@@ -101,10 +101,24 @@ $CSharpToolVersionNodeInfo = Select-Xml "/mvn:project/mvn:version" -Namespace @{
 $CSharpToolVersion = $CSharpToolVersionNodeInfo.Node.InnerText.trim()
 
 $nuget = '..\runtime\CSharp\.nuget\NuGet.exe'
+If (-not (Test-Path $nuget)) {
+	If (-not (Test-Path '..\runtime\CSharp\.nuget')) {
+		mkdir '..\runtime\CSharp\.nuget'
+	}
+
+	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
+	Invoke-WebRequest $nugetSource -OutFile $nuget
+	If (-not $?) {
+		$host.ui.WriteErrorLine('Unable to download NuGet executable, aborting!')
+		exit $LASTEXITCODE
+	}
+}
 
 # build the main project
 if ($VisualStudioVersion -eq '4.0') {
 	$msbuild = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe"
+} ElseIf ($VisualStudioVersion -eq '15.0') {
+	$msbuild = "MSBuild.exe"
 } Else {
 	$msbuild = "${env:ProgramFiles(x86)}\MSBuild\$VisualStudioVersion\Bin\MSBuild.exe"
 }
@@ -145,7 +159,12 @@ if (-not $SkipKeyCheck) {
 	. .\keys.ps1
 
 	foreach ($pair in $Keys.GetEnumerator()) {
-		$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$($pair.Key)\$BuildConfig\Antlr4.Runtime.dll"
+		if ($pair.Key -eq 'netstandard1.1') {
+			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
+		} else {
+			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$($pair.Key)\$BuildConfig\Antlr4.Runtime.dll"
+		}
+
 		# Run the actual check in a separate process or the current process will keep the assembly file locked
 		powershell -Command ".\check-key.ps1 -Assembly '$assembly' -ExpectedKey '$($pair.Value)' -Build '$($pair.Key)'"
 		if (-not $?) {

@@ -44,12 +44,12 @@
 
     <!-- Build Configuration -->
 
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.props" target="build\Antlr4.CodeGenerator.props"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4.net40.targets" target="build\Antlr4.CodeGenerator.targets"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.net40.props" target="build\Antlr4.CodeGenerator.props"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.net40.targets" target="build\Antlr4.CodeGenerator.targets"/>
 
     <!-- Build Tasks -->
 
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\net40\$Configuration$\Antlr4BuildTasks.dll" target="tools\net40"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\netstandard\$Configuration$\Antlr4BuildTasks.dll" target="tools\netstandard"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4BuildTasks.dll" target="tools\net40"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\netstandard1.3\Antlr4BuildTasks.dll" target="tools\netstandard"/>
   </files>
 </package>
