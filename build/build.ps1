@@ -200,6 +200,36 @@ If ($Validate) {
 		Exit $LASTEXITCODE
 	}
 
+	".\DotnetValidation\bin\$BuildConfig\net20\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net30\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net35\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net40\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\portable40-net40+sl5+win8+wp8+wpa81\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
 	".\DotnetValidation\bin\$BuildConfig\net45\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')

@@ -13,7 +13,16 @@ namespace DotnetValidation
             var parser = new GrammarParser(new CommonTokenStream(lexer));
             var tree = parser.compilationUnit();
 
-            Console.WriteLine(tree.ToStringTree(parser));
+            Action<string> writeLine;
+
+#if LEGACY_PCL
+            var writeLineMethod = typeof(int).Assembly.GetType("Console").GetMethod("WriteLine", new[] { typeof(string) });
+            writeLine = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), writeLineMethod);
+#else
+            writeLine = Console.WriteLine;
+#endif
+
+            writeLine(tree.ToStringTree(parser));
         }
     }
 }
