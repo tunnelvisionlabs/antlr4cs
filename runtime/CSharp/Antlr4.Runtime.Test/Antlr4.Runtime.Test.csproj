@@ -2,15 +2,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Antlr4.Runtime.Test.netstandard</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <!-- Note: net452 is used for testing the netstandard1.1 target. -->
+    <TargetFrameworks>net452</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
     <Description>Unit tests for ANTLR 4.</Description>
     <Copyright>Copyright © Sam Harwell 2013</Copyright>
     <Company>Tunnel Vision Laboratories, LLC</Company>
-    <AssemblyTitle>Antlr4.Runtime.Test</AssemblyTitle>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,9 +22,24 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants);PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
-  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net452'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+        <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+      </ItemGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=netstandard1.1</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+  </Choose>
 
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -34,12 +48,6 @@
 
   <ItemGroup>
     <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,7 +72,5 @@
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
 
 </Project>
