@@ -9,7 +9,8 @@ param (
 	[string]$MavenRepo = "$($env:USERPROFILE)\.m2",
 	[switch]$SkipMaven,
 	[switch]$SkipKeyCheck,
-	[switch]$GenerateTests
+	[switch]$GenerateTests,
+	[switch]$Validate
 )
 
 # build the solutions
@@ -179,6 +180,61 @@ ForEach ($package in $packages) {
 
 	&$nuget 'pack' ".\$package.nuspec" '-OutputDirectory' 'nuget' '-Prop' "Configuration=$BuildConfig" '-Version' "$AntlrVersion" '-Prop' "M2_REPO=$M2_REPO" '-Prop' "CSharpToolVersion=$CSharpToolVersion" '-Symbols'
 	if (-not $?) {
+		Exit $LASTEXITCODE
+	}
+}
+
+If ($Validate) {
+	$LocalNuGetSource = '.\nuget'
+
+	git 'clean' '-dxf' 'DotnetValidation'
+	dotnet 'run' '--source' $LocalNuGetSource '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	git 'clean' '-dxf' 'DotnetValidation'
+	nuget 'restore' 'DotnetValidation' '-source' $LocalNuGetSource
+	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidation\DotnetValidation.sln'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net20\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net30\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net35\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net40\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\portable40-net40+sl5+win8+wp8+wpa81\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidation\bin\$BuildConfig\net45\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 }

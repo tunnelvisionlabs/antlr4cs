@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net20;net30;net35;net35-cf;net40;net45;netcoreapp1.1;portable40-net40+sl5+win8+wp8+wpa81</TargetFrameworks>
+    <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net35-cf'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <TargetFrameworkProfile>CompactFramework</TargetFrameworkProfile>
+        <PlatformFamilyName>WindowsCE</PlatformFamilyName>
+        <DisableImplicitFrameworkReferences>True</DisableImplicitFrameworkReferences>
+        <AddAdditionalExplicitAssemblyReferences>False</AddAdditionalExplicitAssemblyReferences>
+        <NoStdLib>True</NoStdLib>
+        <NoConfig>True</NoConfig>
+        <DefineConstants>$(DefineConstants);$(PlatformFamilyName);COMPACT</DefineConstants>
+
+        <!-- Explicitly specify the location of framework reference assemblies -->
+        <_TargetFrameworkDirectories>..\..\runtime\CSharp\build\ReferenceAssemblies</_TargetFrameworkDirectories>
+        <_FullFrameworkReferenceAssemblyPaths>..\..\runtime\CSharp\build\ReferenceAssemblies</_FullFrameworkReferenceAssemblyPaths>
+
+        <!-- Disable assembly attributes not supported by this target -->
+        <TargetingClr2Framework>True</TargetingClr2Framework>
+        <GenerateAssemblyFileVersionAttribute>False</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyInformationalVersionAttribute>False</GenerateAssemblyInformationalVersionAttribute>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="mscorlib" />
+        <Reference Include="System" />
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'portable40-net40+sl5+win8+wp8+wpa81'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+        <DefineConstants>$(DefineConstants);LEGACY_PCL</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="System" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.5-dev" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Grammar.g4">
+      <CustomToolNamespace>DotnetValidation</CustomToolNamespace>
+      <Generator>MSBuild:Compile</Generator>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="@(Antlr4)" />
+  </ItemGroup>
+</Project>
