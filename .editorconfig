@@ -1,0 +1,4 @@
+root = true
+
+[*.ps1]
+indent_style = tab
