@@ -42,6 +42,19 @@
     <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Misc.dll" target="tools"/>
     <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Media.dll" target="tools"/>
 
+    <!-- New ANTLR 4 Tool (Written in C#) -->
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.exe" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.Runtime.dll" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.StringTemplate.dll" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr3.Runtime.dll" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Tool\**\*.stg" target="tools\net45\Tool" />
+
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\netstandard1.5\Antlr4.dll" target="tools\netstandard" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\netstandard1.5\Antlr4.Runtime.dll" target="tools\netstandard" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\netstandard1.5\Antlr4.StringTemplate.dll" target="tools\netstandard" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\netstandard1.5\Antlr3.Runtime.dll" target="tools\netstandard" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\netstandard1.5\Tool\**\*.stg" target="tools\netstandard\Tool" />
+
     <!-- Build Configuration -->
 
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.net40.props" target="build\Antlr4.CodeGenerator.props"/>
@@ -50,6 +63,6 @@
     <!-- Build Tasks -->
 
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4BuildTasks.dll" target="tools\net40"/>
-    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\netstandard1.3\Antlr4BuildTasks.dll" target="tools\netstandard"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\netstandard1.5\Antlr4BuildTasks.dll" target="tools\netstandard"/>
   </files>
 </package>

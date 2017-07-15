@@ -127,7 +127,8 @@
       GenerateListener="%(Antlr4.Listener)"
       GenerateVisitor="%(Antlr4.Visitor)"
       ForceAtn="%(Antlr4.ForceAtn)"
-      AbstractGrammar="%(Antlr4.Abstract)">
+      AbstractGrammar="%(Antlr4.Abstract)"
+      UseCSharpGenerator="$(Antlr4UseCSharpGenerator)">
 
       <Output ItemName="Antlr4GeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
     </Antlr4ClassGenerationTask>
