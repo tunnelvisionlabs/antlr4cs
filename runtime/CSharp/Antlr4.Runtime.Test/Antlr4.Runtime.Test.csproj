@@ -58,6 +58,10 @@
   </Choose>
 
   <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\build\keys\TestingKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
