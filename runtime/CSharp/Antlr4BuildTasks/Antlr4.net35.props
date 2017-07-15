@@ -5,5 +5,7 @@
     <Antlr4BuildTaskPath>.</Antlr4BuildTaskPath>
     <!-- Path to the ANTLR tool itself -->
     <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.5-SNAPSHOT-complete.jar</Antlr4ToolPath>
+
+    <Antlr4UseCSharpGenerator>False</Antlr4UseCSharpGenerator>
   </PropertyGroup>
 </Project>

@@ -188,18 +188,71 @@ ForEach ($package in $packages) {
 	}
 }
 
+# Validate code generation using the Java code generator
 If ($Validate) {
-	$LocalNuGetSource = '.\nuget'
+	git 'clean' '-dxf' 'DotnetValidationOld'
+	dotnet 'run' '--project' '.\DotnetValidationOld\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
 
+	git 'clean' '-dxf' 'DotnetValidationOld'
+	nuget 'restore' 'DotnetValidationOld'
+	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidationOld\DotnetValidation.sln'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidationOld\bin\$BuildConfig\net20\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidationOld\bin\$BuildConfig\net30\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidationOld\bin\$BuildConfig\net35\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidationOld\bin\$BuildConfig\net40\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidationOld\bin\$BuildConfig\portable40-net40+sl5+win8+wp8+wpa81\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	".\DotnetValidationOld\bin\$BuildConfig\net45\DotnetValidation.exe"
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+}
+
+# Validate code generation using the C# code generator
+If ($Validate) {
 	git 'clean' '-dxf' 'DotnetValidation'
-	dotnet 'run' '--source' $LocalNuGetSource '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	dotnet 'run' '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
 	git 'clean' '-dxf' 'DotnetValidation'
-	nuget 'restore' 'DotnetValidation' '-source' $LocalNuGetSource
+	nuget 'restore' 'DotnetValidation'
 	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidation\DotnetValidation.sln'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')

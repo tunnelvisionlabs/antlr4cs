@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net40;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard1.5;net40;net35</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <RootNamespace>Antlr4.Build.Tasks</RootNamespace>
@@ -29,10 +29,13 @@
   </PropertyGroup>
 
   <Choose>
-    <When Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <When Condition="'$(TargetFramework)' == 'netstandard1.5'">
       <ItemGroup>
         <PackageReference Include="Microsoft.Build.Framework" Version="14.3" />
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="14.3" />
+      </ItemGroup>
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Tool\Antlr4.Tool.csproj" />
       </ItemGroup>
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS</DefineConstants>

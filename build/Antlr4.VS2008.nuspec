@@ -45,6 +45,13 @@
     <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Misc.dll" target="tools"/>
     <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Media.dll" target="tools"/>
 
+    <!-- New ANTLR 4 Tool (Written in C#) -->
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.exe" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.Runtime.dll" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.StringTemplate.dll" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr3.Runtime.dll" target="tools\net45" />
+    <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Tool\**\*.stg" target="tools\net45\Tool" />
+
     <!-- Build Configuration -->
 
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net35\Antlr4.net35.props" target="build\Antlr4.props"/>

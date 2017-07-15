@@ -119,6 +119,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool UseCSharpGenerator
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -238,31 +244,49 @@ namespace Antlr4.Build.Tasks
         {
             try
             {
-                string java;
-                try
+                string executable;
+                if (UseCSharpGenerator)
                 {
-                    if (!string.IsNullOrEmpty(JavaExecutable))
-                    {
-                        java = JavaExecutable;
-                    }
-                    else
-                    {
-                        string javaHome = JavaHome;
-                        java = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
-                        if (!File.Exists(java))
-                            java = Path.Combine(Path.Combine(javaHome, "bin"), "java");
-                    }
+#if NETSTANDARD
+                    string framework = "netstandard";
+                    string extension = ".dll";
+#else
+                    string framework = "net45";
+                    string extension = ".exe";
+#endif
+                    executable = Path.Combine(Path.Combine(Path.GetDirectoryName(ToolPath), framework), "Antlr4" + extension);
                 }
-                catch (NotSupportedException)
+                else
                 {
-                    // Fall back to using IKVM
-                    java = Path.Combine(Path.GetDirectoryName(ToolPath), "ikvm.exe");
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(JavaExecutable))
+                        {
+                            executable = JavaExecutable;
+                        }
+                        else
+                        {
+                            string javaHome = JavaHome;
+                            executable = Path.Combine(Path.Combine(javaHome, "bin"), "java.exe");
+                            if (!File.Exists(executable))
+                                executable = Path.Combine(Path.Combine(javaHome, "bin"), "java");
+                        }
+                    }
+                    catch (NotSupportedException)
+                    {
+                        // Fall back to using IKVM
+                        executable = Path.Combine(Path.GetDirectoryName(ToolPath), "ikvm.exe");
+                    }
                 }
 
                 List<string> arguments = new List<string>();
-                arguments.Add("-cp");
-                arguments.Add(ToolPath);
-                arguments.Add("org.antlr.v4.CSharpTool");
+
+                if (!UseCSharpGenerator)
+                {
+                    arguments.Add("-cp");
+                    arguments.Add(ToolPath);
+                    arguments.Add("org.antlr.v4.CSharpTool");
+                }
 
                 arguments.Add("-o");
                 arguments.Add(OutputPath);
@@ -305,7 +329,14 @@ namespace Antlr4.Build.Tasks
 
                 arguments.AddRange(SourceCodeFiles);
 
-                ProcessStartInfo startInfo = new ProcessStartInfo(java, JoinArguments(arguments))
+#if NETSTANDARD
+                if (UseCSharpGenerator)
+                {
+                    return AntlrTool.Main(arguments.ToArray()) == 0;
+                }
+#endif
+
+                ProcessStartInfo startInfo = new ProcessStartInfo(executable, JoinArguments(arguments))
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true,

@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.1;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.5;net45</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <RootNamespace>Antlr4</RootNamespace>
     <AssemblyName>Antlr4</AssemblyName>
@@ -20,6 +20,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591;1573</NoWarn>
   </PropertyGroup>
