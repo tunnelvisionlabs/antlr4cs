@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFrameworks>netstandard1.1;net35-cf</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>
@@ -15,7 +15,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);PORTABLE;NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591;1573</NoWarn>
   </PropertyGroup>
@@ -35,6 +34,53 @@
     <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' == 'Final'">..\..\..\build\keys\Antlr4.snk</AssemblyOriginatorKeyFile>
     <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' != 'Final'">..\..\..\build\keys\Antlr4.dev.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net35-cf'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <TargetFrameworkProfile>CompactFramework</TargetFrameworkProfile>
+        <PlatformFamilyName>WindowsCE</PlatformFamilyName>
+        <DisableImplicitFrameworkReferences>True</DisableImplicitFrameworkReferences>
+        <AddAdditionalExplicitAssemblyReferences>False</AddAdditionalExplicitAssemblyReferences>
+        <NoStdLib>True</NoStdLib>
+        <NoConfig>True</NoConfig>
+        <DefineConstants>$(DefineConstants);$(PlatformFamilyName);COMPACT;NET35;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+
+        <!-- Explicitly specify the location of framework reference assemblies -->
+        <_TargetFrameworkDirectories>..\build\ReferenceAssemblies</_TargetFrameworkDirectories>
+        <_FullFrameworkReferenceAssemblyPaths>..\build\ReferenceAssemblies</_FullFrameworkReferenceAssemblyPaths>
+
+        <!-- Disable assembly attributes not supported by this target -->
+        <TargetingClr2Framework>True</TargetingClr2Framework>
+        <GenerateAssemblyFileVersionAttribute>False</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyInformationalVersionAttribute>False</GenerateAssemblyInformationalVersionAttribute>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="mscorlib, Version=3.5.0.0, Culture=neutral, PublicKeyToken=969db8053d3322ac">
+          <HintPath>..\build\ReferenceAssemblies\mscorlib.dll</HintPath>
+          <SpecificVersion>true</SpecificVersion>
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="System, Version=3.5.0.0, Culture=neutral, PublicKeyToken=969db8053d3322ac">
+          <HintPath>..\build\ReferenceAssemblies\System.dll</HintPath>
+          <SpecificVersion>true</SpecificVersion>
+          <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=969db8053d3322ac">
+          <HintPath>..\build\ReferenceAssemblies\System.Core.dll</HintPath>
+          <SpecificVersion>true</SpecificVersion>
+          <Private>false</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);PORTABLE;NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
 
   <ItemGroup>
     <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />

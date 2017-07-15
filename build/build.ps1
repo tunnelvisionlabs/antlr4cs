@@ -134,16 +134,6 @@ if (-not $?) {
 	Exit $LASTEXITCODE
 }
 
-# build the compact framework project
-$msbuild = "$env:windir\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-
-&$nuget 'restore' $CF35SolutionPath
-&$msbuild '/nologo' '/m' '/nr:false' '/t:rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:KeyConfiguration=$KeyConfiguration" $CF35SolutionPath
-if (-not $?) {
-	$host.ui.WriteErrorLine('.NET 3.5 Compact Framework Build failed, aborting!')
-	Exit $LASTEXITCODE
-}
-
 if (-not (Test-Path 'nuget')) {
 	mkdir "nuget"
 }
@@ -160,6 +150,8 @@ if (-not $SkipKeyCheck) {
 
 	foreach ($pair in $Keys.GetEnumerator()) {
 		if ($pair.Key -eq 'netstandard1.1') {
+			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
+		} elseif ($pair.Key -eq 'net35-cf') {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
 		} else {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$($pair.Key)\$BuildConfig\Antlr4.Runtime.dll"
