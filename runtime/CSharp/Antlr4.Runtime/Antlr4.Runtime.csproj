@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net35-cf;portable40-net40+sl5+win8+wp8+wpa81;net40-client;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;net35-cf;net35-client;portable40-net40+sl5+win8+wp8+wpa81;net40-client;net45</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>
@@ -74,6 +74,14 @@
           <Private>false</Private>
         </Reference>
       </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net35-client'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+        <DefineConstants>$(DefineConstants);NET35;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
     </When>
     <When Condition="'$(TargetFramework)' == 'portable40-net40+sl5+win8+wp8+wpa81'">
       <PropertyGroup>
