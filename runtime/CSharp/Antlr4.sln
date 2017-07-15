@@ -56,9 +56,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{4CE79A54
 		..\..\build\version.ps1 = ..\..\build\version.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.netstandard", "Antlr4.Runtime\Antlr4.Runtime.netstandard.csproj", "{12269283-EE92-4FAA-B849-53CD24F341FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antlr4.Runtime", "Antlr4.Runtime\Antlr4.Runtime.csproj", "{12269283-EE92-4FAA-B849-53CD24F341FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.netstandard", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.netstandard.csproj", "{5844076E-3C92-4122-BB7A-0D745C3F5334}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antlr4.Runtime.Test", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.csproj", "{5844076E-3C92-4122-BB7A-0D745C3F5334}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antlr4BuildTasks", "Antlr4BuildTasks\Antlr4BuildTasks.csproj", "{515FDF32-DA0A-496E-A056-F7CCEBD88A9F}"
 EndProject

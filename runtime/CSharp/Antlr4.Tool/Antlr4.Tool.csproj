@@ -54,7 +54,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.netstandard.csproj" />
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj" />
       </ItemGroup>
     </Otherwise>
   </Choose>

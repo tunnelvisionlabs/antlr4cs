@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.1</TargetFramework>
+    <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
+
+    <AssemblyVersion>4.6.0.0</AssemblyVersion>
+    <FileVersion>4.6.5.0</FileVersion>
+    <InformationalVersion>4.6.5-dev</InformationalVersion>
+    <Description>The original, highly-optimized C# runtime for ANTLR 4.</Description>
+    <Copyright>Copyright © Sam Harwell 2015</Copyright>
+    <Company>Tunnel Vision Laboratories, LLC</Company>
+    <AssemblyTitle>Antlr4.Runtime</AssemblyTitle>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);PORTABLE;NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591;1573</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' == 'Final'">..\..\..\build\keys\Antlr4.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile Condition="'$(KeyConfiguration)' != 'Final'">..\..\..\build\keys\Antlr4.dev.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Tree\Xpath\XPathLexer.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Antlr4.Runtime.Tree.Xpath</CustomToolNamespace>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\build\keys\Antlr4.dev.snk">
+      <Link>Antlr4.dev.snk</Link>
+    </None>
+    <None Include="..\..\..\build\keys\Antlr4.snk">
+      <Link>Antlr4.snk</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Misc\Array2DHashSet`1.cs" />
+    <Compile Remove="Misc\DoubleKeyMap`3.cs" />
+    <Compile Remove="Misc\RuleDependencyProcessor.cs" />
+    <Compile Remove="Misc\TestRig.cs" />
+  </ItemGroup>
+
+</Project>
