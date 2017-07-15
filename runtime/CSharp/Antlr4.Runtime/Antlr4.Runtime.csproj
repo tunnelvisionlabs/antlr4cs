@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net35-cf;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;net35-cf;net40-client;net45</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>
@@ -75,6 +75,14 @@
         </Reference>
       </ItemGroup>
     </When>
+    <When Condition="'$(TargetFramework)' == 'net40-client'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+        <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition="'$(TargetFramework)' == 'net45'">
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
@@ -86,6 +94,10 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />

@@ -158,6 +158,8 @@ if (-not $SkipKeyCheck) {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
 		} elseif ($pair.Key -eq 'net45') {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
+		} elseif ($pair.Key -eq 'net40-client') {
+			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
 		} elseif ($pair.Key -eq 'net35-cf') {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
 		} else {
