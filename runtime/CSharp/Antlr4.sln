@@ -18,11 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\..\THIRD-PARTY-NOTICES.txt = ..\..\THIRD-PARTY-NOTICES.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.net30", "Antlr4.Runtime\Antlr4.Runtime.net30.csproj", "{EBBDCC35-43CC-416C-860B-9FC115F1EB42}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.net20", "Antlr4.Runtime\Antlr4.Runtime.net20.csproj", "{E1A46D9D-66CB-46E8-93B0-7FC87299ABEF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.net30", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.net30.csproj", "{8A2F2331-A4A5-4C7F-8D5D-DEECEF54AEA7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.net20", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.net20.csproj", "{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}"
 EndProject
@@ -53,18 +49,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EBBDCC35-43CC-416C-860B-9FC115F1EB42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EBBDCC35-43CC-416C-860B-9FC115F1EB42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EBBDCC35-43CC-416C-860B-9FC115F1EB42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EBBDCC35-43CC-416C-860B-9FC115F1EB42}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E1A46D9D-66CB-46E8-93B0-7FC87299ABEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E1A46D9D-66CB-46E8-93B0-7FC87299ABEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1A46D9D-66CB-46E8-93B0-7FC87299ABEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1A46D9D-66CB-46E8-93B0-7FC87299ABEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A2F2331-A4A5-4C7F-8D5D-DEECEF54AEA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A2F2331-A4A5-4C7F-8D5D-DEECEF54AEA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A2F2331-A4A5-4C7F-8D5D-DEECEF54AEA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A2F2331-A4A5-4C7F-8D5D-DEECEF54AEA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
