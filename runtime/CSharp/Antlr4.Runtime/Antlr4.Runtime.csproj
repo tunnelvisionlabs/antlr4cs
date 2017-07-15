@@ -150,10 +150,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="@(Compile)" />
     <Compile Remove="Misc\Array2DHashSet`1.cs" />
     <Compile Remove="Misc\DoubleKeyMap`3.cs" />
     <Compile Remove="Misc\RuleDependencyProcessor.cs" />
     <Compile Remove="Misc\TestRig.cs" />
+    <None Remove="@(Compile)" />
   </ItemGroup>
 
 </Project>
