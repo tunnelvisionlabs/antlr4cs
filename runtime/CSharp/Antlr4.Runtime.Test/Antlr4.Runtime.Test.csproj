@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <!-- Note: net452 is used for testing the netstandard1.1 target. -->
-    <TargetFrameworks>net30;net35;portable40-net40+sl5+win8+wp8+wpa81;net40;net45;net452</TargetFrameworks>
+    <TargetFrameworks>net20;net30;net35;portable40-net40+sl5+win8+wp8+wpa81;net40;net45;net452</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
@@ -23,6 +23,20 @@
   </PropertyGroup>
 
   <Choose>
+    <When Condition="'$(TargetFramework)' == 'net20'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <DefineConstants>$(DefineConstants);NET20;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=net20</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
     <When Condition="'$(TargetFramework)' == 'net30'">
       <PropertyGroup>
         <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>

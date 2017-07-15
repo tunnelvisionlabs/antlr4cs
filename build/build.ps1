@@ -168,6 +168,8 @@ if (-not $SkipKeyCheck) {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
 		} elseif ($pair.Key -eq 'net30') {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
+		} elseif ($pair.Key -eq 'net20') {
+			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$BuildConfig\$($pair.Key)\Antlr4.Runtime.dll"
 		} else {
 			$assembly = Resolve-FullPath -Path "..\runtime\CSharp\Antlr4.Runtime\bin\$($pair.Key)\$BuildConfig\Antlr4.Runtime.dll"
 		}

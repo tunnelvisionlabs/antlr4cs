@@ -14,7 +14,7 @@ test_script:
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\%CONFIGURATION%\net40\Antlr4.Runtime.Test.dll"
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\%CONFIGURATION%\net35\Antlr4.Runtime.Test.dll"
 - vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\%CONFIGURATION%\net30\Antlr4.Runtime.Test.dll"
-- vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\net20\%CONFIGURATION%\Antlr4.Runtime.Test.net20.dll"
+- vstest.console /logger:Appveyor /TestCaseFilter:"TestCategory=runtime-suite" "C:\projects\antlr4cs\runtime\CSharp\Antlr4.Runtime.Test\bin\%CONFIGURATION%\net20\Antlr4.Runtime.Test.dll"
 cache:
 - C:\MavenRepo -> **\pom.xml
 artifacts:

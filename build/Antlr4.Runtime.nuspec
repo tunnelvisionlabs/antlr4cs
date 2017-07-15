@@ -32,9 +32,9 @@
   <files>
     <!-- Runtime Libraries -->
 
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net20\$Configuration$\Antlr4.Runtime.dll" target="lib\net20"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net20\$Configuration$\Antlr4.Runtime.pdb" target="lib\net20"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net20\$Configuration$\Antlr4.Runtime.xml" target="lib\net20"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net20\Antlr4.Runtime.dll" target="lib\net20"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net20\Antlr4.Runtime.pdb" target="lib\net20"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net20\Antlr4.Runtime.xml" target="lib\net20"/>
 
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net30\Antlr4.Runtime.dll" target="lib\net30"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net30\Antlr4.Runtime.pdb" target="lib\net30"/>
