@@ -185,15 +185,17 @@ ForEach ($package in $packages) {
 }
 
 If ($Validate) {
+	$LocalNuGetSource = '.\nuget'
+
 	git 'clean' '-dxf' 'DotnetValidation'
-	dotnet 'run' '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	dotnet 'run' '--source' $LocalNuGetSource '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
 	git 'clean' '-dxf' 'DotnetValidation'
-	nuget restore DotnetValidation
+	nuget 'restore' 'DotnetValidation' '-source' $LocalNuGetSource
 	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidation\DotnetValidation.sln'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
