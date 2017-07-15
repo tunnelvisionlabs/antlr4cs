@@ -56,9 +56,9 @@
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net35-cf\Antlr4.Runtime.pdb" target="lib\net35-cf"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net35-cf\Antlr4.Runtime.xml" target="lib\net35-cf"/>
 
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net40\$Configuration$\Antlr4.Runtime.dll" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net40\$Configuration$\Antlr4.Runtime.pdb" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\portable-net40\$Configuration$\Antlr4.Runtime.xml" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\portable40-net40+sl5+win8+wp8+wpa81\Antlr4.Runtime.dll" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\portable40-net40+sl5+win8+wp8+wpa81\Antlr4.Runtime.pdb" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\portable40-net40+sl5+win8+wp8+wpa81\Antlr4.Runtime.xml" target="lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1"/>
 
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard1.1\Antlr4.Runtime.dll" target="lib\netstandard1.1"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard1.1\Antlr4.Runtime.pdb" target="lib\netstandard1.1"/>

@@ -30,10 +30,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.net30",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.net20", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.net20.csproj", "{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.portable-net40", "Antlr4.Runtime\Antlr4.Runtime.portable-net40.csproj", "{06C182C5-095C-4D43-9C33-C87E305C6BC2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antlr4.Runtime.Test.portable-net40", "Antlr4.Runtime.Test\Antlr4.Runtime.Test.portable-net40.csproj", "{97C32E42-51B2-4A29-B005-769B63CFEFCA}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{4CE79A54-058D-4940-875E-7F6AA9922A7D}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\build\Antlr4.CodeGenerator.nuspec = ..\..\build\Antlr4.CodeGenerator.nuspec
@@ -85,14 +81,6 @@ Global
 		{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A4681C4-1248-4ACD-B59F-D6CC17CC2B4C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06C182C5-095C-4D43-9C33-C87E305C6BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06C182C5-095C-4D43-9C33-C87E305C6BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06C182C5-095C-4D43-9C33-C87E305C6BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06C182C5-095C-4D43-9C33-C87E305C6BC2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97C32E42-51B2-4A29-B005-769B63CFEFCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97C32E42-51B2-4A29-B005-769B63CFEFCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97C32E42-51B2-4A29-B005-769B63CFEFCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97C32E42-51B2-4A29-B005-769B63CFEFCA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12269283-EE92-4FAA-B849-53CD24F341FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{12269283-EE92-4FAA-B849-53CD24F341FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12269283-EE92-4FAA-B849-53CD24F341FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
