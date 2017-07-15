@@ -47,18 +47,9 @@
     <PackageReference Include="StringTemplate4" Version="4.0.8" />
   </ItemGroup>
 
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net45'">
-      <ItemGroup>
-        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.net45.csproj" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\..\build\keys\Antlr4.dev.snk">

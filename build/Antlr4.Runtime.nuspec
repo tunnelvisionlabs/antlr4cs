@@ -48,9 +48,9 @@
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net40-client\$Configuration$\Antlr4.Runtime.pdb" target="lib\net40-client"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net40-client\$Configuration$\Antlr4.Runtime.xml" target="lib\net40-client"/>
 
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net45\$Configuration$\Antlr4.Runtime.dll" target="lib\net45"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net45\$Configuration$\Antlr4.Runtime.pdb" target="lib\net45"/>
-    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\net45\$Configuration$\Antlr4.Runtime.xml" target="lib\net45"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net45\Antlr4.Runtime.dll" target="lib\net45"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net45\Antlr4.Runtime.pdb" target="lib\net45"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net45\Antlr4.Runtime.xml" target="lib\net45"/>
 
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net35-cf\Antlr4.Runtime.dll" target="lib\net35-cf"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\net35-cf\Antlr4.Runtime.pdb" target="lib\net35-cf"/>

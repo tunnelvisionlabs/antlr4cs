@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net35-cf</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;net35-cf;net45</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>
@@ -74,6 +74,11 @@
           <Private>false</Private>
         </Reference>
       </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net45'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>

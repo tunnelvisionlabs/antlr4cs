@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if !PORTABLE
+#if !PORTABLE && !NET45
 [assembly: AssemblyTitle("Antlr4.Runtime.Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("e88a6cd4-d62a-4a1b-a124-47f7fa10ad7e")]
 
-#if !PORTABLE
+#if !PORTABLE && !NET45
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version

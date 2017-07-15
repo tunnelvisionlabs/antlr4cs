@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if !NETSTANDARD && !COMPACT
+#if !NETSTANDARD && !COMPACT && !NET45
 [assembly: AssemblyTitle("Antlr4.Runtime")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 #endif
 #endif
 
-#if !NETSTANDARD && !COMPACT
+#if !NETSTANDARD && !COMPACT && !NET45
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
