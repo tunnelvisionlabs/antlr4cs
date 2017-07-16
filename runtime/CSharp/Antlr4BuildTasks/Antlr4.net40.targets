@@ -26,11 +26,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Antlr4DesignTimeBuild>false</Antlr4DesignTimeBuild>
-    <Antlr4DesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</Antlr4DesignTimeBuild>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <Antlr4BuildTaskLocation Condition="'$(Antlr4BuildTaskPath)'==''">$(MSBuildBinPath)</Antlr4BuildTaskLocation>
     <Antlr4BuildTaskLocation Condition="'$(Antlr4BuildTaskPath)'!=''">$(Antlr4BuildTaskPath)</Antlr4BuildTaskLocation>
     <Antlr4ToolLocation Condition="'$(Antlr4ToolPath)'==''">$(MSBuildBinPath)\Antlr4\antlr4-csharp-4.6.5-SNAPSHOT-complete.jar</Antlr4ToolLocation>
@@ -98,6 +93,10 @@
   </PropertyGroup>
 
   <Target Name="Antlr4DesignTimeGrammarCompilation">
+    <PropertyGroup>
+      <Antlr4DesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</Antlr4DesignTimeBuild>
+    </PropertyGroup>
+
     <!-- Only if we are not actually performing a compile i.e. we are in design mode -->
     <CallTarget Condition="'$(Antlr4DesignTimeBuild)' == 'true'"
                 Targets="Antlr4Compile" />
@@ -113,6 +112,11 @@
     <ItemGroup>
       <Antlr4GeneratedCodeFiles Remove="@(Antlr4GeneratedCodeFiles)" />
     </ItemGroup>
+
+    <PropertyGroup>
+      <Antlr4DesignTimeBuild>false</Antlr4DesignTimeBuild>
+      <Antlr4DesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</Antlr4DesignTimeBuild>
+    </PropertyGroup>
 
     <Antlr4ClassGenerationTask
       ToolPath="$(Antlr4ToolLocation)"
