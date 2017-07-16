@@ -1,17 +1,38 @@
 # ignore Visual Studio user files
 *.suo
 *.csproj.user
+*.xproj.user
 *.sln.cache
 
+# User files related to NuGet project.json
+*.lock.json
+*.nuget.props
+*.nuget.targets
+[nN]u[gG]et.exe
+
+# Ignored testing and profiling files
+TestResults/
+*.vsp
+*.testsettings
+
+# Roslyn Cache
+.vs/
+
 # ignore C# build directories
-[Dd]ebug/
-[Rr]elease/
+bin/
+obj/
 reference/.metadata/
 reference/reference.net/
 /runtime/CSharp/packages/
+/build/DotnetValidation*/packages/
 
 # ignore Java (Maven) build directory
 tool/target/
+.idea/
+*.iml
 
 # ignore NuGet output folders
 /build/nuget/
+
+# Ignore generated test suite
+Generated/
