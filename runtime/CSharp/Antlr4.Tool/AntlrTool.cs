@@ -17,6 +17,7 @@ namespace Antlr4
     using Antlr4.Tool.Ast;
     using ANTLRStringStream = Antlr.Runtime.ANTLRStringStream;
     using CommonTokenStream = Antlr.Runtime.CommonTokenStream;
+    using Console = System.Console;
     using StreamWriter = System.IO.StreamWriter;
     using Directory = System.IO.Directory;
     using Exception = System.Exception;
@@ -853,6 +854,7 @@ namespace Antlr4
             // for subdir/T.g4, you get subdir here.  Well, depends on -o etc...
             string outputDir = GetOutputDirectory(g.fileName);
             string outputFile = Path.Combine(outputDir, fileName);
+            Console.WriteLine($"Generating file '{Path.GetFullPath(outputFile)}' for grammar '{g.fileName}'");
 
             Directory.CreateDirectory(outputDir);
 

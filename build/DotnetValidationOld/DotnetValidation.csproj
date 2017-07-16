@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net20;net30;net35;net35-cf;net40;net45;netcoreapp1.1;portable40-net40+sl5+win8+wp8+wpa81</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
-    <UseCSharpGenerator>False</UseCSharpGenerator>
+    <Antlr4UseCSharpGenerator>False</Antlr4UseCSharpGenerator>
   </PropertyGroup>
 
   <Choose>

@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <!-- Folder containing Antlr4BuildTasks.dll -->
     <Antlr4BuildTaskPath>.</Antlr4BuildTaskPath>
     <!-- Path to the ANTLR tool itself -->
     <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.5-SNAPSHOT-complete.jar</Antlr4ToolPath>
-
-    <Antlr4UseCSharpGenerator>False</Antlr4UseCSharpGenerator>
   </PropertyGroup>
 </Project>

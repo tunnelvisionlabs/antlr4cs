@@ -23,6 +23,7 @@ namespace Antlr4.Analysis
     using NotNullAttribute = Antlr4.Runtime.Misc.NotNullAttribute;
     using Path = System.IO.Path;
     using Tuple = System.Tuple;
+    using Uri = System.Uri;
 
     /** Using a tree walker on the rules, determine if a rule is directly left-recursive and if it follows
      *  our pattern.
@@ -76,11 +77,11 @@ namespace Antlr4.Analysis
 
         public virtual void LoadPrecRuleTemplates()
         {
+            string codeBaseLocation = new Uri(typeof(AntlrTool).GetTypeInfo().Assembly.CodeBase).LocalPath;
+            string baseDirectory = Path.GetDirectoryName(codeBaseLocation);
             string templateGroupFile = Path.Combine("Tool", "Templates", "LeftRecursiveRules.stg");
             recRuleTemplates = new TemplateGroupFile(
-                Path.Combine(
-                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
-                    templateGroupFile),
+                Path.Combine(baseDirectory, templateGroupFile),
                 Encoding.UTF8);
             if (!recRuleTemplates.IsDefined("recRule"))
             {

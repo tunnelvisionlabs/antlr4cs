@@ -36,9 +36,14 @@ namespace Antlr4.Codegen.Target
     using Antlr4.Tool.Ast;
     using ArgumentException = System.ArgumentException;
     using Path = System.IO.Path;
+    using Uri = System.Uri;
 
-    public abstract class CSharpTarget : AbstractTarget
+    public class CSharpTarget : AbstractTarget
     {
+        public CSharpTarget(CodeGenerator gen)
+            : this(gen, "CSharp_v4_5")
+        {
+        }
 
         protected CSharpTarget(CodeGenerator gen, string language)
             : base(gen, language)
@@ -146,9 +151,11 @@ namespace Antlr4.Codegen.Target
         protected override TemplateGroup LoadTemplates()
         {
             // override the superclass behavior to put all C# templates in the same folder
+            string codeBaseLocation = new Uri(typeof(AntlrTool).GetTypeInfo().Assembly.CodeBase).LocalPath;
+            string baseDirectory = Path.GetDirectoryName(codeBaseLocation);
             TemplateGroup result = new TemplateGroupFile(
                 Path.Combine(
-                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    baseDirectory,
                     Path.Combine(CodeGenerator.TEMPLATE_ROOT, "CSharp", GetLanguage() + TemplateGroup.GroupFileExtension)),
                 Encoding.UTF8);
             result.RegisterRenderer(typeof(int), new NumberRenderer());

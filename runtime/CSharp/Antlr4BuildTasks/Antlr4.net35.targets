@@ -4,6 +4,10 @@
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <BuildSystem>MSBuild</BuildSystem>
     <TaskVersion>4.0.0.0</TaskVersion>
     <TaskKeyToken>eb42632606e9261f</TaskKeyToken>
@@ -31,6 +35,8 @@
 
     <Antlr4JavaVendor Condition="'$(Antlr4JavaVendor)'==''">JavaSoft</Antlr4JavaVendor>
     <Antlr4JavaInstallation Condition="'$(Antlr4JavaInstallation)'==''">Java Runtime Environment</Antlr4JavaInstallation>
+
+    <Antlr4UseCSharpGenerator Condition="'$(Antlr4UseCSharpGenerator)' == ''">False</Antlr4UseCSharpGenerator>
   </PropertyGroup>
 
   <PropertyGroup>

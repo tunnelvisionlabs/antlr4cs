@@ -16,6 +16,7 @@ namespace Antlr4.Codegen
     using Path = System.IO.Path;
     using TemplateMessage = Antlr4.StringTemplate.Misc.TemplateMessage;
     using TokenConstants = Antlr4.Runtime.TokenConstants;
+    using Uri = System.Uri;
 
     /** */
     public abstract class AbstractTarget
@@ -397,9 +398,11 @@ namespace Antlr4.Codegen
         [return: NotNull]
         protected virtual TemplateGroup LoadTemplates()
         {
+            string codeBaseLocation = new Uri(typeof(AntlrTool).GetTypeInfo().Assembly.CodeBase).LocalPath;
+            string baseDirectory = Path.GetDirectoryName(codeBaseLocation);
             TemplateGroup result = new TemplateGroupFile(
                 Path.Combine(
-                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                    baseDirectory,
                     Path.Combine(CodeGenerator.TEMPLATE_ROOT, GetLanguage(), GetLanguage() + TemplateGroup.GroupFileExtension)),
                 Encoding.UTF8);
             result.RegisterRenderer(typeof(int), new NumberRenderer());
