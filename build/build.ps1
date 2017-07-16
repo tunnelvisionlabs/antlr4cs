@@ -192,7 +192,7 @@ If (-not $NoValidate) {
 	}
 
 	git 'clean' '-dxf' 'DotnetValidationOld'
-	nuget 'restore' 'DotnetValidationOld'
+	&$nuget 'restore' 'DotnetValidationOld'
 	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidationOld\DotnetValidation.sln'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
@@ -246,7 +246,7 @@ If (-not $NoValidate) {
 	}
 
 	git 'clean' '-dxf' 'DotnetValidation'
-	nuget 'restore' 'DotnetValidation'
+	&$nuget 'restore' 'DotnetValidation'
 	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidation\DotnetValidation.sln'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
