@@ -2,7 +2,7 @@ param (
 	[switch]$Debug,
 	[string]$VisualStudioVersion = "15.0",
 	[switch]$NoClean,
-	[string]$Verbosity = "normal",
+	[string]$Verbosity = "minimal",
 	[string]$Logger,
 	[string]$Java6Home,
 	[string]$MavenHome,
@@ -10,7 +10,7 @@ param (
 	[switch]$SkipMaven,
 	[switch]$SkipKeyCheck,
 	[switch]$GenerateTests,
-	[switch]$Validate
+	[switch]$NoValidate
 )
 
 # build the solutions
@@ -183,7 +183,7 @@ ForEach ($package in $packages) {
 }
 
 # Validate code generation using the Java code generator
-If ($Validate) {
+If (-not $NoValidate) {
 	git 'clean' '-dxf' 'DotnetValidationOld'
 	dotnet 'run' '--project' '.\DotnetValidationOld\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
 	if (-not $?) {
@@ -237,7 +237,7 @@ If ($Validate) {
 }
 
 # Validate code generation using the C# code generator
-If ($Validate) {
+If (-not $NoValidate) {
 	git 'clean' '-dxf' 'DotnetValidation'
 	dotnet 'run' '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
 	if (-not $?) {
