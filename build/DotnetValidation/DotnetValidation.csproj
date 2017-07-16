@@ -48,7 +48,7 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4" Version="4.6.5-dev" />
+    <PackageReference Include="Antlr4" Version="4.6.5-beta001" />
   </ItemGroup>
 
   <ItemGroup>
