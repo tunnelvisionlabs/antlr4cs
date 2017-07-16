@@ -10,6 +10,7 @@ namespace Antlr4.Tool
     using Antlr4.Parse;
     using Antlr4.StringTemplate;
     using Path = System.IO.Path;
+    using Uri = System.Uri;
 
     /** Given a grammar file, show the dependencies on .tokens etc...
      *  Using ST, emit a simple "make compatible" list of dependencies.
@@ -283,11 +284,11 @@ namespace Antlr4.Tool
             if (templates != null)
                 return;
 
+            string codeBaseLocation = new Uri(typeof(AntlrTool).GetTypeInfo().Assembly.CodeBase).LocalPath;
+            string baseDirectory = Path.GetDirectoryName(codeBaseLocation);
             string fileName = Path.Combine("Tool", "Templates", "depend.stg");
             templates = new TemplateGroupFile(
-                Path.Combine(
-                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
-                    fileName),
+                Path.Combine(baseDirectory, fileName),
                 Encoding.UTF8);
         }
 

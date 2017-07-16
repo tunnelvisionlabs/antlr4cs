@@ -15,11 +15,10 @@ namespace Antlr4.Tool
     using File = System.IO.File;
     using Path = System.IO.Path;
     using StringSplitOptions = System.StringSplitOptions;
+    using Uri = System.Uri;
 
     public class ErrorManager
     {
-        public static readonly string FORMATS_DIR = Path.Combine("Tool", "Templates", "Messages", "Formats");
-
         public AntlrTool tool;
         public int errors;
         public int warnings;
@@ -39,6 +38,16 @@ namespace Antlr4.Tool
         public ErrorManager(AntlrTool tool)
         {
             this.tool = tool;
+        }
+
+        public static string FormatsDir
+        {
+            get
+            {
+                string codeBaseLocation = new Uri(typeof(AntlrTool).GetTypeInfo().Assembly.CodeBase).LocalPath;
+                string baseDirectory = Path.GetDirectoryName(codeBaseLocation);
+                return Path.Combine(baseDirectory, "Tool", "Templates", "Messages", "Formats");
+            }
         }
 
         public virtual void ResetErrorState()
@@ -233,7 +242,7 @@ namespace Antlr4.Tool
         public virtual void SetFormat(string formatName)
         {
             this.formatName = formatName;
-            string fileName = Path.Combine(FORMATS_DIR, formatName + TemplateGroup.GroupFileExtension);
+            string fileName = Path.Combine(FormatsDir, formatName + TemplateGroup.GroupFileExtension);
             if (!File.Exists(fileName) && formatName != "antlr")
             {
                 SetFormat("antlr");
@@ -253,11 +262,7 @@ namespace Antlr4.Tool
             //    return;
             //}
 
-            format = new TemplateGroupFile(
-                Path.Combine(
-                    Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
-                    fileName),
-                Encoding.UTF8);
+            format = new TemplateGroupFile(fileName, Encoding.UTF8);
             format.Load();
 
             if (initSTListener.Errors.Count > 0)

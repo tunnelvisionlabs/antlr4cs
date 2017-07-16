@@ -11,6 +11,7 @@ namespace Antlr4.Tool
     using Antlr4.Runtime.Dfa;
     using Antlr4.StringTemplate;
     using Path = System.IO.Path;
+    using Uri = System.Uri;
 
     /** The DOT (part of graphviz) generation aspect. */
     public class DOTGenerator
@@ -23,7 +24,7 @@ namespace Antlr4.Tool
         /** Library of output templates; use {@code &lt;attrname&gt;} format. */
         public static TemplateGroup stlib = new TemplateGroupFile(
             Path.Combine(
-                Path.GetDirectoryName(typeof(AntlrTool).GetTypeInfo().Assembly.Location),
+                Path.GetDirectoryName(new Uri(typeof(AntlrTool).GetTypeInfo().Assembly.CodeBase).LocalPath),
                 Path.Combine("Tool", "Templates", "Dot", "graphs.stg")),
             Encoding.UTF8);
 
