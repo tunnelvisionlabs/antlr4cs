@@ -38,8 +38,12 @@ namespace Antlr4.Codegen.Target
     using Path = System.IO.Path;
     using Uri = System.Uri;
 
-    public abstract class CSharpTarget : AbstractTarget
+    public class CSharpTarget : AbstractTarget
     {
+        public CSharpTarget(CodeGenerator gen)
+            : this(gen, "CSharp_v4_5")
+        {
+        }
 
         protected CSharpTarget(CodeGenerator gen, string language)
             : base(gen, language)
