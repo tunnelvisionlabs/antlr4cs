@@ -332,7 +332,31 @@ namespace Antlr4.Build.Tasks
 #if NETSTANDARD
                 if (UseCSharpGenerator)
                 {
-                    return AntlrTool.Main(arguments.ToArray()) == 0;
+                    var oldOut = Console.Out;
+                    var oldError = Console.Error;
+                    var outWriter = new StringWriter();
+                    var errorWriter = new StringWriter();
+                    try
+                    {
+                        Console.SetOut(outWriter);
+                        Console.SetError(errorWriter);
+                        return AntlrTool.Main(arguments.ToArray()) == 0;
+                    }
+                    finally
+                    {
+                        Console.SetOut(oldOut);
+                        Console.SetError(oldError);
+
+                        foreach (var line in outWriter.ToString().Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            HandleOutputDataReceived(line);
+                        }
+
+                        foreach (var line in errorWriter.ToString().Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            HandleErrorDataReceived(line);
+                        }
+                    }
                 }
 #endif
 
@@ -413,12 +437,17 @@ namespace Antlr4.Build.Tasks
 
         private void HandleErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.Data))
+            HandleErrorDataReceived(e.Data);
+        }
+
+        private void HandleErrorDataReceived(string data)
+        {
+            if (string.IsNullOrEmpty(data))
                 return;
 
             try
             {
-                _buildMessages.Add(new BuildMessage(e.Data));
+                _buildMessages.Add(new BuildMessage(data));
             }
             catch (Exception ex)
             {
@@ -431,15 +460,20 @@ namespace Antlr4.Build.Tasks
 
         private void HandleOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.Data))
+            HandleOutputDataReceived(e.Data);
+        }
+
+        private void HandleOutputDataReceived(string data)
+        {
+            if (string.IsNullOrEmpty(data))
                 return;
 
             try
             {
-                Match match = GeneratedFileMessageFormat.Match(e.Data);
+                Match match = GeneratedFileMessageFormat.Match(data);
                 if (!match.Success)
                 {
-                    _buildMessages.Add(new BuildMessage(e.Data));
+                    _buildMessages.Add(new BuildMessage(data));
                     return;
                 }
 
