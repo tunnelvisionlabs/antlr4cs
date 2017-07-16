@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net35-cf</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;net20;net30;net35-cf;net35-client;portable40-net40+sl5+win8+wp8+wpa81;net40-client;net45</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>
@@ -36,6 +36,16 @@
   </PropertyGroup>
 
   <Choose>
+    <When Condition="'$(TargetFramework)' == 'net20'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET20;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net30'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET30;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition="'$(TargetFramework)' == 'net35-cf'">
       <PropertyGroup>
         <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
@@ -75,12 +85,49 @@
         </Reference>
       </ItemGroup>
     </When>
+    <When Condition="'$(TargetFramework)' == 'net35-client'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+        <DefineConstants>$(DefineConstants);NET35;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'portable40-net40+sl5+win8+wp8+wpa81'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+        <DefineConstants>$(DefineConstants);PORTABLE;NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net40-client'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+        <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net45'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+    </When>
     <Otherwise>
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);PORTABLE;NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
       </PropertyGroup>
     </Otherwise>
   </Choose>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
@@ -103,10 +150,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="@(Compile)" />
     <Compile Remove="Misc\Array2DHashSet`1.cs" />
     <Compile Remove="Misc\DoubleKeyMap`3.cs" />
     <Compile Remove="Misc\RuleDependencyProcessor.cs" />
     <Compile Remove="Misc\TestRig.cs" />
+    <None Remove="@(Compile)" />
   </ItemGroup>
 
 </Project>

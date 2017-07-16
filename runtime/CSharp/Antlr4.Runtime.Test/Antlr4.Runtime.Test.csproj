@@ -2,15 +2,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Antlr4.Runtime.Test.netstandard</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <!-- Note: net452 is used for testing the netstandard1.1 target. -->
+    <TargetFrameworks>net20;net30;net35;portable40-net40+sl5+win8+wp8+wpa81;net40;net45;net452</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
     <Description>Unit tests for ANTLR 4.</Description>
     <Copyright>Copyright © Sam Harwell 2013</Copyright>
     <Company>Tunnel Vision Laboratories, LLC</Company>
-    <AssemblyTitle>Antlr4.Runtime.Test</AssemblyTitle>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,8 +22,97 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net20'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <DefineConstants>$(DefineConstants);NET20;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=net20</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net30'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <DefineConstants>$(DefineConstants);NET30;NET30PLUS;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=net30</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net35'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET35;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=net35-client</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'portable40-net40+sl5+win8+wp8+wpa81'">
+      <PropertyGroup>
+        <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkProfile />
+        <DefineConstants>$(DefineConstants);PORTABLE;NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=portable40-net40+sl5+win8+wp8+wpa81</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net40'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=net40-client</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net45'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=net45</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net452'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=netstandard1.1</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+  </Choose>
+
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);PORTABLE;NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -32,14 +120,27 @@
     <AssemblyOriginatorKeyFile>..\..\..\build\keys\TestingKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(MSTest2)' == 'false'">
+      <!-- Workaround for https://github.com/dotnet/roslyn-project-system/issues/1739 -->
+      <PropertyGroup>
+        <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+        <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
   <ItemGroup>
-    <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj" />
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,7 +165,5 @@
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
 
 </Project>
