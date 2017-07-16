@@ -24,6 +24,7 @@ obj/
 reference/.metadata/
 reference/reference.net/
 /runtime/CSharp/packages/
+/build/DotnetValidation*/packages/
 
 # ignore Java (Maven) build directory
 tool/target/
