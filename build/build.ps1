@@ -132,7 +132,7 @@ If ($Logger) {
 	$LoggerArgument = "/logger:$Logger"
 }
 
-&$nuget 'restore' $SolutionPath
+&$nuget 'restore' $SolutionPath -Project2ProjectTimeOut 1200
 &$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if (-not $?) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
