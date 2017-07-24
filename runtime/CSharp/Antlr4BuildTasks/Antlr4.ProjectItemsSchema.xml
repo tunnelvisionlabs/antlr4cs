@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties>">
+    <Rule Name="Antlr4" DisplayName="File Properties" PageTemplate="generic" Description="File Properties">
+        <Rule.DataSource>
+            <DataSource Persistence="ProjectFile" Label="Configuration" ItemType="Antlr4" HasConfigurationCondition="false" SourceOfDefaultValue="AfterContext" />
+        </Rule.DataSource>
+
+        <Rule.Categories>
+            <Category Name="ANTLR" DisplayName="ANTLR" />
+        </Rule.Categories>
+
+        <StringProperty
+            Category="ANTLR"
+            Name="TargetLanguage"
+            DisplayName="Language Target"
+            Default="CSharp"
+            Description="Explicitly specifies the grammar's target language. If set, this property overrides any value specified within the grammar itself." />
+        <BoolProperty
+            Category="ANTLR"
+            Name="Listener"
+            DisplayName="Generate Listener"
+            Default="true"
+            Description="Generates a parse tree listener for the grammar." />
+        <BoolProperty
+            Category="ANTLR"
+            Name="Visitor"
+            DisplayName="Generate Visitor"
+            Default="true"
+            Description="Generates a parse tree visitor for the grammar." />
+        <BoolProperty
+            Category="ANTLR"
+            Name="ForceAtn"
+            DisplayName="Force ATN"
+            Default="false"
+            Description="Forces the parser to use AdaptivePredict for all decisions, including LL(1) decisions." />
+        <BoolProperty
+            Category="ANTLR"
+            Name="Abstract"
+            DisplayName="Abstract Grammar"
+            Default="false"
+            Description="When true, the generated classes are marked as abstract." />
+    </Rule>
+
+    <ContentType Name="Antlr4" DisplayName="ANTLR 4 Grammar" ItemType="Antlr4" />
+    <ItemType Name="Antlr4" DisplayName="ANTLR 4 grammar" />
+    <FileExtension Name=".g4" ContentType="Antlr4" />
+</ProjectSchemaDefinitions>
+    

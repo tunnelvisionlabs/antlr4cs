@@ -76,6 +76,7 @@
     <None Include="..\..\..\build\keys\Antlr4.snk">
       <Link>Antlr4.snk</Link>
     </None>
+    <None Include="Antlr4.ProjectItemsSchema.xml" />
   </ItemGroup>
 
   <Choose>
