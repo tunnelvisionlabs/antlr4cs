@@ -159,7 +159,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)..\Antlr4BuildTasks\Antlr4.ProjectItemsSchema.xml" />
+    <XamlPropertyProjectItemsSchema Include="$(MSBuildThisFileDirectory)..\Antlr4BuildTasks\Antlr4.ProjectItemsSchema.xml">
+      <Context>Project</Context>
+    </XamlPropertyProjectItemsSchema>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)..\Antlr4BuildTasks\Antlr4.xml">
+      <Context>BrowseObject</Context>
+    </PropertyPageSchema>
   </ItemGroup>
 
   <ItemGroup>
