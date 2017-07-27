@@ -76,18 +76,22 @@
     <None Include="..\..\..\build\keys\Antlr4.snk">
       <Link>Antlr4.snk</Link>
     </None>
-    <None Include="Antlr4.ProjectItemsSchema.xml" />
-    <None Include="Antlr4.xml" />
+    <None Include="Antlr4.ProjectItemsSchema.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Antlr4.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Choose>
     <When Condition="'$(TargetFramework)' == 'net35'">
       <ItemGroup>
         <None Include="Antlr4.net35.props">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Antlr4.net35.targets">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <SubType>Designer</SubType>
         </None>
       </ItemGroup>
@@ -95,10 +99,10 @@
     <Otherwise>
       <ItemGroup>
         <None Include="Antlr4.net40.props">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Antlr4.net40.targets">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <SubType>Designer</SubType>
         </None>
       </ItemGroup>

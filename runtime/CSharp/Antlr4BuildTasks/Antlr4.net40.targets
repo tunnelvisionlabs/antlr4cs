@@ -7,6 +7,11 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Antlr4IsSdkProject)' == ''">
+    <Antlr4IsSdkProject>False</Antlr4IsSdkProject>
+    <Antlr4IsSdkProject Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">True</Antlr4IsSdkProject>
+  </PropertyGroup>
+
   <PropertyGroup>
     <BuildSystem>MSBuild</BuildSystem>
     <TaskVersion>4.0.0.0</TaskVersion>
@@ -67,7 +72,8 @@
   <ItemDefinitionGroup>
     <Antlr4>
       <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>$(RootNamespace)</CustomToolNamespace>
+      <CustomToolNamespace Condition="'$(Antlr4IsSdkProject)' != 'True'">$(RootNamespace)</CustomToolNamespace>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <Encoding>UTF-8</Encoding>
       <TargetLanguage>CSharp</TargetLanguage>
       <Listener>true</Listener>
@@ -170,4 +176,35 @@
     </ItemGroup>
 
   </Target>
+
+  <Choose>
+    <When Condition="'$(Antlr4IsSdkProject)' == 'True'">
+      <PropertyGroup>
+        <EnableDefaultAntlrItems Condition="'$(EnableDefaultAntlrItems)' == ''">True</EnableDefaultAntlrItems>
+      </PropertyGroup>
+
+      <ItemGroup Condition="'$(EnableDefaultItems)' == 'True'">
+        <Antlr4 Include="**/*.g4" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" Condition="'$(EnableDefaultAntlrItems)' == 'True'" />
+      </ItemGroup>
+      <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultNoneItems)' == 'True'">
+        <None Remove="**/*.g4" Condition="'$(EnableDefaultAntlrItems)' == 'True'" />
+      </ItemGroup>
+
+      <ItemGroup>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\Antlr4.ProjectItemsSchema.xml">
+          <Context>Project</Context>
+        </PropertyPageSchema>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\Antlr4.xml">
+          <Context>File;BrowseObject</Context>
+        </PropertyPageSchema>
+      </ItemGroup>
+
+      <!-- Modify the CustomToolNamespace based on the directory location of the grammar -->
+      <ItemGroup>
+        <Antlr4 Update="@(Antlr4)" DefaultCustomToolNamespace="$([MSBuild]::ValueOrDefault(%(RelativeDir), '').Replace('\', '.').Replace('/', '.').TrimEnd('.'))" />
+        <Antlr4 Update="@(Antlr4)" Condition="'$(RootNamespace)' != ''" DefaultCustomToolNamespace="$([MSBuild]::ValueOrDefault('$(RootNamespace).%(DefaultCustomToolNamespace)', '').TrimEnd('.'))" />
+        <Antlr4 Update="@(Antlr4)" CustomToolNamespace="$([MSBuild]::ValueOrDefault(%(CustomToolNamespace), %(DefaultCustomToolNamespace)))" />
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>
