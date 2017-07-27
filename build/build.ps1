@@ -184,52 +184,52 @@ ForEach ($package in $packages) {
 
 # Validate code generation using the Java code generator
 If (-not $NoValidate) {
-	git 'clean' '-dxf' 'DotnetValidationOld'
-	dotnet 'run' '--project' '.\DotnetValidationOld\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	git 'clean' '-dxf' 'DotnetValidationJavaCodegen'
+	dotnet 'run' '--project' '.\DotnetValidationJavaCodegen\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	git 'clean' '-dxf' 'DotnetValidationOld'
-	&$nuget 'restore' 'DotnetValidationOld'
-	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidationOld\DotnetValidation.sln'
+	git 'clean' '-dxf' 'DotnetValidationJavaCodegen'
+	&$nuget 'restore' 'DotnetValidationJavaCodegen'
+	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidationJavaCodegen\DotnetValidation.sln'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	".\DotnetValidationOld\bin\$BuildConfig\net20\DotnetValidation.exe"
+	".\DotnetValidationJavaCodegen\bin\$BuildConfig\net20\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	".\DotnetValidationOld\bin\$BuildConfig\net30\DotnetValidation.exe"
+	".\DotnetValidationJavaCodegen\bin\$BuildConfig\net30\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	".\DotnetValidationOld\bin\$BuildConfig\net35\DotnetValidation.exe"
+	".\DotnetValidationJavaCodegen\bin\$BuildConfig\net35\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	".\DotnetValidationOld\bin\$BuildConfig\net40\DotnetValidation.exe"
+	".\DotnetValidationJavaCodegen\bin\$BuildConfig\net40\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	".\DotnetValidationOld\bin\$BuildConfig\portable40-net40+sl5+win8+wp8+wpa81\DotnetValidation.exe"
+	".\DotnetValidationJavaCodegen\bin\$BuildConfig\portable40-net40+sl5+win8+wp8+wpa81\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
 	}
 
-	".\DotnetValidationOld\bin\$BuildConfig\net45\DotnetValidation.exe"
+	".\DotnetValidationJavaCodegen\bin\$BuildConfig\net45\DotnetValidation.exe"
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE
