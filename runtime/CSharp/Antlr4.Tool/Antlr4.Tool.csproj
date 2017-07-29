@@ -147,4 +147,7 @@
     </Antlr3>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="@(Antlr3)" />
+  </ItemGroup>
 </Project>
