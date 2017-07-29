@@ -4,7 +4,6 @@
 namespace Antlr4.Tool
 {
     using Antlr4.StringTemplate;
-    using Console = System.Console;
 
     /** */
     public class DefaultToolListener : ANTLRToolListener
@@ -23,7 +22,7 @@ namespace Antlr4.Tool
                 msg = msg.Replace('\n', ' ');
             }
 
-            Console.WriteLine(msg);
+            tool.ConsoleOut.WriteLine(msg);
         }
 
         public virtual void Error(ANTLRMessage msg)
@@ -35,7 +34,7 @@ namespace Antlr4.Tool
                 outputMsg = outputMsg.Replace('\n', ' ');
             }
 
-            Console.Error.WriteLine(outputMsg);
+            tool.ConsoleError.WriteLine(outputMsg);
         }
 
         public virtual void Warning(ANTLRMessage msg)
@@ -47,7 +46,7 @@ namespace Antlr4.Tool
                 outputMsg = outputMsg.Replace('\n', ' ');
             }
 
-            Console.Error.WriteLine(outputMsg);
+            tool.ConsoleError.WriteLine(outputMsg);
         }
     }
 }

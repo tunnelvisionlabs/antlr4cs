@@ -14,7 +14,6 @@ namespace Antlr4.Codegen
     using Antlr4.Tool;
     using Antlr4.Tool.Ast;
     using CommonTreeNodeStream = Antlr.Runtime.Tree.CommonTreeNodeStream;
-    using Console = System.Console;
 
     /** This receives events from SourceGenTriggers.g and asks factory to do work.
      *  Then runs extensions in order on resulting SrcOps to get final list.
@@ -295,8 +294,8 @@ namespace Antlr4.Codegen
             }
             catch (Antlr.Runtime.RecognitionException e)
             {
-                Console.Error.WriteLine(e.Message);
-                Console.Error.WriteLine(e.StackTrace);
+                @delegate.GetGenerator().tool.ConsoleError.WriteLine(e.Message);
+                @delegate.GetGenerator().tool.ConsoleError.WriteLine(e.StackTrace);
             }
 
             function.ctxType = @delegate.GetTarget().GetRuleFunctionContextStructName(function);

@@ -9,7 +9,6 @@ namespace Antlr4.Tool
     using System.Reflection;
     using System.Text;
     using Antlr4.StringTemplate;
-    using Console = System.Console;
     using ErrorBuffer = Antlr4.StringTemplate.Misc.ErrorBuffer;
     using Exception = System.Exception;
     using File = System.IO.File;
@@ -137,24 +136,24 @@ namespace Antlr4.Tool
             Emit(etype, msg);
         }
 
-        public static void FatalInternalError(string error, Exception e)
+        public void FatalInternalError(string error, Exception e)
         {
             InternalError(error, e);
             throw new Exception(error, e);
         }
 
-        public static void InternalError(string error, Exception e)
+        public void InternalError(string error, Exception e)
         {
             string location = GetLastNonErrorManagerCodeLocation(e);
             InternalError("Exception " + e + "@" + location + ": " + error);
         }
 
-        public static void InternalError(string error)
+        public void InternalError(string error)
         {
             string location =
                 GetLastNonErrorManagerCodeLocation(new Exception());
             string msg = location + ": " + error;
-            Console.Error.WriteLine("internal error: " + msg);
+            tool.ConsoleError.WriteLine("internal error: " + msg);
         }
 
         /**
@@ -290,17 +289,17 @@ namespace Antlr4.Tool
             bool ok = true;
             if (!format.IsDefined("location"))
             {
-                Console.Error.WriteLine("Format template 'location' not found in " + formatName);
+                tool.ConsoleError.WriteLine("Format template 'location' not found in " + formatName);
                 ok = false;
             }
             if (!format.IsDefined("message"))
             {
-                Console.Error.WriteLine("Format template 'message' not found in " + formatName);
+                tool.ConsoleError.WriteLine("Format template 'message' not found in " + formatName);
                 ok = false;
             }
             if (!format.IsDefined("report"))
             {
-                Console.Error.WriteLine("Format template 'report' not found in " + formatName);
+                tool.ConsoleError.WriteLine("Format template 'report' not found in " + formatName);
                 ok = false;
             }
             return ok;
@@ -309,16 +308,16 @@ namespace Antlr4.Tool
         /** If there are errors during ErrorManager init, we have no choice
          *  but to go to System.err.
          */
-        internal static void RawError(string msg)
+        internal void RawError(string msg)
         {
-            Console.Error.WriteLine(msg);
+            tool.ConsoleError.WriteLine(msg);
         }
 
-        internal static void RawError(string msg, Exception e)
+        internal void RawError(string msg, Exception e)
         {
             RawError(msg);
-            Console.Error.WriteLine(e.Message);
-            Console.Error.WriteLine(e.StackTrace);
+            tool.ConsoleError.WriteLine(e.Message);
+            tool.ConsoleError.WriteLine(e.StackTrace);
         }
 
         public virtual void Panic(ErrorType errorType, params object[] args)
@@ -333,7 +332,7 @@ namespace Antlr4.Tool
             Panic(outputMsg);
         }
 
-        public static void Panic(string msg)
+        public void Panic(string msg)
         {
             RawError(msg);
             Panic();

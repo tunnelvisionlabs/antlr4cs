@@ -16,6 +16,7 @@ namespace Antlr4
     using Antlr4.Tool;
     using Antlr4.Tool.Ast;
     using ANTLRStringStream = Antlr.Runtime.ANTLRStringStream;
+    using ArgumentNullException = System.ArgumentNullException;
     using CommonTokenStream = Antlr.Runtime.CommonTokenStream;
     using Console = System.Console;
     using StreamWriter = System.IO.StreamWriter;
@@ -130,6 +131,9 @@ namespace Antlr4
         public ErrorManager errMgr;
         public LogManager logMgr = new LogManager();
 
+        private TextWriter _consoleOut = Console.Out;
+        private TextWriter _consoleError = Console.Error;
+
         IList<ANTLRToolListener> listeners = new List<ANTLRToolListener>();
 
         /** Track separately so if someone adds a listener, it's the only one
@@ -157,7 +161,7 @@ namespace Antlr4
                     try
                     {
                         string logname = antlr.logMgr.Save();
-                        System.Console.WriteLine("wrote " + logname);
+                        antlr.ConsoleOut.WriteLine("wrote " + logname);
                     }
                     catch (IOException ioe)
                     {
@@ -186,6 +190,32 @@ namespace Antlr4
             errMgr = new ErrorManager(this);
             errMgr.SetFormat(msgFormat);
             HandleArgs();
+        }
+
+        public TextWriter ConsoleOut
+        {
+            get
+            {
+                return _consoleOut;
+            }
+
+            set
+            {
+                _consoleOut = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
+        public TextWriter ConsoleError
+        {
+            get
+            {
+                return _consoleError;
+            }
+
+            set
+            {
+                _consoleError = value ?? throw new ArgumentNullException(nameof(value));
+            }
         }
 
         protected virtual void HandleArgs()
@@ -356,9 +386,9 @@ namespace Antlr4
                         new BuildDependencyGenerator(this, g);
                     //IList<string> outputFiles = dep.GetGeneratedFileList();
                     //IList<string> dependents = dep.GetDependenciesFileList();
-                    //System.Console.WriteLine("output: " + outputFiles);
-                    //System.Console.WriteLine("dependents: " + dependents);
-                    System.Console.WriteLine(dep.GetDependencies().Render());
+                    //g.tool.ConsoleOut.WriteLine("output: " + outputFiles);
+                    //g.tool.ConsoleOut.WriteLine("dependents: " + dependents);
+                    g.tool.ConsoleOut.WriteLine(dep.GetDependencies().Render());
                 }
                 else if (errMgr.GetNumErrors() == 0)
                 {
@@ -422,7 +452,7 @@ namespace Antlr4
             if (g.ast == null || g.ast.hasErrors)
                 return;
             if (internalOption_PrintGrammarTree)
-                System.Console.WriteLine(g.ast.ToStringTree());
+                ConsoleOut.WriteLine(g.ast.ToStringTree());
 
             bool ruleFail = CheckForRuleIssues(g);
             if (ruleFail)
@@ -789,7 +819,7 @@ namespace Antlr4
             catch (RecognitionException)
             {
                 // TODO: do we gen errors now?
-                ErrorManager.InternalError("can't generate this message at moment; antlr recovers");
+                errMgr.InternalError("can't generate this message at moment; antlr recovers");
             }
             return null;
         }
@@ -854,7 +884,7 @@ namespace Antlr4
             // for subdir/T.g4, you get subdir here.  Well, depends on -o etc...
             string outputDir = GetOutputDirectory(g.fileName);
             string outputFile = Path.Combine(outputDir, fileName);
-            Console.WriteLine($"Generating file '{Path.GetFullPath(outputFile)}' for grammar '{g.fileName}'");
+            ConsoleOut.WriteLine($"Generating file '{Path.GetFullPath(outputFile)}' for grammar '{g.fileName}'");
 
             Directory.CreateDirectory(outputDir);
 
