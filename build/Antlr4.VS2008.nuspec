@@ -25,25 +25,6 @@
     <!-- Tools -->
 
     <file src="..\tool\target\antlr4-csharp-$CSharpToolVersion$-complete.jar" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\ikvm.exe" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\ikvm.exe.config" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Core.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Text.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Charsets.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Naming.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Management.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Beans.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Corba.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.AWT.WinForms.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Util.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Security.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.Runtime.JNI.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.Runtime.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.SwingAWT.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Remoting.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.XML.API.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Misc.dll" target="tools"/>
-    <file src="..\runtime\CSharp\packages\IKVM-WithExes.7.3.4830.1\tools\IKVM.OpenJDK.Media.dll" target="tools"/>
 
     <!-- New ANTLR 4 Tool (Written in C#) -->
     <file src="..\runtime\CSharp\Antlr4.Tool\bin\$Configuration$\net45\Antlr4.exe" target="tools\net45" />

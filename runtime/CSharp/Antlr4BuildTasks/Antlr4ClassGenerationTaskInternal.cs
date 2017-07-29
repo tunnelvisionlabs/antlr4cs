@@ -244,19 +244,8 @@ namespace Antlr4.Build.Tasks
         {
             try
             {
-                string executable;
-                if (UseCSharpGenerator)
-                {
-#if NETSTANDARD
-                    string framework = "netstandard";
-                    string extension = ".dll";
-#else
-                    string framework = "net45";
-                    string extension = ".exe";
-#endif
-                    executable = Path.Combine(Path.Combine(Path.GetDirectoryName(ToolPath), framework), "Antlr4" + extension);
-                }
-                else
+                string executable = null;
+                if (!UseCSharpGenerator)
                 {
                     try
                     {
@@ -274,9 +263,21 @@ namespace Antlr4.Build.Tasks
                     }
                     catch (NotSupportedException)
                     {
-                        // Fall back to using IKVM
-                        executable = Path.Combine(Path.GetDirectoryName(ToolPath), "ikvm.exe");
+                        // Fall back to using the new code generation tools
+                        UseCSharpGenerator = true;
                     }
+                }
+
+                if (UseCSharpGenerator)
+                {
+#if NETSTANDARD
+                    string framework = "netstandard";
+                    string extension = ".dll";
+#else
+                    string framework = "net45";
+                    string extension = ".exe";
+#endif
+                    executable = Path.Combine(Path.Combine(Path.GetDirectoryName(ToolPath), framework), "Antlr4" + extension);
                 }
 
                 List<string> arguments = new List<string>();
