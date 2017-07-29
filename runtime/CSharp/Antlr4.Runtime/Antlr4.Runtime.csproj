@@ -12,6 +12,12 @@
     <Copyright>Copyright © Sam Harwell 2015</Copyright>
     <Company>Tunnel Vision Laboratories, LLC</Company>
     <AssemblyTitle>Antlr4.Runtime</AssemblyTitle>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <NuspecFile>..\..\..\build\Antlr4.Runtime.nuspec</NuspecFile>
+    <NuspecProperties>Configuration=$(Configuration);version=$(InformationalVersion)</NuspecProperties>
+    <PackageOutputPath>..\..\..\build\nuget\</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -146,6 +152,9 @@
     </None>
     <None Include="..\..\..\build\keys\Antlr4.snk">
       <Link>Antlr4.snk</Link>
+    </None>
+    <None Include="..\..\..\build\Antlr4.Runtime.nuspec">
+      <Link>Antlr4.Runtime.nuspec</Link>
     </None>
   </ItemGroup>
 
