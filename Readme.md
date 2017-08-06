@@ -10,7 +10,7 @@
 
 > :warning: Starting with release 4.5.0-alpha003, users are no longer required to install the Java Runtime in order to compile .NET applications using ANTLR 4. However, installing Java will dramatically improve the performance of the code generation process. It is highly recommended, especially on developer machines where background code generation is used for IntelliSense functionality.
 
-The C# target for ANTLR 4 requires Java (or IKVM) for *compiling* applications. The resulting compiled C# applications will not require Java (or IKVM) to be installed. You can install *any* of the following versions of Java to use this target.
+The C# target for ANTLR 4 uses Java for *compiling* applications. The resulting compiled C# applications will not require Java to be installed. You can install *any* of the following versions of Java to use this target.
 
 If you already have one of the following installed, you should check to make sure the installation is up-to-date.
 
@@ -19,7 +19,7 @@ If you already have one of the following installed, you should check to make sur
 * Java 6 runtime environment (x86 or x64)
 * Java 6 development kit (x86 or x64, provided that the JRE option is also installed during the development kit installation)
 
-If no suitable version of Java could be located on the machine, the build tools will automatically fall back to using IKVM instead.
+If no suitable version of Java could be located on the machine, the build tools will automatically fall back to using the new C# implementation of the code generation tool instead.
 
 ### Step 2: Install ANTLR Language Support for Visual Studio (optional)
 

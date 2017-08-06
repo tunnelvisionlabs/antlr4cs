@@ -39,6 +39,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antlr4BuildTasks", "Antlr4B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antlr4.Tool", "Antlr4.Tool\Antlr4.Tool.csproj", "{01A6A165-9DB4-4F46-9B1B-C31B918922EF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{52491CB2-3BEF-493F-808B-FE0CE62CACE6}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +73,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4CE79A54-058D-4940-875E-7F6AA9922A7D} = {47C0086D-577C-43DA-ADC7-544F27656E45}
+		{52491CB2-3BEF-493F-808B-FE0CE62CACE6} = {47C0086D-577C-43DA-ADC7-544F27656E45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03D09E30-D6C7-4053-95DD-AD0D62B0ED78}
