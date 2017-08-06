@@ -332,21 +332,22 @@ namespace Antlr4.Build.Tasks
 #if NETSTANDARD
                 if (UseCSharpGenerator)
                 {
-                    var oldOut = Console.Out;
-                    var oldError = Console.Error;
                     var outWriter = new StringWriter();
                     var errorWriter = new StringWriter();
                     try
                     {
-                        Console.SetOut(outWriter);
-                        Console.SetError(errorWriter);
-                        return AntlrTool.Main(arguments.ToArray()) == 0;
+                        var antlr = new AntlrTool(arguments.ToArray())
+                        {
+                            ConsoleOut = outWriter,
+                            ConsoleError = errorWriter
+                        };
+
+                        antlr.ProcessGrammarsOnCommandLine();
+
+                        return antlr.errMgr.GetNumErrors() == 0;
                     }
                     finally
                     {
-                        Console.SetOut(oldOut);
-                        Console.SetError(oldError);
-
                         foreach (var line in outWriter.ToString().Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
                         {
                             HandleOutputDataReceived(line);

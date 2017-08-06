@@ -121,7 +121,7 @@ namespace Antlr4.Automata
                     Rule(r.ast, r.name, h);
                 }
                 catch (RecognitionException re) {
-                    ErrorManager.FatalInternalError("bad grammar AST structure", re);
+                    g.tool.errMgr.FatalInternalError("bad grammar AST structure", re);
                 }
             }
         }
