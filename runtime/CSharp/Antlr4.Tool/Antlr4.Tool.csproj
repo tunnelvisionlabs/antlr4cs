@@ -42,7 +42,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr3" Version="3.5.1" PrivateAssets="all" />
+    <PackageReference Include="Antlr3.CodeGenerator" Version="3.5.2-beta1" PrivateAssets="all" />
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="StringTemplate4" Version="4.0.8" />
   </ItemGroup>
@@ -110,41 +110,6 @@
       <Link>Tool\Templates\Codegen\CSharp\CSharp_v4_5.stg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Antlr3 Include="Codegen\SourceGenTriggers.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Codegen</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\ActionSplitter.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\ANTLRLexer.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\ANTLRParser.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\ATNBuilder.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\BlockSetTransformer.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\GrammarTreeVisitor.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
-    <Antlr3 Include="Parse\LeftRecursiveRuleWalker.g3">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Parse</CustomToolNamespace>
-    </Antlr3>
   </ItemGroup>
 
 </Project>
