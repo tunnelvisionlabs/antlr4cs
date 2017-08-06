@@ -12,7 +12,25 @@
     <Copyright>Copyright © Sam Harwell 2015</Copyright>
     <Company>Tunnel Vision Laboratories, LLC</Company>
     <AssemblyTitle>Antlr4.Runtime</AssemblyTitle>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <NuspecFile>..\..\..\build\Antlr4.Runtime.nuspec</NuspecFile>
+    <NuspecProperties>Configuration=$(Configuration);version=$(InformationalVersion)</NuspecProperties>
+    <PackageOutputPath>..\..\..\build\nuget\</PackageOutputPath>
   </PropertyGroup>
+
+  <Target Name="DisableCrazyPackageDeletion" BeforeTargets="Clean">
+    <PropertyGroup>
+      <GeneratePackageValue>$(GeneratePackageOnBuild)</GeneratePackageValue>
+      <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    </PropertyGroup>
+  </Target>
+  <Target Name="EnablePackageGeneration" Condition="'$(GeneratePackageValue)' != ''" BeforeTargets="Build">
+    <PropertyGroup>
+      <GeneratePackageOnBuild>$(GeneratePackageValue)</GeneratePackageOnBuild>
+    </PropertyGroup>
+  </Target>
 
   <PropertyGroup>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -146,6 +164,9 @@
     </None>
     <None Include="..\..\..\build\keys\Antlr4.snk">
       <Link>Antlr4.snk</Link>
+    </None>
+    <None Include="..\..\..\build\Antlr4.Runtime.nuspec">
+      <Link>Antlr4.Runtime.nuspec</Link>
     </None>
   </ItemGroup>
 
