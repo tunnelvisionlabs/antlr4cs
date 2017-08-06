@@ -158,4 +158,8 @@
     <None Remove="@(Compile)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="@(Antlr4)" />
+  </ItemGroup>
+
 </Project>

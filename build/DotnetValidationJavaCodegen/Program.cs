@@ -9,10 +9,6 @@ namespace DotnetValidation
     {
         static void Main(string[] args)
         {
-            var lexer = new GrammarLexer(new AntlrInputStream("text"));
-            var parser = new GrammarParser(new CommonTokenStream(lexer));
-            var tree = parser.compilationUnit();
-
             Action<string> writeLine;
 
 #if LEGACY_PCL
@@ -22,7 +18,15 @@ namespace DotnetValidation
             writeLine = Console.WriteLine;
 #endif
 
+            var lexer = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("text"));
+            var parser = new GrammarParser(new CommonTokenStream(lexer));
+            var tree = parser.compilationUnit();
             writeLine(tree.ToStringTree(parser));
+
+            var subLexer = new global::DotnetValidation.SubFolder.SubGrammarLexer(new AntlrInputStream("text"));
+            var subParser = new SubFolder.SubGrammarParser(new CommonTokenStream(subLexer));
+            var subTree = subParser.compilationUnit();
+            writeLine(subTree.ToStringTree(subParser));
         }
     }
 }
