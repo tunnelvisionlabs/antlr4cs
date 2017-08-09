@@ -2,13 +2,14 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Dfa;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -219,7 +220,7 @@ namespace Antlr4.Runtime.Atn
             base.ReportAttemptingFullContext(dfa, conflictingAlts, conflictState, startIndex, stopIndex);
         }
 
-        protected internal override void ReportAmbiguity(DFA dfa, DFAState D, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
+        protected internal override void ReportAmbiguity([NotNull] DFA dfa, DFAState D, int startIndex, int stopIndex, bool exact, [NotNull] BitSet ambigAlts, [NotNull] ATNConfigSet configs)
         {
             int prediction;
             if (ambigAlts != null)

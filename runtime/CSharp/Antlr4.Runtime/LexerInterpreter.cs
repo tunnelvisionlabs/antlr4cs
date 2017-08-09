@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime.Atn;
@@ -36,7 +36,7 @@ namespace Antlr4.Runtime
         {
         }
 
-        public LexerInterpreter(string grammarFileName, IVocabulary vocabulary, ICollection<string> ruleNames, ICollection<string> modeNames, ATN atn, ICharStream input)
+        public LexerInterpreter(string grammarFileName, [NotNull] IVocabulary vocabulary, ICollection<string> ruleNames, ICollection<string> modeNames, ATN atn, ICharStream input)
             : base(input)
         {
             if (atn.grammarType != ATNType.Lexer)

@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime.Atn;
@@ -231,7 +231,7 @@ namespace Antlr4.Runtime
 
         /// <summary>What is the error header, normally line/character position information?</summary>
         [NotNull]
-        public virtual string GetErrorHeader(RecognitionException e)
+        public virtual string GetErrorHeader([NotNull] RecognitionException e)
         {
             int line = e.OffendingToken.Line;
             int charPositionInLine = e.OffendingToken.Column;
@@ -319,17 +319,17 @@ namespace Antlr4.Runtime
 
         // subclass needs to override these if there are sempreds or actions
         // that the ATN interp needs to execute
-        public virtual bool Sempred(RuleContext _localctx, int ruleIndex, int actionIndex)
+        public virtual bool Sempred([Nullable] RuleContext _localctx, int ruleIndex, int actionIndex)
         {
             return true;
         }
 
-        public virtual bool Precpred(RuleContext localctx, int precedence)
+        public virtual bool Precpred([Nullable] RuleContext localctx, int precedence)
         {
             return true;
         }
 
-        public virtual void Action(RuleContext _localctx, int ruleIndex, int actionIndex)
+        public virtual void Action([Nullable] RuleContext _localctx, int ruleIndex, int actionIndex)
         {
         }
 

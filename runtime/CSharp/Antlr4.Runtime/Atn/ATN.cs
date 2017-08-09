@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -84,7 +84,7 @@ namespace Antlr4.Runtime.Atn
         protected internal readonly ConcurrentDictionary<int, int> LL1Table = new ConcurrentDictionary<int, int>();
 
         /// <summary>Used for runtime deserialization of ATNs from strings</summary>
-        public ATN(ATNType grammarType, int maxTokenType)
+        public ATN([NotNull] ATNType grammarType, int maxTokenType)
         {
             this.grammarType = grammarType;
             this.maxTokenType = maxTokenType;
@@ -145,7 +145,7 @@ namespace Antlr4.Runtime.Atn
         /// 's rule.
         /// </summary>
         [NotNull]
-        public virtual IntervalSet NextTokens(ATNState s, PredictionContext ctx)
+        public virtual IntervalSet NextTokens(ATNState s, [NotNull] PredictionContext ctx)
         {
             Args.NotNull("ctx", ctx);
             LL1Analyzer anal = new LL1Analyzer(this);
@@ -163,7 +163,7 @@ namespace Antlr4.Runtime.Atn
         /// rule.
         /// </summary>
         [NotNull]
-        public virtual IntervalSet NextTokens(ATNState s)
+        public virtual IntervalSet NextTokens([NotNull] ATNState s)
         {
             if (s.nextTokenWithinRule != null)
             {
@@ -174,7 +174,7 @@ namespace Antlr4.Runtime.Atn
             return s.nextTokenWithinRule;
         }
 
-        public virtual void AddState(ATNState state)
+        public virtual void AddState([Nullable] ATNState state)
         {
             if (state != null)
             {
@@ -184,13 +184,13 @@ namespace Antlr4.Runtime.Atn
             states.Add(state);
         }
 
-        public virtual void RemoveState(ATNState state)
+        public virtual void RemoveState([NotNull] ATNState state)
         {
             states.Set(state.stateNumber, null);
         }
 
         // just free mem, don't shift states in list
-        public virtual void DefineMode(string name, TokensStartState s)
+        public virtual void DefineMode([NotNull] string name, [NotNull] TokensStartState s)
         {
             modeNameToStartState[name] = s;
             modeToStartState.Add(s);
@@ -199,7 +199,7 @@ namespace Antlr4.Runtime.Atn
             DefineDecisionState(s);
         }
 
-        public virtual int DefineDecisionState(DecisionState s)
+        public virtual int DefineDecisionState([NotNull] DecisionState s)
         {
             decisionToState.Add(s);
             s.decision = decisionToState.Count - 1;
@@ -272,7 +272,7 @@ namespace Antlr4.Runtime.Atn
         /// <paramref name="stateNumber"/>
         /// </exception>
         [NotNull]
-        public virtual IntervalSet GetExpectedTokens(int stateNumber, RuleContext context)
+        public virtual IntervalSet GetExpectedTokens(int stateNumber, [Nullable] RuleContext context)
         {
             if (stateNumber < 0 || stateNumber >= states.Count)
             {

@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -82,7 +82,7 @@ namespace Antlr4.Runtime.Misc
             return buf.ToString();
         }
 
-        public static void RemoveAll<T, _T1>(IList<T> list, Predicate<_T1> predicate)
+        public static void RemoveAll<T, _T1>([NotNull] IList<T> list, Predicate<_T1> predicate)
         {
             int j = 0;
             for (int i = 0; i < list.Count; i++)
@@ -134,7 +134,7 @@ namespace Antlr4.Runtime.Misc
 
         /// <since>4.5</since>
         [NotNull]
-        public static IntervalSet ToSet(BitSet bits)
+        public static IntervalSet ToSet([NotNull] BitSet bits)
         {
             IntervalSet s = new IntervalSet();
             int i = bits.NextSetBit(0);

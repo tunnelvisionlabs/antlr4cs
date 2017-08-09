@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -63,7 +63,7 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         private PredictionContext context;
 
-        protected internal ATNConfig(ATNState state, int alt, PredictionContext context)
+        protected internal ATNConfig([NotNull] ATNState state, int alt, [NotNull] PredictionContext context)
         {
             System.Diagnostics.Debug.Assert((alt & unchecked((int)(0xFFFFFF))) == alt);
             this.state = state;
@@ -71,24 +71,24 @@ namespace Antlr4.Runtime.Atn
             this.context = context;
         }
 
-        protected internal ATNConfig(Antlr4.Runtime.Atn.ATNConfig c, ATNState state, PredictionContext context)
+        protected internal ATNConfig([NotNull] Antlr4.Runtime.Atn.ATNConfig c, [NotNull] ATNState state, [NotNull] PredictionContext context)
         {
             this.state = state;
             this.altAndOuterContextDepth = c.altAndOuterContextDepth;
             this.context = context;
         }
 
-        public static Antlr4.Runtime.Atn.ATNConfig Create(ATNState state, int alt, PredictionContext context)
+        public static Antlr4.Runtime.Atn.ATNConfig Create([NotNull] ATNState state, int alt, [Nullable] PredictionContext context)
         {
             return Create(state, alt, context, Antlr4.Runtime.Atn.SemanticContext.None, null);
         }
 
-        public static Antlr4.Runtime.Atn.ATNConfig Create(ATNState state, int alt, PredictionContext context, Antlr4.Runtime.Atn.SemanticContext semanticContext)
+        public static Antlr4.Runtime.Atn.ATNConfig Create([NotNull] ATNState state, int alt, [Nullable] PredictionContext context, [NotNull] Antlr4.Runtime.Atn.SemanticContext semanticContext)
         {
             return Create(state, alt, context, semanticContext, null);
         }
 
-        public static Antlr4.Runtime.Atn.ATNConfig Create(ATNState state, int alt, PredictionContext context, Antlr4.Runtime.Atn.SemanticContext semanticContext, LexerActionExecutor lexerActionExecutor)
+        public static Antlr4.Runtime.Atn.ATNConfig Create([NotNull] ATNState state, int alt, [Nullable] PredictionContext context, [NotNull] Antlr4.Runtime.Atn.SemanticContext semanticContext, LexerActionExecutor lexerActionExecutor)
         {
             if (semanticContext != Antlr4.Runtime.Atn.SemanticContext.None)
             {
@@ -213,27 +213,27 @@ namespace Antlr4.Runtime.Atn
             return Transform(this.State, false);
         }
 
-        public Antlr4.Runtime.Atn.ATNConfig Transform(ATNState state, bool checkNonGreedy)
+        public Antlr4.Runtime.Atn.ATNConfig Transform([NotNull] ATNState state, bool checkNonGreedy)
         {
             return Transform(state, this.context, this.SemanticContext, checkNonGreedy, this.ActionExecutor);
         }
 
-        public Antlr4.Runtime.Atn.ATNConfig Transform(ATNState state, Antlr4.Runtime.Atn.SemanticContext semanticContext, bool checkNonGreedy)
+        public Antlr4.Runtime.Atn.ATNConfig Transform([NotNull] ATNState state, [NotNull] Antlr4.Runtime.Atn.SemanticContext semanticContext, bool checkNonGreedy)
         {
             return Transform(state, this.context, semanticContext, checkNonGreedy, this.ActionExecutor);
         }
 
-        public Antlr4.Runtime.Atn.ATNConfig Transform(ATNState state, PredictionContext context, bool checkNonGreedy)
+        public Antlr4.Runtime.Atn.ATNConfig Transform([NotNull] ATNState state, [Nullable] PredictionContext context, bool checkNonGreedy)
         {
             return Transform(state, context, this.SemanticContext, checkNonGreedy, this.ActionExecutor);
         }
 
-        public Antlr4.Runtime.Atn.ATNConfig Transform(ATNState state, LexerActionExecutor lexerActionExecutor, bool checkNonGreedy)
+        public Antlr4.Runtime.Atn.ATNConfig Transform([NotNull] ATNState state, LexerActionExecutor lexerActionExecutor, bool checkNonGreedy)
         {
             return Transform(state, context, this.SemanticContext, checkNonGreedy, lexerActionExecutor);
         }
 
-        private Antlr4.Runtime.Atn.ATNConfig Transform(ATNState state, PredictionContext context, Antlr4.Runtime.Atn.SemanticContext semanticContext, bool checkNonGreedy, LexerActionExecutor lexerActionExecutor)
+        private Antlr4.Runtime.Atn.ATNConfig Transform([NotNull] ATNState state, [Nullable] PredictionContext context, [NotNull] Antlr4.Runtime.Atn.SemanticContext semanticContext, bool checkNonGreedy, LexerActionExecutor lexerActionExecutor)
         {
             bool passedThroughNonGreedy = checkNonGreedy && CheckNonGreedyDecision(this, state);
             if (semanticContext != Antlr4.Runtime.Atn.SemanticContext.None)
@@ -482,13 +482,13 @@ namespace Antlr4.Runtime.Atn
             [NotNull]
             private readonly Antlr4.Runtime.Atn.SemanticContext semanticContext;
 
-            public SemanticContextATNConfig(Antlr4.Runtime.Atn.SemanticContext semanticContext, ATNState state, int alt, PredictionContext context)
+            public SemanticContextATNConfig(Antlr4.Runtime.Atn.SemanticContext semanticContext, [NotNull] ATNState state, int alt, [Nullable] PredictionContext context)
                 : base(state, alt, context)
             {
                 this.semanticContext = semanticContext;
             }
 
-            public SemanticContextATNConfig(Antlr4.Runtime.Atn.SemanticContext semanticContext, ATNConfig c, ATNState state, PredictionContext context)
+            public SemanticContextATNConfig(Antlr4.Runtime.Atn.SemanticContext semanticContext, [NotNull] ATNConfig c, [NotNull] ATNState state, [Nullable] PredictionContext context)
                 : base(c, state, context)
             {
                 this.semanticContext = semanticContext;
@@ -509,14 +509,14 @@ namespace Antlr4.Runtime.Atn
 
             private readonly bool passedThroughNonGreedyDecision;
 
-            public ActionATNConfig(LexerActionExecutor lexerActionExecutor, ATNState state, int alt, PredictionContext context, bool passedThroughNonGreedyDecision)
+            public ActionATNConfig(LexerActionExecutor lexerActionExecutor, [NotNull] ATNState state, int alt, [Nullable] PredictionContext context, bool passedThroughNonGreedyDecision)
                 : base(state, alt, context)
             {
                 this.lexerActionExecutor = lexerActionExecutor;
                 this.passedThroughNonGreedyDecision = passedThroughNonGreedyDecision;
             }
 
-            protected internal ActionATNConfig(LexerActionExecutor lexerActionExecutor, ATNConfig c, ATNState state, PredictionContext context, bool passedThroughNonGreedyDecision)
+            protected internal ActionATNConfig(LexerActionExecutor lexerActionExecutor, [NotNull] ATNConfig c, [NotNull] ATNState state, [Nullable] PredictionContext context, bool passedThroughNonGreedyDecision)
                 : base(c, state, context)
             {
                 if (c.SemanticContext != SemanticContext.None)
@@ -550,14 +550,14 @@ namespace Antlr4.Runtime.Atn
 
             private readonly bool passedThroughNonGreedyDecision;
 
-            public ActionSemanticContextATNConfig(LexerActionExecutor lexerActionExecutor, SemanticContext semanticContext, ATNState state, int alt, PredictionContext context, bool passedThroughNonGreedyDecision)
+            public ActionSemanticContextATNConfig(LexerActionExecutor lexerActionExecutor, [NotNull] SemanticContext semanticContext, [NotNull] ATNState state, int alt, [Nullable] PredictionContext context, bool passedThroughNonGreedyDecision)
                 : base(semanticContext, state, alt, context)
             {
                 this.lexerActionExecutor = lexerActionExecutor;
                 this.passedThroughNonGreedyDecision = passedThroughNonGreedyDecision;
             }
 
-            public ActionSemanticContextATNConfig(LexerActionExecutor lexerActionExecutor, SemanticContext semanticContext, ATNConfig c, ATNState state, PredictionContext context, bool passedThroughNonGreedyDecision)
+            public ActionSemanticContextATNConfig(LexerActionExecutor lexerActionExecutor, [NotNull] SemanticContext semanticContext, [NotNull] ATNConfig c, [NotNull] ATNState state, [Nullable] PredictionContext context, bool passedThroughNonGreedyDecision)
                 : base(semanticContext, c, state, context)
             {
                 this.lexerActionExecutor = lexerActionExecutor;

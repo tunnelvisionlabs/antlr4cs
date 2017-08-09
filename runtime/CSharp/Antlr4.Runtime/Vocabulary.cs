@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -66,7 +66,7 @@ namespace Antlr4.Runtime
         /// </param>
         /// <seealso cref="GetLiteralName(int)"/>
         /// <seealso cref="GetSymbolicName(int)"/>
-        public Vocabulary(string[] literalNames, string[] symbolicNames)
+        public Vocabulary([Nullable] string[] literalNames, [Nullable] string[] symbolicNames)
             : this(literalNames, symbolicNames, null)
         {
         }
@@ -102,7 +102,7 @@ namespace Antlr4.Runtime
         /// <seealso cref="GetLiteralName(int)"/>
         /// <seealso cref="GetSymbolicName(int)"/>
         /// <seealso cref="GetDisplayName(int)"/>
-        public Vocabulary(string[] literalNames, string[] symbolicNames, string[] displayNames)
+        public Vocabulary([Nullable] string[] literalNames, [Nullable] string[] symbolicNames, [Nullable] string[] displayNames)
         {
             this.literalNames = literalNames != null ? literalNames : EmptyNames;
             this.symbolicNames = symbolicNames != null ? symbolicNames : EmptyNames;
@@ -143,7 +143,7 @@ namespace Antlr4.Runtime
         /// for
         /// the display names of tokens.
         /// </returns>
-        public static IVocabulary FromTokenNames(string[] tokenNames)
+        public static IVocabulary FromTokenNames([Nullable] string[] tokenNames)
         {
             if (tokenNames == null || tokenNames.Length == 0)
             {

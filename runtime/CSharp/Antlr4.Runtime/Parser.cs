@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -453,7 +453,7 @@ namespace Antlr4.Runtime
         /// listener is
         /// <see langword="null"/>
         /// </exception>
-        public virtual void AddParseListener(IParseTreeListener listener)
+        public virtual void AddParseListener([NotNull] IParseTreeListener listener)
         {
             if (listener == null)
             {
@@ -659,12 +659,12 @@ namespace Antlr4.Runtime
             }
         }
 
-        public void NotifyErrorListeners(string msg)
+        public void NotifyErrorListeners([NotNull] string msg)
         {
             NotifyErrorListeners(CurrentToken, msg, null);
         }
 
-        public virtual void NotifyErrorListeners(IToken offendingToken, string msg, RecognitionException e)
+        public virtual void NotifyErrorListeners([NotNull] IToken offendingToken, [NotNull] string msg, [Nullable] RecognitionException e)
         {
             _syntaxErrors++;
             int line = -1;
@@ -763,7 +763,7 @@ namespace Antlr4.Runtime
         /// <see cref="_ctx"/>
         /// get the current context.
         /// </remarks>
-        public virtual void EnterRule(ParserRuleContext localctx, int state, int ruleIndex)
+        public virtual void EnterRule([NotNull] ParserRuleContext localctx, int state, int ruleIndex)
         {
             State = state;
             _ctx = localctx;
@@ -955,7 +955,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        public override bool Precpred(RuleContext localctx, int precedence)
+        public override bool Precpred([Nullable] RuleContext localctx, int precedence)
         {
             return precedence >= _precedenceStack.Peek();
         }

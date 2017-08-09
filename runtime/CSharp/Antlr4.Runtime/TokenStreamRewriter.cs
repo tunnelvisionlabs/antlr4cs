@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -354,7 +354,7 @@ namespace Antlr4.Runtime
             Replace(DefaultProgramName, from, to, text);
         }
 
-        public virtual void Replace(string programName, int from, int to, object text)
+        public virtual void Replace(string programName, int from, int to, [Nullable] object text)
         {
             if (from > to || from < 0 || to < 0 || to >= tokens.Size)
             {
@@ -366,7 +366,7 @@ namespace Antlr4.Runtime
             rewrites.Add(op);
         }
 
-        public virtual void Replace(string programName, IToken from, IToken to, object text)
+        public virtual void Replace(string programName, IToken from, IToken to, [Nullable] object text)
         {
             Replace(programName, from.TokenIndex, to.TokenIndex, text);
         }

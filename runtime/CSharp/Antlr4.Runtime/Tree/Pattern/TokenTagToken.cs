@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
@@ -49,7 +49,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// </summary>
         /// <param name="tokenName">The token name.</param>
         /// <param name="type">The token type.</param>
-        public TokenTagToken(string tokenName, int type)
+        public TokenTagToken([NotNull] string tokenName, int type)
             : this(tokenName, type, null)
         {
         }
@@ -68,7 +68,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// if
         /// the token tag is unlabeled.
         /// </param>
-        public TokenTagToken(string tokenName, int type, string label)
+        public TokenTagToken([NotNull] string tokenName, int type, [Nullable] string label)
             : base(type)
         {
             this.tokenName = tokenName;

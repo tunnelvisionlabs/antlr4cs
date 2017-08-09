@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System.Collections.Generic;
 using Antlr4.Runtime.Sharpen;
 
@@ -47,7 +47,7 @@ namespace Antlr4.Runtime.Misc
         /// if the current set is read-only
         /// </exception>
         [NotNull]
-        IIntSet AddAll(IIntSet set);
+        IIntSet AddAll([Nullable] IIntSet set);
 
         /// <summary>
         /// Return a new
@@ -74,7 +74,7 @@ namespace Antlr4.Runtime.Misc
         /// place of an empty result set.
         /// </returns>
         [Nullable]
-        IIntSet And(IIntSet a);
+        IIntSet And([Nullable] IIntSet a);
 
         /// <summary>
         /// Return a new
@@ -114,7 +114,7 @@ namespace Antlr4.Runtime.Misc
         /// may be returned in place of an empty result set.
         /// </returns>
         [Nullable]
-        IIntSet Complement(IIntSet elements);
+        IIntSet Complement([Nullable] IIntSet elements);
 
         /// <summary>
         /// Return a new
@@ -148,7 +148,7 @@ namespace Antlr4.Runtime.Misc
         /// empty result set.
         /// </returns>
         [Nullable]
-        IIntSet Or(IIntSet a);
+        IIntSet Or([Nullable] IIntSet a);
 
         /// <summary>
         /// Return a new
@@ -188,7 +188,7 @@ namespace Antlr4.Runtime.Misc
         /// may be returned in place of an empty result set.
         /// </returns>
         [Nullable]
-        IIntSet Subtract(IIntSet a);
+        IIntSet Subtract([Nullable] IIntSet a);
 
         /// <summary>Return the total number of elements represented by the current set.</summary>
         /// <returns>

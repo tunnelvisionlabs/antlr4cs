@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System.Globalization;
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
@@ -31,17 +31,17 @@ namespace Antlr4.Runtime
 
         private readonly string predicate;
 
-        public FailedPredicateException(Parser recognizer)
+        public FailedPredicateException([NotNull] Parser recognizer)
             : this(recognizer, null)
         {
         }
 
-        public FailedPredicateException(Parser recognizer, string predicate)
+        public FailedPredicateException([NotNull] Parser recognizer, [Nullable] string predicate)
             : this(recognizer, predicate, null)
         {
         }
 
-        public FailedPredicateException(Parser recognizer, string predicate, string message)
+        public FailedPredicateException([NotNull] Parser recognizer, [Nullable] string predicate, [Nullable] string message)
             : base(FormatMessage(predicate, message), recognizer, ((ITokenStream)recognizer.InputStream), recognizer._ctx)
         {
             ATNState s = recognizer.Interpreter.atn.states[recognizer.State];
@@ -85,7 +85,7 @@ namespace Antlr4.Runtime
         }
 
         [NotNull]
-        private static string FormatMessage(string predicate, string message)
+        private static string FormatMessage([Nullable] string predicate, [Nullable] string message)
         {
             if (message != null)
             {

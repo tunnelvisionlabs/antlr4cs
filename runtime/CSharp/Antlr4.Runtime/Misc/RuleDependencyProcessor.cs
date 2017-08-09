@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -459,7 +459,7 @@ namespace Antlr4.Runtime.Misc
         }
 
         [Nullable]
-        private Tuple<IAnnotationMirror, IAnnotationValue> FindRuleDependencyProperty(Tuple<RuleDependency, IElement> dependency, RuleDependencyProcessor.RuleDependencyProperty property)
+        private Tuple<IAnnotationMirror, IAnnotationValue> FindRuleDependencyProperty([NotNull] Tuple<RuleDependency, IElement> dependency, [NotNull] RuleDependencyProcessor.RuleDependencyProperty property)
         {
             ITypeElement ruleDependencyTypeElement = processingEnv.GetElementUtils().GetTypeElement(RuleDependencyClassName);
             ITypeElement ruleDependenciesTypeElement = processingEnv.GetElementUtils().GetTypeElement(RuleDependenciesClassName);
@@ -516,7 +516,7 @@ namespace Antlr4.Runtime.Misc
         }
 
         [Nullable]
-        private IAnnotationValue FindRuleDependencyProperty(Tuple<RuleDependency, IElement> dependency, IAnnotationMirror annotationMirror, RuleDependencyProcessor.RuleDependencyProperty property)
+        private IAnnotationValue FindRuleDependencyProperty([NotNull] Tuple<RuleDependency, IElement> dependency, [NotNull] IAnnotationMirror annotationMirror, [NotNull] RuleDependencyProcessor.RuleDependencyProperty property)
         {
             IAnnotationValue recognizerValue = null;
             IAnnotationValue ruleValue = null;

@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -15,12 +15,12 @@ namespace Antlr4.Runtime.Atn
     {
         private readonly int outermostPrecedenceReturn;
 
-        public EpsilonTransition(ATNState target)
+        public EpsilonTransition([NotNull] ATNState target)
             : this(target, -1)
         {
         }
 
-        public EpsilonTransition(ATNState target, int outermostPrecedenceReturn)
+        public EpsilonTransition([NotNull] ATNState target, int outermostPrecedenceReturn)
             : base(target)
         {
             this.outermostPrecedenceReturn = outermostPrecedenceReturn;

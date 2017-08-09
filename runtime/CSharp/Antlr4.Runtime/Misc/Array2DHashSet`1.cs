@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,12 +44,12 @@ namespace Antlr4.Runtime.Misc
         {
         }
 
-        public Array2DHashSet(EqualityComparer<T> comparator)
+        public Array2DHashSet([Nullable] EqualityComparer<T> comparator)
             : this(comparator, InitalCapacity, InitalBucketCapacity)
         {
         }
 
-        public Array2DHashSet(EqualityComparer<T> comparator, int initialCapacity, int initialBucketCapacity)
+        public Array2DHashSet([Nullable] EqualityComparer<T> comparator, int initialCapacity, int initialBucketCapacity)
         {
             // must be power of 2
             // when to expand
@@ -272,7 +272,7 @@ namespace Antlr4.Runtime.Misc
             return ContainsFast(AsElementType(o));
         }
 
-        public virtual bool ContainsFast(T obj)
+        public virtual bool ContainsFast([Nullable] T obj)
         {
             if (obj == null)
             {
@@ -340,7 +340,7 @@ namespace Antlr4.Runtime.Misc
             return RemoveFast(AsElementType(o));
         }
 
-        public virtual bool RemoveFast(T obj)
+        public virtual bool RemoveFast([Nullable] T obj)
         {
             if (obj == null)
             {

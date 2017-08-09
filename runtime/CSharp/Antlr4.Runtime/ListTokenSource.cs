@@ -2,12 +2,13 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -96,7 +97,7 @@ namespace Antlr4.Runtime
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ListTokenSource(IList<IToken> tokens)
+        public ListTokenSource([NotNull] IList<IToken> tokens)
             : this(tokens, null)
         {
         }
@@ -136,7 +137,7 @@ namespace Antlr4.Runtime
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ListTokenSource(IList<IToken> tokens, string sourceName)
+        public ListTokenSource([NotNull] IList<IToken> tokens, string sourceName)
         {
             if (tokens == null)
             {

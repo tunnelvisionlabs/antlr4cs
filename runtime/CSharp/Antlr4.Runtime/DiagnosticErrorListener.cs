@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Misc;
@@ -74,7 +74,7 @@ namespace Antlr4.Runtime
             this.exactOnly = exactOnly;
         }
 
-        public override void ReportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
+        public override void ReportAmbiguity([NotNull] Parser recognizer, [NotNull] DFA dfa, int startIndex, int stopIndex, bool exact, [Nullable] BitSet ambigAlts, [NotNull] ATNConfigSet configs)
         {
             if (exactOnly && !exact)
             {
@@ -88,7 +88,7 @@ namespace Antlr4.Runtime
             recognizer.NotifyErrorListeners(message);
         }
 
-        public override void ReportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState)
+        public override void ReportAttemptingFullContext([NotNull] Parser recognizer, [NotNull] DFA dfa, int startIndex, int stopIndex, [Nullable] BitSet conflictingAlts, [NotNull] SimulatorState conflictState)
         {
             string format = "reportAttemptingFullContext d=%s, input='%s'";
             string decision = GetDecisionDescription(recognizer, dfa);
@@ -97,7 +97,7 @@ namespace Antlr4.Runtime
             recognizer.NotifyErrorListeners(message);
         }
 
-        public override void ReportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState)
+        public override void ReportContextSensitivity([NotNull] Parser recognizer, [NotNull] DFA dfa, int startIndex, int stopIndex, int prediction, [NotNull] SimulatorState acceptState)
         {
             string format = "reportContextSensitivity d=%s, input='%s'";
             string decision = GetDecisionDescription(recognizer, dfa);
@@ -106,7 +106,7 @@ namespace Antlr4.Runtime
             recognizer.NotifyErrorListeners(message);
         }
 
-        protected internal virtual string GetDecisionDescription<T>(Parser recognizer, DFA dfa)
+        protected internal virtual string GetDecisionDescription<T>([NotNull] Parser recognizer, [NotNull] DFA dfa)
             where T : IToken
         {
             int decision = dfa.decision;
@@ -145,7 +145,7 @@ namespace Antlr4.Runtime
         /// .
         /// </returns>
         [NotNull]
-        protected internal virtual BitSet GetConflictingAlts(BitSet reportedAlts, ATNConfigSet configs)
+        protected internal virtual BitSet GetConflictingAlts([Nullable] BitSet reportedAlts, [NotNull] ATNConfigSet configs)
         {
             if (reportedAlts != null)
             {

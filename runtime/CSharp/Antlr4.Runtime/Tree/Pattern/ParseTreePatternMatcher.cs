@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -283,7 +283,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// string representation of a tree pattern.
         /// </summary>
         [NotNull]
-        public virtual ParseTreeMatch Match(IParseTree tree, ParseTreePattern pattern)
+        public virtual ParseTreeMatch Match([NotNull] IParseTree tree, [NotNull] ParseTreePattern pattern)
         {
             MultiMap<string, IParseTree> labels = new MultiMap<string, IParseTree>();
             IParseTree mismatchedNode = MatchImpl(tree, pattern.PatternTree, labels);
@@ -377,7 +377,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// algorithm used by the implementation, and may be overridden.
         /// </returns>
         [Nullable]
-        protected internal virtual IParseTree MatchImpl(IParseTree tree, IParseTree patternTree, MultiMap<string, IParseTree> labels)
+        protected internal virtual IParseTree MatchImpl([NotNull] IParseTree tree, [NotNull] IParseTree patternTree, [NotNull] MultiMap<string, IParseTree> labels)
         {
             if (tree == null)
             {

@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
@@ -256,7 +256,7 @@ namespace Antlr4.Runtime.Atn
             [NotNull]
             public readonly SemanticContext[] opnds;
 
-            public AND(SemanticContext a, SemanticContext b)
+            public AND([NotNull] SemanticContext a, [NotNull] SemanticContext b)
             {
                 HashSet<SemanticContext> operands = new HashSet<SemanticContext>();
                 if (a is SemanticContext.AND)
@@ -384,7 +384,7 @@ namespace Antlr4.Runtime.Atn
             [NotNull]
             public readonly SemanticContext[] opnds;
 
-            public OR(SemanticContext a, SemanticContext b)
+            public OR([NotNull] SemanticContext a, [NotNull] SemanticContext b)
             {
                 HashSet<SemanticContext> operands = new HashSet<SemanticContext>();
                 if (a is SemanticContext.OR)
@@ -548,7 +548,7 @@ namespace Antlr4.Runtime.Atn
             where _T0 : SemanticContext
         {
             List<SemanticContext.PrecedencePredicate> result = null;
-            for (IEnumerator<SemanticContext> iterator = collection.GetEnumerator(); iterator.HasNext(); )
+            for (IEnumerator<_T0> iterator = collection.GetEnumerator(); iterator.HasNext(); )
             {
                 SemanticContext context = iterator.Next();
                 if (context is SemanticContext.PrecedencePredicate)

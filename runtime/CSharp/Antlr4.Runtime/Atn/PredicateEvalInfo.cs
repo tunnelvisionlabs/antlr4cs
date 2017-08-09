@@ -2,11 +2,12 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -68,7 +69,7 @@ namespace Antlr4.Runtime.Atn
         /// </param>
         /// <seealso cref="ParserATNSimulator.EvalSemanticContext(SemanticContext, Antlr4.Runtime.ParserRuleContext, int)"/>
         /// <seealso cref="SemanticContext.Eval(Antlr4.Runtime.Recognizer{Symbol, ATNInterpreter}, Antlr4.Runtime.RuleContext)"/>
-        public PredicateEvalInfo(SimulatorState state, int decision, ITokenStream input, int startIndex, int stopIndex, SemanticContext semctx, bool evalResult, int predictedAlt)
+        public PredicateEvalInfo([NotNull] SimulatorState state, int decision, [NotNull] ITokenStream input, int startIndex, int stopIndex, [NotNull] SemanticContext semctx, bool evalResult, int predictedAlt)
             : base(decision, state, input, startIndex, stopIndex, state.useContext)
         {
             this.semctx = semctx;

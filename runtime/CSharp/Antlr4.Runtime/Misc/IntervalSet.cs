@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -286,7 +286,7 @@ namespace Antlr4.Runtime.Misc
         /// , it is treated as though it was an empty set.
         /// </remarks>
         [NotNull]
-        public static Antlr4.Runtime.Misc.IntervalSet Subtract(Antlr4.Runtime.Misc.IntervalSet left, Antlr4.Runtime.Misc.IntervalSet right)
+        public static Antlr4.Runtime.Misc.IntervalSet Subtract([Nullable] Antlr4.Runtime.Misc.IntervalSet left, [Nullable] Antlr4.Runtime.Misc.IntervalSet right)
         {
             if (left == null || left.IsNil)
             {
@@ -511,18 +511,18 @@ namespace Antlr4.Runtime.Misc
         {
             get
             {
-                /*
-                for (ListIterator iter = intervals.listIterator(); iter.hasNext();) {
-                Interval I = (Interval) iter.next();
-                if ( el<I.a ) {
+/*
+		for (ListIterator iter = intervals.listIterator(); iter.hasNext();) {
+            Interval I = (Interval) iter.next();
+            if ( el<I.a ) {
                 break; // list is sorted and el is before this interval; not here
-                }
-                if ( el>=I.a && el<=I.b ) {
+            }
+            if ( el>=I.a && el<=I.b ) {
                 return true; // found in this interval
-                }
-                }
-                return false;
-                */
+            }
+        }
+        return false;
+        */
                 return intervals == null || intervals.IsEmpty();
             }
         }
@@ -694,7 +694,7 @@ namespace Antlr4.Runtime.Misc
             return ToString(Vocabulary.FromTokenNames(tokenNames));
         }
 
-        public virtual string ToString(IVocabulary vocabulary)
+        public virtual string ToString([NotNull] IVocabulary vocabulary)
         {
             StringBuilder buf = new StringBuilder();
             if (this.intervals == null || this.intervals.IsEmpty())
@@ -745,7 +745,7 @@ namespace Antlr4.Runtime.Misc
         }
 
         [NotNull]
-        protected internal virtual string ElementName(IVocabulary vocabulary, int a)
+        protected internal virtual string ElementName([NotNull] IVocabulary vocabulary, int a)
         {
             if (a == TokenConstants.Eof)
             {

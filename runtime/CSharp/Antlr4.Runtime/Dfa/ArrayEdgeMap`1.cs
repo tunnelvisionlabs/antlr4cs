@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime.Sharpen;
@@ -92,7 +92,7 @@ namespace Antlr4.Runtime.Dfa
             }
             if (m is Antlr4.Runtime.Dfa.ArrayEdgeMap<object>)
             {
-                Antlr4.Runtime.Dfa.ArrayEdgeMap<T> other = (Antlr4.Runtime.Dfa.ArrayEdgeMap<T>)m;
+                Antlr4.Runtime.Dfa.ArrayEdgeMap<_T0> other = (Antlr4.Runtime.Dfa.ArrayEdgeMap<_T0>)m;
                 int minOverlap = Math.Max(minIndex, other.minIndex);
                 int maxOverlap = Math.Min(maxIndex, other.maxIndex);
                 Antlr4.Runtime.Dfa.ArrayEdgeMap<T> result = this;
@@ -106,7 +106,7 @@ namespace Antlr4.Runtime.Dfa
             {
                 if (m is SingletonEdgeMap<object>)
                 {
-                    SingletonEdgeMap<T> other = (SingletonEdgeMap<T>)m;
+                    SingletonEdgeMap<_T0> other = (SingletonEdgeMap<_T0>)m;
                     System.Diagnostics.Debug.Assert(!other.IsEmpty);
                     return ((Antlr4.Runtime.Dfa.ArrayEdgeMap<T>)Put(other.Key, other.Value));
                 }
@@ -114,11 +114,11 @@ namespace Antlr4.Runtime.Dfa
                 {
                     if (m is SparseEdgeMap<object>)
                     {
-                        SparseEdgeMap<T> other = (SparseEdgeMap<T>)m;
+                        SparseEdgeMap<_T0> other = (SparseEdgeMap<_T0>)m;
                         lock (other)
                         {
                             int[] keys = other.Keys;
-                            IList<T> values = other.Values;
+                            IList<_T0> values = other.Values;
                             Antlr4.Runtime.Dfa.ArrayEdgeMap<T> result = this;
                             for (int i = 0; i < values.Count; i++)
                             {

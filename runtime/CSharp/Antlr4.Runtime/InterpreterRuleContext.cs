@@ -2,10 +2,11 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -44,7 +45,7 @@ namespace Antlr4.Runtime
         /// <param name="parent">The parent context.</param>
         /// <param name="invokingStateNumber">The invoking state number.</param>
         /// <param name="ruleIndex">The rule index for the current context.</param>
-        public InterpreterRuleContext(ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
+        public InterpreterRuleContext([Nullable] ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
             : base(parent, invokingStateNumber)
         {
             this.ruleIndex = ruleIndex;

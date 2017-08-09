@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime.Misc;
@@ -87,7 +87,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ParseTreeMatch(IParseTree tree, ParseTreePattern pattern, MultiMap<string, IParseTree> labels, IParseTree mismatchedNode)
+        public ParseTreeMatch([NotNull] IParseTree tree, [NotNull] ParseTreePattern pattern, [NotNull] MultiMap<string, IParseTree> labels, [Nullable] IParseTree mismatchedNode)
         {
             if (tree == null)
             {
@@ -195,7 +195,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// is returned.
         /// </returns>
         [NotNull]
-        public virtual IList<IParseTree> GetAll(string label)
+        public virtual IList<IParseTree> GetAll([NotNull] string label)
         {
             IList<IParseTree> nodes = labels[label];
             if (nodes == null)

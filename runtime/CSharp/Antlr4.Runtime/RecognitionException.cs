@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
@@ -50,14 +50,14 @@ namespace Antlr4.Runtime
 
         private int offendingState = -1;
 
-        public RecognitionException(Lexer lexer, ICharStream input)
+        public RecognitionException([Nullable] Lexer lexer, ICharStream input)
         {
             this.recognizer = lexer;
             this.input = input;
             this.ctx = null;
         }
 
-        public RecognitionException(Antlr4.Runtime.Recognizer<IToken, object> recognizer, IIntStream input, ParserRuleContext ctx)
+        public RecognitionException([Nullable] Antlr4.Runtime.Recognizer<IToken, object> recognizer, [Nullable] IIntStream input, [Nullable] ParserRuleContext ctx)
         {
             this.recognizer = recognizer;
             this.input = input;
@@ -68,7 +68,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        public RecognitionException(string message, Antlr4.Runtime.Recognizer<IToken, object> recognizer, IIntStream input, ParserRuleContext ctx)
+        public RecognitionException(string message, [Nullable] Antlr4.Runtime.Recognizer<IToken, object> recognizer, [Nullable] IIntStream input, [Nullable] ParserRuleContext ctx)
             : base(message)
         {
             this.recognizer = recognizer;

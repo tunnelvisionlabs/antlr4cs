@@ -2,10 +2,10 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -32,28 +32,28 @@ namespace Antlr4.Runtime.Dfa
         internal readonly ATN atn;
 
         [System.ObsoleteAttribute(@"Use DFASerializer(DFA, Antlr4.Runtime.IVocabulary) instead.")]
-        public DFASerializer(DFA dfa, string[] tokenNames)
+        public DFASerializer([NotNull] DFA dfa, [Nullable] string[] tokenNames)
             : this(dfa, Vocabulary.FromTokenNames(tokenNames), null, null)
         {
         }
 
-        public DFASerializer(DFA dfa, IVocabulary vocabulary)
+        public DFASerializer([NotNull] DFA dfa, [NotNull] IVocabulary vocabulary)
             : this(dfa, vocabulary, null, null)
         {
         }
 
-        public DFASerializer(DFA dfa, Recognizer<object, object> parser)
+        public DFASerializer([NotNull] DFA dfa, [Nullable] Recognizer<object, object> parser)
             : this(dfa, parser != null ? parser.Vocabulary : Vocabulary.EmptyVocabulary, parser != null ? parser.RuleNames : null, parser != null ? parser.Atn : null)
         {
         }
 
         [System.ObsoleteAttribute(@"Use DFASerializer(DFA, Antlr4.Runtime.IVocabulary, string[], Antlr4.Runtime.Atn.ATN) instead.")]
-        public DFASerializer(DFA dfa, string[] tokenNames, string[] ruleNames, ATN atn)
+        public DFASerializer([NotNull] DFA dfa, [Nullable] string[] tokenNames, [Nullable] string[] ruleNames, [Nullable] ATN atn)
             : this(dfa, Vocabulary.FromTokenNames(tokenNames), ruleNames, atn)
         {
         }
 
-        public DFASerializer(DFA dfa, IVocabulary vocabulary, string[] ruleNames, ATN atn)
+        public DFASerializer([NotNull] DFA dfa, [NotNull] IVocabulary vocabulary, [Nullable] string[] ruleNames, [Nullable] ATN atn)
         {
             this.dfa = dfa;
             this.vocabulary = vocabulary;

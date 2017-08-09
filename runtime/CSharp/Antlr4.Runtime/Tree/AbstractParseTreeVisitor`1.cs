@@ -2,10 +2,11 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 /*
-* Copyright (c) 2012 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD-3-Clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
+ * Copyright (c) 2012 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD-3-Clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Tree
@@ -19,7 +20,7 @@ namespace Antlr4.Runtime.Tree
         /// on the
         /// specified tree.</p>
         /// </summary>
-        public virtual Result Visit(IParseTree tree)
+        public virtual Result Visit([NotNull] IParseTree tree)
         {
             return tree.Accept(this);
         }
@@ -44,7 +45,7 @@ namespace Antlr4.Runtime.Tree
         /// the tree structure. Visitors that modify the tree should override this
         /// method to behave properly in respect to the specific algorithm in use.</p>
         /// </summary>
-        public virtual Result VisitChildren(IRuleNode node)
+        public virtual Result VisitChildren([NotNull] IRuleNode node)
         {
             Result result = DefaultResult;
             int n = node.ChildCount;
@@ -67,7 +68,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="AbstractParseTreeVisitor{Result}.DefaultResult()">defaultResult</see>
         /// .</p>
         /// </summary>
-        public virtual Result VisitTerminal(ITerminalNode node)
+        public virtual Result VisitTerminal([NotNull] ITerminalNode node)
         {
             return DefaultResult;
         }
@@ -78,7 +79,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="AbstractParseTreeVisitor{Result}.DefaultResult()">defaultResult</see>
         /// .</p>
         /// </summary>
-        public virtual Result VisitErrorNode(IErrorNode node)
+        public virtual Result VisitErrorNode([NotNull] IErrorNode node)
         {
             return DefaultResult;
         }
@@ -185,7 +186,7 @@ namespace Antlr4.Runtime.Tree
         /// <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
         /// .
         /// </returns>
-        protected internal virtual bool ShouldVisitNextChild(IRuleNode node, Result currentResult)
+        protected internal virtual bool ShouldVisitNextChild([NotNull] IRuleNode node, Result currentResult)
         {
             return true;
         }
