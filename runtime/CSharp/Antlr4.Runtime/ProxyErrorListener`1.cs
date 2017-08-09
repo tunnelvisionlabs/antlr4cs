@@ -45,7 +45,7 @@ namespace Antlr4.Runtime
         public virtual void SyntaxError<T>([NotNull] Recognizer<T, object> recognizer, [Nullable] T offendingSymbol, int line, int charPositionInLine, [NotNull] string msg, [Nullable] RecognitionException e)
             where T : Symbol
         {
-            foreach (IAntlrErrorListener<T> listener in delegates)
+            foreach (IAntlrErrorListener<Symbol> listener in delegates)
             {
                 listener.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
             }

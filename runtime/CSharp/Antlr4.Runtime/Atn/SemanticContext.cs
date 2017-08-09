@@ -548,7 +548,7 @@ namespace Antlr4.Runtime.Atn
             where _T0 : SemanticContext
         {
             List<SemanticContext.PrecedencePredicate> result = null;
-            for (IEnumerator<_T0> iterator = collection.GetEnumerator(); iterator.HasNext(); )
+            for (IEnumerator<SemanticContext> iterator = collection.GetEnumerator(); iterator.HasNext(); )
             {
                 SemanticContext context = iterator.Next();
                 if (context is SemanticContext.PrecedencePredicate)

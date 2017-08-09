@@ -92,7 +92,7 @@ namespace Antlr4.Runtime.Dfa
             }
             if (m is Antlr4.Runtime.Dfa.ArrayEdgeMap<object>)
             {
-                Antlr4.Runtime.Dfa.ArrayEdgeMap<_T0> other = (Antlr4.Runtime.Dfa.ArrayEdgeMap<_T0>)m;
+                Antlr4.Runtime.Dfa.ArrayEdgeMap<T> other = (Antlr4.Runtime.Dfa.ArrayEdgeMap<T>)m;
                 int minOverlap = Math.Max(minIndex, other.minIndex);
                 int maxOverlap = Math.Min(maxIndex, other.maxIndex);
                 Antlr4.Runtime.Dfa.ArrayEdgeMap<T> result = this;
@@ -106,7 +106,7 @@ namespace Antlr4.Runtime.Dfa
             {
                 if (m is SingletonEdgeMap<object>)
                 {
-                    SingletonEdgeMap<_T0> other = (SingletonEdgeMap<_T0>)m;
+                    SingletonEdgeMap<T> other = (SingletonEdgeMap<T>)m;
                     System.Diagnostics.Debug.Assert(!other.IsEmpty);
                     return ((Antlr4.Runtime.Dfa.ArrayEdgeMap<T>)Put(other.Key, other.Value));
                 }
@@ -114,11 +114,11 @@ namespace Antlr4.Runtime.Dfa
                 {
                     if (m is SparseEdgeMap<object>)
                     {
-                        SparseEdgeMap<_T0> other = (SparseEdgeMap<_T0>)m;
+                        SparseEdgeMap<T> other = (SparseEdgeMap<T>)m;
                         lock (other)
                         {
                             int[] keys = other.Keys;
-                            IList<_T0> values = other.Values;
+                            IList<T> values = other.Values;
                             Antlr4.Runtime.Dfa.ArrayEdgeMap<T> result = this;
                             for (int i = 0; i < values.Count; i++)
                             {
