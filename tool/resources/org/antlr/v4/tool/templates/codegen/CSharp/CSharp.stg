@@ -1108,5 +1108,11 @@ csIdentifier ::= [
 	"void" : "@void",
 	"volatile" : "@volatile",
 	"while" : "@while",
+
+	// These are not keywords, but including them explicitly prevents StringTemplate from treating them as keywords.
+	// https://github.com/tunnelvisionlabs/antlr4cs/issues/280
+	"keys": "keys",
+	"values": "values",
+
 	default : key
 ]
