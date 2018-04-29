@@ -112,7 +112,8 @@
   </Choose>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
+    <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
+    <EnableDefaultAntlrItems>False</EnableDefaultAntlrItems>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -140,7 +141,7 @@
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.5-beta002" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
