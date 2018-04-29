@@ -29,4 +29,20 @@ namespace DotnetValidation
             writeLine(subTree.ToStringTree(subParser));
         }
     }
+
+    class GrammarLexer : global::DotnetValidation.AbstractGrammarLexer
+    {
+        public GrammarLexer(ICharStream input)
+            : base(input)
+        {
+        }
+    }
+
+    class GrammarParser : global::DotnetValidation.AbstractGrammarParser
+    {
+        public GrammarParser(ITokenStream input)
+            : base(input)
+        {
+        }
+    }
 }
