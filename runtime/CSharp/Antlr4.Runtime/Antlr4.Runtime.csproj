@@ -144,18 +144,11 @@
   </Choose>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
+    <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.4" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Antlr4 Include="Tree\Xpath\XPathLexer.g4">
-      <Generator>MSBuild:Compile</Generator>
-      <CustomToolNamespace>Antlr4.Runtime.Tree.Xpath</CustomToolNamespace>
-    </Antlr4>
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.5-beta002" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
