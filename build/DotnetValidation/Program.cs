@@ -31,7 +31,7 @@ namespace DotnetValidation
             var lexer = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("text"));
             var parser = new GrammarParser(new CommonTokenStream(lexer));
             var tree = parser.compilationUnit();
-            writeLine(tree.ToStringTree(parser));
+            writeLine(tree1.ToStringTree(parser));
 
             var subLexer = new global::DotnetValidation.SubFolder.SubGrammarLexer(new AntlrInputStream("text"));
             var subParser = new SubFolder.SubGrammarParser(new CommonTokenStream(subLexer));
