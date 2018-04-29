@@ -72,10 +72,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Antlr4.net40.props">
+    <None Include="Antlr4.CodeGenerator.props">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Antlr4.net40.targets">
+    <None Include="Antlr4.CodeGenerator.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
