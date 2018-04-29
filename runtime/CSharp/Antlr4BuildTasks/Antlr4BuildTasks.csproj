@@ -38,7 +38,7 @@
         <ProjectReference Include="..\Antlr4.Tool\Antlr4.Tool.csproj" />
       </ItemGroup>
       <PropertyGroup>
-        <DefineConstants>$(DefineConstants);NETSTANDARD;NET45PLUS;NET40PLUS;NET35PLUS</DefineConstants>
+        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition="'$(TargetFramework)' == 'net40'">
@@ -47,9 +47,6 @@
         <Reference Include="Microsoft.Build.Tasks.v4.0" />
         <Reference Include="Microsoft.Build.Utilities.v4.0" />
       </ItemGroup>
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS</DefineConstants>
-      </PropertyGroup>
     </When>
   </Choose>
 
