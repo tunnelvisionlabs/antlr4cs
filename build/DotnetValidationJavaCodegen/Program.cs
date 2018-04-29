@@ -18,6 +18,16 @@ namespace DotnetValidation
             writeLine = Console.WriteLine;
 #endif
 
+            var lexer1 = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("keys"));
+            var parser1 = new GrammarParser(new CommonTokenStream(lexer1));
+            var tree1 = parser1.keys();
+            writeLine(tree1.ToStringTree(parser1));
+
+            var lexer2 = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("values"));
+            var parser2 = new GrammarParser(new CommonTokenStream(lexer2));
+            var tree2 = parser2.values();
+            writeLine(tree2.ToStringTree(parser2));
+
             var lexer = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("text"));
             var parser = new GrammarParser(new CommonTokenStream(lexer));
             var tree = parser.compilationUnit();
