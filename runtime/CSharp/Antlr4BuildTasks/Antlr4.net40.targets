@@ -7,11 +7,6 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Antlr4IsSdkProject)' == ''">
-    <Antlr4IsSdkProject>False</Antlr4IsSdkProject>
-    <Antlr4IsSdkProject Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">True</Antlr4IsSdkProject>
-  </PropertyGroup>
-
   <PropertyGroup>
     <BuildSystem>MSBuild</BuildSystem>
     <TaskVersion>4.0.0.0</TaskVersion>
@@ -184,17 +179,6 @@
 
   <Choose>
     <When Condition="'$(Antlr4IsSdkProject)' == 'True'">
-      <PropertyGroup>
-        <EnableDefaultAntlrItems Condition="'$(EnableDefaultAntlrItems)' == ''">True</EnableDefaultAntlrItems>
-      </PropertyGroup>
-
-      <ItemGroup Condition="'$(EnableDefaultItems)' == 'True'">
-        <Antlr4 Include="**/*.g4" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" Condition="'$(EnableDefaultAntlrItems)' == 'True'" />
-      </ItemGroup>
-      <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultNoneItems)' == 'True'">
-        <None Remove="**/*.g4" Condition="'$(EnableDefaultAntlrItems)' == 'True'" />
-      </ItemGroup>
-
       <ItemGroup>
         <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\Antlr4.ProjectItemsSchema.xml">
           <Context>Project</Context>
