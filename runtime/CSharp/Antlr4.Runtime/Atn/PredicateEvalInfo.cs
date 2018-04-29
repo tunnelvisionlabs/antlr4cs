@@ -2,6 +2,7 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -63,7 +64,7 @@ namespace Antlr4.Runtime.Atn
         /// </param>
         /// <seealso cref="ParserATNSimulator.EvalSemanticContext(SemanticContext, ParserRuleContext, int)"/>
         /// <seealso cref="SemanticContext.Eval"/>
-        public PredicateEvalInfo(SimulatorState state, int decision, ITokenStream input, int startIndex, int stopIndex, SemanticContext semctx, bool evalResult, int predictedAlt)
+        public PredicateEvalInfo([NotNull] SimulatorState state, int decision, [NotNull] ITokenStream input, int startIndex, int stopIndex, [NotNull] SemanticContext semctx, bool evalResult, int predictedAlt)
             : base(decision, state, input, startIndex, stopIndex, state.useContext)
         {
             this.semctx = semctx;

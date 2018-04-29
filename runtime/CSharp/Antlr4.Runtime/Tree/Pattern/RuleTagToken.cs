@@ -57,7 +57,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// or empty.
         /// </exception>
-        public RuleTagToken(string ruleName, int bypassTokenType)
+        public RuleTagToken([NotNull] string ruleName, int bypassTokenType)
             : this(ruleName, bypassTokenType, null)
         {
         }
@@ -84,7 +84,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// or empty.
         /// </exception>
-        public RuleTagToken(string ruleName, int bypassTokenType, string label)
+        public RuleTagToken([NotNull] string ruleName, int bypassTokenType, [Nullable] string label)
         {
             if (string.IsNullOrEmpty(ruleName))
             {

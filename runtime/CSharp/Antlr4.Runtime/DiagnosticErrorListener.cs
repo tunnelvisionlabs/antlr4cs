@@ -69,7 +69,7 @@ namespace Antlr4.Runtime
             this.exactOnly = exactOnly;
         }
 
-        public override void ReportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
+        public override void ReportAmbiguity([NotNull] Parser recognizer, [NotNull] DFA dfa, int startIndex, int stopIndex, bool exact, [Nullable] BitSet ambigAlts, [NotNull] ATNConfigSet configs)
         {
             if (exactOnly && !exact)
             {
@@ -83,7 +83,7 @@ namespace Antlr4.Runtime
             recognizer.NotifyErrorListeners(message);
         }
 
-        public override void ReportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState)
+        public override void ReportAttemptingFullContext([NotNull] Parser recognizer, [NotNull] DFA dfa, int startIndex, int stopIndex, [Nullable] BitSet conflictingAlts, [NotNull] SimulatorState conflictState)
         {
             string format = "reportAttemptingFullContext d={0}, input='{1}'";
             string decision = GetDecisionDescription(recognizer, dfa);
@@ -92,7 +92,7 @@ namespace Antlr4.Runtime
             recognizer.NotifyErrorListeners(message);
         }
 
-        public override void ReportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState)
+        public override void ReportContextSensitivity([NotNull] Parser recognizer, [NotNull] DFA dfa, int startIndex, int stopIndex, int prediction, [NotNull] SimulatorState acceptState)
         {
             string format = "reportContextSensitivity d={0}, input='{1}'";
             string decision = GetDecisionDescription(recognizer, dfa);
@@ -101,7 +101,7 @@ namespace Antlr4.Runtime
             recognizer.NotifyErrorListeners(message);
         }
 
-        protected internal virtual string GetDecisionDescription(Parser recognizer, DFA dfa)
+        protected internal virtual string GetDecisionDescription([NotNull] Parser recognizer, [NotNull] DFA dfa)
         {
             int decision = dfa.decision;
             int ruleIndex = dfa.atnStartState.ruleIndex;
@@ -139,7 +139,7 @@ namespace Antlr4.Runtime
         /// .
         /// </returns>
         [return: NotNull]
-        protected internal virtual BitSet GetConflictingAlts(BitSet reportedAlts, ATNConfigSet configs)
+        protected internal virtual BitSet GetConflictingAlts([Nullable] BitSet reportedAlts, [NotNull] ATNConfigSet configs)
         {
             if (reportedAlts != null)
             {

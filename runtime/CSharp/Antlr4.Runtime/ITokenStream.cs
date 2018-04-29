@@ -112,7 +112,7 @@ namespace Antlr4.Runtime
         /// <see langword="null"/>
         /// </exception>
         [return: NotNull]
-        string GetText(Interval interval);
+        string GetText([NotNull] Interval interval);
 
         /// <summary>Return the text of all tokens in the stream.</summary>
         /// <remarks>
@@ -162,7 +162,7 @@ namespace Antlr4.Runtime
         /// .
         /// </returns>
         [return: NotNull]
-        string GetText(RuleContext ctx);
+        string GetText([NotNull] RuleContext ctx);
 
         /// <summary>
         /// Return the text of all tokens in this stream between

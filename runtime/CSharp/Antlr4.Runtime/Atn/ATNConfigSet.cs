@@ -264,7 +264,7 @@ namespace Antlr4.Runtime.Atn
             return Add(e, null);
         }
 
-        public virtual bool Add(ATNConfig e, PredictionContextCache contextCache)
+        public virtual bool Add(ATNConfig e, [Nullable] PredictionContextCache contextCache)
         {
             EnsureWritable();
             System.Diagnostics.Debug.Assert(!outermostConfigSet || !e.ReachesIntoOuterContext);

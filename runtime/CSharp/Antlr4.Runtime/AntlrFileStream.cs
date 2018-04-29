@@ -3,6 +3,7 @@
 
 #if !PORTABLE
 
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using Encoding = System.Text.Encoding;
 using File = System.IO.File;
@@ -24,20 +25,20 @@ namespace Antlr4.Runtime
         protected internal string fileName;
 
         /// <exception cref="System.IO.IOException"/>
-        public AntlrFileStream(string fileName)
+        public AntlrFileStream([NotNull] string fileName)
             : this(fileName, null)
         {
         }
 
         /// <exception cref="System.IO.IOException"/>
-        public AntlrFileStream(string fileName, Encoding encoding)
+        public AntlrFileStream([NotNull] string fileName, Encoding encoding)
         {
             this.fileName = fileName;
             Load(fileName, encoding);
         }
 
         /// <exception cref="System.IO.IOException"/>
-        public virtual void Load(string fileName, Encoding encoding)
+        public virtual void Load([NotNull] string fileName, [NotNull] Encoding encoding)
         {
             if (fileName == null)
             {

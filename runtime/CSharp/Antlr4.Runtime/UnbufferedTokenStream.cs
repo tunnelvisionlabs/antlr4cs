@@ -250,7 +250,7 @@ namespace Antlr4.Runtime
             return n;
         }
 
-        protected internal virtual void Add(IToken t)
+        protected internal virtual void Add([NotNull] IToken t)
         {
             if (n >= tokens.Length)
             {

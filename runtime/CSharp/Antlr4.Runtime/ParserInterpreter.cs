@@ -99,7 +99,7 @@ namespace Antlr4.Runtime
         /// </summary>
         /// <param name="old">The interpreter to copy</param>
         /// <since>4.5</since>
-        public ParserInterpreter(Antlr4.Runtime.ParserInterpreter old)
+        public ParserInterpreter([NotNull] Antlr4.Runtime.ParserInterpreter old)
             : base(((ITokenStream)old.InputStream))
         {
             // latch and only override once; error might trigger infinite loop
@@ -120,7 +120,7 @@ namespace Antlr4.Runtime
         {
         }
 
-        public ParserInterpreter(string grammarFileName, IVocabulary vocabulary, IEnumerable<string> ruleNames, ATN atn, ITokenStream input)
+        public ParserInterpreter(string grammarFileName, [NotNull] IVocabulary vocabulary, IEnumerable<string> ruleNames, ATN atn, ITokenStream input)
             : base(input)
         {
             this.grammarFileName = grammarFileName;

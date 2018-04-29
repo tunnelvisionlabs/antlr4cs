@@ -350,7 +350,7 @@ namespace Antlr4.Runtime
             Replace(DefaultProgramName, from, to, text);
         }
 
-        public virtual void Replace(string programName, int from, int to, object text)
+        public virtual void Replace(string programName, int from, int to, [Nullable] object text)
         {
             if (from > to || from < 0 || to < 0 || to >= tokens.Size)
             {
@@ -362,7 +362,7 @@ namespace Antlr4.Runtime
             rewrites.Add(op);
         }
 
-        public virtual void Replace(string programName, IToken from, IToken to, object text)
+        public virtual void Replace(string programName, IToken from, IToken to, [Nullable] object text)
         {
             Replace(programName, from.TokenIndex, to.TokenIndex, text);
         }

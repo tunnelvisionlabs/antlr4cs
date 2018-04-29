@@ -32,7 +32,7 @@ namespace Antlr4.Runtime
         {
         }
 
-        public LexerInterpreter(string grammarFileName, IVocabulary vocabulary, IEnumerable<string> ruleNames, IEnumerable<string> modeNames, ATN atn, ICharStream input)
+        public LexerInterpreter(string grammarFileName, [NotNull] IVocabulary vocabulary, IEnumerable<string> ruleNames, IEnumerable<string> modeNames, ATN atn, ICharStream input)
             : base(input)
         {
             if (atn.grammarType != ATNType.Lexer)

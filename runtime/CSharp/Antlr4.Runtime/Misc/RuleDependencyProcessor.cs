@@ -454,7 +454,7 @@ namespace Antlr4.Runtime.Misc
         }
 
         [Nullable]
-        private Tuple<IAnnotationMirror, IAnnotationValue> FindRuleDependencyProperty(Tuple<RuleDependency, IElement> dependency, RuleDependencyProcessor.RuleDependencyProperty property)
+        private Tuple<IAnnotationMirror, IAnnotationValue> FindRuleDependencyProperty([NotNull] Tuple<RuleDependency, IElement> dependency, [NotNull] RuleDependencyProcessor.RuleDependencyProperty property)
         {
             ITypeElement ruleDependencyTypeElement = processingEnv.GetElementUtils().GetTypeElement(RuleDependencyClassName);
             ITypeElement ruleDependenciesTypeElement = processingEnv.GetElementUtils().GetTypeElement(RuleDependenciesClassName);
@@ -511,7 +511,7 @@ namespace Antlr4.Runtime.Misc
         }
 
         [Nullable]
-        private IAnnotationValue FindRuleDependencyProperty(Tuple<RuleDependency, IElement> dependency, IAnnotationMirror annotationMirror, RuleDependencyProcessor.RuleDependencyProperty property)
+        private IAnnotationValue FindRuleDependencyProperty([NotNull] Tuple<RuleDependency, IElement> dependency, [NotNull] IAnnotationMirror annotationMirror, [NotNull] RuleDependencyProcessor.RuleDependencyProperty property)
         {
             IAnnotationValue recognizerValue = null;
             IAnnotationValue ruleValue = null;

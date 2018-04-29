@@ -266,7 +266,7 @@ namespace Antlr4.Runtime
         /// (root child1 .. childN). Print just a node if this is a leaf.
         /// We have to know the recognizer so we can get rule names.
         /// </remarks>
-        public virtual string ToStringTree(Parser recog)
+        public virtual string ToStringTree([Nullable] Parser recog)
         {
             return Trees.ToStringTree(this, recog);
         }
@@ -279,7 +279,7 @@ namespace Antlr4.Runtime
         /// Print out a whole tree, not just a node, in LISP format
         /// (root child1 .. childN). Print just a node if this is a leaf.
         /// </remarks>
-        public virtual string ToStringTree(IList<string> ruleNames)
+        public virtual string ToStringTree([Nullable] IList<string> ruleNames)
         {
             return Trees.ToStringTree(this, ruleNames);
         }
@@ -299,20 +299,20 @@ namespace Antlr4.Runtime
             return ToString(recog, ParserRuleContext.EmptyContext);
         }
 
-        public string ToString(IList<string> ruleNames)
+        public string ToString([Nullable] IList<string> ruleNames)
         {
             return ToString(ruleNames, null);
         }
 
         // recog null unless ParserRuleContext, in which case we use subclass toString(...)
-        public virtual string ToString(IRecognizer recog, Antlr4.Runtime.RuleContext stop)
+        public virtual string ToString(IRecognizer recog, [Nullable] Antlr4.Runtime.RuleContext stop)
         {
             string[] ruleNames = recog != null ? recog.RuleNames : null;
             IList<string> ruleNamesList = ruleNames != null ? Arrays.AsList(ruleNames) : null;
             return ToString(ruleNamesList, stop);
         }
 
-        public virtual string ToString(IList<string> ruleNames, Antlr4.Runtime.RuleContext stop)
+        public virtual string ToString([Nullable] IList<string> ruleNames, [Nullable] Antlr4.Runtime.RuleContext stop)
         {
             StringBuilder buf = new StringBuilder();
             Antlr4.Runtime.RuleContext p = this;

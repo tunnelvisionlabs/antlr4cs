@@ -2,6 +2,7 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Tree
@@ -19,12 +20,12 @@ namespace Antlr4.Runtime.Tree
     /// </summary>
     public interface IParseTreeListener
     {
-        void VisitTerminal(ITerminalNode node);
+        void VisitTerminal([NotNull] ITerminalNode node);
 
-        void VisitErrorNode(IErrorNode node);
+        void VisitErrorNode([NotNull] IErrorNode node);
 
-        void EnterEveryRule(ParserRuleContext ctx);
+        void EnterEveryRule([NotNull] ParserRuleContext ctx);
 
-        void ExitEveryRule(ParserRuleContext ctx);
+        void ExitEveryRule([NotNull] ParserRuleContext ctx);
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -37,7 +38,7 @@ namespace Antlr4.Runtime.Atn
         /// <param name="input">The input token stream</param>
         /// <param name="startIndex">The start index for the current prediction</param>
         /// <param name="stopIndex">The index at which the syntax error was identified</param>
-        public ErrorInfo(int decision, SimulatorState state, ITokenStream input, int startIndex, int stopIndex)
+        public ErrorInfo(int decision, [NotNull] SimulatorState state, [NotNull] ITokenStream input, int startIndex, int stopIndex)
             : base(decision, state, input, startIndex, stopIndex, state.useContext)
         {
         }

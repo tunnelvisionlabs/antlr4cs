@@ -76,7 +76,7 @@ namespace Antlr4.Runtime.Dfa
 
             public int alt;
 
-            public PredPrediction(SemanticContext pred, int alt)
+            public PredPrediction([NotNull] SemanticContext pred, int alt)
             {
                 // never null; at least SemanticContext.NONE
                 this.alt = alt;
@@ -89,12 +89,12 @@ namespace Antlr4.Runtime.Dfa
             }
         }
 
-        public DFAState(DFA dfa, ATNConfigSet configs)
+        public DFAState([NotNull] DFA dfa, [NotNull] ATNConfigSet configs)
             : this(dfa.EmptyEdgeMap, dfa.EmptyContextEdgeMap, configs)
         {
         }
 
-        public DFAState(EmptyEdgeMap<DFAState> emptyEdges, EmptyEdgeMap<DFAState> emptyContextEdges, ATNConfigSet configs)
+        public DFAState([NotNull] EmptyEdgeMap<DFAState> emptyEdges, [NotNull] EmptyEdgeMap<DFAState> emptyContextEdges, [NotNull] ATNConfigSet configs)
         {
             this.configs = configs;
             this.edges = emptyEdges;

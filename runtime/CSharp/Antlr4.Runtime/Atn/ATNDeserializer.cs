@@ -40,8 +40,8 @@ namespace Antlr4.Runtime.Atn
         static ATNDeserializer()
         {
             /* WARNING: DO NOT MERGE THESE LINES. If UUIDs differ during a merge,
-            * resolve the conflict by generating a new ID!
-            */
+             * resolve the conflict by generating a new ID!
+             */
             BaseSerializedUuid = new Guid("E4178468-DF95-44D0-AD87-F22A5D5FB6D3");
             AddedLexerActions = new Guid("AB35191A-1603-487E-B75A-479B831EAF6D");
             SupportedUuids = new List<Guid>();
@@ -58,7 +58,7 @@ namespace Antlr4.Runtime.Atn
         {
         }
 
-        public ATNDeserializer(ATNDeserializationOptions deserializationOptions)
+        public ATNDeserializer([Nullable] ATNDeserializationOptions deserializationOptions)
         {
             if (deserializationOptions == null)
             {
@@ -109,7 +109,7 @@ namespace Antlr4.Runtime.Atn
             return SupportedUuids.IndexOf(actualUuid) >= featureIndex;
         }
 
-        public virtual ATN Deserialize(char[] data)
+        public virtual ATN Deserialize([NotNull] char[] data)
         {
             data = (char[])data.Clone();
             // don't adjust the first value since that's the version number
@@ -582,7 +582,7 @@ namespace Antlr4.Runtime.Atn
         /// correct value.
         /// </summary>
         /// <param name="atn">The ATN.</param>
-        protected internal virtual void MarkPrecedenceDecisions(ATN atn)
+        protected internal virtual void MarkPrecedenceDecisions([NotNull] ATN atn)
         {
             // Map rule index -> precedence decision for that rule
             IDictionary<int, StarLoopEntryState> rulePrecedenceDecisions = new Dictionary<int, StarLoopEntryState>();
@@ -593,9 +593,9 @@ namespace Antlr4.Runtime.Atn
                     continue;
                 }
                 /* We analyze the ATN to determine if this ATN decision state is the
-                * decision for the closure block that determines whether a
-                * precedence rule should continue or complete.
-                */
+                 * decision for the closure block that determines whether a
+                 * precedence rule should continue or complete.
+                 */
                 if (atn.ruleToStartState[state.ruleIndex].isPrecedenceRule)
                 {
                     ATNState maybeLoopEndState = state.Transition(state.NumberOfTransitions - 1).target;
@@ -1120,7 +1120,7 @@ nextTransition_continue: ;
         }
 
         [return: NotNull]
-        protected internal virtual Transition EdgeFactory(ATN atn, TransitionType type, int src, int trg, int arg1, int arg2, int arg3, IList<IntervalSet> sets)
+        protected internal virtual Transition EdgeFactory([NotNull] ATN atn, TransitionType type, int src, int trg, int arg1, int arg2, int arg3, IList<IntervalSet> sets)
         {
             ATNState target = atn.states[trg];
             switch (type)

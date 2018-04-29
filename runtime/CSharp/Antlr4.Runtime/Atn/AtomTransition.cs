@@ -12,7 +12,7 @@ namespace Antlr4.Runtime.Atn
         /// <summary>The token type or character value; or, signifies special label.</summary>
         public readonly int label;
 
-        public AtomTransition(ATNState target, int label)
+        public AtomTransition([NotNull] ATNState target, int label)
             : base(target)
         {
             this.label = label;

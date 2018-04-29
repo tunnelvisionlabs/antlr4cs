@@ -1,6 +1,7 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -66,7 +67,7 @@ namespace Antlr4.Runtime
         /// ).
         /// </summary>
         /// <param name="tokenSource">The token source.</param>
-        public CommonTokenStream(ITokenSource tokenSource)
+        public CommonTokenStream([NotNull] ITokenSource tokenSource)
             : base(tokenSource)
         {
         }
@@ -88,7 +89,7 @@ namespace Antlr4.Runtime
         /// </summary>
         /// <param name="tokenSource">The token source.</param>
         /// <param name="channel">The channel to use for filtering tokens.</param>
-        public CommonTokenStream(ITokenSource tokenSource, int channel)
+        public CommonTokenStream([NotNull] ITokenSource tokenSource, int channel)
             : this(tokenSource)
         {
             this.channel = channel;

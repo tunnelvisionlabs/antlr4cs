@@ -12,7 +12,7 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         public readonly IntervalSet set;
 
-        public SetTransition(ATNState target, IntervalSet set)
+        public SetTransition([NotNull] ATNState target, [Nullable] IntervalSet set)
             : base(target)
         {
             // TODO (sam): should we really allow null here?

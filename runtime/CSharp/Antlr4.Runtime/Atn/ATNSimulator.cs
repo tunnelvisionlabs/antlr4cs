@@ -35,7 +35,7 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         public readonly ATN atn;
 
-        public ATNSimulator(ATN atn)
+        public ATNSimulator([NotNull] ATN atn)
         {
             this.atn = atn;
         }
@@ -60,7 +60,7 @@ namespace Antlr4.Runtime.Atn
         }
 
         [Obsolete(@"Use ATNDeserializer.Deserialize(char[]) instead.")]
-        public static ATN Deserialize(char[] data)
+        public static ATN Deserialize([NotNull] char[] data)
         {
             return new ATNDeserializer().Deserialize(data);
         }
@@ -103,7 +103,7 @@ namespace Antlr4.Runtime.Atn
 
         [return: NotNull]
         [Obsolete(@"Use ATNDeserializer.EdgeFactory(ATN, TransitionType, int, int, int, int, int, System.Collections.Generic.IList{E}) instead.")]
-        public static Transition EdgeFactory(ATN atn, TransitionType type, int src, int trg, int arg1, int arg2, int arg3, IList<IntervalSet> sets)
+        public static Transition EdgeFactory([NotNull] ATN atn, TransitionType type, int src, int trg, int arg1, int arg2, int arg3, IList<IntervalSet> sets)
         {
             return new ATNDeserializer().EdgeFactory(atn, type, src, trg, arg1, arg2, arg3, sets);
         }
@@ -113,16 +113,16 @@ namespace Antlr4.Runtime.Atn
         {
             return new ATNDeserializer().StateFactory(type, ruleIndex);
         }
-        /*
-        public static void dump(DFA dfa, Grammar g) {
-        DOTGenerator dot = new DOTGenerator(g);
-        String output = dot.getDOT(dfa, false);
-        System.out.println(output);
-        }
-        
-        public static void dump(DFA dfa) {
-        dump(dfa, null);
-        }
-        */
+/*
+	public static void dump(DFA dfa, Grammar g) {
+		DOTGenerator dot = new DOTGenerator(g);
+		String output = dot.getDOT(dfa, false);
+		System.out.println(output);
+	}
+
+	public static void dump(DFA dfa) {
+		dump(dfa, null);
+	}
+	 */
     }
 }

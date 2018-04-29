@@ -254,7 +254,7 @@ namespace Antlr4.Runtime.Atn
             [NotNull]
             public readonly SemanticContext[] opnds;
 
-            public AND(SemanticContext a, SemanticContext b)
+            public AND([NotNull] SemanticContext a, [NotNull] SemanticContext b)
             {
                 HashSet<SemanticContext> operands = new HashSet<SemanticContext>();
                 if (a is SemanticContext.AND)
@@ -382,7 +382,7 @@ namespace Antlr4.Runtime.Atn
             [NotNull]
             public readonly SemanticContext[] opnds;
 
-            public OR(SemanticContext a, SemanticContext b)
+            public OR([NotNull] SemanticContext a, [NotNull] SemanticContext b)
             {
                 HashSet<SemanticContext> operands = new HashSet<SemanticContext>();
                 if (a is SemanticContext.OR)

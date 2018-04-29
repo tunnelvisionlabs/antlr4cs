@@ -2,6 +2,7 @@
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
 using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -43,7 +44,7 @@ namespace Antlr4.Runtime.Atn
         /// The index at which the context sensitivity was
         /// identified during full-context prediction
         /// </param>
-        public ContextSensitivityInfo(int decision, SimulatorState state, ITokenStream input, int startIndex, int stopIndex)
+        public ContextSensitivityInfo(int decision, [NotNull] SimulatorState state, [NotNull] ITokenStream input, int startIndex, int stopIndex)
             : base(decision, state, input, startIndex, stopIndex, true)
         {
         }

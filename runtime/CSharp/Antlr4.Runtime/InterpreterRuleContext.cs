@@ -1,6 +1,7 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -39,7 +40,7 @@ namespace Antlr4.Runtime
         /// <param name="parent">The parent context.</param>
         /// <param name="invokingStateNumber">The invoking state number.</param>
         /// <param name="ruleIndex">The rule index for the current context.</param>
-        public InterpreterRuleContext(ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
+        public InterpreterRuleContext([Nullable] ParserRuleContext parent, int invokingStateNumber, int ruleIndex)
             : base(parent, invokingStateNumber)
         {
             this.ruleIndex = ruleIndex;

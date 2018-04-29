@@ -72,7 +72,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see cref="Antlr4.Runtime.Tree.IParseTree"/>
         /// form.
         /// </param>
-        public ParseTreePattern(ParseTreePatternMatcher matcher, string pattern, int patternRuleIndex, IParseTree patternTree)
+        public ParseTreePattern([NotNull] ParseTreePatternMatcher matcher, [NotNull] string pattern, int patternRuleIndex, [NotNull] IParseTree patternTree)
         {
             this.matcher = matcher;
             this.patternRuleIndex = patternRuleIndex;
@@ -92,7 +92,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// used to determine whether or not the match was successful.
         /// </returns>
         [return: NotNull]
-        public virtual ParseTreeMatch Match(IParseTree tree)
+        public virtual ParseTreeMatch Match([NotNull] IParseTree tree)
         {
             return matcher.Match(tree, this);
         }
@@ -109,7 +109,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="false"/>
         /// .
         /// </returns>
-        public virtual bool Matches(IParseTree tree)
+        public virtual bool Matches([NotNull] IParseTree tree)
         {
             return matcher.Match(tree, this).Succeeded;
         }
@@ -132,7 +132,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// regardless of the reason for the failure.
         /// </returns>
         [return: NotNull]
-        public virtual IList<ParseTreeMatch> FindAll(IParseTree tree, string xpath)
+        public virtual IList<ParseTreeMatch> FindAll([NotNull] IParseTree tree, [NotNull] string xpath)
         {
             ICollection<IParseTree> subtrees = XPath.FindAll(tree, xpath, matcher.Parser);
             IList<ParseTreeMatch> matches = new List<ParseTreeMatch>();

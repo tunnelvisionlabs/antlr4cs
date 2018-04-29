@@ -64,7 +64,7 @@ namespace Antlr4.Runtime.Atn
         /// </summary>
         public readonly bool fullCtx;
 
-        public DecisionEventInfo(int decision, SimulatorState state, ITokenStream input, int startIndex, int stopIndex, bool fullCtx)
+        public DecisionEventInfo(int decision, [Nullable] SimulatorState state, [NotNull] ITokenStream input, int startIndex, int stopIndex, bool fullCtx)
         {
             this.decision = decision;
             this.fullCtx = fullCtx;

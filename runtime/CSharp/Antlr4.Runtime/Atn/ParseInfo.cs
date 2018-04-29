@@ -17,7 +17,7 @@ namespace Antlr4.Runtime.Atn
     {
         protected internal readonly ProfilingATNSimulator atnSimulator;
 
-        public ParseInfo(ProfilingATNSimulator atnSimulator)
+        public ParseInfo([NotNull] ProfilingATNSimulator atnSimulator)
         {
             this.atnSimulator = atnSimulator;
         }

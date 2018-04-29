@@ -87,7 +87,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Mode()"/>
         /// .</p>
         /// </summary>
-        public void Execute(Lexer lexer)
+        public void Execute([NotNull] Lexer lexer)
         {
             lexer.Mode(mode);
         }

@@ -278,7 +278,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// string representation of a tree pattern.
         /// </summary>
         [return: NotNull]
-        public virtual ParseTreeMatch Match(IParseTree tree, ParseTreePattern pattern)
+        public virtual ParseTreeMatch Match([NotNull] IParseTree tree, [NotNull] ParseTreePattern pattern)
         {
             MultiMap<string, IParseTree> labels = new MultiMap<string, IParseTree>();
             IParseTree mismatchedNode = MatchImpl(tree, pattern.PatternTree, labels);
@@ -374,7 +374,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// algorithm used by the implementation, and may be overridden.
         /// </returns>
         [return: Nullable]
-        protected internal virtual IParseTree MatchImpl(IParseTree tree, IParseTree patternTree, MultiMap<string, IParseTree> labels)
+        protected internal virtual IParseTree MatchImpl([NotNull] IParseTree tree, [NotNull] IParseTree patternTree, [NotNull] MultiMap<string, IParseTree> labels)
         {
             if (tree == null)
             {

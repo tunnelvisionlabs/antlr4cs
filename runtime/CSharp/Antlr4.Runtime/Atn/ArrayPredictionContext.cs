@@ -17,7 +17,7 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         public readonly int[] returnStates;
 
-        internal ArrayPredictionContext(PredictionContext[] parents, int[] returnStates)
+        internal ArrayPredictionContext([NotNull] PredictionContext[] parents, int[] returnStates)
             : base(CalculateHashCode(parents, returnStates))
         {
             /*package*/
@@ -27,7 +27,7 @@ namespace Antlr4.Runtime.Atn
             this.returnStates = returnStates;
         }
 
-        internal ArrayPredictionContext(PredictionContext[] parents, int[] returnStates, int hashCode)
+        internal ArrayPredictionContext([NotNull] PredictionContext[] parents, int[] returnStates, int hashCode)
             : base(hashCode)
         {
             /*package*/

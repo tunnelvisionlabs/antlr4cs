@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -36,7 +37,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        public virtual void SyntaxError(IRecognizer recognizer, Symbol offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+        public virtual void SyntaxError([NotNull] IRecognizer recognizer, [Nullable] Symbol offendingSymbol, int line, int charPositionInLine, [NotNull] string msg, [Nullable] RecognitionException e)
         {
             foreach (IAntlrErrorListener<Symbol> listener in delegates)
             {

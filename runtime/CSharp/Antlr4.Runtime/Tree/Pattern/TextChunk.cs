@@ -35,7 +35,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// <see langword="null"/>
         /// .
         /// </exception>
-        public TextChunk(string text)
+        public TextChunk([NotNull] string text)
         {
             if (text == null)
             {

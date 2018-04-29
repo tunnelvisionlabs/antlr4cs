@@ -29,7 +29,7 @@ namespace Antlr4.Runtime.Dfa
         }
 
         [return: NotNull]
-        IEdgeMap<T> Put(int key, T value);
+        IEdgeMap<T> Put(int key, [Nullable] T value);
 
         [return: NotNull]
         IEdgeMap<T> Remove(int key);

@@ -1,6 +1,7 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -49,6 +50,6 @@ namespace Antlr4.Runtime
         /// the parser was able to recover in line without exiting the
         /// surrounding rule.
         /// </param>
-        void SyntaxError(IRecognizer recognizer, TSymbol offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e);
+        void SyntaxError([NotNull] IRecognizer recognizer, [Nullable] TSymbol offendingSymbol, int line, int charPositionInLine, [NotNull] string msg, [Nullable] RecognitionException e);
     }
 }

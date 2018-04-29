@@ -106,7 +106,7 @@ namespace Antlr4.Runtime
         /// </summary>
         protected internal bool fetchedEOF;
 
-        public BufferedTokenStream(ITokenSource tokenSource)
+        public BufferedTokenStream([NotNull] ITokenSource tokenSource)
         {
             if (tokenSource == null)
             {

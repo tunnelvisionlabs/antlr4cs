@@ -87,18 +87,18 @@ namespace Antlr4.Runtime.Atn
 
         public static int match_calls = 0;
 
-        public LexerATNSimulator(ATN atn)
+        public LexerATNSimulator([NotNull] ATN atn)
             : this(null, atn)
         {
         }
 
-        public LexerATNSimulator(Lexer recog, ATN atn)
+        public LexerATNSimulator([Nullable] Lexer recog, [NotNull] ATN atn)
             : base(atn)
         {
             this.recog = recog;
         }
 
-        public virtual void CopyState(LexerATNSimulator simulator)
+        public virtual void CopyState([NotNull] LexerATNSimulator simulator)
         {
             this.charPositionInLine = simulator.charPositionInLine;
             this.line = simulator.line;
@@ -106,7 +106,7 @@ namespace Antlr4.Runtime.Atn
             this.startIndex = simulator.startIndex;
         }
 
-        public virtual int Match(ICharStream input, int mode)
+        public virtual int Match([NotNull] ICharStream input, int mode)
         {
             match_calls++;
             this.mode = mode;
@@ -140,7 +140,7 @@ namespace Antlr4.Runtime.Atn
             mode = Lexer.DefaultMode;
         }
 
-        protected internal virtual int MatchATN(ICharStream input)
+        protected internal virtual int MatchATN([NotNull] ICharStream input)
         {
             ATNState startState = atn.modeToStartState[mode];
             int old_mode = mode;
@@ -162,7 +162,7 @@ namespace Antlr4.Runtime.Atn
             return predict;
         }
 
-        protected internal virtual int ExecATN(ICharStream input, DFAState ds0)
+        protected internal virtual int ExecATN([NotNull] ICharStream input, [NotNull] DFAState ds0)
         {
             //System.out.println("enter exec index "+input.index()+" from "+ds0.configs);
             if (ds0.IsAcceptState)
@@ -244,7 +244,7 @@ namespace Antlr4.Runtime.Atn
         /// already cached
         /// </returns>
         [return: Nullable]
-        protected internal virtual DFAState GetExistingTargetState(DFAState s, int t)
+        protected internal virtual DFAState GetExistingTargetState([NotNull] DFAState s, int t)
         {
             DFAState target = s.GetTarget(t);
 #if !PORTABLE
@@ -274,7 +274,7 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </returns>
         [return: NotNull]
-        protected internal virtual DFAState ComputeTargetState(ICharStream input, DFAState s, int t)
+        protected internal virtual DFAState ComputeTargetState([NotNull] ICharStream input, [NotNull] DFAState s, int t)
         {
             ATNConfigSet reach = new OrderedATNConfigSet();
             // if we don't find an existing DFA state
@@ -324,7 +324,7 @@ namespace Antlr4.Runtime.Atn
         /// is a return
         /// parameter.
         /// </summary>
-        protected internal virtual void GetReachableConfigSet(ICharStream input, ATNConfigSet closure, ATNConfigSet reach, int t)
+        protected internal virtual void GetReachableConfigSet([NotNull] ICharStream input, [NotNull] ATNConfigSet closure, [NotNull] ATNConfigSet reach, int t)
         {
             // this is used to skip processing for configs which have a lower priority
             // than a config that already reached an accept state for the same rule
@@ -362,7 +362,7 @@ namespace Antlr4.Runtime.Atn
             }
         }
 
-        protected internal virtual void Accept(ICharStream input, LexerActionExecutor lexerActionExecutor, int startIndex, int index, int line, int charPos)
+        protected internal virtual void Accept([NotNull] ICharStream input, LexerActionExecutor lexerActionExecutor, int startIndex, int index, int line, int charPos)
         {
             // seek to after last char in token
             input.Seek(index);
@@ -385,7 +385,7 @@ namespace Antlr4.Runtime.Atn
         }
 
         [return: NotNull]
-        protected internal virtual ATNConfigSet ComputeStartState(ICharStream input, ATNState p)
+        protected internal virtual ATNConfigSet ComputeStartState([NotNull] ICharStream input, [NotNull] ATNState p)
         {
             PredictionContext initialContext = PredictionContext.EmptyFull;
             ATNConfigSet configs = new OrderedATNConfigSet();
@@ -419,7 +419,7 @@ namespace Antlr4.Runtime.Atn
         /// <see langword="false"/>
         /// .
         /// </returns>
-        protected internal virtual bool Closure(ICharStream input, ATNConfig config, ATNConfigSet configs, bool currentAltReachedAcceptState, bool speculative, bool treatEofAsEpsilon)
+        protected internal virtual bool Closure([NotNull] ICharStream input, [NotNull] ATNConfig config, [NotNull] ATNConfigSet configs, bool currentAltReachedAcceptState, bool speculative, bool treatEofAsEpsilon)
         {
             if (config.State is RuleStopState)
             {
@@ -475,7 +475,7 @@ namespace Antlr4.Runtime.Atn
 
         // side-effect: can alter configs.hasSemanticContext
         [return: Nullable]
-        protected internal virtual ATNConfig GetEpsilonTarget(ICharStream input, ATNConfig config, Transition t, ATNConfigSet configs, bool speculative, bool treatEofAsEpsilon)
+        protected internal virtual ATNConfig GetEpsilonTarget([NotNull] ICharStream input, [NotNull] ATNConfig config, [NotNull] Transition t, [NotNull] ATNConfigSet configs, bool speculative, bool treatEofAsEpsilon)
         {
             ATNConfig c;
             switch (t.TransitionType)
@@ -502,24 +502,24 @@ namespace Antlr4.Runtime.Atn
 
                 case TransitionType.Predicate:
                 {
-                    /*  Track traversing semantic predicates. If we traverse,
-                    we cannot add a DFA state for this "reach" computation
-                    because the DFA would not test the predicate again in the
-                    future. Rather than creating collections of semantic predicates
-                    like v3 and testing them on prediction, v4 will test them on the
-                    fly all the time using the ATN not the DFA. This is slower but
-                    semantically it's not used that often. One of the key elements to
-                    this predicate mechanism is not adding DFA states that see
-                    predicates immediately afterwards in the ATN. For example,
-                    
-                    a : ID {p1}? | ID {p2}? ;
-                    
-                    should create the start state for rule 'a' (to save start state
-                    competition), but should not create target of ID state. The
-                    collection of ATN states the following ID references includes
-                    states reached by traversing predicates. Since this is when we
-                    test them, we cannot cash the DFA state target of ID.
-                    */
+			/*  Track traversing semantic predicates. If we traverse,
+			    we cannot add a DFA state for this "reach" computation
+				because the DFA would not test the predicate again in the
+				future. Rather than creating collections of semantic predicates
+				like v3 and testing them on prediction, v4 will test them on the
+				fly all the time using the ATN not the DFA. This is slower but
+				semantically it's not used that often. One of the key elements to
+				this predicate mechanism is not adding DFA states that see
+				predicates immediately afterwards in the ATN. For example,
+
+				a : ID {p1}? | ID {p2}? ;
+
+				should create the start state for rule 'a' (to save start state
+				competition), but should not create target of ID state. The
+				collection of ATN states the following ID references includes
+				states reached by traversing predicates. Since this is when we
+				test them, we cannot cash the DFA state target of ID.
+			*/
                     PredicateTransition pt = (PredicateTransition)t;
                     configs.MarkExplicitSemanticContext();
                     if (EvaluatePredicate(input, pt.ruleIndex, pt.predIndex, speculative))
@@ -638,7 +638,7 @@ namespace Antlr4.Runtime.Atn
         /// <see langword="true"/>
         /// .
         /// </returns>
-        protected internal virtual bool EvaluatePredicate(ICharStream input, int ruleIndex, int predIndex, bool speculative)
+        protected internal virtual bool EvaluatePredicate([NotNull] ICharStream input, int ruleIndex, int predIndex, bool speculative)
         {
             // assume true if no recognizer was provided
             if (recog == null)
@@ -667,7 +667,7 @@ namespace Antlr4.Runtime.Atn
             }
         }
 
-        protected internal virtual void CaptureSimState(LexerATNSimulator.SimState settings, ICharStream input, DFAState dfaState)
+        protected internal virtual void CaptureSimState([NotNull] LexerATNSimulator.SimState settings, [NotNull] ICharStream input, [NotNull] DFAState dfaState)
         {
             settings.index = input.Index;
             settings.line = line;
@@ -676,19 +676,19 @@ namespace Antlr4.Runtime.Atn
         }
 
         [return: NotNull]
-        protected internal virtual DFAState AddDFAEdge(DFAState from, int t, ATNConfigSet q)
+        protected internal virtual DFAState AddDFAEdge([NotNull] DFAState from, int t, [NotNull] ATNConfigSet q)
         {
             /* leading to this call, ATNConfigSet.hasSemanticContext is used as a
-            * marker indicating dynamic predicate evaluation makes this edge
-            * dependent on the specific input sequence, so the static edge in the
-            * DFA should be omitted. The target DFAState is still created since
-            * execATN has the ability to resynchronize with the DFA state cache
-            * following the predicate evaluation step.
-            *
-            * TJP notes: next time through the DFA, we see a pred again and eval.
-            * If that gets us to a previously created (but dangling) DFA
-            * state, we can continue in pure DFA mode from there.
-            */
+             * marker indicating dynamic predicate evaluation makes this edge
+             * dependent on the specific input sequence, so the static edge in the
+             * DFA should be omitted. The target DFAState is still created since
+             * execATN has the ability to resynchronize with the DFA state cache
+             * following the predicate evaluation step.
+             *
+             * TJP notes: next time through the DFA, we see a pred again and eval.
+             * If that gets us to a previously created (but dangling) DFA
+             * state, we can continue in pure DFA mode from there.
+             */
             bool suppressEdge = q.HasSemanticContext;
             if (suppressEdge)
             {
@@ -703,7 +703,7 @@ namespace Antlr4.Runtime.Atn
             return to;
         }
 
-        protected internal virtual void AddDFAEdge(DFAState p, int t, DFAState q)
+        protected internal virtual void AddDFAEdge([NotNull] DFAState p, int t, [NotNull] DFAState q)
         {
             if (p != null)
             {
@@ -722,11 +722,11 @@ namespace Antlr4.Runtime.Atn
         /// traversing the DFA, we will know which rule to accept.
         /// </remarks>
         [return: NotNull]
-        protected internal virtual DFAState AddDFAState(ATNConfigSet configs)
+        protected internal virtual DFAState AddDFAState([NotNull] ATNConfigSet configs)
         {
             /* the lexer evaluates predicates on-the-fly; by this point configs
-            * should not contain any configurations with unevaluated predicates.
-            */
+             * should not contain any configurations with unevaluated predicates.
+             */
             System.Diagnostics.Debug.Assert(!configs.HasSemanticContext);
             DFAState proposed = new DFAState(atn.modeToDFA[mode], configs);
             DFAState existing;
@@ -762,7 +762,7 @@ namespace Antlr4.Runtime.Atn
 
         /// <summary>Get the text matched so far for the current token.</summary>
         [return: NotNull]
-        public virtual string GetText(ICharStream input)
+        public virtual string GetText([NotNull] ICharStream input)
         {
             // index is first lookahead char, don't include.
             return input.GetText(Interval.Of(startIndex, input.Index - 1));
@@ -794,7 +794,7 @@ namespace Antlr4.Runtime.Atn
             }
         }
 
-        public virtual void Consume(ICharStream input)
+        public virtual void Consume([NotNull] ICharStream input)
         {
             int curChar = input.La(1);
             if (curChar == '\n')

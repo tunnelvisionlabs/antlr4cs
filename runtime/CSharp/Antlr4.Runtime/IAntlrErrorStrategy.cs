@@ -33,7 +33,7 @@ namespace Antlr4.Runtime
         /// .
         /// </summary>
         /// <param name="recognizer">the parser instance</param>
-        void Reset(Parser recognizer);
+        void Reset([NotNull] Parser recognizer);
 
         /// <summary>
         /// This method is called when an unexpected symbol is encountered during an
@@ -62,7 +62,7 @@ namespace Antlr4.Runtime
         /// </exception>
         /// <exception cref="Antlr4.Runtime.RecognitionException"/>
         [return: NotNull]
-        IToken RecoverInline(Parser recognizer);
+        IToken RecoverInline([NotNull] Parser recognizer);
 
         /// <summary>
         /// This method is called to recover from exception
@@ -81,7 +81,7 @@ namespace Antlr4.Runtime
         /// the recognition exception
         /// </exception>
         /// <exception cref="Antlr4.Runtime.RecognitionException"/>
-        void Recover(Parser recognizer, RecognitionException e);
+        void Recover([NotNull] Parser recognizer, [NotNull] RecognitionException e);
 
         /// <summary>
         /// This method provides the error handler with an opportunity to handle
@@ -108,7 +108,7 @@ namespace Antlr4.Runtime
         /// the parsing process
         /// </exception>
         /// <exception cref="Antlr4.Runtime.RecognitionException"/>
-        void Sync(Parser recognizer);
+        void Sync([NotNull] Parser recognizer);
 
         /// <summary>
         /// Tests whether or not
@@ -131,14 +131,14 @@ namespace Antlr4.Runtime
         /// error, otherwise
         /// <see langword="false"/>
         /// </returns>
-        bool InErrorRecoveryMode(Parser recognizer);
+        bool InErrorRecoveryMode([NotNull] Parser recognizer);
 
         /// <summary>
         /// This method is called by when the parser successfully matches an input
         /// symbol.
         /// </summary>
         /// <param name="recognizer">the parser instance</param>
-        void ReportMatch(Parser recognizer);
+        void ReportMatch([NotNull] Parser recognizer);
 
         /// <summary>
         /// Report any kind of
@@ -148,6 +148,6 @@ namespace Antlr4.Runtime
         /// </summary>
         /// <param name="recognizer">the parser instance</param>
         /// <param name="e">the recognition exception to report</param>
-        void ReportError(Parser recognizer, RecognitionException e);
+        void ReportError([NotNull] Parser recognizer, [NotNull] RecognitionException e);
     }
 }

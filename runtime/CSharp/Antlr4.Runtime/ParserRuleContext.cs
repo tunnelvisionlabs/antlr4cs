@@ -150,7 +150,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        public ParserRuleContext(Antlr4.Runtime.ParserRuleContext parent, int invokingStateNumber)
+        public ParserRuleContext([Nullable] Antlr4.Runtime.ParserRuleContext parent, int invokingStateNumber)
             : base(parent, invokingStateNumber)
         {
         }

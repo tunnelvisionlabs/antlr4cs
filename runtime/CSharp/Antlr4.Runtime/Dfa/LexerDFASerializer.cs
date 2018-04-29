@@ -9,7 +9,7 @@ namespace Antlr4.Runtime.Dfa
 {
     public class LexerDFASerializer : DFASerializer
     {
-        public LexerDFASerializer(DFA dfa)
+        public LexerDFASerializer([NotNull] DFA dfa)
             : base(dfa, Vocabulary.EmptyVocabulary)
         {
         }

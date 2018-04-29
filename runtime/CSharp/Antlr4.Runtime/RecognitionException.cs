@@ -46,14 +46,14 @@ namespace Antlr4.Runtime
 
         private int offendingState = -1;
 
-        public RecognitionException(Lexer lexer, ICharStream input)
+        public RecognitionException([Nullable] Lexer lexer, ICharStream input)
         {
             this.recognizer = lexer;
             this.input = input;
             this.ctx = null;
         }
 
-        public RecognitionException(IRecognizer recognizer, IIntStream input, ParserRuleContext ctx)
+        public RecognitionException([Nullable] IRecognizer recognizer, [Nullable] IIntStream input, [Nullable] ParserRuleContext ctx)
         {
             this.recognizer = recognizer;
             this.input = input;
@@ -64,7 +64,7 @@ namespace Antlr4.Runtime
             }
         }
 
-        public RecognitionException(string message, IRecognizer recognizer, IIntStream input, ParserRuleContext ctx)
+        public RecognitionException(string message, [Nullable] IRecognizer recognizer, [Nullable] IIntStream input, [Nullable] ParserRuleContext ctx)
             : base(message)
         {
             this.recognizer = recognizer;

@@ -39,12 +39,12 @@ namespace Antlr4.Runtime
         [NotNull]
         private readonly IToken startToken;
 
-        public NoViableAltException(Parser recognizer)
+        public NoViableAltException([NotNull] Parser recognizer)
             : this(recognizer, ((ITokenStream)recognizer.InputStream), recognizer.CurrentToken, recognizer.CurrentToken, null, recognizer._ctx)
         {
         }
 
-        public NoViableAltException(IRecognizer recognizer, ITokenStream input, IToken startToken, IToken offendingToken, ATNConfigSet deadEndConfigs, ParserRuleContext ctx)
+        public NoViableAltException([NotNull] IRecognizer recognizer, [NotNull] ITokenStream input, [NotNull] IToken startToken, [NotNull] IToken offendingToken, [Nullable] ATNConfigSet deadEndConfigs, [NotNull] ParserRuleContext ctx)
             : base(recognizer, input, ctx)
         {
             // LL(1) error

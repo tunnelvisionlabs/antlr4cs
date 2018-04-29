@@ -20,7 +20,7 @@ namespace Antlr4.Runtime
         [Nullable]
         private readonly ATNConfigSet deadEndConfigs;
 
-        public LexerNoViableAltException(Lexer lexer, ICharStream input, int startIndex, ATNConfigSet deadEndConfigs)
+        public LexerNoViableAltException([Nullable] Lexer lexer, [NotNull] ICharStream input, int startIndex, [Nullable] ATNConfigSet deadEndConfigs)
             : base(lexer, input)
         {
             this.startIndex = startIndex;

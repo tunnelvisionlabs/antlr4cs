@@ -94,7 +94,7 @@ namespace Antlr4.Runtime
             this.source = EmptySource;
         }
 
-        public CommonToken(Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop)
+        public CommonToken([NotNull] Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop)
         {
             this.source = source;
             this.type = type;
@@ -157,7 +157,7 @@ namespace Antlr4.Runtime
         /// .</p>
         /// </summary>
         /// <param name="oldToken">The token to copy.</param>
-        public CommonToken(IToken oldToken)
+        public CommonToken([NotNull] IToken oldToken)
         {
             type = oldToken.Type;
             line = oldToken.Line;

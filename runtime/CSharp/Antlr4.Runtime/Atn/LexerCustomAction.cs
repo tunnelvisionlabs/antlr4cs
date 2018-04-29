@@ -121,7 +121,7 @@ namespace Antlr4.Runtime.Atn
         /// with the
         /// appropriate rule and action indexes.</p>
         /// </summary>
-        public void Execute(Lexer lexer)
+        public void Execute([NotNull] Lexer lexer)
         {
             lexer.Action(null, ruleIndex, actionIndex);
         }

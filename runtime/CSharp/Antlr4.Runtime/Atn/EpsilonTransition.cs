@@ -10,12 +10,12 @@ namespace Antlr4.Runtime.Atn
     {
         private readonly int outermostPrecedenceReturn;
 
-        public EpsilonTransition(ATNState target)
+        public EpsilonTransition([NotNull] ATNState target)
             : this(target, -1)
         {
         }
 
-        public EpsilonTransition(ATNState target, int outermostPrecedenceReturn)
+        public EpsilonTransition([NotNull] ATNState target, int outermostPrecedenceReturn)
             : base(target)
         {
             this.outermostPrecedenceReturn = outermostPrecedenceReturn;

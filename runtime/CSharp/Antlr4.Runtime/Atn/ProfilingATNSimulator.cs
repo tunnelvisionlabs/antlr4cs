@@ -4,6 +4,7 @@
 using System;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Dfa;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 #if !PORTABLE || NET45PLUS
 using Stopwatch = System.Diagnostics.Stopwatch;
@@ -220,7 +221,7 @@ namespace Antlr4.Runtime.Atn
             base.ReportAttemptingFullContext(dfa, conflictingAlts, conflictState, startIndex, stopIndex);
         }
 
-        protected internal override void ReportAmbiguity(DFA dfa, DFAState D, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
+        protected internal override void ReportAmbiguity([NotNull] DFA dfa, DFAState D, int startIndex, int stopIndex, bool exact, [NotNull] BitSet ambigAlts, [NotNull] ATNConfigSet configs)
         {
             int prediction;
             if (ambigAlts != null)

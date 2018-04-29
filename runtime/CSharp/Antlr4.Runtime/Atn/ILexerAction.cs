@@ -70,6 +70,6 @@ namespace Antlr4.Runtime.Atn
         /// positioned correctly prior to calling this method.</p>
         /// </summary>
         /// <param name="lexer">The lexer instance.</param>
-        void Execute(Lexer lexer);
+        void Execute([NotNull] Lexer lexer);
     }
 }

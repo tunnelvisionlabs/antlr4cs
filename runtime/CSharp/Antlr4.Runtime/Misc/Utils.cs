@@ -95,7 +95,7 @@ namespace Antlr4.Runtime.Misc
             return buf.ToString();
         }
 
-        public static void RemoveAll<T>(IList<T> list, Predicate<T> predicate)
+        public static void RemoveAll<T>([NotNull] IList<T> list, Predicate<T> predicate)
         {
             int j = 0;
             for (int i = 0; i < list.Count; i++)
@@ -147,7 +147,7 @@ namespace Antlr4.Runtime.Misc
 
         /// <since>4.5</since>
         [return: NotNull]
-        public static IntervalSet ToSet(BitSet bits)
+        public static IntervalSet ToSet([NotNull] BitSet bits)
         {
             IntervalSet s = new IntervalSet();
             int i = bits.NextSetBit(0);

@@ -55,7 +55,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Antlr4.Runtime.ICharStream"/>
         /// .
         /// </param>
-        public LexerIndexedCustomAction(int offset, ILexerAction action)
+        public LexerIndexedCustomAction(int offset, [NotNull] ILexerAction action)
         {
             this.offset = offset;
             this.action = action;

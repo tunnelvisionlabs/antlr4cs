@@ -43,7 +43,7 @@ namespace Antlr4.Runtime.Atn
         /// actions.
         /// </summary>
         /// <param name="lexerActions">The lexer actions to execute.</param>
-        public LexerActionExecutor(ILexerAction[] lexerActions)
+        public LexerActionExecutor([NotNull] ILexerAction[] lexerActions)
         {
             this.lexerActions = lexerActions;
             int hash = MurmurHash.Initialize();
@@ -90,7 +90,7 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </returns>
         [return: NotNull]
-        public static Antlr4.Runtime.Atn.LexerActionExecutor Append(Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor, ILexerAction lexerAction)
+        public static Antlr4.Runtime.Atn.LexerActionExecutor Append([Nullable] Antlr4.Runtime.Atn.LexerActionExecutor lexerActionExecutor, [NotNull] ILexerAction lexerAction)
         {
             if (lexerActionExecutor == null)
             {
@@ -208,7 +208,7 @@ namespace Antlr4.Runtime.Atn
         /// position to the beginning
         /// of the token.
         /// </param>
-        public virtual void Execute(Lexer lexer, ICharStream input, int startIndex)
+        public virtual void Execute([NotNull] Lexer lexer, ICharStream input, int startIndex)
         {
             bool requiresSeek = false;
             int stopIndex = input.Index;

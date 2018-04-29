@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime
@@ -87,7 +88,7 @@ namespace Antlr4.Runtime
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ListTokenSource(IList<IToken> tokens)
+        public ListTokenSource([NotNull] IList<IToken> tokens)
             : this(tokens, null)
         {
         }
@@ -127,7 +128,7 @@ namespace Antlr4.Runtime
         /// is
         /// <see langword="null"/>
         /// </exception>
-        public ListTokenSource(IList<IToken> tokens, string sourceName)
+        public ListTokenSource([NotNull] IList<IToken> tokens, string sourceName)
         {
             if (tokens == null)
             {

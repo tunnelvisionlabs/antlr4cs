@@ -1,6 +1,7 @@
 // Copyright (c) Terence Parr, Sam Harwell. All Rights Reserved.
 // Licensed under the BSD License. See LICENSE.txt in the project root for license information.
 
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
 namespace Antlr4.Runtime.Atn
@@ -13,12 +14,12 @@ namespace Antlr4.Runtime.Atn
 
         public readonly bool isCtxDependent;
 
-        public ActionTransition(ATNState target, int ruleIndex)
+        public ActionTransition([NotNull] ATNState target, int ruleIndex)
             : this(target, ruleIndex, -1, false)
         {
         }
 
-        public ActionTransition(ATNState target, int ruleIndex, int actionIndex, bool isCtxDependent)
+        public ActionTransition([NotNull] ATNState target, int ruleIndex, int actionIndex, bool isCtxDependent)
             : base(target)
         {
             // e.g., $i ref in action

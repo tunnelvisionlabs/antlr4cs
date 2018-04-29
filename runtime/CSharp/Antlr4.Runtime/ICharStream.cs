@@ -46,6 +46,6 @@ namespace Antlr4.Runtime
         /// getting the text of the specified interval
         /// </exception>
         [return: NotNull]
-        string GetText(Interval interval);
+        string GetText([NotNull] Interval interval);
     }
 }

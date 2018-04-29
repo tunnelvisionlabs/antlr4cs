@@ -82,7 +82,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Type()"/>
         /// .</p>
         /// </summary>
-        public virtual void Execute(Lexer lexer)
+        public virtual void Execute([NotNull] Lexer lexer)
         {
             lexer.Type = type;
         }

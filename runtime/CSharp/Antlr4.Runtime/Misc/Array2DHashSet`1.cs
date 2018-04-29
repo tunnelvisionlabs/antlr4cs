@@ -39,12 +39,12 @@ namespace Antlr4.Runtime.Misc
         {
         }
 
-        public Array2DHashSet(EqualityComparer<T> comparator)
+        public Array2DHashSet([Nullable] EqualityComparer<T> comparator)
             : this(comparator, InitalCapacity, InitalBucketCapacity)
         {
         }
 
-        public Array2DHashSet(EqualityComparer<T> comparator, int initialCapacity, int initialBucketCapacity)
+        public Array2DHashSet([Nullable] EqualityComparer<T> comparator, int initialCapacity, int initialBucketCapacity)
         {
             // must be power of 2
             // when to expand
@@ -267,7 +267,7 @@ namespace Antlr4.Runtime.Misc
             return ContainsFast(AsElementType(o));
         }
 
-        public virtual bool ContainsFast(T obj)
+        public virtual bool ContainsFast([Nullable] T obj)
         {
             if (obj == null)
             {
@@ -335,7 +335,7 @@ namespace Antlr4.Runtime.Misc
             return RemoveFast(AsElementType(o));
         }
 
-        public virtual bool RemoveFast(T obj)
+        public virtual bool RemoveFast([Nullable] T obj)
         {
             if (obj == null)
             {

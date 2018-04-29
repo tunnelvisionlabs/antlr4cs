@@ -20,7 +20,7 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         public readonly ATN atn;
 
-        public LL1Analyzer(ATN atn)
+        public LL1Analyzer([NotNull] ATN atn)
         {
             this.atn = atn;
         }
@@ -45,7 +45,7 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </returns>
         [return: Nullable]
-        public virtual IntervalSet[] GetDecisionLookahead(ATNState s)
+        public virtual IntervalSet[] GetDecisionLookahead([Nullable] ATNState s)
         {
             //		System.out.println("LOOK("+s.stateNumber+")");
             if (s == null)
@@ -111,7 +111,7 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </returns>
         [return: NotNull]
-        public virtual IntervalSet Look(ATNState s, PredictionContext ctx)
+        public virtual IntervalSet Look([NotNull] ATNState s, [NotNull] PredictionContext ctx)
         {
             return Look(s, s.atn.ruleToStopState[s.ruleIndex], ctx);
         }
@@ -162,7 +162,7 @@ namespace Antlr4.Runtime.Atn
         /// .
         /// </returns>
         [return: NotNull]
-        public virtual IntervalSet Look(ATNState s, ATNState stopState, PredictionContext ctx)
+        public virtual IntervalSet Look([NotNull] ATNState s, [Nullable] ATNState stopState, [NotNull] PredictionContext ctx)
         {
             IntervalSet r = new IntervalSet();
             bool seeThruPreds = true;
@@ -252,7 +252,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="PredictionContext.EmptyLocal"/>
         /// .
         /// </param>
-        protected internal virtual void Look(ATNState s, ATNState stopState, PredictionContext ctx, IntervalSet look, HashSet<ATNConfig> lookBusy, BitSet calledRuleStack, bool seeThruPreds, bool addEOF)
+        protected internal virtual void Look([NotNull] ATNState s, [Nullable] ATNState stopState, [NotNull] PredictionContext ctx, [NotNull] IntervalSet look, [NotNull] HashSet<ATNConfig> lookBusy, [NotNull] BitSet calledRuleStack, bool seeThruPreds, bool addEOF)
         {
             //		System.out.println("_LOOK("+s.stateNumber+", ctx="+ctx);
             ATNConfig c = ATNConfig.Create(s, 0, ctx);

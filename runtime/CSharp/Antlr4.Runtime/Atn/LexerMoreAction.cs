@@ -70,7 +70,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Antlr4.Runtime.Lexer.More()"/>
         /// .</p>
         /// </summary>
-        public void Execute(Lexer lexer)
+        public void Execute([NotNull] Lexer lexer)
         {
             lexer.More();
         }

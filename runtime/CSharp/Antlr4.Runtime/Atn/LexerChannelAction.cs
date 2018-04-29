@@ -90,7 +90,7 @@ namespace Antlr4.Runtime.Atn
         /// <see cref="Channel()"/>
         /// .</p>
         /// </summary>
-        public void Execute(Lexer lexer)
+        public void Execute([NotNull] Lexer lexer)
         {
             lexer.Channel = channel;
         }

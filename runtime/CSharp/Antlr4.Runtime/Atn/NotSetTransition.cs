@@ -8,7 +8,7 @@ namespace Antlr4.Runtime.Atn
 {
     public sealed class NotSetTransition : SetTransition
     {
-        public NotSetTransition(ATNState target, IntervalSet set)
+        public NotSetTransition([NotNull] ATNState target, [Nullable] IntervalSet set)
             : base(target, set)
         {
         }

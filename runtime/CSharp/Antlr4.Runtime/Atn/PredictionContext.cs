@@ -117,12 +117,12 @@ namespace Antlr4.Runtime.Atn
 
         protected internal abstract Antlr4.Runtime.Atn.PredictionContext RemoveEmptyContext();
 
-        public static Antlr4.Runtime.Atn.PredictionContext FromRuleContext(ATN atn, RuleContext outerContext)
+        public static Antlr4.Runtime.Atn.PredictionContext FromRuleContext([NotNull] ATN atn, [NotNull] RuleContext outerContext)
         {
             return FromRuleContext(atn, outerContext, true);
         }
 
-        public static Antlr4.Runtime.Atn.PredictionContext FromRuleContext(ATN atn, RuleContext outerContext, bool fullContext)
+        public static Antlr4.Runtime.Atn.PredictionContext FromRuleContext([NotNull] ATN atn, [NotNull] RuleContext outerContext, bool fullContext)
         {
             if (outerContext.IsEmpty)
             {
@@ -158,7 +158,7 @@ namespace Antlr4.Runtime.Atn
         }
 
         /*package*/
-        internal static Antlr4.Runtime.Atn.PredictionContext Join(Antlr4.Runtime.Atn.PredictionContext context0, Antlr4.Runtime.Atn.PredictionContext context1, PredictionContextCache contextCache)
+        internal static Antlr4.Runtime.Atn.PredictionContext Join([NotNull] Antlr4.Runtime.Atn.PredictionContext context0, [NotNull] Antlr4.Runtime.Atn.PredictionContext context1, [NotNull] PredictionContextCache contextCache)
         {
             if (context0 == context1)
             {
@@ -289,7 +289,7 @@ namespace Antlr4.Runtime.Atn
             return context == EmptyLocal;
         }
 
-        public static Antlr4.Runtime.Atn.PredictionContext GetCachedContext(Antlr4.Runtime.Atn.PredictionContext context, ConcurrentDictionary<Antlr4.Runtime.Atn.PredictionContext, Antlr4.Runtime.Atn.PredictionContext> contextCache, PredictionContext.IdentityHashMap visited)
+        public static Antlr4.Runtime.Atn.PredictionContext GetCachedContext([NotNull] Antlr4.Runtime.Atn.PredictionContext context, [NotNull] ConcurrentDictionary<Antlr4.Runtime.Atn.PredictionContext, Antlr4.Runtime.Atn.PredictionContext> contextCache, [NotNull] PredictionContext.IdentityHashMap visited)
         {
             if (context.IsEmpty)
             {

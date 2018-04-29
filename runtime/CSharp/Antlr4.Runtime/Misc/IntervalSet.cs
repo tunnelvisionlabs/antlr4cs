@@ -277,7 +277,7 @@ namespace Antlr4.Runtime.Misc
         /// , it is treated as though it was an empty set.
         /// </remarks>
         [return: NotNull]
-        public static Antlr4.Runtime.Misc.IntervalSet Subtract(Antlr4.Runtime.Misc.IntervalSet left, Antlr4.Runtime.Misc.IntervalSet right)
+        public static Antlr4.Runtime.Misc.IntervalSet Subtract([Nullable] Antlr4.Runtime.Misc.IntervalSet left, [Nullable] Antlr4.Runtime.Misc.IntervalSet right)
         {
             if (left == null || left.IsNil)
             {
@@ -502,18 +502,18 @@ namespace Antlr4.Runtime.Misc
         {
             get
             {
-                /*
-                for (ListIterator iter = intervals.listIterator(); iter.hasNext();) {
-                Interval I = (Interval) iter.next();
-                if ( el<I.a ) {
+/*
+		for (ListIterator iter = intervals.listIterator(); iter.hasNext();) {
+            Interval I = (Interval) iter.next();
+            if ( el<I.a ) {
                 break; // list is sorted and el is before this interval; not here
-                }
-                if ( el>=I.a && el<=I.b ) {
+            }
+            if ( el>=I.a && el<=I.b ) {
                 return true; // found in this interval
-                }
-                }
-                return false;
-                */
+            }
+        }
+        return false;
+        */
                 return intervals == null || intervals.Count == 0;
             }
         }
@@ -685,7 +685,7 @@ namespace Antlr4.Runtime.Misc
             return ToString(Vocabulary.FromTokenNames(tokenNames));
         }
 
-        public virtual string ToString(IVocabulary vocabulary)
+        public virtual string ToString([NotNull] IVocabulary vocabulary)
         {
             StringBuilder buf = new StringBuilder();
             if (this.intervals == null || this.intervals.Count == 0)
@@ -736,7 +736,7 @@ namespace Antlr4.Runtime.Misc
         }
 
         [return: NotNull]
-        protected internal virtual string ElementName(IVocabulary vocabulary, int a)
+        protected internal virtual string ElementName([NotNull] IVocabulary vocabulary, int a)
         {
             if (a == TokenConstants.Eof)
             {

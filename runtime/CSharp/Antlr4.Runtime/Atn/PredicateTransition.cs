@@ -25,7 +25,7 @@ namespace Antlr4.Runtime.Atn
 
         public readonly bool isCtxDependent;
 
-        public PredicateTransition(ATNState target, int ruleIndex, int predIndex, bool isCtxDependent)
+        public PredicateTransition([NotNull] ATNState target, int ruleIndex, int predIndex, bool isCtxDependent)
             : base(target)
         {
             // e.g., $i ref in pred

@@ -61,12 +61,12 @@ namespace Antlr4.Runtime.Dfa
         /// </summary>
         private readonly bool precedenceDfa;
 
-        public DFA(ATNState atnStartState)
+        public DFA([NotNull] ATNState atnStartState)
             : this(atnStartState, 0)
         {
         }
 
-        public DFA(ATNState atnStartState, int decision)
+        public DFA([NotNull] ATNState atnStartState, int decision)
         {
             this.atnStartState = atnStartState;
             this.decision = decision;
@@ -278,7 +278,7 @@ namespace Antlr4.Runtime.Dfa
         }
 
         [System.ObsoleteAttribute(@"Use ToString(Antlr4.Runtime.IVocabulary) instead.")]
-        public virtual string ToString(string[] tokenNames)
+        public virtual string ToString([Nullable] string[] tokenNames)
         {
             if (s0.Get() == null)
             {
@@ -288,7 +288,7 @@ namespace Antlr4.Runtime.Dfa
             return serializer.ToString();
         }
 
-        public virtual string ToString(IVocabulary vocabulary)
+        public virtual string ToString([NotNull] IVocabulary vocabulary)
         {
             if (s0.Get() == null)
             {
@@ -299,7 +299,7 @@ namespace Antlr4.Runtime.Dfa
         }
 
         [System.ObsoleteAttribute(@"Use ToString(Antlr4.Runtime.IVocabulary, string[]) instead.")]
-        public virtual string ToString(string[] tokenNames, string[] ruleNames)
+        public virtual string ToString([Nullable] string[] tokenNames, [Nullable] string[] ruleNames)
         {
             if (s0.Get() == null)
             {
@@ -309,7 +309,7 @@ namespace Antlr4.Runtime.Dfa
             return serializer.ToString();
         }
 
-        public virtual string ToString(IVocabulary vocabulary, string[] ruleNames)
+        public virtual string ToString([NotNull] IVocabulary vocabulary, [Nullable] string[] ruleNames)
         {
             if (s0.Get() == null)
             {

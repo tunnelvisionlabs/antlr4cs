@@ -23,12 +23,12 @@ namespace Antlr4.Runtime.Atn
         public bool optimizedTailCall;
 
         [Obsolete(@"UseRuleTransition(RuleStartState, int, int, ATNState) instead.")]
-        public RuleTransition(RuleStartState ruleStart, int ruleIndex, ATNState followState)
+        public RuleTransition([NotNull] RuleStartState ruleStart, int ruleIndex, [NotNull] ATNState followState)
             : this(ruleStart, ruleIndex, 0, followState)
         {
         }
 
-        public RuleTransition(RuleStartState ruleStart, int ruleIndex, int precedence, ATNState followState)
+        public RuleTransition([NotNull] RuleStartState ruleStart, int ruleIndex, int precedence, [NotNull] ATNState followState)
             : base(ruleStart)
         {
             // no Rule object at runtime

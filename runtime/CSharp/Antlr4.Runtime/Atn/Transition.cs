@@ -29,7 +29,7 @@ namespace Antlr4.Runtime.Atn
         [NotNull]
         public ATNState target;
 
-        protected internal Transition(ATNState target)
+        protected internal Transition([NotNull] ATNState target)
         {
             if (target == null)
             {

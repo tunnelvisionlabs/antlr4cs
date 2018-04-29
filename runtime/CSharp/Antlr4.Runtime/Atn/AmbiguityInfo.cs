@@ -65,7 +65,7 @@ namespace Antlr4.Runtime.Atn
         /// The index at which the ambiguity was identified during
         /// prediction
         /// </param>
-        public AmbiguityInfo(int decision, SimulatorState state, BitSet ambigAlts, ITokenStream input, int startIndex, int stopIndex)
+        public AmbiguityInfo(int decision, [NotNull] SimulatorState state, [NotNull] BitSet ambigAlts, [NotNull] ITokenStream input, int startIndex, int stopIndex)
             : base(decision, state, input, startIndex, stopIndex, state.useContext)
         {
             this.ambigAlts = ambigAlts;

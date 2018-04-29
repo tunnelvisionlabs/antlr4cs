@@ -44,7 +44,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// </summary>
         /// <param name="tokenName">The token name.</param>
         /// <param name="type">The token type.</param>
-        public TokenTagToken(string tokenName, int type)
+        public TokenTagToken([NotNull] string tokenName, int type)
             : this(tokenName, type, null)
         {
         }
@@ -63,7 +63,7 @@ namespace Antlr4.Runtime.Tree.Pattern
         /// if
         /// the token tag is unlabeled.
         /// </param>
-        public TokenTagToken(string tokenName, int type, string label)
+        public TokenTagToken([NotNull] string tokenName, int type, [Nullable] string label)
             : base(type)
         {
             this.tokenName = tokenName;
