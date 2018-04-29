@@ -12,12 +12,8 @@ namespace Antlr4.Build.Tasks
     using System.Text.RegularExpressions;
 #if !NETSTANDARD
     using RegistryKey = Microsoft.Win32.RegistryKey;
-#if NET40PLUS
     using RegistryHive = Microsoft.Win32.RegistryHive;
     using RegistryView = Microsoft.Win32.RegistryView;
-#else
-    using Registry = Microsoft.Win32.Registry;
-#endif
 #endif
     using StringBuilder = System.Text.StringBuilder;
 
@@ -145,7 +141,6 @@ namespace Antlr4.Build.Tasks
             }
         }
 
-#if NET40PLUS
         private string JavaHome
         {
             get
@@ -194,47 +189,6 @@ namespace Antlr4.Build.Tasks
                         javaHome = homeKey.GetValue("JavaHome").ToString();
                         return !string.IsNullOrEmpty(javaHome);
                     }
-                }
-            }
-        }
-#endif
-#else
-        private string JavaHome
-        {
-            get
-            {
-                string javaHome;
-                if (TryGetJavaHome(Registry.LocalMachine, JavaVendor, JavaInstallation, out javaHome))
-                    return javaHome;
-
-                if (Directory.Exists(Environment.GetEnvironmentVariable("JAVA_HOME")))
-                    return Environment.GetEnvironmentVariable("JAVA_HOME");
-
-                throw new NotSupportedException("Could not locate a Java installation.");
-            }
-        }
-
-        private static bool TryGetJavaHome(RegistryKey baseKey, string vendor, string installation, out string javaHome)
-        {
-            javaHome = null;
-
-            string javaKeyName = "SOFTWARE\\" + vendor + "\\" + installation;
-            using (RegistryKey javaKey = baseKey.OpenSubKey(javaKeyName))
-            {
-                if (javaKey == null)
-                    return false;
-
-                object currentVersion = javaKey.GetValue("CurrentVersion");
-                if (currentVersion == null)
-                    return false;
-
-                using (var homeKey = javaKey.OpenSubKey(currentVersion.ToString()))
-                {
-                    if (homeKey == null || homeKey.GetValue("JavaHome") == null)
-                        return false;
-
-                    javaHome = homeKey.GetValue("JavaHome").ToString();
-                    return !string.IsNullOrEmpty(javaHome);
                 }
             }
         }

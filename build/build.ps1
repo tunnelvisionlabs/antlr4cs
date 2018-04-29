@@ -13,9 +13,8 @@ param (
 	[switch]$NoValidate
 )
 
-# build the solutions
+# build the solution
 $SolutionPath = "..\Runtime\CSharp\Antlr4.sln"
-$CF35SolutionPath = "..\Runtime\CSharp\Antlr4.VS2008.sln"
 
 # make sure the script was run from the expected path
 if (!(Test-Path $SolutionPath)) {
@@ -165,8 +164,7 @@ if (-not $SkipKeyCheck) {
 
 $packages = @(
 	'Antlr4.CodeGenerator'
-	'Antlr4'
-	'Antlr4.VS2008')
+	'Antlr4')
 
 ForEach ($package in $packages) {
 	If (-not (Test-Path ".\$package.nuspec")) {

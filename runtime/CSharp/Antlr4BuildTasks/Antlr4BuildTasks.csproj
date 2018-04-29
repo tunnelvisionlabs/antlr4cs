@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.5;net40;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard1.5;net40</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <RootNamespace>Antlr4.Build.Tasks</RootNamespace>
@@ -51,16 +51,6 @@
         <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS</DefineConstants>
       </PropertyGroup>
     </When>
-    <When Condition="'$(TargetFramework)' == 'net35'">
-      <ItemGroup>
-        <Reference Include="Microsoft.Build.Framework" />
-        <Reference Include="Microsoft.Build.Tasks.v3.5" />
-        <Reference Include="Microsoft.Build.Utilities.v3.5" />
-      </ItemGroup>
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);NET35;NET35PLUS</DefineConstants>
-      </PropertyGroup>
-    </When>
   </Choose>
 
   <PropertyGroup>
@@ -84,30 +74,14 @@
     </None>
   </ItemGroup>
 
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net35'">
-      <ItemGroup>
-        <None Include="Antlr4.net35.props">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="Antlr4.net35.targets">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <SubType>Designer</SubType>
-        </None>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <None Include="Antlr4.net40.props">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="Antlr4.net40.targets">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <SubType>Designer</SubType>
-        </None>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <None Include="Antlr4.net40.props">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Antlr4.net40.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\build\CustomDictionary.xml">
