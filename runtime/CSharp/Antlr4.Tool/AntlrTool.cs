@@ -23,6 +23,7 @@ namespace Antlr4
     using Directory = System.IO.Directory;
     using Exception = System.Exception;
     using File = System.IO.File;
+    using FileMode = System.IO.FileMode;
     using ICharStream = Antlr.Runtime.ICharStream;
     using IOException = System.IO.IOException;
     using NullableAttribute = Antlr4.Runtime.Misc.NullableAttribute;
@@ -888,7 +889,7 @@ namespace Antlr4
 
             Directory.CreateDirectory(outputDir);
 
-            return new StreamWriter(File.OpenWrite(outputFile), Encoding.GetEncoding(grammarEncoding));
+            return new StreamWriter(File.Open(outputFile, FileMode.Create), Encoding.GetEncoding(grammarEncoding));
         }
 
         public virtual string GetImportedGrammarFile(Grammar g, string fileName)
