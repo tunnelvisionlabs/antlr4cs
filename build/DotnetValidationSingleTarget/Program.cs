@@ -1,0 +1,49 @@
+﻿using System;
+using Antlr4.Runtime;
+
+[assembly: CLSCompliant(false)]
+
+namespace DotnetValidation
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var lexer1 = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("keys"));
+            var parser1 = new GrammarParser(new CommonTokenStream(lexer1));
+            var tree1 = parser1.keys();
+            Console.WriteLine(tree1.ToStringTree(parser1));
+
+            var lexer2 = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("values"));
+            var parser2 = new GrammarParser(new CommonTokenStream(lexer2));
+            var tree2 = parser2.values();
+            Console.WriteLine(tree2.ToStringTree(parser2));
+
+            var lexer = new global::DotnetValidation.GrammarLexer(new AntlrInputStream("text"));
+            var parser = new GrammarParser(new CommonTokenStream(lexer));
+            var tree = parser.compilationUnit();
+            Console.WriteLine(tree.ToStringTree(parser));
+
+            var subLexer = new global::DotnetValidation.SubFolder.SubGrammarLexer(new AntlrInputStream("text"));
+            var subParser = new SubFolder.SubGrammarParser(new CommonTokenStream(subLexer));
+            var subTree = subParser.compilationUnit();
+            Console.WriteLine(subTree.ToStringTree(subParser));
+        }
+    }
+
+    class GrammarLexer : global::DotnetValidation.AbstractGrammarLexer
+    {
+        public GrammarLexer(ICharStream input)
+            : base(input)
+        {
+        }
+    }
+
+    class GrammarParser : global::DotnetValidation.AbstractGrammarParser
+    {
+        public GrammarParser(ITokenStream input)
+            : base(input)
+        {
+        }
+    }
+}
