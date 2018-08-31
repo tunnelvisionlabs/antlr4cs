@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
+    <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.5-dev" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Update="Grammar.g4">
+      <Abstract>true</Abstract>
+    </Antlr4>
+  </ItemGroup>
+
+</Project>

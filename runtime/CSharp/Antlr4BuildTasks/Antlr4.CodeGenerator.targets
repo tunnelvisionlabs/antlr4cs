@@ -7,6 +7,11 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Antlr4IsSdkProject)' == ''">
+    <Antlr4IsSdkProject>False</Antlr4IsSdkProject>
+    <Antlr4IsSdkProject Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">True</Antlr4IsSdkProject>
+  </PropertyGroup>
+
   <PropertyGroup>
     <BuildSystem>MSBuild</BuildSystem>
     <TaskVersion>4.0.0.0</TaskVersion>

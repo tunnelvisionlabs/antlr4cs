@@ -12,23 +12,16 @@
     <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.5-SNAPSHOT-complete.jar</Antlr4ToolPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Antlr4IsSdkProject)' == ''">
-    <Antlr4IsSdkProject>False</Antlr4IsSdkProject>
-    <Antlr4IsSdkProject Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">True</Antlr4IsSdkProject>
+  <!--
+    Note: In this file, only items may be conditioned on the Antlr4IsSdkProject property. The EnableDefaultAntlrItems
+    is defined unconditionally, but it is simply unused outside of SDK projects.
+  -->
+  <PropertyGroup>
+    <EnableDefaultAntlrItems Condition="'$(EnableDefaultAntlrItems)' == ''">True</EnableDefaultAntlrItems>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="'$(Antlr4IsSdkProject)' == 'True'">
-      <PropertyGroup>
-        <EnableDefaultAntlrItems Condition="'$(EnableDefaultAntlrItems)' == ''">True</EnableDefaultAntlrItems>
-      </PropertyGroup>
-
-      <ItemGroup Condition="'$(EnableDefaultItems)' == 'True'">
-        <Antlr4 Include="**/*.g4" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" Condition="'$(EnableDefaultAntlrItems)' == 'True'" />
-      </ItemGroup>
-      <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultNoneItems)' == 'True'">
-        <None Remove="**/*.g4" Condition="'$(EnableDefaultAntlrItems)' == 'True'" />
-      </ItemGroup>
-    </When>
-  </Choose>
+  <ItemGroup Condition="'$(Antlr4IsSdkProject)' == 'True' AND '$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultAntlrItems)' == 'True'">
+    <Antlr4 Include="**/*.g4" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <None Remove="**/*.g4" Condition="'$(EnableDefaultNoneItems)' == 'True'" />
+  </ItemGroup>
 </Project>

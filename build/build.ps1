@@ -285,3 +285,21 @@ If (-not $NoValidate) {
 		Exit $LASTEXITCODE
 	}
 }
+
+# Validate code generation using the C# code generator (single target framework)
+If (-not $NoValidate) {
+	git 'clean' '-dxf' 'DotnetValidationSingleTarget'
+	dotnet 'run' '--project' '.\DotnetValidationSingleTarget\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	git 'clean' '-dxf' 'DotnetValidationSingleTarget'
+	&$nuget 'restore' 'DotnetValidationSingleTarget'
+	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidationSingleTarget\DotnetValidation.sln'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+}
