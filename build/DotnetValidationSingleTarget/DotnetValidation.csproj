@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4" Version="4.6.5-dev" />
+    <PackageReference Include="Antlr4" Version="4.6.5" />
   </ItemGroup>
 
   <ItemGroup>

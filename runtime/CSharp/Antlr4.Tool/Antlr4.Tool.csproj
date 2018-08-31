@@ -12,7 +12,7 @@
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>
     <FileVersion>4.6.5.0</FileVersion>
-    <InformationalVersion>4.6.5-dev</InformationalVersion>
+    <InformationalVersion>4.6.5</InformationalVersion>
     <Description>A C# port of the ANTLR 4 code generation tool.</Description>
     <Copyright>Copyright © Sam Harwell 2016</Copyright>
     <Company>Tunnel Vision Laboratories, LLC</Company>
