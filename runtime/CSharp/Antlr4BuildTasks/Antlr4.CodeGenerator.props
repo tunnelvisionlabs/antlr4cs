@@ -12,16 +12,5 @@
     <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.6-SNAPSHOT-complete.jar</Antlr4ToolPath>
   </PropertyGroup>
 
-  <!--
-    Note: In this file, only items may be conditioned on the Antlr4IsSdkProject property. The EnableDefaultAntlrItems
-    is defined unconditionally, but it is simply unused outside of SDK projects.
-  -->
-  <PropertyGroup>
-    <EnableDefaultAntlrItems Condition="'$(EnableDefaultAntlrItems)' == ''">True</EnableDefaultAntlrItems>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(Antlr4IsSdkProject)' == 'True' AND '$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultAntlrItems)' == 'True'">
-    <Antlr4 Include="**/*.g4" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-    <None Remove="**/*.g4" Condition="'$(EnableDefaultNoneItems)' == 'True'" />
-  </ItemGroup>
+  <Import Project="Antlr4.CodeGenerator.DefaultItems.props" />
 </Project>

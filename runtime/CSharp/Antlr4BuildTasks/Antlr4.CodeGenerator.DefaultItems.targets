@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableDefaultAntlrItems Condition="'$(EnableDefaultAntlrItems)' == ''">True</EnableDefaultAntlrItems>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultNoneItems)' == 'True' AND '$(EnableDefaultAntlrItems)' == 'True'">
+    <None Remove="**/*.g4" />
+  </ItemGroup>
+
+  <!-- Modify the CustomToolNamespace based on the directory location of the grammar -->
+  <ItemGroup>
+    <Antlr4 Update="@(Antlr4)" DefaultCustomToolNamespace="$([MSBuild]::ValueOrDefault(%(RelativeDir), '').Replace('\', '.').Replace('/', '.').TrimEnd('.'))" />
+    <Antlr4 Update="@(Antlr4)" Condition="'$(RootNamespace)' != ''" DefaultCustomToolNamespace="$([MSBuild]::ValueOrDefault('$(RootNamespace).%(DefaultCustomToolNamespace)', '').TrimEnd('.'))" />
+    <Antlr4 Update="@(Antlr4)" CustomToolNamespace="$([MSBuild]::ValueOrDefault(%(CustomToolNamespace), %(DefaultCustomToolNamespace)))" />
+  </ItemGroup>
+</Project>

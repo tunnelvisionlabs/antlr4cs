@@ -72,6 +72,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Antlr4.CodeGenerator.DefaultItems.props">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Antlr4.CodeGenerator.DefaultItems.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Antlr4.CodeGenerator.props">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
