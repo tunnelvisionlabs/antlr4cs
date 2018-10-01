@@ -38,6 +38,8 @@
 
     <!-- Build Configuration -->
 
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.CodeGenerator.DefaultItems.props" target="build"/>
+    <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.CodeGenerator.DefaultItems.targets" target="build"/>
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.CodeGenerator.props" target="build"/>
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.CodeGenerator.targets" target="build"/>
     <file src="..\runtime\CSharp\Antlr4BuildTasks\bin\$Configuration$\net40\Antlr4.ProjectItemsSchema.xml" target="build\Rules"/>
