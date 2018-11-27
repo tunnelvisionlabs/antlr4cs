@@ -49,8 +49,18 @@ This step is optional, but highly recommended for users working with a version o
 These versions of Visual Studio do not support the NuGet Package Manager extension, but the C# target for ANTLR 4 does support .NET 2.0 and higher so you should be able to use the [command line NuGet utility](http://docs.nuget.org/docs/start-here/installing-nuget) instead of working directly within Visual Studio.
 
 ### Step 4: Install ANTLR 4 support in a C# project
+#### For Visual Studio 2017
+1. Create or open a C# project which will use ANTLR
+2. Right click the top-level solution node in the Solution Explorer window and select **Manage NuGet Packages for Solution...**
+3. In the upper left, choose **Browse** and then choose **nuget.org** as the **Package source**
+4. Next to the **Search** box, check **Include prerelease**
+5. In the **Search** box, type **Antlr4** to search for the package
+6. In the search results, locate and select the package called **Antlr4**. Verify that the name is listed as exactly **Antlr4**.
+7. In the right pane, select the C# projects you want to use ANTLR4 by clicking their checkboxes
+8. Click **Install** under the list of projects
+9. Approve changes and accept license agreements, if prompted.
 
-#### For nearly all Visual Studio 2010 and newer installations
+#### For nearly all Visual Studio 2010 - 2015 installations
 
 1. Create or open a C# project which will use ANTLR
 2. Right click the top-level solution node in the Solution Explorer window and select **Manage NuGet Packages for Solution...**
