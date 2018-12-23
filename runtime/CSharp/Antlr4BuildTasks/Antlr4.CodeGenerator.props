@@ -9,7 +9,7 @@
     <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' != 'Core'">..\tools\net40</Antlr4BuildTaskPath>
     <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' == 'Core'">..\tools\netstandard</Antlr4BuildTaskPath>
     <!-- Path to the ANTLR tool itself -->
-    <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.6-SNAPSHOT-complete.jar</Antlr4ToolPath>
+    <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.6-complete.jar</Antlr4ToolPath>
   </PropertyGroup>
 
   <Import Project="Antlr4.CodeGenerator.DefaultItems.props" />
