@@ -196,4 +196,16 @@
   </Choose>
 
   <Import Condition="'$(Antlr4IsSdkProject)' == 'True'" Project="Antlr4.CodeGenerator.DefaultItems.targets" />
+  
+  <!-- Support for NCrunch -->
+  <ItemGroup Condition="'$(NCrunch)' == '1'">
+    <!-- NCrunch tries to copy the fewest possible files to its build directory, those it misses are declared here. -->
+    <!-- The tools directory needs to be copied in projects that use packages.config. -->
+    <None Include="$(MSBuildThisFileDirectory)..\tools\**\*" Condition="'$(Antlr4IsSdkProject)' != 'True'" />
+    <!-- NCrunch only copies files from known item types, so we need to add ANTLR-specific items. -->
+    <None Include="@(Antlr4)" />
+    <None Include="@(Antlr4Tokens)" />
+    <None Include="@(Antlr4AbstractGrammar)" />
+  </ItemGroup>
+
 </Project>
