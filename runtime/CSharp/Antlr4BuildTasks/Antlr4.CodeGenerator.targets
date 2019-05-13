@@ -85,6 +85,9 @@
       <Visitor>true</Visitor>
       <Abstract>false</Abstract>
       <ForceAtn>false</ForceAtn>
+      <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+      <SuperClass></SuperClass>
+      <ContextSuperClass></ContextSuperClass>
     </Antlr4>
   </ItemDefinitionGroup>
 
@@ -149,7 +152,10 @@
       GenerateVisitor="%(Antlr4.Visitor)"
       ForceAtn="%(Antlr4.ForceAtn)"
       AbstractGrammar="%(Antlr4.Abstract)"
-      UseCSharpGenerator="$(Antlr4UseCSharpGenerator)">
+      UseCSharpGenerator="$(Antlr4UseCSharpGenerator)"
+      TreatWarningsAsErrors="%(Antlr4.TreatWarningsAsErrors)"
+      SuperClass="%(Antlr4.SuperClass)"
+      ContextSuperClass="%(Antlr4.ContextSuperClass)">
 
       <Output ItemName="Antlr4GeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
     </Antlr4ClassGenerationTask>
@@ -196,7 +202,7 @@
   </Choose>
 
   <Import Condition="'$(Antlr4IsSdkProject)' == 'True'" Project="Antlr4.CodeGenerator.DefaultItems.targets" />
-  
+
   <!-- Support for NCrunch -->
   <ItemGroup Condition="'$(NCrunch)' == '1'">
     <!-- NCrunch tries to copy the fewest possible files to its build directory, those it misses are declared here. -->

@@ -121,6 +121,24 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool TreatWarningsAsErrors
+        {
+            get;
+            set;
+        }
+
+        public string SuperClass
+        {
+            get;
+            set;
+        }
+
+        public string ContextSuperClass
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -280,6 +298,21 @@ namespace Antlr4.Build.Tasks
                 {
                     arguments.Add("-package");
                     arguments.Add(TargetNamespace);
+                }
+
+                if (TreatWarningsAsErrors)
+                    arguments.Add("-Werror");
+
+                if (!string.IsNullOrEmpty(SuperClass))
+                {
+                    arguments.Add("-DsuperClass");
+                    arguments.Add(SuperClass);
+                }
+
+                if (!string.IsNullOrEmpty(ContextSuperClass))
+                {
+                    arguments.Add("-DcontextSuperClass");
+                    arguments.Add(ContextSuperClass);
                 }
 
                 arguments.AddRange(SourceCodeFiles);
