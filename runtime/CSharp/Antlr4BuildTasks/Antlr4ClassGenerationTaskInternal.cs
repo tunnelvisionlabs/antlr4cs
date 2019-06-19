@@ -244,8 +244,9 @@ namespace Antlr4.Build.Tasks
                 }
 
                 arguments.Add("-o");
-                arguments.Add(OutputPath);
-
+                // Wrap output path with quotes to work with cmdline
+                arguments.Add("\""+ OutputPath + "\"");
+                    
                 if (!string.IsNullOrEmpty(Encoding))
                 {
                     arguments.Add("-encoding");

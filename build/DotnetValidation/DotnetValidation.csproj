@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net20;net30;net35;net35-cf;net40;net45;netcoreapp1.1;portable40-net40+sl5+win8+wp8+wpa81</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
+    <Configurations>Debug;Release;New Config With Space</Configurations>
   </PropertyGroup>
 
   <Choose>
