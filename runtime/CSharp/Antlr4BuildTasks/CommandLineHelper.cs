@@ -11,7 +11,7 @@ namespace Antlr4.Build.Tasks
     /// <summary>
     /// Defines helper methods to work with command line and arguments.
     /// </summary>
-    public static class CommandLineHelper
+    internal static class CommandLineHelper
     {
         /// <summary>
         /// Joins multiple command line arguments together into one string using space as a separator,
