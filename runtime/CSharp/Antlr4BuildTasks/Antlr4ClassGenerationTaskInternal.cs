@@ -316,7 +316,7 @@ namespace Antlr4.Build.Tasks
                 }
 #endif
 
-                ProcessStartInfo startInfo = new ProcessStartInfo(executable, JoinArguments(arguments))
+                ProcessStartInfo startInfo = new ProcessStartInfo(executable, CommandLineHelper.JoinArguments(arguments))
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true,
@@ -358,35 +358,6 @@ namespace Antlr4.Build.Tasks
                 _buildMessages.Add(new BuildMessage(e.Message));
                 throw;
             }
-        }
-
-        private static string JoinArguments(IEnumerable<string> arguments)
-        {
-            if (arguments == null)
-                throw new ArgumentNullException("arguments");
-
-            StringBuilder builder = new StringBuilder();
-            foreach (string argument in arguments)
-            {
-                if (builder.Length > 0)
-                    builder.Append(' ');
-
-                if (argument.IndexOfAny(new[] { '"', ' ' }) < 0)
-                {
-                    builder.Append(argument);
-                    continue;
-                }
-
-                // escape a backslash appearing before a quote
-                string arg = argument.Replace("\\\"", "\\\\\"");
-                // escape double quotes
-                arg = arg.Replace("\"", "\\\"");
-
-                // wrap the argument in outer quotes
-                builder.Append('"').Append(arg).Append('"');
-            }
-
-            return builder.ToString();
         }
 
         private static readonly Regex GeneratedFileMessageFormat = new Regex(@"^Generating file '(?<OUTPUT>.*?)' for grammar '(?<GRAMMAR>.*?)'$", RegexOptions.Compiled);

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net40</TargetFrameworks>
+    <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
+
+    <Description>Unit tests for ANTLR 4 build tasks.</Description>
+    <Copyright>Copyright © Sam Harwell 2013</Copyright>
+    <Company>Tunnel Vision Laboratories, LLC</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net40'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET40;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+        <MSTest2>False</MSTest2>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4BuildTasks\Antlr4BuildTasks.csproj">
+          <SetTargetFramework>TargetFramework=net40</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\build\keys\TestingKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(MSTest2)' == 'false'">
+      <!-- Workaround for https://github.com/dotnet/roslyn-project-system/issues/1739 -->
+      <PropertyGroup>
+        <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+        <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <None Include="..\..\..\build\keys\TestingKey.snk">
+      <Link>TestingKey.snk</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+</Project>
