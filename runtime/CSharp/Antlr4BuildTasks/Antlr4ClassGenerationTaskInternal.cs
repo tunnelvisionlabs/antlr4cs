@@ -293,7 +293,7 @@ namespace Antlr4.Build.Tasks
                 if (UseCSharpGenerator)
                 {
                     if (IncludeDebuggerNonUserCodeAttribute)
-                        arguments.Add("-includeDebuggerNonUserCodeAttribute");
+                        arguments.Add("-DincludeDebuggerNonUserCodeAttribute");
                 }
 
 #if NETSTANDARD
