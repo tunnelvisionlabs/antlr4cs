@@ -151,6 +151,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool ExcludeClsCompliantAttribute
+        {
+            get;
+            set;
+        }
+
         [Output]
         public ITaskItem[] GeneratedCodeFiles
         {
