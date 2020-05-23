@@ -151,6 +151,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool IncludeDebuggerNonUserCodeAttribute
+        {
+            get;
+            set;
+        }
+
         [Output]
         public ITaskItem[] GeneratedCodeFiles
         {
@@ -306,6 +312,7 @@ namespace Antlr4.Build.Tasks
             wrapper.JavaInstallation = JavaInstallation;
             wrapper.JavaExecutable = JavaExecutable;
             wrapper.UseCSharpGenerator = UseCSharpGenerator;
+            wrapper.IncludeDebuggerNonUserCodeAttribute = IncludeDebuggerNonUserCodeAttribute;
             return wrapper;
         }
 

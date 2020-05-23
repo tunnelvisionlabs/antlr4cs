@@ -40,7 +40,12 @@
     DisplayName="Abstract Grammar"
     Default="false"
     Description="When true, the generated classes are marked as abstract." />
-
+  <BoolProperty
+    Category="ANTLR"
+    Name="IncludeDebuggerNonUserCodeAttribute"
+    DisplayName="Include DebuggerNonUserCode attribute"
+    Default="false"
+    Description="When true, includes the DebuggerNonUserCode attribute against each method." />
   <!--
     The rest of these properties are not ANTLR-specific, but CPS provides no way to inherit properties, so if we fail to
     include them then they will just disappear.
