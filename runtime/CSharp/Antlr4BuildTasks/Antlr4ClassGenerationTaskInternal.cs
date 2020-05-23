@@ -121,6 +121,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool IncludeDebuggerNonUserCodeAttribute
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -283,6 +289,12 @@ namespace Antlr4.Build.Tasks
                 }
 
                 arguments.AddRange(SourceCodeFiles);
+
+                if (UseCSharpGenerator)
+                {
+                    if (IncludeDebuggerNonUserCodeAttribute)
+                        arguments.Add("-includeDebuggerNonUserCodeAttribute");
+                }
 
 #if NETSTANDARD
                 if (UseCSharpGenerator)
