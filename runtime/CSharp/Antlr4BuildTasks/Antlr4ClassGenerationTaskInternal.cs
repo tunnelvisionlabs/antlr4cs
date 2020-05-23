@@ -121,6 +121,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool ExcludeClsCompliantAttribute
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -283,6 +289,12 @@ namespace Antlr4.Build.Tasks
                 }
 
                 arguments.AddRange(SourceCodeFiles);
+
+                if (UseCSharpGenerator)
+                {
+                    if (ExcludeClsCompliantAttribute)
+                        arguments.Add("-DexcludeClsCompliantAttribute");
+                }
 
 #if NETSTANDARD
                 if (UseCSharpGenerator)

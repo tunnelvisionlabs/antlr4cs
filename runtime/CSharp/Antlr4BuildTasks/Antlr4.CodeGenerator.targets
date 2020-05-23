@@ -85,6 +85,7 @@
       <Visitor>true</Visitor>
       <Abstract>false</Abstract>
       <ForceAtn>false</ForceAtn>
+      <ExcludeClsCompliantAttribute>false</ExcludeClsCompliantAttribute>
     </Antlr4>
   </ItemDefinitionGroup>
 
@@ -149,7 +150,8 @@
       GenerateVisitor="%(Antlr4.Visitor)"
       ForceAtn="%(Antlr4.ForceAtn)"
       AbstractGrammar="%(Antlr4.Abstract)"
-      UseCSharpGenerator="$(Antlr4UseCSharpGenerator)">
+      UseCSharpGenerator="$(Antlr4UseCSharpGenerator)"
+      ExcludeClsCompliantAttribute="$(ExcludeClsCompliantAttribute)">
 
       <Output ItemName="Antlr4GeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
     </Antlr4ClassGenerationTask>
