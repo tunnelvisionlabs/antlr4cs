@@ -25,7 +25,7 @@ namespace Antlr4.Codegen.Model
             ANTLRVersion = AntlrTool.VERSION;
             TokenLabelType = g.GetOptionString("TokenLabelType");
             InputSymbolType = TokenLabelType;
-            IncludeClsCompliantAttribute = !System.StringComparer.OrdinalIgnoreCase.Equals( g.GetOptionString("excludeClsCompliantAttribute"), "false"); // default is to include this to maintain existing behaviour
+            IncludeClsCompliantAttribute = !System.StringComparer.OrdinalIgnoreCase.Equals( g.GetOptionString("excludeClsCompliantAttribute"), "true"); // default is to include this to maintain existing behaviour
         }
 
         public virtual IDictionary<string, Action> BuildNamedActions(Grammar g)
