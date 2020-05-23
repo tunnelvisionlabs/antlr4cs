@@ -86,6 +86,7 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// \</summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
 [System.CLSCompliant(false)]
+<if(file.IncludeDebuggerNonUserCodeAttribute)>[System.Diagnostics.DebuggerNonUserCode]<endif>
 public partial class <file.grammarName>BaseListener : I<file.grammarName>Listener {
 	<file.listenerNames:{lname |
 /// \<summary>
@@ -184,6 +185,7 @@ using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 /// \<typeparam name="Result">The return type of the visit operation.\</typeparam>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
 [System.CLSCompliant(false)]
+<if(file.IncludeDebuggerNonUserCodeAttribute)>[System.Diagnostics.DebuggerNonUserCode]<endif>
 public partial class <file.grammarName>BaseVisitor\<Result> : AbstractParseTreeVisitor\<Result>, I<file.grammarName>Visitor\<Result> {
 	<file.visitorNames:{lname |
 /// \<summary>
@@ -238,6 +240,7 @@ Parser(parser, funcs, atn, sempredFuncs, superClass) ::= <<
 Parser_(parser, funcs, atn, sempredFuncs, ctor, superClass) ::= <<
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
 [System.CLSCompliant(false)]
+<if(file.IncludeDebuggerNonUserCodeAttribute)>[System.Diagnostics.DebuggerNonUserCode]<endif>
 public <if(parser.abstractRecognizer)>abstract <endif>partial class <csIdentifier.(parser.name)> : <superClass; null="Parser"> {
 	<if(parser.tokens)>
 	public const int
@@ -843,6 +846,7 @@ CaptureNextToken(d) ::= "<d.varName> = _input.Lt(1);"
 CaptureNextTokenType(d) ::= "<d.varName> = _input.La(1);"
 
 StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers) ::= <<
+<if(file.IncludeDebuggerNonUserCodeAttribute)>[System.Diagnostics.DebuggerNonUserCode]<endif>
 public partial class <struct.name> : <if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)>, <interfaces; separator=", "><endif> {
 	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
@@ -866,6 +870,7 @@ public partial class <struct.name> : <if(contextSuperClass)><contextSuperClass><
 >>
 
 AltLabelStructDecl(struct,attrs,getters,dispatchMethods) ::= <<
+<if(file.IncludeDebuggerNonUserCodeAttribute)>[System.Diagnostics.DebuggerNonUserCode]<endif>
 public partial class <struct.name> : <currentRule.name; format="cap">Context {
 	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
@@ -961,6 +966,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "<file.ANTLRVersion>")]
 [System.CLSCompliant(false)]
+<if(file.IncludeDebuggerNonUserCodeAttribute)>[System.Diagnostics.DebuggerNonUserCode]<endif>
 public <if(lexer.abstractRecognizer)>abstract <endif>partial class <csIdentifier.(lexer.name)> : <superClass; null="Lexer"> {
 	public const int
 		<lexer.tokens:{k | <tokenType.(k)>=<lexer.tokens.(k)>}; separator=", ", wrap, anchor>;
