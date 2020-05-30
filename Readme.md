@@ -150,7 +150,8 @@ The following table describes the properties available for customizing the code 
 | `Listener` | Generate Listener | `True` or `False` | When `True`, a parse tree listener interface and base class will be generated for the parLitser. |
 | `Visitor` | Generate Visitor | `True` or `False` | When `True`, a parse tree visitor interface and base class will be generated for the parser. |
 | `UseInternalAccessModifier` | Use Internal Access Modifier | `True` or `False` | When `True`, the members are not exposed beyond the assembly they are contained within. |
-
+| `IncludeDebuggerNonUserCodeAttribute` | `Include DebuggerNonUserCode attribute` | `True` or `False` | When `True`, each method will have the DebuggerNonUserCode attribute attribute added. |
+| `ExcludeClsCompliantAttribute` | `Exclude ClsCompliant attribute` | `True` or `False` | When `True`, the ClsCompliant attribute will not be added. |
 #### Using the ANTLR Language Support extension
 
 1. Right click the grammar file in **Solution Explorer** and select **Properties**

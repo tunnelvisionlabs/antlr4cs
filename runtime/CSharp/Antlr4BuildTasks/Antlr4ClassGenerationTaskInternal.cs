@@ -126,6 +126,18 @@ namespace Antlr4.Build.Tasks
             get;
             set;
         }
+      
+        public bool ExcludeClsCompliantAttribute
+        {
+            get;
+            set;
+        }
+
+        public bool IncludeDebuggerNonUserCodeAttribute
+        {
+            get;
+            set;
+        }
 
         public IList<string> SourceCodeFiles
         {
@@ -290,9 +302,16 @@ namespace Antlr4.Build.Tasks
 
                 arguments.AddRange(SourceCodeFiles);
 
-                if (UseCSharpGenerator && UseInternalAccessModifier)
+                if (UseCSharpGenerator)
                 {
-                    arguments.Add("-DuseInternalAccessModifier");
+                    if (UseInternalAccessModifier)
+                        arguments.Add("-DuseInternalAccessModifier");
+
+                    if (ExcludeClsCompliantAttribute)
+                        arguments.Add("-DexcludeClsCompliantAttribute");
+
+                    if (IncludeDebuggerNonUserCodeAttribute)
+                        arguments.Add("-DincludeDebuggerNonUserCodeAttribute");
                 }
 
 #if NETSTANDARD
