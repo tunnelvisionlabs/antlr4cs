@@ -127,6 +127,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool IncludeDebuggerNonUserCodeAttribute
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -294,6 +300,9 @@ namespace Antlr4.Build.Tasks
                 {
                     if (ExcludeClsCompliantAttribute)
                         arguments.Add("-DexcludeClsCompliantAttribute");
+
+                    if (IncludeDebuggerNonUserCodeAttribute)
+                        arguments.Add("-DincludeDebuggerNonUserCodeAttribute");
                 }
 
 #if NETSTANDARD

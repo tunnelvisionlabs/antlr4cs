@@ -67,7 +67,8 @@ namespace Antlr4.Tool
                 "tokenVocab",
                 "language",
                 "exportMacro",
-                "excludeClsCompliantAttribute"
+                "includeDebuggerNonUserCodeAttribute",
+                "excludeClsCompliantAttribute",
                 };
 
         public static readonly ISet<string> lexerOptions = parserOptions;

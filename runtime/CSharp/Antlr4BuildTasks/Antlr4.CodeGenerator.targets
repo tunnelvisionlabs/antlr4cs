@@ -85,6 +85,7 @@
       <Visitor>true</Visitor>
       <Abstract>false</Abstract>
       <ForceAtn>false</ForceAtn>
+      <IncludeDebuggerNonUserCodeAttribute>false</IncludeDebuggerNonUserCodeAttribute>
       <ExcludeClsCompliantAttribute>false</ExcludeClsCompliantAttribute>
     </Antlr4>
   </ItemDefinitionGroup>
@@ -151,6 +152,7 @@
       ForceAtn="%(Antlr4.ForceAtn)"
       AbstractGrammar="%(Antlr4.Abstract)"
       UseCSharpGenerator="$(Antlr4UseCSharpGenerator)"
+      IncludeDebuggerNonUserCodeAttribute="$(IncludeDebuggerNonUserCodeAttribute)">
       ExcludeClsCompliantAttribute="$(ExcludeClsCompliantAttribute)">
 
       <Output ItemName="Antlr4GeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
