@@ -68,6 +68,7 @@ namespace Antlr4.Tool
                 "language",
                 "exportMacro",
                 "includeDebuggerNonUserCodeAttribute",
+                "excludeClsCompliantAttribute",
                 };
 
         public static readonly ISet<string> lexerOptions = parserOptions;

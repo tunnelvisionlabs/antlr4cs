@@ -121,6 +121,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool ExcludeClsCompliantAttribute
+        {
+            get;
+            set;
+        }
+
         public bool IncludeDebuggerNonUserCodeAttribute
         {
             get;
@@ -292,6 +298,9 @@ namespace Antlr4.Build.Tasks
 
                 if (UseCSharpGenerator)
                 {
+                    if (ExcludeClsCompliantAttribute)
+                        arguments.Add("-DexcludeClsCompliantAttribute");
+
                     if (IncludeDebuggerNonUserCodeAttribute)
                         arguments.Add("-DincludeDebuggerNonUserCodeAttribute");
                 }

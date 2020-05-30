@@ -15,6 +15,7 @@ namespace Antlr4.Codegen.Model
         public readonly string TokenLabelType;
         public readonly string InputSymbolType;
         public readonly bool IncludeDebuggerNonUserCodeAttribute; // from -DincludeDebuggerNonUserCodeAttribute
+        public readonly bool IncludeClsCompliantAttribute;
 
         protected OutputFile(OutputModelFactory factory, string fileName)
             : base(factory)
@@ -26,6 +27,7 @@ namespace Antlr4.Codegen.Model
             TokenLabelType = g.GetOptionString("TokenLabelType");
             InputSymbolType = TokenLabelType;
             IncludeDebuggerNonUserCodeAttribute = System.StringComparer.OrdinalIgnoreCase.Equals( g.GetOptionString("includeDebuggerNonUserCodeAttribute"), "true" );
+            IncludeClsCompliantAttribute = !System.StringComparer.OrdinalIgnoreCase.Equals( g.GetOptionString("excludeClsCompliantAttribute"), "true"); // default is to include this to maintain existing behaviour
         }
 
         public virtual IDictionary<string, Action> BuildNamedActions(Grammar g)
