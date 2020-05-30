@@ -149,6 +149,7 @@ The following table describes the properties available for customizing the code 
 | `ForceAtn` | Force ATN | `True` or `False` | When `True`, the generated parser will use `AdaptivePredict` for all decisions, including LL(1) decisions. |
 | `Listener` | Generate Listener | `True` or `False` | When `True`, a parse tree listener interface and base class will be generated for the parLitser. |
 | `Visitor` | Generate Visitor | `True` or `False` | When `True`, a parse tree visitor interface and base class will be generated for the parser. |
+| `UseInternalAccessModifier` | Use Internal Access Modifier | `True` or `False` | When `True`, the members are not exposed beyond the assembly they are contained within. |
 
 #### Using the ANTLR Language Support extension
 

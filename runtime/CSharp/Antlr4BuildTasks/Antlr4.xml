@@ -40,6 +40,12 @@
     DisplayName="Abstract Grammar"
     Default="false"
     Description="When true, the generated classes are marked as abstract." />
+  <BoolProperty
+    Category="ANTLR"
+    Name="UseInternalAccessModifier"
+    DisplayName="Use Internal Access Modifier"
+    Default="CSharp"
+    Description="When true, the generated classes are marked as internal." />
 
   <!--
     The rest of these properties are not ANTLR-specific, but CPS provides no way to inherit properties, so if we fail to

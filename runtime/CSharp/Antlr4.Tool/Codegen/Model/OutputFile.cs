@@ -14,6 +14,7 @@ namespace Antlr4.Codegen.Model
         public readonly string ANTLRVersion;
         public readonly string TokenLabelType;
         public readonly string InputSymbolType;
+        public readonly string AccessModifier;
 
         protected OutputFile(OutputModelFactory factory, string fileName)
             : base(factory)
@@ -24,6 +25,7 @@ namespace Antlr4.Codegen.Model
             ANTLRVersion = AntlrTool.VERSION;
             TokenLabelType = g.GetOptionString("TokenLabelType");
             InputSymbolType = TokenLabelType;
+            AccessModifier = System.StringComparer.OrdinalIgnoreCase.Equals( g.GetOptionString("useInternalAccessModifier"), "true" ) ? "internal" : "public";
         }
 
         public virtual IDictionary<string, Action> BuildNamedActions(Grammar g)

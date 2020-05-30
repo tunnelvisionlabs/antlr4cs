@@ -121,6 +121,12 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool useInternalAccessModifier
+        {
+            get;
+            set;
+        }
+
         public IList<string> SourceCodeFiles
         {
             get
@@ -283,6 +289,11 @@ namespace Antlr4.Build.Tasks
                 }
 
                 arguments.AddRange(SourceCodeFiles);
+
+                if (UseCSharpGenerator && UseInternalAccessModifier)
+                {
+                    arguments.Add("-DuseInternalAccessModifier");
+                }
 
 #if NETSTANDARD
                 if (UseCSharpGenerator)
