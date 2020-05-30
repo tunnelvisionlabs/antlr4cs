@@ -121,7 +121,7 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
-        public bool useInternalAccessModifier
+        public bool UseInternalAccessModifier
         {
             get;
             set;
