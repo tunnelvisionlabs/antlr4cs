@@ -1,4 +1,4 @@
-﻿#if PORTABLE || NETSTANDARD
+﻿#if (PORTABLE && !NETSTANDARD) || NETSTANDARD1_1
 
 namespace System
 {

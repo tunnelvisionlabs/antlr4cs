@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net20;net30;net35;net35-cf;net40;net45;netcoreapp1.1;portable40-net40+sl5+win8+wp8+wpa81</TargetFrameworks>
+    <TargetFrameworks>net20;net30;net35;net35-cf;net40;net45;netcoreapp1.1;portable40-net40+sl5+win8+wp8+wpa81;netcoreapp2.1</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
   </PropertyGroup>

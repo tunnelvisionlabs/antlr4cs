@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net20;net30;net35-cf;net35-client;portable40-net40+sl5+win8+wp8+wpa81;net40-client;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;netstandard2.0;net20;net30;net35-cf;net35-client;portable40-net40+sl5+win8+wp8+wpa81;net40-client;net45</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
 
     <AssemblyVersion>4.6.0.0</AssemblyVersion>

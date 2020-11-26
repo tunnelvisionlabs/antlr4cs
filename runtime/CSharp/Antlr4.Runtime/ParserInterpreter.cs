@@ -379,7 +379,6 @@ namespace Antlr4.Runtime
         /// </remarks>
         protected internal virtual int VisitDecisionState(DecisionState p)
         {
-            int edge = 1;
             int predictedAlt;
             ErrorHandler.Sync(this);
             int decision = p.decision;
