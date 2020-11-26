@@ -110,7 +110,7 @@ If (-not (Test-Path $nuget)) {
 		mkdir '..\runtime\CSharp\.nuget'
 	}
 
-	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
+	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/v5.7.0/nuget.exe'
 	Invoke-WebRequest $nugetSource -OutFile $nuget
 	If (-not $?) {
 		$host.ui.WriteErrorLine('Unable to download NuGet executable, aborting!')
@@ -131,6 +131,11 @@ If ($Logger) {
 }
 
 &$nuget 'restore' $SolutionPath -Project2ProjectTimeOut 1200
+if (-not $?) {
+	$host.ui.WriteErrorLine('Restore failed, aborting!')
+	Exit 1
+}
+
 &$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if (-not $?) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
