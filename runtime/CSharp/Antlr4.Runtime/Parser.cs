@@ -16,7 +16,7 @@ namespace Antlr4.Runtime
     /// <summary>This is all the parsing support code essentially; most of it is error recovery stuff.</summary>
     public abstract class Parser : Recognizer<IToken, ParserATNSimulator>
     {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         public class TraceListener : IParseTreeListener
         {
             public virtual void EnterEveryRule(ParserRuleContext ctx)
@@ -122,7 +122,7 @@ namespace Antlr4.Runtime
         /// <seealso cref="BuildParseTree"/>
         protected internal bool _buildParseTrees = true;
 
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         /// <summary>
         /// When
         /// <see cref="Trace"/>
@@ -183,7 +183,7 @@ namespace Antlr4.Runtime
             _ctx = null;
             _syntaxErrors = 0;
             matchedEOF = false;
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             Trace = false;
 #endif
             _precedenceStack.Clear();
@@ -1131,7 +1131,7 @@ namespace Antlr4.Runtime
             return s;
         }
 
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         /// <summary>For debugging and other purposes.</summary>
         public virtual void DumpDFA()
         {
@@ -1199,7 +1199,7 @@ namespace Antlr4.Runtime
             }
         }
 
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         /// <summary>
         /// During a parse is sometimes useful to listen in on the rule entry and exit
         /// events as well as token matches.

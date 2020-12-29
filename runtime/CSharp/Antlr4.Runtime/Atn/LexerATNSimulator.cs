@@ -12,7 +12,7 @@ namespace Antlr4.Runtime.Atn
     /// <summary>"dup" of ParserInterpreter</summary>
     public class LexerATNSimulator : ATNSimulator
     {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         public const bool debug = false;
 
         public const bool dfa_debug = false;
@@ -247,7 +247,7 @@ namespace Antlr4.Runtime.Atn
         protected internal virtual DFAState GetExistingTargetState([NotNull] DFAState s, int t)
         {
             DFAState target = s.GetTarget(t);
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             if (debug && target != null)
             {
                 System.Console.Out.WriteLine("reuse state " + s.stateNumber + " edge to " + target.stateNumber);

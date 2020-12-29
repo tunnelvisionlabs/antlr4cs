@@ -1,4 +1,4 @@
-﻿#if !PORTABLE
+﻿#if !PORTABLE || NETSTANDARD2_0
 
 #if !COMPACT
 using System;

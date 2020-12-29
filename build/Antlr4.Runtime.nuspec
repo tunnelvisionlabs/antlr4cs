@@ -27,6 +27,7 @@
       <group targetFramework="netstandard1.1">
         <dependency id="NETStandard.Library" version="1.6.0"/>
       </group>
+      <group targetFramework="netstandard2.0" />
     </dependencies>
   </metadata>
   <files>
@@ -63,6 +64,10 @@
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard1.1\Antlr4.Runtime.dll" target="lib\netstandard1.1"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard1.1\Antlr4.Runtime.pdb" target="lib\netstandard1.1"/>
     <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard1.1\Antlr4.Runtime.xml" target="lib\netstandard1.1"/>
+
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard2.0\Antlr4.Runtime.dll" target="lib\netstandard2.0"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard2.0\Antlr4.Runtime.pdb" target="lib\netstandard2.0"/>
+    <file src="..\runtime\CSharp\Antlr4.Runtime\bin\$Configuration$\netstandard2.0\Antlr4.Runtime.xml" target="lib\netstandard2.0"/>
 
     <!-- Source Code -->
 
