@@ -7,7 +7,7 @@ using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 
-#if NET40PLUS && !NETSTANDARD
+#if NET40PLUS && !NETSTANDARD1_1
 using System.Runtime.CompilerServices;
 #endif
 
@@ -18,7 +18,7 @@ namespace Antlr4.Runtime
     {
         public const int Eof = -1;
 
-#if NET40PLUS && !NETSTANDARD
+#if NET40PLUS && !NETSTANDARD1_1
         private static readonly ConditionalWeakTable<IVocabulary, IDictionary<string, int>> tokenTypeMapCache = new ConditionalWeakTable<IVocabulary, IDictionary<string, int>>();
         private static readonly ConditionalWeakTable<string[], IDictionary<string, int>> ruleIndexMapCache = new ConditionalWeakTable<string[], IDictionary<string, int>>();
 #endif
@@ -26,7 +26,7 @@ namespace Antlr4.Runtime
         [NotNull]
         private IAntlrErrorListener<Symbol>[] _listeners =
         {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             ConsoleErrorListener<Symbol>.Instance
 #endif
         };
@@ -82,7 +82,7 @@ namespace Antlr4.Runtime
         {
             get
             {
-#if NET40PLUS && !NETSTANDARD
+#if NET40PLUS && !NETSTANDARD1_1
                 return tokenTypeMapCache.GetValue(Vocabulary, CreateTokenTypeMap);
 #else
                 return CreateTokenTypeMap(Vocabulary);
@@ -125,7 +125,7 @@ namespace Antlr4.Runtime
                 {
                     throw new NotSupportedException("The current recognizer does not provide a list of rule names.");
                 }
-#if NET40PLUS && !NETSTANDARD
+#if NET40PLUS && !NETSTANDARD1_1
                 return ruleIndexMapCache.GetValue(ruleNames, Utils.ToMap);
 #else
                 return Utils.ToMap(ruleNames);

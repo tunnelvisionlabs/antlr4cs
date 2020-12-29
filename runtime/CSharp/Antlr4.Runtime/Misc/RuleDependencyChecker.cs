@@ -457,7 +457,7 @@ namespace Antlr4.Runtime.Misc
         {
         }
 
-#if PORTABLE
+#if PORTABLE && !NETSTANDARD2_0
         public interface ICustomAttributeProvider
         {
             object[] GetCustomAttributes(Type attributeType, bool inherit);
@@ -1012,7 +1012,7 @@ namespace Antlr4.Runtime.Misc
         {
         }
 
-#if PORTABLE
+#if PORTABLE && !NETSTANDARD2_0
         public interface ICustomAttributeProvider
         {
             object[] GetCustomAttributes(Type attributeType, bool inherit);

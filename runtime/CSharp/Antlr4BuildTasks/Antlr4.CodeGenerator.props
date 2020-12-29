@@ -7,7 +7,8 @@
   <PropertyGroup>
     <!-- Folder containing Antlr4BuildTasks.dll -->
     <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' != 'Core'">..\tools\net40</Antlr4BuildTaskPath>
-    <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' == 'Core'">..\tools\netstandard</Antlr4BuildTaskPath>
+    <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' == 'Core' AND '$(MSBuildVersion)' &gt;= '15.7'">..\tools\netstandard2.0</Antlr4BuildTaskPath>
+    <Antlr4BuildTaskPath Condition="'$(MSBuildRuntimeType)' == 'Core' AND '$(Antlr4BuildTaskPath)' == ''">..\tools\netstandard1.5</Antlr4BuildTaskPath>
     <!-- Path to the ANTLR tool itself -->
     <Antlr4ToolPath>..\tools\antlr4-csharp-4.6.7-SNAPSHOT-complete.jar</Antlr4ToolPath>
   </PropertyGroup>

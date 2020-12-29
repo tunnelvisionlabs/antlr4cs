@@ -224,8 +224,11 @@ namespace Antlr4.Build.Tasks
 
                 if (UseCSharpGenerator)
                 {
-#if NETSTANDARD
-                    string framework = "netstandard";
+#if NETSTANDARD1_5
+                    string framework = "netstandard1.5";
+                    string extension = ".dll";
+#elif NETSTANDARD2_0
+                    string framework = "netstandard2.0";
                     string extension = ".dll";
 #else
                     string framework = "net45";

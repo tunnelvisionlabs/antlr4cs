@@ -279,7 +279,7 @@ namespace Antlr4.Runtime.Atn
     public class ParserATNSimulator : ATNSimulator
     {
 #pragma warning disable 0162 // Unreachable code detected
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         public const bool debug = false;
 
         public const bool dfa_debug = false;
@@ -566,7 +566,7 @@ namespace Antlr4.Runtime.Atn
                 DFAState target = GetExistingTargetState(s, t);
                 if (target == null)
                 {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
                     if (dfa_debug && t >= 0)
                     {
                         System.Console.Out.WriteLine("no edge for " + parser.Vocabulary.GetDisplayName(t));
@@ -1793,7 +1793,7 @@ namespace Antlr4.Runtime.Atn
                     continue;
                 }
                 bool evaluatedResult = EvalSemanticContext(pair.pred, outerContext, pair.alt);
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
                 if (debug || dfa_debug)
                 {
                     System.Console.Out.WriteLine("eval pred " + pair + "=" + evaluatedResult);
@@ -1801,7 +1801,7 @@ namespace Antlr4.Runtime.Atn
 #endif
                 if (evaluatedResult)
                 {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
                     if (debug || dfa_debug)
                     {
                         System.Console.Out.WriteLine("PREDICT " + pair.alt);
@@ -2385,7 +2385,7 @@ namespace Antlr4.Runtime.Atn
             return GetTokenName(input.La(1));
         }
 
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
         public virtual void DumpDeadEndConfigs([NotNull] NoViableAltException nvae)
         {
             System.Console.Error.WriteLine("dead end configs: ");
@@ -2570,7 +2570,7 @@ namespace Antlr4.Runtime.Atn
                 return newState;
             }
             DFAState added = dfa.AddState(newState);
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             if (debug && added == newState)
             {
                 System.Console.Out.WriteLine("adding new DFA state: " + newState);
@@ -2587,7 +2587,7 @@ namespace Antlr4.Runtime.Atn
 
         protected internal virtual void ReportAttemptingFullContext([NotNull] DFA dfa, [Nullable] BitSet conflictingAlts, [NotNull] SimulatorState conflictState, int startIndex, int stopIndex)
         {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             if (debug || retry_debug)
             {
                 Interval interval = Interval.Of(startIndex, stopIndex);
@@ -2602,7 +2602,7 @@ namespace Antlr4.Runtime.Atn
 
         protected internal virtual void ReportContextSensitivity([NotNull] DFA dfa, int prediction, [NotNull] SimulatorState acceptState, int startIndex, int stopIndex)
         {
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             if (debug || retry_debug)
             {
                 Interval interval = Interval.Of(startIndex, stopIndex);
@@ -2620,7 +2620,7 @@ namespace Antlr4.Runtime.Atn
         {
             // the DFA state from execATN() that had SLL conflicts
             // configs that LL not SLL considered conflicting
-#if !PORTABLE
+#if !PORTABLE || NETSTANDARD2_0
             if (debug || retry_debug)
             {
                 Interval interval = Interval.Of(startIndex, stopIndex);

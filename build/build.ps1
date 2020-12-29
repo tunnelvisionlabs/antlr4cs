@@ -110,7 +110,7 @@ If (-not (Test-Path $nuget)) {
 		mkdir '..\runtime\CSharp\.nuget'
 	}
 
-	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
+	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/v5.7.0/nuget.exe'
 	Invoke-WebRequest $nugetSource -OutFile $nuget
 	If (-not $?) {
 		$host.ui.WriteErrorLine('Unable to download NuGet executable, aborting!')
@@ -131,6 +131,11 @@ If ($Logger) {
 }
 
 &$nuget 'restore' $SolutionPath -Project2ProjectTimeOut 1200
+if (-not $?) {
+	$host.ui.WriteErrorLine('Restore failed, aborting!')
+	Exit $LASTEXITCODE
+}
+
 &$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if (-not $?) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
@@ -188,6 +193,13 @@ If (-not $NoValidate) {
 	}
 
 	git 'clean' '-dxf' 'DotnetValidationJavaCodegen'
+	dotnet 'run' '--project' '.\DotnetValidationJavaCodegen\DotnetValidation.csproj' '--framework' 'netcoreapp2.1'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	git 'clean' '-dxf' 'DotnetValidationJavaCodegen'
 	&$nuget 'restore' 'DotnetValidationJavaCodegen'
 	&$msbuild '/nologo' '/m' '/nr:false' '/t:Rebuild' $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" '.\DotnetValidationJavaCodegen\DotnetValidation.sln'
 	if (-not $?) {
@@ -236,6 +248,13 @@ If (-not $NoValidate) {
 If (-not $NoValidate) {
 	git 'clean' '-dxf' 'DotnetValidation'
 	dotnet 'run' '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp1.1'
+	if (-not $?) {
+		$host.ui.WriteErrorLine('Build failed, aborting!')
+		Exit $LASTEXITCODE
+	}
+
+	git 'clean' '-dxf' 'DotnetValidation'
+	dotnet 'run' '--project' '.\DotnetValidation\DotnetValidation.csproj' '--framework' 'netcoreapp2.1'
 	if (-not $?) {
 		$host.ui.WriteErrorLine('Build failed, aborting!')
 		Exit $LASTEXITCODE

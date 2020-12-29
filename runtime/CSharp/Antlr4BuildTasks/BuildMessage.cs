@@ -7,7 +7,7 @@ namespace Antlr4.Build.Tasks
     using System.Diagnostics;
     using System.Text.RegularExpressions;
 
-#if !NETSTANDARD
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     internal struct BuildMessage
