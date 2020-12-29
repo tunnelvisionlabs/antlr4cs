@@ -110,7 +110,7 @@ If (-not (Test-Path $nuget)) {
 		mkdir '..\runtime\CSharp\.nuget'
 	}
 
-	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe'
+	$nugetSource = 'https://dist.nuget.org/win-x86-commandline/v5.7.0/nuget.exe'
 	Invoke-WebRequest $nugetSource -OutFile $nuget
 	If (-not $?) {
 		$host.ui.WriteErrorLine('Unable to download NuGet executable, aborting!')
