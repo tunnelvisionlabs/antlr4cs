@@ -131,6 +131,11 @@ If ($Logger) {
 }
 
 &$nuget 'restore' $SolutionPath -Project2ProjectTimeOut 1200
+if (-not $?) {
+	$host.ui.WriteErrorLine('Restore failed, aborting!')
+	Exit $LASTEXITCODE
+}
+
 &$msbuild '/nologo' '/m' '/nr:false' "/t:$Target" $LoggerArgument "/verbosity:$Verbosity" "/p:Configuration=$BuildConfig" "/p:VisualStudioVersion=$VisualStudioVersion" "/p:KeyConfiguration=$KeyConfiguration" $SolutionPath
 if (-not $?) {
 	$host.ui.WriteErrorLine('Build failed, aborting!')
