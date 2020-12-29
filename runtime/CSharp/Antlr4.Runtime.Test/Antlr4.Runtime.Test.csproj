@@ -3,7 +3,8 @@
 
   <PropertyGroup>
     <!-- Note: net452 is used for testing the netstandard1.1 target. -->
-    <TargetFrameworks>net20;net30;net35;portable40-net40+sl5+win8+wp8+wpa81;net40;net45;net452</TargetFrameworks>
+    <!-- Note: net472 is used for testing the netstandard2.0 target. -->
+    <TargetFrameworks>net20;net30;net35;portable40-net40+sl5+win8+wp8+wpa81;net40;net45;net452;net472</TargetFrameworks>
     <EnableDefaultNoneItems>False</EnableDefaultNoneItems>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
@@ -106,6 +107,16 @@
       <ItemGroup>
         <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
           <SetTargetFramework>TargetFramework=netstandard1.1</SetTargetFramework>
+        </ProjectReference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net472'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NET45;NET45PLUS;NET40PLUS;NET35PLUS;NET30PLUS;NET20PLUS</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <ProjectReference Include="..\Antlr4.Runtime\Antlr4.Runtime.csproj">
+          <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
         </ProjectReference>
       </ItemGroup>
     </When>
