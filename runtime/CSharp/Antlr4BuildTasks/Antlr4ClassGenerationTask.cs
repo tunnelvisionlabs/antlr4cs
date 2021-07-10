@@ -151,6 +151,24 @@ namespace Antlr4.Build.Tasks
             set;
         }
 
+        public bool TreatWarningsAsErrors
+        {
+            get;
+            set;
+        }
+
+        public string SuperClass
+        {
+            get;
+            set;
+        }
+
+        public string ContextSuperClass
+        {
+            get;
+            set;
+        }
+
         [Output]
         public ITaskItem[] GeneratedCodeFiles
         {
@@ -306,6 +324,9 @@ namespace Antlr4.Build.Tasks
             wrapper.JavaInstallation = JavaInstallation;
             wrapper.JavaExecutable = JavaExecutable;
             wrapper.UseCSharpGenerator = UseCSharpGenerator;
+            wrapper.TreatWarningsAsErrors = TreatWarningsAsErrors;
+            wrapper.SuperClass = SuperClass;
+            wrapper.ContextSuperClass = ContextSuperClass;
             return wrapper;
         }
 

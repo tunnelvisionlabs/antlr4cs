@@ -40,6 +40,24 @@
     DisplayName="Abstract Grammar"
     Default="false"
     Description="When true, the generated classes are marked as abstract." />
+  <BoolProperty
+    Category="ANTLR"
+    Name="TreatWarningsAsErrors"
+    DisplayName="Treat Warnings as Errors"
+    Default="false"
+    Description="When true, the warning are treated as errors." />
+  <BoolProperty
+    Category="ANTLR"
+    Name="SuperClass"
+    DisplayName="SuperClass"
+    Default=""
+    Description="Set the superclass of the generated parser or lexer. For combined grammars, it sets the superclass of the parser." />
+  <BoolProperty
+    Category="ANTLR"
+    Name="ContextSuperClass"
+    DisplayName="ContextSuperClass"
+    Default=""
+    Description="Specify the super class of parse tree internal nodes. Should derive from ultimately RuleContext at minimum." />
 
   <!--
     The rest of these properties are not ANTLR-specific, but CPS provides no way to inherit properties, so if we fail to

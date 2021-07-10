@@ -149,6 +149,9 @@ The following table describes the properties available for customizing the code 
 | `ForceAtn` | Force ATN | `True` or `False` | When `True`, the generated parser will use `AdaptivePredict` for all decisions, including LL(1) decisions. |
 | `Listener` | Generate Listener | `True` or `False` | When `True`, a parse tree listener interface and base class will be generated for the parLitser. |
 | `Visitor` | Generate Visitor | `True` or `False` | When `True`, a parse tree visitor interface and base class will be generated for the parser. |
+| `TreatWarningsAsErrors` | Treat Warnings as Errors | `True` or `False` | When `True`, the warning are treated as errors. |
+| `SuperClass` | SuperClass | `string` | Set the superclass of the generated parser or lexer. For combined grammars, it sets the superclass of the parser. |
+| `ContextSuperClass` | ContextSuperClass | `string` | Specify the super class of parse tree internal nodes. Should derive from ultimately RuleContext at minimum. |
 
 #### Using the ANTLR Language Support extension
 
