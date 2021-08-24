@@ -207,6 +207,14 @@ namespace Antlr4.Runtime.Dfa
             }
         }
 
+        public bool IsEdgeMapEmpty
+        {
+            get
+            {
+                return edges.IsEmpty;
+            }
+        }
+
         public virtual DFAState GetContextTarget(int invokingState)
         {
             lock (this)
